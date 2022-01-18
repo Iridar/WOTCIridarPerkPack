@@ -31,6 +31,42 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 	return "";
 }
 
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseObj, XComGameState GameState)
+{
+    local XComGameStateHistory	History;
+    local XComGameState_Effect	EffectState;
+    local XComGameState_Ability	AbilityState;
+    local XComGameState_Unit	UnitState;
+
+    if (InString != "TEMPLAR_SHIELD_TAG")
+        return false;
+
+    UnitState = XComGameState_Unit(StrategyParseObj);
+	if (UnitState == none)
+	{
+		History = `XCOMHISTORY;
+		EffectState = XComGameState_Effect(ParseObj);
+		if (EffectState != none)
+		{
+			UnitState = XComGameState_Unit(History.GetGameStateForObjectID(EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID));
+		}
+		else 
+		{
+			AbilityState = XComGameState_Ability(ParseObj);
+			if (AbilityState != none)
+			{
+				UnitState = XComGameState_Unit(History.GetGameStateForObjectID(AbilityState.OwnerStateObject.ObjectID));
+			}
+		}
+	}
+    if (UnitState == none)
+		return false;
+
+	// Grobo: might want to remove the coloring.
+	OutString = "<font color='#a622fa'>" $ class'X2Effect_TemplarShield'.static.GetShieldStrength(UnitState, GameState) $ "</font>";
+
+    return true;
+}
 
 
 /// <summary>
@@ -612,15 +648,6 @@ static function OnPreCreateTemplates()
 }
 /// End issue #412
 
-/// Start Issue #419
-/// <summary>
-/// Called from X2AbilityTag.ExpandHandler
-/// Expands vanilla AbilityTagExpandHandler to allow reflection
-/// </summary>
-static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
-{
-	return false;
-}
 
 /// Start Issue #409
 /// <summary>

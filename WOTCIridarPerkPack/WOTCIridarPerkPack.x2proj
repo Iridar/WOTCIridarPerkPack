@@ -12,6 +12,7 @@
     <Folder Include="Config\" />
     <Folder Include="Config\Base" />
     <Folder Include="Config\Templar" />
+    <Folder Include="ContentForCook\Templar" />
     <Folder Include="Localization\" />
     <Folder Include="ContentForCook" />
     <Folder Include="Src\" />
@@ -37,10 +38,19 @@
     <Content Include="Config\Templar\XComTemplateEditor.ini">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="ContentForCook\IRISoulShot.upk">
+    <Content Include="ContentForCook\Templar\IRIParryRework.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="ContentForCook\IRISoulShotPerk.upk">
+    <Content Include="ContentForCook\Templar\IRIParryReworkAnims.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Templar\IRIParryReworkPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Templar\IRISoulShot.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Templar\IRISoulShotPerk.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentOptions.json">
@@ -55,8 +65,20 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_TemplarShield_ApplyWeaponDamageToUnit.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_SoulShot_ArrowHit.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_TemplarShield.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_TemplarShieldAnimations.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_TemplarShield.uc">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>

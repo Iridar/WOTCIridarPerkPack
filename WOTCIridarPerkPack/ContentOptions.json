@@ -1,5 +1,7 @@
 {
     "sfStandalone": [
+		"IRIParryReworkPerk",
+		"IRIParryReworkAnims",
         "IRISoulShotPerk"
     ]
 }
