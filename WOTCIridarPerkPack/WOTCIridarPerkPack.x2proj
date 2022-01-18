@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Guid>91a1143d-7dbe-4566-95c6-bc5c05499936</Guid>
+    <Name>WOTCIridarPerkPack</Name>
+    <Description>Adds various abilities created by Iridar that can be used in other mods.</Description>
+    <SteamPublishID>0</SteamPublishID>
+    <AssemblyName>WOTCIridarPerkPack</AssemblyName>
+    <RootNamespace>WOTCIridarPerkPack</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="Localization\" />
+    <Folder Include="Content\" />
+    <Folder Include="Src\" />
+    <Folder Include="Src\WOTCIridarPerkPack\" />
+    <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt" />
+    <Content Include="ModPreview.jpg" />
+    <Content Include="Config\XComEditor.ini" />
+    <Content Include="Config\XComEngine.ini" />
+    <Content Include="Config\XComGame.ini" />
+    <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_PerkPack.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
+  </ItemGroup>
+  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
+</Project>
