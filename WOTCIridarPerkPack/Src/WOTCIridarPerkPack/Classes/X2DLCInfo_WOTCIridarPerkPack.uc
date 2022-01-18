@@ -1,5 +1,37 @@
 class X2DLCInfo_WOTCIridarPerkPack extends X2DownloadableContentInfo;
 
+static function string DLCAppendSockets(XComUnitPawn Pawn)
+{
+	local array<SkeletalMeshSocket> NewSockets;
+	local SkeletalMeshSocket		NewSocket;
+
+	// ******************************************************************
+	//						SOUL SHOT
+
+	// For playing the arrow particle effect when firing the soul bow
+	NewSocket = new class'SkeletalMeshSocket';
+    NewSocket.SocketName = 'IRI_SoulBow_Arrow';
+    NewSocket.BoneName = 'RHand';
+    NewSocket.RelativeRotation.Pitch = -1183;
+    NewSocket.RelativeRotation.Yaw = -364;
+	NewSockets.AddItem(NewSocket);
+
+	// For playing the "arrow stuck in body" particle effect when hit by the soul bow
+	NewSocket = new class'SkeletalMeshSocket';
+    NewSocket.SocketName = 'IRI_SoulBow_Arrow_Hit';
+    NewSocket.BoneName = 'Ribcage';
+    NewSocket.RelativeRotation.Yaw = 16384;
+	NewSocket.RelativeRotation.Roll = -16384;
+	NewSockets.AddItem(NewSocket);
+
+	// ******************************************************************
+
+	Pawn.Mesh.AppendSockets(NewSockets, true);
+
+	return "";
+}
+
+
 
 /// <summary>
 /// This method is run if the player loads a saved game that was created prior to this DLC / Mod being installed, and allows the 
@@ -214,17 +246,6 @@ static event OnLoadedSavedGameToTactical()
 
 }
 //#end issue #647
-
-/// Start Issue #21
-/// <summary>
-/// Called from XComUnitPawn.DLCAppendSockets
-/// Allows DLC/Mods to append sockets to units
-/// </summary>
-static function string DLCAppendSockets(XComUnitPawn Pawn)
-{
-	return "";
-}
-/// End Issue #21
 
 /// Start Issue #24
 /// <summary>

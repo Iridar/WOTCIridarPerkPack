@@ -1,24 +1,5 @@
 class X2Ability_PerkPack extends X2Ability;
 
-static function array<X2DataTemplate> CreateTemplates()
-{
-	local array<X2DataTemplate> Templates;
-
-	Templates.AddItem(Create_Ability());
-
-	return Templates;
-}
-
-static function X2AbilityTemplate Create_Ability()
-{
-	local X2AbilityTemplate	Template;
-	
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'TemplateName');
-
-	return Template;
-}
-
-
 //	========================================
 //				COMMON CODE
 //	========================================

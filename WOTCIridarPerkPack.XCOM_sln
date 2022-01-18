@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # XCOM ModBuddy Solution File, Format Version 11.00
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{5DAE07AF-E217-45C1-8DE7-FF99D6011E8A}") = "WOTCIridarPerkPack", "WOTCIridarPerkPack\WOTCIridarPerkPack.x2proj", "{A4C908DE-042E-40E5-BAF7-C1FD7BA668E0}"
+Project("{5DAE07AF-E217-45C1-8DE7-FF99D6011E8A}") = "WOTCIridarPerkPack", "WOTCIridarPerkPack\WOTCIridarPerkPack.x2proj", "{E975A3D4-D6F5-4A8F-97C0-130EFBCCE284}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Default|XCOM 2 = Default|XCOM 2
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A4C908DE-042E-40E5-BAF7-C1FD7BA668E0}.Default|XCOM 2.ActiveCfg = Default|XCOM 2
-		{A4C908DE-042E-40E5-BAF7-C1FD7BA668E0}.Default|XCOM 2.Build.0 = Default|XCOM 2
+		{E975A3D4-D6F5-4A8F-97C0-130EFBCCE284}.Default|XCOM 2.ActiveCfg = Default|XCOM 2
+		{E975A3D4-D6F5-4A8F-97C0-130EFBCCE284}.Default|XCOM 2.Build.0 = Default|XCOM 2
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
