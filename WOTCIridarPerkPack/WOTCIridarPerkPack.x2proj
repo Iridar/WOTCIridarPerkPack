@@ -78,9 +78,6 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_TemplarShieldAnimations.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_TemplarShield.uc">
-      <SubType>Content</SubType>
-    </Content>
   </ItemGroup>
   <PropertyGroup>
     <SolutionRoot>$(MSBuildProjectDirectory)\..\</SolutionRoot>

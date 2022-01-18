@@ -53,8 +53,8 @@ static function X2AbilityTemplate TemplarShield()
 	// Effects
 	AnimSetEffect = new class'X2Effect_TemplarShieldAnimations';
 	AnimSetEffect.BuildPersistentEffect(1, false, true,, eGameRule_PlayerTurnBegin);
-	AnimSetEffect.AddAnimSetWithPath("WoTC_Shield_Animations.Anims.AS_Shield");
-	AnimSetEffect.AddAnimSetWithPath("IRIParryReworkAnims.Anims.AS_TemplarShield"); // Flinch replaced with CS animations, Ballistic Shields' Hurt replaced by original templar animations.
+	AnimSetEffect.AddAnimSetWithPath("IRIParryReworkAnims.Anims.AS_BallisticShield");
+	AnimSetEffect.AddAnimSetWithPath("IRIParryReworkAnims.Anims.AS_TemplarShield");
 	Template.AddTargetEffect(AnimSetEffect);
 
 	ShieldedEffect = new class'X2Effect_TemplarShield';
