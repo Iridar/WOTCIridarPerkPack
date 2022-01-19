@@ -86,6 +86,7 @@ static function X2AbilityTemplate Singe()
 	Template.TriggerChance = GetConfigFloat('IRI_Singe_TriggerChance');
 
 	Template.AdditionalAbilities.AddItem('IRI_Singe_Passive');
+	Template.DefaultSourceItemSlot = eInvSlot_PrimaryWeapon;
 
 	Template.bCrossClassEligible = GetConfigBool('IRI_Singe_bCrossClassEligible');
 

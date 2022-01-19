@@ -14,22 +14,21 @@ LocPromotionPopupText="<bullet/> Ends turn when used.<br/><bullet/> Shield stren
 
 [IRI_Singe_Passive X2AbilityTemplate]
 LocFriendlyName="Singe"
-LocLongDescription="Primary weapon attacks have a <Ability:SINGE_TRIGGER_CHANCE/>% chance to set fire to enemies, and Shred <Ability:SINGE_ARMOR_SHRED/> armor."
-LocHelpText="Primary weapon attacks have a <Ability:SINGE_TRIGGER_CHANCE/>% chance to set fire to enemies, and Shred <Ability:SINGE_ARMOR_SHRED/> armor."
+LocLongDescription="Your <Ability:WeaponName/> attacks gain a <Ability:IRI_Singe_TriggerChance/>% chance to set the target on fire and Shred <Ability:IRI_Tag_Singe_ArmorShred/> armor."
+LocHelpText="Your <Ability:WeaponName/> attacks gain a <Ability:IRI_Singe_TriggerChance/>% chance to set the target on fire and Shred <Ability:IRI_Tag_Singe_ArmorShred/> armor."
 LocPromotionPopupText=""
 LocFlyOverText="Singe"
 
 [IRI_Singe X2AbilityTemplate]
 LocFriendlyName="Singe"
-LocLongDescription="Primary weapon attacks have a <Ability:SINGE_TRIGGER_CHANCE/>% chance to set fire to enemies, and Shred <Ability:SINGE_ARMOR_SHRED/> armor."
-LocHelpText="Primary weapon attacks have a <Ability:SINGE_TRIGGER_CHANCE/>% chance to set fire to enemies, and Shred <Ability:SINGE_ARMOR_SHRED/> armor."
+LocLongDescription="Your <Ability:WeaponName/> attacks have a <Ability:IRI_Singe_TriggerChance/>% chance to set the target on fire and Shred <Ability:IRI_Tag_Singe_ArmorShred/> armor."
+LocHelpText="Your <Ability:WeaponName/> attacks have a <Ability:IRI_Singe_TriggerChance/>% chance to set the target on fire and Shred <Ability:IRI_Tag_Singe_ArmorShred/> armor."
 LocPromotionPopupText=""
 LocFlyOverText="Singe"
 
 [IRI_Supercharge X2AbilityTemplate]
 LocFriendlyName="Supercharge"
-LocLongDescription="Primary weapon attacks will bypass some of the Armor of enemies at close range, and have a bonus Crit chance against them."
-LocHelpText="Primary weapon attacks will bypass some of the Armor of enemies at close range, and have a bonus Crit chance against them."
-LocPromotionPopupText="<bullet/> The bonuses are the strongest within 2 tiles, and equal to +6 Pierce and +20 Crit. As distances increases, bonuses get weaker, and disappear completely at 8 tiles."
+LocLongDescription="Your <Ability:WeaponName/> attacks gain up to <Ability:IRI_Supercharge_ExtraArmorPiercing/> Armor Pierce and <Ability:IRI_Supercharge_ExtraCritChance/> Crit Chance against targets at close range."
+LocHelpText="Your <Ability:WeaponName/> attacks gain up to <Ability:IRI_Supercharge_ExtraArmorPiercing/> Armor Pierce and <Ability:IRI_Supercharge_ExtraCritChance/> Crit Chance against targets at close range."
+LocPromotionPopupText=""
 LocFlyOverText="Supercharge"
-

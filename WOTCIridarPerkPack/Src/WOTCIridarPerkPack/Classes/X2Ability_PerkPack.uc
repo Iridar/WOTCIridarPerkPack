@@ -114,6 +114,22 @@ final static function array<int> GetConfigArrayInt(name Property)
 	return ReturnArray;
 }
 
+final static function int GetArrayMaxInt(const array<int> IntArray)
+{
+	local int Max;
+	local int Val;
+
+	foreach IntArray(Val)
+	{
+		if (Val > Max)
+		{
+			Max = Val;
+		}
+	}
+	return Max;
+}
+
+
 final static function WeaponDamageValue GetAbilityDamage(name AbilityName)
 {
 	local WeaponDamageValue EmptyDamageValue;

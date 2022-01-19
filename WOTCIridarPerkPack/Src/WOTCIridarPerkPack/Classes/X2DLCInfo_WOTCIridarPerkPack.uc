@@ -31,6 +31,32 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 	return "";
 }
 
+static function bool AbilityTagExpandHandler(string InString, out string OutString)
+{
+	local name TagText;
+	
+	TagText = name(InString);
+	switch (TagText)
+	{
+	case 'IRI_Singe_TriggerChance':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Singe_TriggerChance'));
+		return true;
+	case 'IRI_Tag_Singe_ArmorShred':
+		OutString = string(class'X2Ability_PerkPack'.static.GetAbilityDamage('IRI_Singe').Shred);
+		return true;
+
+	case 'IRI_Supercharge_ExtraArmorPiercing':
+		OutString = string(class'X2Ability_PerkPack'.static.GetArrayMaxInt(class'X2Ability_PerkPack'.static.GetConfigArrayInt('IRI_Supercharge_ExtraArmorPiercing')));
+		return true;
+	case 'IRI_Supercharge_ExtraCritChance':
+		OutString = string(class'X2Ability_PerkPack'.static.GetArrayMaxInt(class'X2Ability_PerkPack'.static.GetConfigArrayInt('IRI_Supercharge_ExtraCritChance')));
+		return true;
+
+	default:
+		return false;
+    }  
+}
+
 static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseObj, XComGameState GameState)
 {
     local XComGameStateHistory	History;
@@ -62,7 +88,6 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
     if (UnitState == none)
 		return false;
 
-	// Grobo: might want to remove the coloring.
 	OutString = "<font color='#a622fa'>" $ class'X2Effect_TemplarShield'.static.GetShieldStrength(UnitState, GameState) $ "</font>";
 
     return true;
@@ -241,15 +266,6 @@ static function bool UpdateMissionSpawningInfo(StateObjectReference MissionRef)
 static function string GetAdditionalMissionDesc(StateObjectReference MissionRef)
 {
 	return "";
-}
-
-/// <summary>
-/// Called from X2AbilityTag:ExpandHandler after processing the base game tags. Return true (and fill OutString correctly)
-/// to indicate the tag has been expanded properly and no further processing is needed.
-/// </summary>
-static function bool AbilityTagExpandHandler(string InString, out string OutString)
-{
-	return false;
 }
 
 /// <summary>
