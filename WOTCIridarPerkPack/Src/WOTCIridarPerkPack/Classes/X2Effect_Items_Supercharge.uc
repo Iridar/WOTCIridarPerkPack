@@ -1,46 +1,64 @@
 class X2Effect_Items_Supercharge extends X2Effect_Persistent;
 
-/*
+var array<int> ExtraArmorPiercing;
+var array<int> ExtraCritChance;
+
 function int GetExtraArmorPiercing(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData)
 {
-	local XComGameState_Item SourceWeapon;
-	local XComGameState_Unit TargetUnit;
-	local int Tiles;
+	local XComGameState_Unit			TargetUnit;
+	local XComGameState_Destructible	Destructible;
+	local int							Tiles;
 
-	TargetUnit = XComGameState_Unit(TargetDamageable);
-	SourceWeapon = AbilityState.GetSourceWeapon();
-
-	if (SourceWeapon != none && SourceWeapon.ObjectID == EffectState.ApplyEffectParameters.ItemStateObjectRef.ObjectID)
+	if (ExtraArmorPiercing.Length > 0 &&
+		AbilityState.SourceWeapon.ObjectID == EffectState.ApplyEffectParameters.ItemStateObjectRef.ObjectID)
 	{
-		Tiles = Attacker.TileDistanceBetween(TargetUnit);
-		if (Tiles > class'X2Ability_SlagAndMelta'.default.MELTA_BONUS_PIERCE.Length)
+		TargetUnit = XComGameState_Unit(TargetDamageable);
+		if (TargetUnit != none)
 		{
-			Tiles = class'X2Ability_SlagAndMelta'.default.MELTA_BONUS_PIERCE.Length - 1;
+			Tiles = Attacker.TileDistanceBetween(TargetUnit);
+			if (Tiles > ExtraArmorPiercing.Length)
+			{
+				Tiles = ExtraArmorPiercing.Length - 1;
+			}
+			return ExtraArmorPiercing[Tiles]; 
 		}
+		else
+		{
+			Destructible = XComGameState_Destructible(TargetDamageable);
+			if (Destructible == none)
+				return 0;
 
-		return class'X2Ability_SlagAndMelta'.default.MELTA_BONUS_PIERCE[Tiles]; 
+			Tiles = class'Help'.static.TileDistanceBetweenUnitAndTile(Attacker, Destructible.TileLocation);
+			if (Tiles > ExtraArmorPiercing.Length)
+			{
+				Tiles = ExtraArmorPiercing.Length - 1;
+			}
+			return ExtraArmorPiercing[Tiles]; 
+		}
 	}
 	return 0;
 }
 
 function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit Attacker, XComGameState_Unit Target, XComGameState_Ability AbilityState, class<X2AbilityToHitCalc> ToHitType, bool bMelee, bool bFlanking, bool bIndirectFire, out array<ShotModifierInfo> ShotModifiers)
 {
-	local int Tiles;
-	local XComGameState_Item SourceWeapon;
-	local ShotModifierInfo ShotInfo;
+	local ShotModifierInfo	ShotInfo;
+	local int				Tiles;
 
-	SourceWeapon = AbilityState.GetSourceWeapon();
-	if (SourceWeapon != none && SourceWeapon.ObjectID == EffectState.ApplyEffectParameters.ItemStateObjectRef.ObjectID)
+	if (ExtraCritChance.Length > 0 &&
+		AbilityState.SourceWeapon.ObjectID == EffectState.ApplyEffectParameters.ItemStateObjectRef.ObjectID)
 	{
 		Tiles = Attacker.TileDistanceBetween(Target);
-		if (Tiles > class'X2Ability_SlagAndMelta'.default.MELTA_BONUS_CRIT.Length)
+		if (Tiles > ExtraCritChance.Length)
 		{
-			Tiles = class'X2Ability_SlagAndMelta'.default.MELTA_BONUS_CRIT.Length - 1;
+			Tiles = ExtraCritChance.Length - 1;
 		}
-		ShotInfo.Value = class'X2Ability_SlagAndMelta'.default.MELTA_BONUS_CRIT[Tiles];
-
-		ShotInfo.ModType = eHit_Crit;
-		ShotInfo.Reason = FriendlyName;
-		ShotModifiers.AddItem(ShotInfo);
+		ShotInfo.Value = ExtraCritChance[Tiles]; 
+		
+		if (ShotInfo.Value != 0)
+		{
+			ShotInfo.ModType = eHit_Crit;
+			ShotInfo.Reason = FriendlyName;
+			ShotModifiers.AddItem(ShotInfo);
+		}
 	}
-}*/
+}

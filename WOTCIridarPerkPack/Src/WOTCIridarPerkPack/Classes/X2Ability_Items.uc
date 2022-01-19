@@ -1,14 +1,5 @@
 class X2Ability_Items extends X2Ability_PerkPack;
 
-
-var config WeaponDamageValue SLAG_BONUS_DAMAGE;
-var config int SLAG_TRIGGER_CHANCE;
-var config int SLAG_BURN_DAMAGE_PER_TICK;
-var config int SLAG_BURN_DAMAGE_PER_TICK_SPREAD;
-
-var config array<int> MELTA_BONUS_PIERCE;
-var config array<int> MELTA_BONUS_CRIT;
-
 var config bool SLAG_IS_CROSS_CLASS_COMPATIBLE;
 var config bool MELTA_IS_CROSS_CLASS_COMPATIBLE;
 
@@ -18,7 +9,6 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(Supercharge());
 	
-
 	Templates.AddItem(Singe());
 	Templates.AddItem(PurePassive('IRI_Singe_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_Singe",, 'eAbilitySource_Item', true));
 
@@ -30,7 +20,7 @@ static function X2AbilityTemplate Singe()
 	local X2AbilityTemplate					Template;
 	local X2Effect_ApplyWeaponDamage		WeaponDamageEffect;
 	local X2AbilityTrigger_EventListener	Trigger;
-	local X2Condition_UnitProperty			LivingTargetOnlyProperty;
+	local X2Condition_UnitProperty			LivingTargetProperty;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_Singe');
 
@@ -58,12 +48,12 @@ static function X2AbilityTemplate Singe()
 
 	// Allow friendly fire, if the triggering ability does.
 	//Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
-	LivingTargetOnlyProperty = new class'X2Condition_UnitProperty';
-	LivingTargetOnlyProperty.ExcludeAlive = false;
-	LivingTargetOnlyProperty.ExcludeDead = true;
-	LivingTargetOnlyProperty.ExcludeFriendlyToSource = false;
-	LivingTargetOnlyProperty.ExcludeHostileToSource = false;
-	Template.AbilityTargetConditions.AddItem(LivingTargetOnlyProperty);
+	LivingTargetProperty = new class'X2Condition_UnitProperty';
+	LivingTargetProperty.ExcludeAlive = false;
+	LivingTargetProperty.ExcludeDead = true;
+	LivingTargetProperty.ExcludeFriendlyToSource = false;
+	LivingTargetProperty.ExcludeHostileToSource = false;
+	Template.AbilityTargetConditions.AddItem(LivingTargetProperty);
 	
 	// Ability Effects
 	Template.bAllowAmmoEffects = false;
@@ -93,7 +83,11 @@ static function X2AbilityTemplate Singe()
 	Template.MergeVisualizationFn = FollowUpShot_MergeVisualization;
 	Template.BuildInterruptGameStateFn = none;
 
+	Template.TriggerChance = GetConfigFloat('IRI_Singe_TriggerChance');
+
 	Template.AdditionalAbilities.AddItem('IRI_Singe_Passive');
+
+	Template.bCrossClassEligible = GetConfigBool('IRI_Singe_bCrossClassEligible');
 
 	return Template;
 }
@@ -113,7 +107,11 @@ static function X2AbilityTemplate Supercharge()
 	SuperchargeEffect = new class'X2Effect_Items_Supercharge';
 	SuperchargeEffect.BuildPersistentEffect(1, true);
 	SuperchargeEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	SuperchargeEffect.ExtraArmorPiercing = GetConfigArrayInt('IRI_Supercharge_ExtraArmorPiercing');
+	SuperchargeEffect.ExtraCritChance = GetConfigArrayInt('IRI_Supercharge_ExtraCritChance');
 	Template.AddTargetEffect(SuperchargeEffect);
+
+	Template.bCrossClassEligible = GetConfigBool('IRI_Supercharge_bCrossClassEligible');
 
 	return Template;
 }

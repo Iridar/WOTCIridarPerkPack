@@ -10,7 +10,21 @@ var private config array<PerkPackConfigStruct> PerkPackConfig;
 var private config array<WeaponDamageValue> AbilityDamage;
 
 
+final static function bool GetConfigBool(name Property, optional bool bDefaultValue = false)
+{
+	local int Index;
 
+	Index = default.PerkPackConfig.Find('P', Property);
+	if (Index != INDEX_NONE)
+	{
+		return bool(default.PerkPackConfig[Index].V);
+	}
+
+	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
+	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
+
+	return bDefaultValue;
+}
 
 final static function int GetConfigInt(name Property)
 {
@@ -74,6 +88,30 @@ final static function string GetConfigString(name Property)
 	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
 
 	return "";
+}
+
+final static function array<int> GetConfigArrayInt(name Property)
+{
+	local array<string> StringArray;
+	local array<int> ReturnArray;
+	local int Index;
+
+	Index = default.PerkPackConfig.Find('P', Property);
+	if (Index != INDEX_NONE)
+	{
+		StringArray = default.PerkPackConfig[Index].VA;
+		for (Index = 0; Index < StringArray.Length; Index++)
+		{
+			ReturnArray.AddItem(int(StringArray[Index]));
+		}
+	}
+	else
+	{
+		`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
+		`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
+	}
+
+	return ReturnArray;
 }
 
 final static function WeaponDamageValue GetAbilityDamage(name AbilityName)
