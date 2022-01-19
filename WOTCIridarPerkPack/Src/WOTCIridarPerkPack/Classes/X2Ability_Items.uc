@@ -30,6 +30,7 @@ static function X2AbilityTemplate Singe()
 	local X2AbilityTemplate					Template;
 	local X2Effect_ApplyWeaponDamage		WeaponDamageEffect;
 	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Condition_UnitProperty			LivingTargetOnlyProperty;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_Singe');
 
@@ -54,18 +55,32 @@ static function X2AbilityTemplate Singe()
 
 	// Target Conditions
 	// TODO: Visibility condition?
-	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+
+	// Allow friendly fire, if the triggering ability does.
+	//Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	LivingTargetOnlyProperty = new class'X2Condition_UnitProperty';
+	LivingTargetOnlyProperty.ExcludeAlive = false;
+	LivingTargetOnlyProperty.ExcludeDead = true;
+	LivingTargetOnlyProperty.ExcludeFriendlyToSource = false;
+	LivingTargetOnlyProperty.ExcludeHostileToSource = false;
+	Template.AbilityTargetConditions.AddItem(LivingTargetOnlyProperty);
+	
+	// Ability Effects
+	Template.bAllowAmmoEffects = false;
+	Template.bAllowBonusWeaponEffects = false;
+	Template.bAllowFreeFireWeaponUpgrade = false;
 
 	//	putting the burn effect first so it visualizes correctly
-	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateBurningStatusEffect(2, 1)); // TODO: Configurable damage
+	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateBurningStatusEffect(GetConfigInt('IRI_Singe_BurnDamage'), GetConfigInt('IRI_Singe_BurnDamage_Spread')));
 
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
-	WeaponDamageEffect.bIgnoreBaseDamage = true;
 	WeaponDamageEffect.bAllowFreeKill = false;
 	WeaponDamageEffect.bAllowWeaponUpgrade = false;
-	WeaponDamageEffect.EffectDamageValue.Damage = 1; // TODO: Configurable damage
+	WeaponDamageEffect.bIgnoreBaseDamage = true;
+	WeaponDamageEffect.EffectDamageValue = GetAbilityDamage(Template.DataName);
 	Template.AddTargetEffect(WeaponDamageEffect);
 
+	// State and Vis
 	Template.FrameAbilityCameraType = eCameraFraming_Never; 
 	Template.bSkipExitCoverWhenFiring = true;
 	Template.bSkipFireAction = true;

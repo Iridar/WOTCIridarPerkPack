@@ -1,4 +1,97 @@
-class X2Ability_PerkPack extends X2Ability;
+class X2Ability_PerkPack extends X2Ability config(IridarPerkPack);
+
+struct PerkPackConfigStruct
+{
+	var name P;
+	var string V;
+	var array<string> VA;
+};
+var private config array<PerkPackConfigStruct> PerkPackConfig;
+var private config array<WeaponDamageValue> AbilityDamage;
+
+
+
+
+final static function int GetConfigInt(name Property)
+{
+	local int Index;
+
+	Index = default.PerkPackConfig.Find('P', Property);
+	if (Index != INDEX_NONE)
+	{
+		return int(default.PerkPackConfig[Index].V);
+	}
+
+	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
+	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
+
+	return 0;
+}
+
+final static function float GetConfigFloat(name Property)
+{
+	local int Index;
+
+	Index = default.PerkPackConfig.Find('P', Property);
+	if (Index != INDEX_NONE)
+	{
+		return float(default.PerkPackConfig[Index].V);
+	}
+
+	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
+	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
+
+	return 0;
+}
+
+final static function name GetConfigName(name Property)
+{
+	local int Index;
+
+	Index = default.PerkPackConfig.Find('P', Property);
+	if (Index != INDEX_NONE)
+	{
+		return name(default.PerkPackConfig[Index].V);
+	}
+
+	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
+	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
+
+	return '';
+}
+
+final static function string GetConfigString(name Property)
+{
+	local int Index;
+
+	Index = default.PerkPackConfig.Find('P', Property);
+	if (Index != INDEX_NONE)
+	{
+		return default.PerkPackConfig[Index].V;
+	}
+
+	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
+	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
+
+	return "";
+}
+
+final static function WeaponDamageValue GetAbilityDamage(name AbilityName)
+{
+	local WeaponDamageValue EmptyDamageValue;
+	local int Index;
+
+	Index = default.AbilityDamage.Find('Tag', AbilityName);
+	if (Index != INDEX_NONE)
+	{
+		return default.AbilityDamage[Index];
+	}
+
+	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find AbilityDamage for ability:" @ AbilityName,, 'WOTCIridarPerkPack');
+
+	EmptyDamageValue.Damage = 0;
+	return EmptyDamageValue;
+}
 
 //	========================================
 //				TRIGGERS

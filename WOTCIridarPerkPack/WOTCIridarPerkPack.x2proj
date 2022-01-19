@@ -11,6 +11,7 @@
   <ItemGroup>
     <Folder Include="Config\" />
     <Folder Include="Config\Base" />
+    <Folder Include="Config\ItemAbilities" />
     <Folder Include="Config\Templar" />
     <Folder Include="ContentForCook\Templar" />
     <Folder Include="Localization\" />
@@ -33,6 +34,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Config\Base\XComGameData.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\ItemAbilities\XComIridarPerkPack.ini">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Config\Templar\XComTemplateEditor.ini">
