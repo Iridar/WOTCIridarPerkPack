@@ -84,18 +84,15 @@ static final function int GetShieldStrength(const XComGameState_Unit UnitState, 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager EventMgr;
-	local XComGameState_Unit UnitState;
 	local Object EffectObj;
 
 	super.RegisterForEvents(EffectGameState);
 
 	EventMgr = `XEVENTMGR;
-
-	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectGameState.ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	EffectObj = EffectGameState;
 
-	EventMgr.RegisterForEvent(EffectObj, 'OverrideHitEffects', TemplarShield_OnOverrideHitEffects, ELD_Immediate, 40, /*UnitState*/);
-	EventMgr.RegisterForEvent(EffectObj, 'OverrideMetaHitEffect', TemplarShield_OnOverrideMetaHitEffect, ELD_Immediate, 40, /*UnitState*/);
+	EventMgr.RegisterForEvent(EffectObj, 'OverrideHitEffects', TemplarShield_OnOverrideHitEffects, ELD_Immediate, 40);
+	EventMgr.RegisterForEvent(EffectObj, 'OverrideMetaHitEffect', TemplarShield_OnOverrideMetaHitEffect, ELD_Immediate, 40);
 
 	// Has to be ELD_Immediate so that we can get the target Unit State from History before the ability has gone through and see if it had the Templar Shield effect.
 	EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', TemplarShield_OnAbilityActivated, ELD_Immediate, 50, /*pre filter object*/,, /* callback data*/);

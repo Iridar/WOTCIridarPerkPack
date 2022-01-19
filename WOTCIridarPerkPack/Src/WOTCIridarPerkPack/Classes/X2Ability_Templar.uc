@@ -29,7 +29,7 @@ static function X2AbilityTemplate TemplarShield()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TemplarShield');
 
 	// Icon Setup
-	Template.IconImage = "img:///IRIParryReworkPerk.UIPerk_TemplarShield";
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_TemplarShield";
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CORPORAL_PRIORITY;

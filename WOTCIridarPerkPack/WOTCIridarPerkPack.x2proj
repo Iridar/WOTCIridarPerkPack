@@ -38,6 +38,9 @@
     <Content Include="Config\Templar\XComTemplateEditor.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\IRIPerkPack_UILibrary.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRIParryRework.upk">
       <SubType>Content</SubType>
     </Content>
@@ -59,16 +62,28 @@
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Items.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_PerkPack.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_ApplyWeaponDamageToTerrain_NoFlinch.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_TemplarShield_ApplyWeaponDamageToUnit.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_Items_Singe.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_Items_Supercharge.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_SoulShot_ArrowHit.uc">
       <SubType>Content</SubType>
     </Content>
