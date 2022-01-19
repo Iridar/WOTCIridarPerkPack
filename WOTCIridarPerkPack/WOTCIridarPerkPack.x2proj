@@ -39,6 +39,9 @@
     <Content Include="Config\ItemAbilities\XComIridarPerkPack.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\Templar\XComGameData_SoldierSkills.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Templar\XComTemplateEditor.ini">
       <SubType>Content</SubType>
     </Content>

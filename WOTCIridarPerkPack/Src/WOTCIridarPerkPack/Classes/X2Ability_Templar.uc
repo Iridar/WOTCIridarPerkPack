@@ -1,13 +1,6 @@
 class X2Ability_Templar extends X2Ability_PerkPack;
 
-
-/*
-To do: 
-compatibility with other perks? 
-- Ghost
-- Channel 
-- Overcharge
-*/
+// TODO: Randomize SoulShot effect rotation? Ahh probably not possible without rotating the socket. Rotate the socket randomly maybe?
 
 static function array<X2DataTemplate> CreateTemplates()
 {
@@ -100,6 +93,7 @@ static function X2AbilityTemplate SoulShot()
 	local X2Condition_UnitProperty          TargetProperty;
 	local X2Effect_ApplyWeaponDamage        WeaponDamageEffect;
 	local X2AbilityCooldown                 Cooldown;
+	local X2Condition_Visibility            TargetVisibilityCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SoulShot');
 
@@ -124,7 +118,11 @@ static function X2AbilityTemplate SoulShot()
 	TargetProperty.FailOnNonUnits = true;
 	TargetProperty.TreatMindControlledSquadmateAsHostile = true;
 	Template.AbilityTargetConditions.AddItem(TargetProperty);
-	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+
+	TargetVisibilityCondition = new class'X2Condition_Visibility';
+	TargetVisibilityCondition.bRequireGameplayVisible = true;
+	TargetVisibilityCondition.bAllowSquadsight = true;
+	Template.AbilityTargetConditions.AddItem(TargetVisibilityCondition);
 
 	// Costs
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
@@ -150,7 +148,6 @@ static function X2AbilityTemplate SoulShot()
 
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.ActivationSpeech = 'IonicStorm';
-	//Template.CinescriptCameraType = "Psionic_FireAtUnit"; // TODO: Cinecam
 	Template.CinescriptCameraType = "IRI_SoulShot";
 
 	Template.bFrameEvenWhenUnitIsHidden = true;

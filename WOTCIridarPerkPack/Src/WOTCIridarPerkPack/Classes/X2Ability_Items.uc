@@ -1,8 +1,5 @@
 class X2Ability_Items extends X2Ability_PerkPack;
 
-var config bool SLAG_IS_CROSS_CLASS_COMPATIBLE;
-var config bool MELTA_IS_CROSS_CLASS_COMPATIBLE;
-
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
