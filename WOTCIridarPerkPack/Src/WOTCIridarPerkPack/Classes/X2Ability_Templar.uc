@@ -8,8 +8,58 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(TemplarShield());
 	Templates.AddItem(SoulShot());
+	Templates.AddItem(Apotheosis());
 
 	return Templates;
+}
+
+static function X2AbilityTemplate Apotheosis()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_Persistent	PersistentEffect;
+	
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_Apotheosis');
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_TemplarShield";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CORPORAL_PRIORITY;
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+ 	Template.AddShooterEffectExclusions();
+
+	// Triggering and Targeting
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Costs
+	Template.AbilityCosts.AddItem(default.FreeActionCost);
+
+	// Effects
+	PersistentEffect = new class'X2Effect_Persistent';
+	PersistentEffect.BuildPersistentEffect(2, false, true,, eGameRule_PlayerTurnBegin);
+	PersistentEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	PersistentEffect.EffectName = 'IRI_Apotheosis_Effect';
+	Template.AddTargetEffect(PersistentEffect);
+
+	// State and Viz
+	Template.Hostility = eHostility_Neutral;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	//Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.bShowActivation = false; // Don't show flyover, it obscures the fancy animation.
+	Template.CustomSelfFireAnim = 'HL_Apotheosis';
+	Template.CustomFireAnim = 'HL_Apotheosis';
+	Template.CinescriptCameraType = "Templar_Ghost";
+	Template.bSkipExitCoverWhenFiring = true;
+	Template.bSkipFireAction = false;
+
+	return Template;
 }
 
 static function X2AbilityTemplate TemplarShield()

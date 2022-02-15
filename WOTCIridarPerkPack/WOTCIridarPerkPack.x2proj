@@ -51,6 +51,12 @@
     <Content Include="ContentForCook\IRIPerkPack_UILibrary.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIApotheosis.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Templar\IRIApotheosisPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRIParryRework.upk">
       <SubType>Content</SubType>
     </Content>

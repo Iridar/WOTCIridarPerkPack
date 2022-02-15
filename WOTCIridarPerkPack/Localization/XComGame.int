@@ -1,3 +1,10 @@
+[IRI_Apotheosis X2AbilityTemplate]
+LocFriendlyName="Apotheosis"
+LocLongDescription="Look ma, a super saiyan!"
+LocHelpText="Look ma, a super saiyan!"
+LocPromotionPopupText="<bullet/> Ends turn when used.<br/><bullet/> Shield strength will increase with shard gauntlets' tech level."
+;LocFlyOverText="Templar Shield"
+
 [IRI_SoulShot X2AbilityTemplate]
 LocFriendlyName="Soul Shot"
 LocLongDescription="Any directed <Ability:WeaponName/> shot, hit or miss, will mark the target, increasing your squad's aim by +<Ability:HOLOTARGETAIMBONUS/> against this target."
@@ -11,6 +18,7 @@ LocLongDescription="Use your shard gauntlets to generate a psionic shield and ga
 LocHelpText="Use your shard gauntlets to generate a psionic shield and gain <Ability:TEMPLAR_SHIELD_TAG/> Shield HP that will last until the start of your next turn. Can be used with Momentum actions."
 LocPromotionPopupText="<bullet/> Ends turn when used.<br/><bullet/> Shield strength will increase with shard gauntlets' tech level."
 ;LocFlyOverText="Templar Shield"
+
 
 [IRI_Singe_Passive X2AbilityTemplate]
 LocFriendlyName="Singe"
