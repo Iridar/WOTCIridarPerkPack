@@ -15,13 +15,13 @@ static function array<X2DataTemplate> CreateTemplates()
 
 static function X2AbilityTemplate Apotheosis()
 {
-	local X2AbilityTemplate		Template;
-	local X2Effect_Persistent	PersistentEffect;
+	local X2AbilityTemplate			 Template;
+	local X2Effect_TemplarApotheosis PersistentEffect;
 	
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_Apotheosis');
 
 	// Icon Setup
-	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_TemplarShield";
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_holywarrior";
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CORPORAL_PRIORITY;
@@ -38,11 +38,12 @@ static function X2AbilityTemplate Apotheosis()
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);
 
+	AddCooldown(Template, GetConfigInt('IRI_Apotheosis_Cooldown'));
+
 	// Effects
-	PersistentEffect = new class'X2Effect_Persistent';
-	PersistentEffect.BuildPersistentEffect(2, false, true,, eGameRule_PlayerTurnBegin);
+	PersistentEffect = new class'X2Effect_TemplarApotheosis';
+	PersistentEffect.BuildPersistentEffect(GetConfigInt('IRI_Apotheosis_Duration'), false, true,, eGameRule_PlayerTurnBegin);
 	PersistentEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
-	PersistentEffect.EffectName = 'IRI_Apotheosis_Effect';
 	Template.AddTargetEffect(PersistentEffect);
 
 	// State and Viz
@@ -177,11 +178,10 @@ static function X2AbilityTemplate SoulShot()
 	// Costs
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.bConsumeAllPoints = true;
+	ActionPointCost.iNumPoints = 1;
 	Template.AbilityCosts.AddItem(ActionPointCost);
 	
-	Cooldown = new class'X2AbilityCooldown';
-	Cooldown.iNumTurns = 0;
-	Template.AbilityCooldown = Cooldown;
+	AddCooldown(Template, GetConfigInt('IRI_SoulShot_Cooldown'));
 
 	// Effects
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';

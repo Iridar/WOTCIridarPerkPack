@@ -42,6 +42,9 @@
     <Content Include="Config\Templar\XComGameData_SoldierSkills.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\Templar\XComIridarPerkPack.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Templar\XComTemplateEditor.ini">
       <SubType>Content</SubType>
     </Content>
@@ -101,6 +104,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_SoulShot_ArrowHit.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_TemplarApotheosis.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_TemplarShield.uc">

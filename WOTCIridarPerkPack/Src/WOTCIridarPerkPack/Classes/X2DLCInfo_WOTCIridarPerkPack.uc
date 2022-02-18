@@ -52,6 +52,17 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 		OutString = string(class'X2Ability_PerkPack'.static.GetArrayMaxInt(class'X2Ability_PerkPack'.static.GetConfigArrayInt('IRI_Supercharge_ExtraCritChance')));
 		return true;
 
+	case 'IRI_SoulShot_Cooldown':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_SoulShot_Cooldown'));
+		return true;
+
+	case 'IRI_Apotheosis_Cooldown':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Apotheosis_Cooldown'));
+		return true;
+	case 'IRI_Apotheosis_Duration':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Apotheosis_Duration'));
+		return true;
+
 	default:
 		return false;
     }  

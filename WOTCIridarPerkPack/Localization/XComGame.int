@@ -1,16 +1,17 @@
 [IRI_Apotheosis X2AbilityTemplate]
 LocFriendlyName="Apotheosis"
-LocLongDescription="Look ma, a super saiyan!"
-LocHelpText="Look ma, a super saiyan!"
-LocPromotionPopupText="<bullet/> Ends turn when used.<br/><bullet/> Shield strength will increase with shard gauntlets' tech level."
-;LocFlyOverText="Templar Shield"
+LocLongDescription="For the next <Ability:IRI_Apotheosis_Duration/> turns, your Focus-granting abilities will grant an additional point of Focus, and Focus-costing abilities will no longer end turn."
+LocHelpText="For the next <Ability:IRI_Apotheosis_Duration/> turns, your Focus-granting abilities will grant an additional point of Focus, and Focus-costing abilities will no longer end turn."
+LocPromotionPopupText="<bullet/> Apotheosis does not cost an Action to activate.<br/><bullet/> Apotheosis has a <Ability:IRI_Apotheosis_Cooldown/> turn cooldown."
+LocFlyOverText="Apotheosis"
 
 [IRI_SoulShot X2AbilityTemplate]
 LocFriendlyName="Soul Shot"
-LocLongDescription="Any directed <Ability:WeaponName/> shot, hit or miss, will mark the target, increasing your squad's aim by +<Ability:HOLOTARGETAIMBONUS/> against this target."
-LocHelpText="Shooting at a target grants bonus Aim to allies against that target"
-LocPromotionPopupText="<Bullet/> Directed <Ability:WeaponName/>-specific abilities will grant Holo Targeting.<br/><Bullet/> Any <Ability:ClassName/> abilities that target multiple units will not grant Holo Targeting.<br/>"
+LocLongDescription="A powerful ranged attack that scales with Focus and generates Focus on kills."
+LocHelpText="A powerful ranged attack that scales with Focus and generates Focus on kills."
+LocPromotionPopupText="<Bullet/> Soul Shot has a <Ability:IRI_SoulShot_Cooldown/> turn cooldown."
 ;LocFlyOverText="Soul Shot"
+
 
 [IRI_TemplarShield X2AbilityTemplate]
 LocFriendlyName="Templar Shield"
