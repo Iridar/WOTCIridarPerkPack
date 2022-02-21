@@ -5,6 +5,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	Templates.AddItem(IRI_TunnelingClaws());
+	Templates.AddItem(IRI_ToxinAptitude());
 
 	return Templates;
 }
@@ -51,6 +52,28 @@ static function X2AbilityTemplate IRI_TunnelingClaws()
 	Template.Hostility = eHostility_Neutral;
 
 	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_ToxinAptitude()
+{
+	local X2AbilityTemplate			Template;	
+	local X2Effect_ToxinAptitude	ToxinAptitude;
+	
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_ToxinAptitude');
+
+	//	Icon setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_TunnelingClaws";
+	SetPassive(Template);
+
+	//	Shooter Conditions
+	ToxinAptitude = new class'X2Effect_ToxinAptitude';
+	ToxinAptitude.BuildPersistentEffect(1, true);
+	ToxinAptitude.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	ToxinAptitude.DamageModifier = GetConfigFloat('IRI_ToxinAptitude_DamageModifier');
+	Template.AddTargetEffect(ToxinAptitude);
 
 	return Template;	
 }

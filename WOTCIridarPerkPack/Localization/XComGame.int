@@ -50,3 +50,10 @@ LocLongDescriptionWhenConcealed="Gain the ability to break through walls until t
 LocHelpText="Gain the ability to break through walls until the end of turn."
 LocPromotionPopupText="<bullet/> Tunneling Claws does not cost an Action to activate.<br/><bullet/> Tunneling Claws has a <Ability:IRI_TunnelingClaws_Cooldown/> turn cooldown."
 LocFlyOverText="Tunneling Claws"
+
+[IRI_ToxinAptitude X2AbilityTemplate]
+LocFriendlyName="Toxin Aptitude"
+LocLongDescription="Poison damage and damage to poisoned targets is increased by <Ability:IRI_ToxinAptitude_DamageModifier/>%, but no less than by +1."
+LocHelpText="Poison damage and damage to poisoned targets is increased by <Ability:IRI_ToxinAptitude_DamageModifier/>%, but no less than by +1."
+LocPromotionPopupText=""
+LocFlyOverText="Toxin Aptitude"
