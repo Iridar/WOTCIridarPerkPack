@@ -12,7 +12,9 @@
     <Folder Include="Config\" />
     <Folder Include="Config\Base" />
     <Folder Include="Config\ItemAbilities" />
+    <Folder Include="Config\Animals" />
     <Folder Include="Config\Templar" />
+    <Folder Include="ContentForCook\Animal" />
     <Folder Include="ContentForCook\Templar" />
     <Folder Include="Localization\" />
     <Folder Include="ContentForCook" />
@@ -21,6 +23,9 @@
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\Animals\XComIridarPerkPack.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Base\XComCamera.ini">
       <SubType>Content</SubType>
     </Content>
@@ -84,6 +89,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\Help.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Animals.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Items.uc">
       <SubType>Content</SubType>
     </Content>
@@ -100,6 +108,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_ApplyWorldDamage.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_Items_Supercharge.uc">
       <SubType>Content</SubType>
     </Content>
@@ -113,6 +124,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_TemplarShieldAnimations.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2TargetingMethod_TunnelingClaws.uc">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>
