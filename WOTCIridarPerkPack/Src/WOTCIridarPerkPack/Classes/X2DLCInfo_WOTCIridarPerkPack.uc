@@ -63,6 +63,10 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Apotheosis_Duration'));
 		return true;
 
+	case 'IRI_TunnelingClaws_Cooldown':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_TunnelingClaws_Cooldown'));
+		return true;
+
 	default:
 		return false;
     }  

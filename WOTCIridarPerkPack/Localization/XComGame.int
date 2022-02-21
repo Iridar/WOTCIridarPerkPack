@@ -41,3 +41,12 @@ LocLongDescription="Your <Ability:WeaponName/> attacks gain up to <Ability:IRI_S
 LocHelpText="Your <Ability:WeaponName/> attacks gain up to <Ability:IRI_Supercharge_ExtraArmorPiercing/> Armor Pierce and <Ability:IRI_Supercharge_ExtraCritChance/> Crit Chance against targets at close range."
 LocPromotionPopupText=""
 LocFlyOverText="Supercharge"
+
+
+[IRI_TunnelingClaws X2AbilityTemplate]
+LocFriendlyName="Tunneling Claws"
+LocLongDescription="Gain the ability to break through walls until the end of turn."
+LocLongDescriptionWhenConcealed="Gain the ability to break through walls until the end of turn. This may break soldier's concealment."
+LocHelpText="Gain the ability to break through walls until the end of turn."
+LocPromotionPopupText="<bullet/> Tunneling Claws does not cost an Action to activate.<br/><bullet/> Tunneling Claws has a <Ability:IRI_TunnelingClaws_Cooldown/> turn cooldown."
+LocFlyOverText="Tunneling Claws"

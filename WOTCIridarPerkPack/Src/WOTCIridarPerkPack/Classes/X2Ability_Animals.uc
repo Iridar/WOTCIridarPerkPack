@@ -11,75 +11,45 @@ static function array<X2DataTemplate> CreateTemplates()
 
 static function X2AbilityTemplate IRI_TunnelingClaws()
 {
-	local X2AbilityTemplate                 Template;	
-	local X2AbilityCost_ActionPoints        ActionPointCost;
-	local X2AbilityTarget_Cursor            CursorTarget;
-	local X2AbilityMultiTarget_Cylinder		MultiTarget;
-	local X2Effect_ApplyWorldDamage			WorldDamage;
+	local X2AbilityTemplate						Template;	
+	local X2Effect_PersistentTraversalChange	TraversalChange;
 	
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TunnelingClaws');
 
 	//	Icon setup
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.ARMOR_ACTIVE_PRIORITY; //	Same as Heavy Weapons
 
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_HeavyWeaponActionPoints');	
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_TunnelingClaws";
 
 	//	Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
-	
-	CursorTarget = new class'X2AbilityTarget_Cursor';
-	CursorTarget.FixedAbilityRange = 2;	//	Able to target diagonally
-	Template.AbilityTargetStyle = CursorTarget;
-	
-	MultiTarget = new class'X2AbilityMultiTarget_Cylinder';
-	MultiTarget.bIgnoreBlockingCover = true;
-	MultiTarget.bExcludeSelfAsTargetIfWithinRadius = true;
-	MultiTarget.fTargetHeight = 1.5f;
-	MultiTarget.fTargetRadius = 0.75f;
-	Template.AbilityMultiTargetStyle = MultiTarget;
-
-	Template.TargetingMethod = class'X2TargetingMethod_TunnelingClaws';
+	Template.AbilityTargetStyle = default.SelfTarget;
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);
-
+	AddCooldown(Template, GetConfigInt('IRI_TunnelingClaws_Cooldown'));
 
 	//	Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
-
-	//	Multi Target Conditions
-	Template.AbilityMultiTargetConditions.AddItem(default.LivingTargetOnlyProperty);
 	
-	//	Multi Target effects
-	WorldDamage = new class'X2Effect_ApplyWorldDamage';
-	WorldDamage.DamageAmount = GetConfigInt('TunnelingClaws_EnvironmentalDamage');
-	WorldDamage.bApplyOnHit = true;
-	WorldDamage.bApplyOnMiss = true;
-	Template.AddMultiTargetEffect(WorldDamage);
+	TraversalChange = new class'X2Effect_PersistentTraversalChange';
+	TraversalChange.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	TraversalChange.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	TraversalChange.AddTraversalChange(eTraversal_BreakWall, true);
+	TraversalChange.EffectName = 'IRI_TunnelingClaws_Effect';
+	TraversalChange.DuplicateResponse = eDupe_Ignore;
+	Template.AddTargetEffect(TraversalChange);
 
-	SetFireAnim(Template, 'FF_Melee');
-
-	//	This makes the attack animation glitch out at all times.
-	//Template.bSkipExitCoverWhenFiring = true;
-	Template.SourceMissSpeech = 'SwordMiss';
-	Template.AbilityConfirmSound = "TacticalUI_SwordConfirm";
+	Template.bSkipFireAction = true;
+	Template.bShowActivation = true;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
-
-	//	This ability is offensive and can be interrupted!
 	Template.Hostility = eHostility_Neutral;
-	
-	//Template.CinescriptCameraType = "Soldier_HeavyWeapons";		
 
-	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.MeleeLostSpawnIncreasePerUse;
 	Template.bFrameEvenWhenUnitIsHidden = true;
 
 	return Template;	
