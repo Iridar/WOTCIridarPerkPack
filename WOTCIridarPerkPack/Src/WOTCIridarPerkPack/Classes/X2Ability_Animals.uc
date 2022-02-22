@@ -8,8 +8,188 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_ToxinAptitude());
 	Templates.AddItem(IRI_TunnelRat());
 
+	Templates.AddItem(IRI_Scavenger());
+
 	return Templates;
 }
+
+static function X2AbilityTemplate IRI_Scavenger()
+{
+	local X2AbilityTemplate			Template;	
+	local X2Condition_UnitProperty	UnitPropertyCondition;	
+	local X2AbilityCharges			Charges;
+	local X2AbilityCost_Charges		ChargeCost;
+	local X2Condition_UnitValue		UntiValueCondition;
+	local X2Effect_SetUnitValue		UnitValueEffect;
+	
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_Scavenger');
+
+	//	Icon setup
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_Scavenger"; 
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.LOOT_PRIORITY;
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
+	Template.HideErrors.AddItem('AA_CannotAfford_Charges');
+	Template.HideErrors.AddItem('AA_CannotAfford_ActionPoints');
+
+	//	Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Costs
+	Template.AbilityCosts.AddItem(default.FreeActionCost);
+	AddCooldown(Template, GetConfigInt('IRI_Scavenger_Cooldown'));
+
+	Charges = new class'X2AbilityCharges';
+	Charges.InitialCharges = GetConfigInt('IRI_Scavenger_Charges');
+	Template.AbilityCharges = Charges;
+
+	ChargeCost = new class'X2AbilityCost_Charges';
+	ChargeCost.NumCharges = 1;
+	//ChargeCost.bFreeCost = true; // Doesn't work with X2Ability_Charges. Firaxis being inconsistent, per usual.
+	Template.AbilityCosts.AddItem(ChargeCost);
+
+	//	Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = false;
+	UnitPropertyCondition.ExcludeAlive = true;
+	UnitPropertyCondition.ExcludeFriendlyToSource = true;
+	UnitPropertyCondition.ExcludeHostileToSource = false;
+	UnitPropertyCondition.FailOnNonUnits = true;
+	UnitPropertyCondition.RequireWithinRange = true;
+	UnitPropertyCondition.WithinRange = 144; // 1.5 tiles
+	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
+
+	// Use Unit Value to mark the target so that Scavenge can be attempted at each target only once.
+	UntiValueCondition = new class'X2Condition_UnitValue';
+	UntiValueCondition.AddCheckValue('IRI_Scavenger_Value', 0);
+	Template.AbilityShooterConditions.AddItem(UntiValueCondition);
+
+	// Effects
+	UnitValueEffect = new class'X2Effect_SetUnitValue';
+	UnitValueEffect.UnitName = 'IRI_Scavenger_Value';
+	UnitValueEffect.NewValueToSet = 1;
+	UnitValueEffect.CleanupType = eCleanup_BeginTactical;
+	Template.AddTargetEffect(UnitValueEffect);
+
+	//Template.CinescriptCameraType = "Loot";
+	SetFireAnim(Template, 'HL_Scavenger');
+	Template.bSkipFireAction = false;
+	Template.bShowActivation = true;
+	Template.BuildNewGameStateFn = Scavenger_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.Hostility = eHostility_Neutral;
+
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;	
+}
+
+simulated function XComGameState Scavenger_BuildGameState(XComGameStateContext Context)
+{
+	local XComGameStateHistory			History;
+	local XComGameState					NewGameState;
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameState_Unit			TargetUnit;
+	local array<XComGameState_Item>		LootItems;
+	local X2LootTableManager			LootManager;
+	local LootResults					GeneratedLoot;
+	local XComGameState_Ability			AbilityState;
+	local bool							bLootCreated;
+
+	NewGameState = TypicalAbility_BuildGameState(Context);
+
+	History = `XCOMHISTORY;
+	AbilityContext = XComGameStateContext_Ability(Context);
+
+	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit != none)
+	{
+		LootManager = class'X2LootTableManager'.static.GetLootTableManager();
+		LootManager.RollForLootCarrier(TargetUnit.GetMyTemplate().TimedLoot, GeneratedLoot);
+		if (GeneratedLoot.LootToBeCreated.Length > 0)
+		{
+			LootItems = MakeAvailableLoot(NewGameState, GeneratedLoot);
+
+			if (LootItems.Length > 0)
+			{
+				class'XComGameState_LootDrop'.static.CreateLootDrop(NewGameState, LootItems, TargetUnit, false);
+				//AbilityContext.PostBuildVisualizationFn.AddItem(Scavenger_PostBuildVisualization);
+
+				bLootCreated = true;
+			}
+		}
+	}
+
+	// Refund charge cost if no loot was created.
+	if (!bLootCreated)
+	{
+		AbilityState = XComGameState_Ability(NewGameState.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
+		AbilityState.iCharges++;
+	}
+	return NewGameState;
+}
+
+static final function array<XComGameState_Item> MakeAvailableLoot(XComGameState ModifyGameState, LootResults PendingLoot)
+{
+	local X2ItemTemplateManager		ItemTemplateManager;
+	local X2ItemTemplate			ItemTemplate;
+	local XComGameState_Item		NewItem;
+	local XComGameState_Item		SearchItem;
+	local array<XComGameState_Item> CreatedLoots;
+	local name LootName;
+	local bool bStacked;
+
+	ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+	CreatedLoots.Length = 0; // Avoid compiler warning.
+	foreach PendingLoot.LootToBeCreated(LootName)
+	{		
+		ItemTemplate = ItemTemplateManager.FindItemTemplate(LootName);
+		if (ItemTemplate != none)
+		{
+			bStacked = false;
+			if (ItemTemplate.MaxQuantity > 1)
+			{
+				foreach CreatedLoots(SearchItem)
+				{
+					if (SearchItem.GetMyTemplate() == ItemTemplate)
+					{
+						if (SearchItem.Quantity < ItemTemplate.MaxQuantity)
+						{
+							SearchItem.Quantity++;
+							bStacked = true;
+							break;
+						}
+					}
+				}
+				if (bStacked)
+				{
+					continue;
+				}
+				else
+				{
+					NewItem = ItemTemplate.CreateInstanceFromTemplate(ModifyGameState);
+					`LOG("Generated loot item:" @ NewItem.GetMyTemplateName(),, 'IRITEST');
+					CreatedLoots.AddItem(NewItem);
+				}
+			}	
+			else
+			{
+				NewItem = ItemTemplate.CreateInstanceFromTemplate(ModifyGameState);
+				`LOG("Generated loot item:" @ NewItem.GetMyTemplateName(),, 'IRITEST');
+				CreatedLoots.AddItem(NewItem);
+			}			
+		}
+	}
+	return CreatedLoots;
+}
+
+
 
 static function X2AbilityTemplate IRI_TunnelingClaws()
 {

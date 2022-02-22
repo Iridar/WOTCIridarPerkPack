@@ -29,15 +29,11 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 		MissionSite = XComGameState_MissionSite(History.GetGameStateForObjectID(BattleData.m_iMissionID));
 		if (MissionSite != none)
 		{
-			
-			`LOG("Current PlotMapName:" @ MissionSite.GeneratedMission.Plot.strType,, 'IRITEST');
-
 			if (AllowedPlots.Find(MissionSite.GeneratedMission.Plot.strType) != INDEX_NONE)
 			{
 				return 'AA_Success';
 			}
 		}
-	
 	}
 	return 'AA_AbilityUnavailable';
 }

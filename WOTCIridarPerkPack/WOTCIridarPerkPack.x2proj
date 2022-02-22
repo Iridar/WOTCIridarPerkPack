@@ -56,6 +56,12 @@
     <Content Include="Config\XComClassData.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Animal\IRIAnimalAbilities.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Animal\IRIScavengerPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\IRIPerkPack_UILibrary.upk">
       <SubType>Content</SubType>
     </Content>

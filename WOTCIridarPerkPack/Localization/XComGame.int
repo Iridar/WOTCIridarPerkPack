@@ -59,3 +59,11 @@ LocFlyOverText="Toxin Aptitude"
 LocFriendlyName="Tunnel Rat"
 LocLongDescription="While in Tunnels or Sewers your mobility is increased by <Ability:IRI_TunnelRat_MobilityBonus/> and detection radius is reduced by <Ability:IRI_TunnelRat_DetectionModifier/>%."
 LocHelpText="While in Tunnels or Sewers your mobility is increased by <Ability:IRI_TunnelRat_MobilityBonus/> and detection radius is reduced by <Ability:IRI_TunnelRat_DetectionModifier/>%."
+
+
+[IRI_Scavenger X2AbilityTemplate]
+LocFriendlyName="Scavenge"
+LocLongDescription="Search an enemy's corpse for additional loot."
+LocHelpText="Search an enemy's corpse for additional loot."
+LocPromotionPopupText="<bullet/> <Ability:IRI_Scavenger_Charges/> use(s) per mission.<br/><bullet/> <Ability:IRI_Scavenger_Cooldown/> turn cooldown."
+LocFlyOverText="Scavenge"
