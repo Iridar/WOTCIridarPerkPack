@@ -65,7 +65,7 @@ static function X2AbilityTemplate IRI_ToxinAptitude()
 
 	//	Icon setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_TunnelingClaws";
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_ToxinAptitude";
 	SetPassive(Template);
 
 	//	Shooter Conditions
