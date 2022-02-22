@@ -101,6 +101,7 @@ simulated function XComGameState Scavenger_BuildGameState(XComGameStateContext C
 	local LootResults					GeneratedLoot;
 	local XComGameState_Ability			AbilityState;
 	local bool							bLootCreated;
+	local int							MaxLootItems;
 
 	NewGameState = TypicalAbility_BuildGameState(Context);
 
@@ -114,13 +115,16 @@ simulated function XComGameState Scavenger_BuildGameState(XComGameStateContext C
 		LootManager.RollForLootCarrier(TargetUnit.GetMyTemplate().TimedLoot, GeneratedLoot);
 		if (GeneratedLoot.LootToBeCreated.Length > 0)
 		{
-			LootItems = MakeAvailableLoot(NewGameState, GeneratedLoot);
-
-			if (LootItems.Length > 0)
+			MaxLootItems = GetConfigInt('IRI_Scavenger_MaxLootItems');
+			if (MaxLootItems != 0 && GeneratedLoot.LootToBeCreated.Length > MaxLootItems)
 			{
-				class'XComGameState_LootDrop'.static.CreateLootDrop(NewGameState, LootItems, TargetUnit, false);
-				//AbilityContext.PostBuildVisualizationFn.AddItem(Scavenger_PostBuildVisualization);
+				GeneratedLoot.LootToBeCreated.Length = MaxLootItems;
+			}
 
+			LootItems = MakeAvailableLoot(NewGameState, GeneratedLoot);
+			if (LootItems.Length > 0)
+			{	
+				class'XComGameState_LootDrop'.static.CreateLootDrop(NewGameState, LootItems, TargetUnit, false);
 				bLootCreated = true;
 			}
 		}
