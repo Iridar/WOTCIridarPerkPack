@@ -72,6 +72,14 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 		return true;
 		
 
+	case 'IRI_TunnelRat_MobilityBonus':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_TunnelRat_MobilityBonus'));
+		return true;
+	case 'IRI_TunnelRat_DetectionModifier':
+		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_TunnelRat_DetectionModifier') * 100));
+		return true;
+		
+
 	default:
 		return false;
     }  

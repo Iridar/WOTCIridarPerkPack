@@ -6,6 +6,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_TunnelingClaws());
 	Templates.AddItem(IRI_ToxinAptitude());
+	Templates.AddItem(IRI_TunnelRat());
 
 	return Templates;
 }
@@ -68,12 +69,48 @@ static function X2AbilityTemplate IRI_ToxinAptitude()
 	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_ToxinAptitude";
 	SetPassive(Template);
 
-	//	Shooter Conditions
 	ToxinAptitude = new class'X2Effect_ToxinAptitude';
 	ToxinAptitude.BuildPersistentEffect(1, true);
 	ToxinAptitude.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
 	ToxinAptitude.DamageModifier = GetConfigFloat('IRI_ToxinAptitude_DamageModifier');
 	Template.AddTargetEffect(ToxinAptitude);
+
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_TunnelRat()
+{
+	local X2AbilityTemplate				Template;	
+	local X2Effect_PersistentStatChange	StatChange;
+	local X2Condition_AllowedPlots		AllowedPlots;
+	local X2Effect_Persistent			IconEffect;
+	
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TunnelRat');
+
+	//	Icon setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_TunnelRat";
+	SetPassive(Template);
+
+	IconEffect = new class'X2Effect_Persistent';
+	IconEffect.BuildPersistentEffect(1, true);
+	IconEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddTargetEffect(IconEffect);
+
+	StatChange = new class 'X2Effect_PersistentStatChange';
+	StatChange.BuildPersistentEffect(1, true);
+	StatChange.AddPersistentStatChange(eStat_Mobility, GetConfigInt('IRI_TunnelRat_MobilityBonus'));
+	StatChange.AddPersistentStatChange(eStat_DetectionModifier, GetConfigFloat('IRI_TunnelRat_DetectionModifier'));
+
+	AllowedPlots = new class'X2Condition_AllowedPlots';
+	//AllowedPlots.AllowedPlots.AddItem("Shanty");
+	//AllowedPlots.AllowedPlots.AddItem("Slums");
+	AllowedPlots.AllowedPlots.AddItem("Tunnels_Subway");
+	AllowedPlots.AllowedPlots.AddItem("Tunnels_Sewer");
+	//AllowedPlots.AllowedPlots.AddItem("Abandoned");
+	StatChange.TargetConditions.AddItem(AllowedPlots);
+
+	Template.AddTargetEffect(StatChange);
 
 	return Template;	
 }
