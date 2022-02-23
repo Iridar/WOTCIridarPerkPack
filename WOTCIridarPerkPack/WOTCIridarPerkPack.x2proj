@@ -120,6 +120,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_Items_Supercharge.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_PackHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_SoulShot_ArrowHit.uc">
       <SubType>Content</SubType>
     </Content>

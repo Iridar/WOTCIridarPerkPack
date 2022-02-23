@@ -67,3 +67,17 @@ LocLongDescription="Search an enemy's corpse for additional loot."
 LocHelpText="Search an enemy's corpse for additional loot."
 LocPromotionPopupText="<bullet/> <Ability:IRI_Scavenger_Charges/> use(s) per mission.<br/><bullet/> <Ability:IRI_Scavenger_Cooldown/> turn cooldown."
 LocFlyOverText="Scavenge"
+
+[IRI_PackHunter X2AbilityTemplate]
+LocFriendlyName="Pack Hunter"
+LocLongDescription="For each squadmate within <Ability:IRI_PackHunter_TileDistance/> tiles, gain <Ability:IRI_PackHunter_DodgeBonus/> Dodge, <Ability:IRI_PackHunter_CritChanceBonus/> melee and flanking crit chance, and <Ability:IRI_PackHunter_CritChanceDefense/> crit chance reduction against melee and flanking attacks. Stacks up to <Ability:IRI_PackHunter_MaxStacks/> times."
+LocHelpText="For each squadmate within <Ability:IRI_PackHunter_TileDistance/> tiles, gain <Ability:IRI_PackHunter_DodgeBonus/> Dodge, <Ability:IRI_PackHunter_CritChanceBonus/> melee and flanking crit chance, and <Ability:IRI_PackHunter_CritChanceDefense/> crit chance reduction against melee and flanking attacks. Stacks up to <Ability:IRI_PackHunter_MaxStacks/> times."
+LocPromotionPopupText=""
+LocFlyOverText="Pack Hunter"
+
+[IRI_PackHunter_Passive X2AbilityTemplate]
+LocFriendlyName="Pack Hunter"
+LocLongDescription="For each squadmate within <Ability:IRI_PackHunter_TileDistance/> tiles, gain <Ability:IRI_PackHunter_DodgeBonus/> Dodge, <Ability:IRI_PackHunter_CritChanceBonus/> melee and flanking crit chance, and <Ability:IRI_PackHunter_CritChanceDefense/> crit chance reduction against melee and flanking attacks. Stacks up to <Ability:IRI_PackHunter_MaxStacks/> times."
+LocHelpText="For each squadmate within <Ability:IRI_PackHunter_TileDistance/> tiles, gain <Ability:IRI_PackHunter_DodgeBonus/> Dodge, <Ability:IRI_PackHunter_CritChanceBonus/> melee and flanking crit chance, and <Ability:IRI_PackHunter_CritChanceDefense/> crit chance reduction against melee and flanking attacks. Stacks up to <Ability:IRI_PackHunter_MaxStacks/> times."
+LocPromotionPopupText=""
+LocFlyOverText="Pack Hunter"

@@ -9,8 +9,45 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TunnelRat());
 
 	Templates.AddItem(IRI_Scavenger());
+	Templates.AddItem(IRI_PackHunter());
+	Templates.AddItem(PurePassive('IRI_PackHunter_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_PackHunter", false, 'eAbilitySource_Perk', true));
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_PackHunter()
+{
+	local X2AbilityTemplate		Template;	
+	local X2Effect_PackHunter	PackHunter;
+	
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_PackHunter');
+
+	//	Icon setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_PackHunter";
+	SetHidden(Template);
+
+	// Triggering
+	SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnBegun', ELD_OnStateSubmitted, eFilter_None, 50);
+	SetSelfTarget_WithEventTrigger(Template, 'UnitMoveFinished', ELD_OnStateSubmitted, eFilter_None, 50);
+
+	//	Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+
+	PackHunter = new class'X2Effect_PackHunter';
+	PackHunter.BuildPersistentEffect(1, true);
+	PackHunter.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddTargetEffect(PackHunter);
+
+	Template.bSkipFireAction = true;
+	Template.bShowActivation = false;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.Hostility = eHostility_Neutral;
+
+	Template.AdditionalAbilities.AddItem('IRI_PackHunter_Passive');
+
+	return Template;	
 }
 
 static function X2AbilityTemplate IRI_Scavenger()

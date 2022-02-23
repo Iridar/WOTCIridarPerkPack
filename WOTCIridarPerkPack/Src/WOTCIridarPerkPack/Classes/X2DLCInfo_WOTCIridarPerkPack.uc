@@ -86,10 +86,26 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Scavenger_Cooldown'));
 		return true;		
 
+	case 'IRI_PackHunter_TileDistance':
+		OutString = string(class'X2Effect_PackHunter'.default.iDistanceTiles);
+		return true;
+	case 'IRI_PackHunter_DodgeBonus':
+		OutString = string(class'X2Effect_PackHunter'.default.iDodgePerStack);
+		return true;
+	case 'IRI_PackHunter_CritChanceBonus':
+		OutString = string(class'X2Effect_PackHunter'.default.iCritChancePerStack);
+		return true;
+	case 'IRI_PackHunter_CritChanceDefense':
+		OutString = string(class'X2Effect_PackHunter'.default.iCritDefensePerStack);
+		return true;
+	case 'IRI_PackHunter_MaxStacks':
+		OutString = string(class'X2Effect_PackHunter'.default.iMaxStacks);
+		return true;
+	
 	default:
 		return false;
     }  
-}
+} 
 
 static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseObj, XComGameState GameState)
 {
