@@ -94,15 +94,21 @@ LocFlyOverText="Laugh It Off"
 
 [IRI_KeenNose X2AbilityTemplate]
 LocFriendlyName="Keen Nose"
-LocLongDescription="Sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
-LocHelpText="Sense direction to enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocLongDescription="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocHelpText="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
 LocPromotionPopupText=""
 LocFlyOverText="Keen Nose"
 
 [IRI_KeenNose_Passive X2AbilityTemplate]
 LocFriendlyName="Keen Nose"
-LocLongDescription="Sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
-LocHelpText="Sense direction to enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocLongDescription="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocHelpText="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
 LocPromotionPopupText=""
 LocFlyOverText="Keen Nose"
 
+[IRI_KeenNose_Remover X2AbilityTemplate]
+LocFriendlyName="Keen Nose"
+LocLongDescription="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocHelpText="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocPromotionPopupText=""
+LocFlyOverText="Keen Nose"

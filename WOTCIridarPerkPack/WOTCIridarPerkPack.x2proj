@@ -119,6 +119,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_AllowedPlots.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_NotVisibleToEnemies.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_TargetVisibleToSquad.uc">
       <SubType>Content</SubType>
     </Content>

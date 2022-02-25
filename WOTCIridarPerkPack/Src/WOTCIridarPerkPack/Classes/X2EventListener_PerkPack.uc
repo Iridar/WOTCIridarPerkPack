@@ -30,7 +30,35 @@ static function CHEventListenerTemplate TacticalListeners()
 
 	Template.AddCHEvent('CleanupTacticalMission', OnCleanupTacticalMission, ELD_Immediate, 50);
 
+	Template.AddCHEvent('AbilityActivated', OnAbilityActivated, ELD_Immediate, 50);
+
 	return Template;
+}
+
+static function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState NewGameState, Name InEventID, Object CallbackData)
+{
+    local XComGameState_Unit	UnitState;
+
+	local XComGameState_Ability AbilityState;
+	local XComGameStateContext_Ability AbilityContext;
+	local StateObjectReference UnitRef;
+
+	if (NewGameState.GetContext().InterruptionStatus == eInterruptionStatus_Interrupt)
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(EventSource);
+	AbilityState = XComGameState_Ability(EventData);
+
+	`LOG(UnitState.GetFullName() @ "activated ability:" @ AbilityState.GetMyTemplateName() @ "against" @ AbilityContext.InputContext.MultiTargets.Length @ "multi targets",, 'IRITEST');
+
+	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
+
+	foreach AbilityContext.InputContext.MultiTargets(UnitRef)
+	{
+		`LOG("---" @ XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID)).GetFullName(),, 'IRITEST');
+	}
+	
+    return ELR_NoInterrupt;
 }
 
 static function EventListenerReturn OnCleanupTacticalMission(Object EventData, Object EventSource, XComGameState NewGameState, Name InEventID, Object CallbackData)
