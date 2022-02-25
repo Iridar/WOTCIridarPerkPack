@@ -11,8 +11,30 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_Scavenger());
 	Templates.AddItem(IRI_PackHunter());
 	Templates.AddItem(PurePassive('IRI_PackHunter_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_PackHunter", false, 'eAbilitySource_Perk', true));
+	Templates.AddItem(PurePassive('IRI_LaughItOff', "img:///IRIPerkPack_UILibrary.UIPerk_LaughItOff", false, 'eAbilitySource_Perk', true));
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_LaughItOff()
+{
+	local X2AbilityTemplate		Template;	
+	local X2Effect_Persistent	Persistent;
+	
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_LaughItOff');
+
+	//	Icon setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_LaughItOff";
+	SetPassive(Template);
+
+	Persistent = new class'X2Effect_Persistent';
+	Persistent.BuildPersistentEffect(1, true);
+	Persistent.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Persistent.EffectName = 'IRI_LaughItOff_Effect';
+	Template.AddTargetEffect(Persistent);
+
+	return Template;	
 }
 
 static function X2AbilityTemplate IRI_PackHunter()

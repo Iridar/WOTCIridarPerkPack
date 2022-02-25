@@ -81,3 +81,11 @@ LocLongDescription="For each squadmate within <Ability:IRI_PackHunter_TileDistan
 LocHelpText="For each squadmate within <Ability:IRI_PackHunter_TileDistance/> tiles, gain <Ability:IRI_PackHunter_DodgeBonus/> Dodge, <Ability:IRI_PackHunter_CritChanceBonus/> melee and flanking crit chance, and <Ability:IRI_PackHunter_CritChanceDefense/> crit chance reduction against melee and flanking attacks. Stacks up to <Ability:IRI_PackHunter_MaxStacks/> times."
 LocPromotionPopupText=""
 LocFlyOverText="Pack Hunter"
+
+[IRI_LaughItOff X2AbilityTemplate]
+LocFriendlyName="Laugh It Off"
+LocLongDescription="Wound recovery time is reduced by <Ability:IRI_LaughItOff_RecoverPercent/>% to 100%. The reduction is greater for light wounds."
+LocHelpText="Wound recovery time is reduced by <Ability:IRI_LaughItOff_RecoverPercent/>% to 100%. The reduction is greater for light wounds."
+LocPromotionPopupText="<bullet/> This ability allows to shrug off light wounds completely."
+LocFlyOverText="Laugh It Off"
+

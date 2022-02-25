@@ -101,6 +101,10 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 	case 'IRI_PackHunter_MaxStacks':
 		OutString = string(class'X2Effect_PackHunter'.default.iMaxStacks);
 		return true;
+
+	case 'IRI_LaughItOff_RecoverPercent':
+		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LaughItOff_RecoverPercent') * 100));
+		return true;
 	
 	default:
 		return false;

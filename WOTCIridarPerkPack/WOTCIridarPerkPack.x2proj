@@ -138,6 +138,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_ToxinAptitude.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_PerkPack.uc">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <SolutionRoot>$(MSBuildProjectDirectory)\..\</SolutionRoot>
