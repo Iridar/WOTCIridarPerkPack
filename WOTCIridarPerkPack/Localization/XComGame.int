@@ -89,3 +89,20 @@ LocHelpText="Wound recovery time is reduced by <Ability:IRI_LaughItOff_RecoverPe
 LocPromotionPopupText="<bullet/> This ability allows to shrug off light wounds completely."
 LocFlyOverText="Laugh It Off"
 
+
+
+
+[IRI_KeenNose X2AbilityTemplate]
+LocFriendlyName="Keen Nose"
+LocLongDescription="Wound recovery time is reduced by <Ability:IRI_LaughItOff_RecoverPercent/>% to 100%. The reduction is greater for light wounds."
+LocHelpText="Wound recovery time is reduced by <Ability:IRI_LaughItOff_RecoverPercent/>% to 100%. The reduction is greater for light wounds."
+LocPromotionPopupText="<bullet/> This ability allows to shrug off light wounds completely."
+LocFlyOverText="Keen Nose"
+
+[IRI_KeenNose_Passive X2AbilityTemplate]
+LocFriendlyName="Keen Nose"
+LocLongDescription="Wound recovery time is reduced by <Ability:IRI_LaughItOff_RecoverPercent/>% to 100%. The reduction is greater for light wounds."
+LocHelpText="Wound recovery time is reduced by <Ability:IRI_LaughItOff_RecoverPercent/>% to 100%. The reduction is greater for light wounds."
+LocPromotionPopupText="<bullet/> This ability allows to shrug off light wounds completely."
+LocFlyOverText="Keen Nose"
+

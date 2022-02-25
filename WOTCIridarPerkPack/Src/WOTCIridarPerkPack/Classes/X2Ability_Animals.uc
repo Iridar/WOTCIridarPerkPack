@@ -13,8 +13,85 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(PurePassive('IRI_PackHunter_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_PackHunter", false, 'eAbilitySource_Perk', true));
 	Templates.AddItem(PurePassive('IRI_LaughItOff', "img:///IRIPerkPack_UILibrary.UIPerk_LaughItOff", false, 'eAbilitySource_Perk', true));
 
+	Templates.AddItem(IRI_KeenNose());
+	Templates.AddItem(PurePassive('IRI_KeenNose_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_PackHunter", false, 'eAbilitySource_Perk', true));
+
 	return Templates;
 }
+
+static function X2AbilityTemplate IRI_KeenNose()
+{
+	local X2AbilityTemplate					Template;
+	local X2Condition_UnitProperty			TargetCondition;
+	local X2Condition_TargetVisibleToSquad	VisibilityCondition;
+	local X2Effect_Persistent				PersistentEffect;
+	local X2AbilityMultiTarget_AllUnits		MultiTargetStyle;
+	local X2Effect_RemoveEffects			RemoveEffects;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_KeenNose');
+
+	//	Icon setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_targetdefinition";
+	SetHidden(Template);
+
+	// Triggering
+	SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnBegun', ELD_OnStateSubmitted, eFilter_Player, 50);
+	SetSelfTarget_WithEventTrigger(Template, 'UnitMoveFinished', ELD_OnStateSubmitted, eFilter_None, 50);
+
+	// Targeting
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+
+	MultiTargetStyle = new class'X2AbilityMultiTarget_AllUnits';
+	MultiTargetStyle.bAcceptFriendlyUnits = false;
+	MultiTargetStyle.bAcceptEnemyUnits = true;
+	Template.AbilityMultiTargetStyle = MultiTargetStyle;
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+
+	// Target Conditions
+	TargetCondition = new class'X2Condition_UnitProperty';	
+	TargetCondition.ExcludeAlive = false;
+	TargetCondition.ExcludeDead = true;
+	TargetCondition.ExcludeFriendlyToSource = true;
+	TargetCondition.ExcludeHostileToSource = false;
+	TargetCondition.RequireWithinRange = true;
+	TargetCondition.WithinRange = class'XComWorldData'.const.WORLD_StepSize * 25;
+	Template.AbilityMultiTargetConditions.AddItem(TargetCondition);
+
+	// Add effect that will create a tether to the target via perk content
+	PersistentEffect = new class'X2Effect_Persistent';
+	PersistentEffect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnBegin);
+	PersistentEffect.EffectName = 'IRI_KeenNose_Effect';
+	PersistentEffect.DuplicateResponse = eDupe_Ignore;
+	VisibilityCondition = new class'X2Condition_TargetVisibleToSquad';
+	VisibilityCondition.bReverseCondition = true; // Can apply only to targets that are NOT visible to XCOM
+	PersistentEffect.TargetConditions.AddItem(VisibilityCondition);	
+	Template.AddMultiTargetEffect(PersistentEffect);
+
+	// Remove the effect if the unit is visible to any ally
+	// Yeah it's a bit awkward to apply the effect to some targets just to remove it right away,
+	// but it's the simplest implementation that I could come up with that doesn't involve additional abilities with additional triggers.
+	RemoveEffects = new class'X2Effect_RemoveEffects';
+	RemoveEffects.EffectNamesToRemove.AddItem('IRI_KeenNose_Effect');
+	RemoveEffects.TargetConditions.AddItem(new class'X2Condition_TargetVisibleToSquad'); // Can apply only to targets that ARE visible to XCOM
+	Template.AddMultiTargetEffect(RemoveEffects);
+
+	Template.ActivationSpeech = 'TargetDefinition';
+	Template.bSkipFireAction = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.ConcealmentRule = eConceal_AlwaysEvenWithObjective;
+	Template.FrameAbilityCameraType = eCameraFraming_Never;
+
+	Template.AdditionalAbilities.AddItem('IRI_KeenNose_Passive');
+	
+	return Template;
+}
+
 
 static function X2AbilityTemplate IRI_LaughItOff()
 {

@@ -59,6 +59,9 @@
     <Content Include="ContentForCook\Animal\IRIAnimalAbilities.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Animal\IRIKeenNosePerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Animal\IRIScavengerPerk.upk">
       <SubType>Content</SubType>
     </Content>
@@ -114,6 +117,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_AllowedPlots.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_TargetVisibleToSquad.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
