@@ -105,6 +105,11 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 	case 'IRI_LaughItOff_RecoverPercent':
 		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LaughItOff_RecoverPercent') * 100));
 		return true;
+
+	case 'IRI_KeenNose_Distance_Tiles':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_KeenNose_Distance_Tiles'));
+		return true;
+		
 	
 	default:
 		return false;

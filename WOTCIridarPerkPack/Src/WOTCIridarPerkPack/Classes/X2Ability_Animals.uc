@@ -14,7 +14,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(PurePassive('IRI_LaughItOff', "img:///IRIPerkPack_UILibrary.UIPerk_LaughItOff", false, 'eAbilitySource_Perk', true));
 
 	Templates.AddItem(IRI_KeenNose());
-	Templates.AddItem(PurePassive('IRI_KeenNose_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_PackHunter", false, 'eAbilitySource_Perk', true));
+	Templates.AddItem(PurePassive('IRI_KeenNose_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_KeenNose", false, 'eAbilitySource_Perk', true));
 
 	return Templates;
 }
@@ -32,11 +32,12 @@ static function X2AbilityTemplate IRI_KeenNose()
 
 	//	Icon setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_targetdefinition";
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_KeenNose";
 	SetHidden(Template);
 
 	// Triggering
-	SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnBegun', ELD_OnStateSubmitted, eFilter_Player, 50);
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+	//SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnBegun', ELD_OnStateSubmitted, eFilter_Player, 50);
 	SetSelfTarget_WithEventTrigger(Template, 'UnitMoveFinished', ELD_OnStateSubmitted, eFilter_None, 50);
 
 	// Targeting
@@ -58,12 +59,12 @@ static function X2AbilityTemplate IRI_KeenNose()
 	TargetCondition.ExcludeFriendlyToSource = true;
 	TargetCondition.ExcludeHostileToSource = false;
 	TargetCondition.RequireWithinRange = true;
-	TargetCondition.WithinRange = class'XComWorldData'.const.WORLD_StepSize * 25;
+	TargetCondition.WithinRange = class'XComWorldData'.const.WORLD_StepSize * GetConfigInt('IRI_KeenNose_Distance_Tiles');
 	Template.AbilityMultiTargetConditions.AddItem(TargetCondition);
 
 	// Add effect that will create a tether to the target via perk content
 	PersistentEffect = new class'X2Effect_Persistent';
-	PersistentEffect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnBegin);
+	PersistentEffect.BuildPersistentEffect(1, false, true,, eGameRule_PlayerTurnBegin);
 	PersistentEffect.EffectName = 'IRI_KeenNose_Effect';
 	PersistentEffect.DuplicateResponse = eDupe_Ignore;
 	VisibilityCondition = new class'X2Condition_TargetVisibleToSquad';
@@ -79,7 +80,7 @@ static function X2AbilityTemplate IRI_KeenNose()
 	RemoveEffects.TargetConditions.AddItem(new class'X2Condition_TargetVisibleToSquad'); // Can apply only to targets that ARE visible to XCOM
 	Template.AddMultiTargetEffect(RemoveEffects);
 
-	Template.ActivationSpeech = 'TargetDefinition';
+	//Template.ActivationSpeech = 'TargetDefinition';
 	Template.bSkipFireAction = true;
 	Template.Hostility = eHostility_Neutral;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
@@ -127,7 +128,8 @@ static function X2AbilityTemplate IRI_PackHunter()
 	SetHidden(Template);
 
 	// Triggering
-	SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnBegun', ELD_OnStateSubmitted, eFilter_None, 50);
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+	//SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnBegun', ELD_OnStateSubmitted, eFilter_None, 50);
 	SetSelfTarget_WithEventTrigger(Template, 'UnitMoveFinished', ELD_OnStateSubmitted, eFilter_None, 50);
 
 	//	Shooter Conditions
