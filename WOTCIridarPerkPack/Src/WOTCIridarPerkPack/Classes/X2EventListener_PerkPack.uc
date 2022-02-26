@@ -124,16 +124,16 @@ static private function ApplyLastingEndurance(XComGameState_Unit UnitState)
 	local float RestorePercentage;
 	local float CurrentPercentage;
 
-	`LOG(GetFuncName() @ UnitState.GetFullName() @ "current Will:" @ UnitState.GetCurrentStat(eStat_Will) @ "Max Will:" @ UnitState.GetMaxStat(eStat_Will) @ "Base Will:" @ UnitState.GetBaseStat(eStat_Will),, 'IRITEST');
+	//`LOG(GetFuncName() @ UnitState.GetFullName() @ "current Will:" @ UnitState.GetCurrentStat(eStat_Will) @ "Max Will:" @ UnitState.GetMaxStat(eStat_Will) @ "Base Will:" @ UnitState.GetBaseStat(eStat_Will),, 'IRITEST');
 
 	RestorePercentage = class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LastingEndurance_MinWillPercentage');
 
 	CurrentPercentage = UnitState.GetCurrentStat(eStat_Will) / UnitState.GetBaseStat(eStat_Will);
 
-	`LOG(`ShowVar(RestorePercentage) @ `ShowVar(CurrentPercentage),, 'IRITEST');
+	//`LOG(`ShowVar(RestorePercentage) @ `ShowVar(CurrentPercentage),, 'IRITEST');
 	if (CurrentPercentage < RestorePercentage)
 	{
-		`LOG("Restoring Will to:" @ UnitState.GetBaseStat(eStat_Will) * RestorePercentage,, 'IRITEST');
+	//	`LOG("Restoring Will to:" @ UnitState.GetBaseStat(eStat_Will) * RestorePercentage,, 'IRITEST');
 		UnitState.SetCurrentStat(eStat_Will, UnitState.GetBaseStat(eStat_Will) * RestorePercentage);
 	}
 }
