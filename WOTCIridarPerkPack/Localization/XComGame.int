@@ -112,3 +112,12 @@ LocLongDescription="While not visible to any enemies, sense direction to unseen 
 LocHelpText="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
 LocPromotionPopupText=""
 LocFlyOverText="Keen Nose"
+
+
+[IRI_LastingEndurance X2AbilityTemplate]
+LocFriendlyName="Lasting Endurance"
+LocLongDescription="If after a mission your Will is below <Ability:IRI_LastingEndurance_MinWillPercentage/>%, it is restored to that value. You can no longer become shaken due to after mission fatigue."
+LocHelpText="If after a mission your Will is below <Ability:IRI_LastingEndurance_MinWillPercentage/>%, it is restored to that value. You can no longer become shaken due to after mission fatigue."
+LocPromotionPopupText=""
+LocFlyOverText="Lasting Endurance"
+

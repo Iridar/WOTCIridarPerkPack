@@ -109,7 +109,10 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 	case 'IRI_KeenNose_Distance_Tiles':
 		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_KeenNose_Distance_Tiles'));
 		return true;
-		
+
+	case 'IRI_LastingEndurance_MinWillPercentage':
+		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LastingEndurance_MinWillPercentage') * 100));
+		return true;
 	
 	default:
 		return false;

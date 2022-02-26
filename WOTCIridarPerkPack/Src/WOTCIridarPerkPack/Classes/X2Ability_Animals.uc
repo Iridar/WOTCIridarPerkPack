@@ -16,6 +16,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_KeenNose());
 	Templates.AddItem(IRI_KeenNose_Remover());
 	Templates.AddItem(PurePassive('IRI_KeenNose_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_KeenNose", false, 'eAbilitySource_Perk', true));
+	Templates.AddItem(PurePassive('IRI_LastingEndurance', "img:///IRIPerkPack_UILibrary.UIPerk_LastingEndurance", false, 'eAbilitySource_Perk', true));
 
 	return Templates;
 }

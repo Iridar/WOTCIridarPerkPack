@@ -30,11 +30,13 @@ static function CHEventListenerTemplate TacticalListeners()
 
 	Template.AddCHEvent('CleanupTacticalMission', OnCleanupTacticalMission, ELD_Immediate, 50);
 
+	// TODO: DEBUG ONLY
 	Template.AddCHEvent('AbilityActivated', OnAbilityActivated, ELD_Immediate, 50);
 
 	return Template;
 }
 
+// TODO: DEBUG ONLY
 static function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState NewGameState, Name InEventID, Object CallbackData)
 {
     local XComGameState_Unit	UnitState;
@@ -49,9 +51,9 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 	UnitState = XComGameState_Unit(EventSource);
 	AbilityState = XComGameState_Ability(EventData);
 
-	`LOG(UnitState.GetFullName() @ "activated ability:" @ AbilityState.GetMyTemplateName() @ "against" @ AbilityContext.InputContext.MultiTargets.Length @ "multi targets",, 'IRITEST');
-
 	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
+
+	`LOG(UnitState.GetFullName() @ "activated ability:" @ AbilityState.GetMyTemplateName() @ "against" @ AbilityContext.InputContext.MultiTargets.Length @ "multi targets",, 'IRITEST');
 
 	foreach AbilityContext.InputContext.MultiTargets(UnitRef)
 	{
@@ -71,14 +73,21 @@ static function EventListenerReturn OnCleanupTacticalMission(Object EventData, O
 
 	foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 	{
-		if (UnitState.IsAlive() && !UnitState.bCaptured && UnitState.HasAbilityFromAnySource('IRI_LaughItOff'))
+		if (UnitState.IsAlive() && !UnitState.bCaptured)
 		{
 			NewUnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(UnitState.ObjectID));
 			if (NewUnitState == none)
 			{
 				NewUnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 			}
-			ApplyLaughItOff(NewUnitState);
+			if (UnitState.HasAbilityFromAnySource('IRI_LaughItOff'))
+			{
+				ApplyLaughItOff(NewUnitState);
+			}
+			if (UnitState.HasAbilityFromAnySource('IRI_LastingEndurance'))
+			{
+				ApplyLastingEndurance(NewUnitState);
+			}
 		}
 	}
 
@@ -108,4 +117,23 @@ static private function ApplyLaughItOff(XComGameState_Unit UnitState)
 	//`LOG("Effect applied!",, 'IRITEST');
 	//`LOG(GetFuncName() @ UnitState.GetFullName() @ "current HP:" @ UnitState.GetCurrentStat(eStat_HP) @ "Max HP:" @ UnitState.GetMaxStat(eStat_HP) @ "Lowest HP:" @ UnitState.LowestHP @ "Highest HP:" @ UnitState.HighestHP @ "Base HP:" @ UnitState.GetBaseStat(eStat_HP),, 'IRITEST');
 	//`LOG("-----------------------------------------------------------------------------------",, 'IRITEST');
+}
+
+static private function ApplyLastingEndurance(XComGameState_Unit UnitState)
+{
+	local float RestorePercentage;
+	local float CurrentPercentage;
+
+	`LOG(GetFuncName() @ UnitState.GetFullName() @ "current Will:" @ UnitState.GetCurrentStat(eStat_Will) @ "Max Will:" @ UnitState.GetMaxStat(eStat_Will) @ "Base Will:" @ UnitState.GetBaseStat(eStat_Will),, 'IRITEST');
+
+	RestorePercentage = class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LastingEndurance_MinWillPercentage');
+
+	CurrentPercentage = UnitState.GetCurrentStat(eStat_Will) / UnitState.GetBaseStat(eStat_Will);
+
+	`LOG(`ShowVar(RestorePercentage) @ `ShowVar(CurrentPercentage),, 'IRITEST');
+	if (CurrentPercentage < RestorePercentage)
+	{
+		`LOG("Restoring Will to:" @ UnitState.GetBaseStat(eStat_Will) * RestorePercentage,, 'IRITEST');
+		UnitState.SetCurrentStat(eStat_Will, UnitState.GetBaseStat(eStat_Will) * RestorePercentage);
+	}
 }
