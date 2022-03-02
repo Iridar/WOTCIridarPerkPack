@@ -62,6 +62,9 @@
     <Content Include="ContentForCook\Animal\IRIKeenNosePerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Animal\IRIRallyingHowlPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Animal\IRIScavengerPerk.upk">
       <SubType>Content</SubType>
     </Content>
@@ -90,6 +93,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentOptions.json">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\WOTCIridarPerkPack.int">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ReadMe.txt" />
@@ -130,6 +136,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_PackHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_RallyingHowl.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_SoulShot_ArrowHit.uc">

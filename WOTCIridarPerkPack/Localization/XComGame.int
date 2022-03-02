@@ -113,7 +113,6 @@ LocHelpText="While not visible to any enemies, sense direction to unseen enemies
 LocPromotionPopupText=""
 LocFlyOverText="Keen Nose"
 
-
 [IRI_LastingEndurance X2AbilityTemplate]
 LocFriendlyName="Lasting Endurance"
 LocLongDescription="If after a mission your Will is below <Ability:IRI_LastingEndurance_MinWillPercentage/>%, it is restored to that value. You can no longer become shaken due to after mission fatigue."
@@ -121,3 +120,9 @@ LocHelpText="If after a mission your Will is below <Ability:IRI_LastingEndurance
 LocPromotionPopupText=""
 LocFlyOverText="Lasting Endurance"
 
+[IRI_RallyingHowl X2AbilityTemplate]
+LocFriendlyName="Rallying Howl"
+LocLongDescription="Until the end of turn, squadmates will have their action points refunded once for moving towards the howling unit."
+LocHelpText="Until the end of turn, squadmates will have their action points refunded once for moving towards the howling unit."
+LocPromotionPopupText="<bullet/> To get action points refunded, a squadmate has to end up closer to the howling unit than they were before they started moving.<br/><bullet/> <Ability:IRI_RallyingHowl_Charges/> use(s) per mission.<br/><bullet/> <Ability:IRI_RallyingHowl_Cooldown/> turn cooldown, shared with other units with Rallying Howl."
+LocFlyOverText="Rallying Howl"

@@ -425,15 +425,26 @@ final static function FollowUpShot_MergeVisualization(X2Action BuildTree, out X2
 //				COMMON CODE
 //	========================================
 
-static function AddCooldown(out X2AbilityTemplate Template, int Cooldown)
+static function AddCooldown(out X2AbilityTemplate Template, int Cooldown, optional bool bGlobal = false)
 {
-	local X2AbilityCooldown AbilityCooldown;
+	local X2AbilityCooldown					AbilityCooldown;
+	local X2AbilityCooldown_LocalAndGlobal	GlobalCooldown;
 
 	if (Cooldown > 0)
 	{
-		AbilityCooldown = new class'X2AbilityCooldown';
-		AbilityCooldown.iNumTurns = Cooldown;
-		Template.AbilityCooldown = AbilityCooldown;
+		if (bGlobal)
+		{
+			GlobalCooldown = new class'X2AbilityCooldown_LocalAndGlobal';
+			GlobalCooldown.iNumTurns = Cooldown;
+			GlobalCooldown.NumGlobalTurns = Cooldown;
+			Template.AbilityCooldown = GlobalCooldown;
+		}
+		else
+		{	
+			AbilityCooldown = new class'X2AbilityCooldown';
+			AbilityCooldown.iNumTurns = Cooldown;
+			Template.AbilityCooldown = AbilityCooldown;
+		}
 	}
 }
 

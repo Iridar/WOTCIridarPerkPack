@@ -113,6 +113,14 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 	case 'IRI_LastingEndurance_MinWillPercentage':
 		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LastingEndurance_MinWillPercentage') * 100));
 		return true;
+
+	case 'IRI_RallyingHowl_Cooldown':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_RallyingHowl_Cooldown'));
+		return true;
+	case 'IRI_RallyingHowl_Charges':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_RallyingHowl_Charges'));
+		return true;
+
 	
 	default:
 		return false;

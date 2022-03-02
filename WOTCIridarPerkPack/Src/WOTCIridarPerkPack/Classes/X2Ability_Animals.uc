@@ -1,5 +1,8 @@
 class X2Ability_Animals extends X2Ability_PerkPack;
 
+var localized string strRallyingHowlEffectFriendlyDesc_Target;
+var localized string strRallyingHowlEffectFriendlyDesc_Source;
+
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
@@ -17,8 +20,83 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_KeenNose_Remover());
 	Templates.AddItem(PurePassive('IRI_KeenNose_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_KeenNose", false, 'eAbilitySource_Perk', true));
 	Templates.AddItem(PurePassive('IRI_LastingEndurance', "img:///IRIPerkPack_UILibrary.UIPerk_LastingEndurance", false, 'eAbilitySource_Perk', true));
+	Templates.AddItem(IRI_RallyingHowl());
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_RallyingHowl()
+{
+	local X2AbilityTemplate				Template;	
+	local X2Condition_UnitProperty		UnitPropertyCondition;	
+	local X2Effect_RallyingHowl			RallyingHowl;
+	local X2AbilityMultiTarget_AllUnits	MultiTargetStyle;
+	local X2Effect_Persistent			PersistentEffect;
+	
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RallyingHowl');
+
+	//	Icon setup
+	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_RallyingHowl"; 
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.LOOT_PRIORITY;
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+
+	//	Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	MultiTargetStyle = new class'X2AbilityMultiTarget_AllUnits';
+	MultiTargetStyle.bAcceptFriendlyUnits = true;
+	MultiTargetStyle.bAcceptEnemyUnits = false;
+	Template.AbilityMultiTargetStyle = MultiTargetStyle;
+
+	// Costs
+	Template.AbilityCosts.AddItem(default.FreeActionCost);
+	AddCooldown(Template, GetConfigInt('IRI_RallyingHowl_Cooldown'), true);
+	AddCharges(Template, GetConfigInt('IRI_RallyingHowl_Charges'));
+	
+	//	Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Multi Target Conditions
+	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = true;
+	UnitPropertyCondition.ExcludeAlive = false;
+	UnitPropertyCondition.ExcludeFriendlyToSource = false;
+	UnitPropertyCondition.ExcludeHostileToSource = true;
+	UnitPropertyCondition.FailOnNonUnits = true;
+	//UnitPropertyCondition.RequireWithinRange = true;
+	//UnitPropertyCondition.WithinRange = class'XComWorldData'.const.WORLD_StepSize * 18;
+	Template.AbilityMultiTargetConditions.AddItem(UnitPropertyCondition);
+	Template.AbilityMultiTargetConditions.AddItem(new class'X2Condition_TargetVisibleToSquad');
+
+
+	// Effects
+	PersistentEffect = new class'X2Effect_Persistent';
+	PersistentEffect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	PersistentEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, default.strRallyingHowlEffectFriendlyDesc_Source, Template.IconImage, true);
+	PersistentEffect.EffectName = 'IRI_RallyingHowl_SourceEffect';
+	Template.AddMultiTargetEffect(PersistentEffect);
+
+	RallyingHowl = new class'X2Effect_RallyingHowl';
+	RallyingHowl.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	RallyingHowl.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, default.strRallyingHowlEffectFriendlyDesc_Target, Template.IconImage, true);
+	Template.AddMultiTargetEffect(RallyingHowl);
+
+	//Template.CinescriptCameraType = "Loot";
+	SetFireAnim(Template, 'HL_RallyingHowl');
+	Template.bSkipFireAction = false;
+	Template.bShowActivation = false;
+	Template.bSkipExitCoverWhenFiring = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.Hostility = eHostility_Neutral;
+
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;	
 }
 
 static function X2AbilityTemplate IRI_KeenNose()
@@ -200,8 +278,6 @@ static function X2AbilityTemplate IRI_Scavenger()
 {
 	local X2AbilityTemplate			Template;	
 	local X2Condition_UnitProperty	UnitPropertyCondition;	
-	local X2AbilityCharges			Charges;
-	local X2AbilityCost_Charges		ChargeCost;
 	local X2Condition_UnitValue		UntiValueCondition;
 	local X2Effect_SetUnitValue		UnitValueEffect;
 	
@@ -223,15 +299,7 @@ static function X2AbilityTemplate IRI_Scavenger()
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);
 	AddCooldown(Template, GetConfigInt('IRI_Scavenger_Cooldown'));
-
-	Charges = new class'X2AbilityCharges';
-	Charges.InitialCharges = GetConfigInt('IRI_Scavenger_Charges');
-	Template.AbilityCharges = Charges;
-
-	ChargeCost = new class'X2AbilityCost_Charges';
-	ChargeCost.NumCharges = 1;
-	//ChargeCost.bFreeCost = true; // Doesn't work with X2Ability_Charges. Firaxis being inconsistent, per usual.
-	Template.AbilityCosts.AddItem(ChargeCost);
+	AddCharges(Template, GetConfigInt('IRI_Scavenger_Charges')); // bFreeCost doesn't work with X2Ability_Charges. Firaxis being inconsistent, per usual.
 
 	//	Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
@@ -486,18 +554,6 @@ static function X2AbilityTemplate IRI_TunnelRat()
 //	========================================
 //				COMMON CODE
 //	========================================
-
-static function AddCooldown(out X2AbilityTemplate Template, int Cooldown)
-{
-	local X2AbilityCooldown AbilityCooldown;
-
-	if (Cooldown > 0)
-	{
-		AbilityCooldown = new class'X2AbilityCooldown';
-		AbilityCooldown.iNumTurns = Cooldown;
-		Template.AbilityCooldown = AbilityCooldown;
-	}
-}
 
 static function AddCharges(out X2AbilityTemplate Template, int InitialCharges)
 {
