@@ -32,6 +32,7 @@ static function X2AbilityTemplate IRI_RallyingHowl()
 	local X2Effect_RallyingHowl			RallyingHowl;
 	local X2AbilityMultiTarget_AllUnits	MultiTargetStyle;
 	local X2Effect_Persistent			PersistentEffect;
+	local X2AbilityCooldown_Shared		SharedCooldown;
 	
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RallyingHowl');
 
@@ -39,7 +40,8 @@ static function X2AbilityTemplate IRI_RallyingHowl()
 	Template.IconImage = "img:///IRIPerkPack_UILibrary.UIPerk_RallyingHowl"; 
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.LOOT_PRIORITY;
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
+	Template.HideErrors.AddItem('AA_CannotAfford_Charges');
 
 	//	Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -49,12 +51,21 @@ static function X2AbilityTemplate IRI_RallyingHowl()
 	MultiTargetStyle = new class'X2AbilityMultiTarget_AllUnits';
 	MultiTargetStyle.bAcceptFriendlyUnits = true;
 	MultiTargetStyle.bAcceptEnemyUnits = false;
+	MultiTargetStyle.bAddPrimaryTargetAsMultiTarget = false;
 	Template.AbilityMultiTargetStyle = MultiTargetStyle;
 
 	// Costs
-	Template.AbilityCosts.AddItem(default.FreeActionCost);
-	AddCooldown(Template, GetConfigInt('IRI_RallyingHowl_Cooldown'), true);
+	AddActionCost(Template, 1, GetConfigBool('IRI_RallyingHowl_EndsTurn'), GetConfigBool('IRI_RallyingHowl_FreeActionCost'));
 	AddCharges(Template, GetConfigInt('IRI_RallyingHowl_Charges'));
+
+	if (GetConfigInt('IRI_RallyingHowl_Cooldown') > 0)
+	{
+		SharedCooldown = new class'X2AbilityCooldown_Shared';
+		SharedCooldown.iNumTurns = GetConfigInt('IRI_RallyingHowl_Cooldown');
+		SharedCooldown.SharedCooldown = SharedCooldown.iNumTurns;
+		SharedCooldown.GlobalCooldownAbilities.AddItem(Template.DataName);
+		Template.AbilityCooldown = SharedCooldown;
+	}
 	
 	//	Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
@@ -70,7 +81,7 @@ static function X2AbilityTemplate IRI_RallyingHowl()
 	//UnitPropertyCondition.RequireWithinRange = true;
 	//UnitPropertyCondition.WithinRange = class'XComWorldData'.const.WORLD_StepSize * 18;
 	Template.AbilityMultiTargetConditions.AddItem(UnitPropertyCondition);
-	Template.AbilityMultiTargetConditions.AddItem(new class'X2Condition_TargetVisibleToSquad');
+	Template.AbilityMultiTargetConditions.AddItem(new class'X2Condition_UnitInSquad');
 
 
 	// Effects
@@ -78,7 +89,7 @@ static function X2AbilityTemplate IRI_RallyingHowl()
 	PersistentEffect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
 	PersistentEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, default.strRallyingHowlEffectFriendlyDesc_Source, Template.IconImage, true);
 	PersistentEffect.EffectName = 'IRI_RallyingHowl_SourceEffect';
-	Template.AddMultiTargetEffect(PersistentEffect);
+	Template.AddShooterEffect(PersistentEffect);
 
 	RallyingHowl = new class'X2Effect_RallyingHowl';
 	RallyingHowl.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
@@ -93,6 +104,7 @@ static function X2AbilityTemplate IRI_RallyingHowl()
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.Hostility = eHostility_Neutral;
+	Template.ConcealmentRule = eConceal_Never;
 
 	Template.bFrameEvenWhenUnitIsHidden = true;
 
@@ -148,7 +160,8 @@ static function X2AbilityTemplate IRI_KeenNose()
 	PersistentEffect = new class'X2Effect_Persistent';
 	PersistentEffect.BuildPersistentEffect(2, false, true, false, eGameRule_PlayerTurnBegin);
 	PersistentEffect.EffectName = 'IRI_KeenNose_Effect';
-	PersistentEffect.DuplicateResponse = eDupe_Ignore;
+	PersistentEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	PersistentEffect.DuplicateResponse = eDupe_Allow;
 	Template.AddMultiTargetEffect(PersistentEffect);
 
 	Template.bSkipFireAction = true;
@@ -205,6 +218,7 @@ static function X2AbilityTemplate IRI_KeenNose_Remover()
 
 	RemoveEffects = new class'X2Effect_RemoveEffects';
 	RemoveEffects.EffectNamesToRemove.AddItem('IRI_KeenNose_Effect');
+	RemoveEffects.bCheckSource = true;
 	Template.AddMultiTargetEffect(RemoveEffects);
 
 	Template.bSkipFireAction = true;

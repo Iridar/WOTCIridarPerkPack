@@ -120,7 +120,14 @@ static function bool AbilityTagExpandHandler(string InString, out string OutStri
 	case 'IRI_RallyingHowl_Charges':
 		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_RallyingHowl_Charges'));
 		return true;
-
+	case 'IRI_RallyingHowl_FreeActionCost':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigBool('IRI_RallyingHowl_FreeActionCost'));
+		return true;
+	case 'IRI_RallyingHowl_EndsTurn':
+		OutString = string(class'X2Ability_PerkPack'.static.GetConfigBool('IRI_RallyingHowl_EndsTurn'));
+		return true;
+		
+		
 	
 	default:
 		return false;

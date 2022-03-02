@@ -89,7 +89,7 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 	{
 		AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(XComGameStateContext_Ability(VisualizeGameState.GetContext()).InputContext.AbilityTemplateName);
 		FlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-		FlyOver.SetSoundAndFlyOverParameters(none, AbilityTemplate.LocFlyOverText, '', eColor_Good, AbilityTemplate.IconImage, 0, false);
+		FlyOver.SetSoundAndFlyOverParameters(none, FriendlyName/*AbilityTemplate.LocFlyOverText*/, '', eColor_Good, AbilityTemplate.IconImage, 0, false);
 	}
 }
 
