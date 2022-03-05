@@ -30,11 +30,42 @@ static function CHEventListenerTemplate TacticalListeners()
 
 	Template.AddCHEvent('CleanupTacticalMission', OnCleanupTacticalMission, ELD_Immediate, 50);
 
+	Template.AddCHEvent('AbilityActivated', ScentTrackingListner, ELD_Immediate, 50);
+
 	// TODO: DEBUG ONLY
 	Template.AddCHEvent('AbilityActivated', OnAbilityActivated, ELD_Immediate, 50);
 
 	return Template;
 }
+
+static function EventListenerReturn ScentTrackingListner(Object EventData, Object EventSource, XComGameState NewGameState, Name InEventID, Object CallbackData)
+{
+    local XComGameState_Unit			UnitState;
+	local XComGameState_ScentTracking	ScentTracking;
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameState_Ability AbilityState;
+
+	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
+	if (AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt || AbilityContext.InputContext.MovementPaths.Length == 0)
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none)
+		return ELR_NoInterrupt;
+
+	if (!UnitState.IsEnemyTeam(eTeam_XCom))
+		return ELR_NoInterrupt;
+
+	AbilityState = XComGameState_Ability(EventData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+
+	ScentTracking = class'XComGameState_ScentTracking'.static.GetOrCreate(NewGameState);
+	ScentTracking.AddContext(AbilityContext, AbilityState);
+
+    return ELR_NoInterrupt;
+}
+
 
 // TODO: DEBUG ONLY
 static function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState NewGameState, Name InEventID, Object CallbackData)

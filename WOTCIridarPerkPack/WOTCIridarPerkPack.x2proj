@@ -7,6 +7,7 @@
     <SteamPublishID>0</SteamPublishID>
     <AssemblyName>WOTCIridarPerkPack</AssemblyName>
     <RootNamespace>WOTCIridarPerkPack</RootNamespace>
+    <ProjectGuid>{fbdfc3db-e6a0-406b-b696-cf473529a8d6}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Config\" />
@@ -101,7 +102,19 @@
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\ActorScentTracker.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\Help.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\InstancedMeshActor.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\InstancedTileComponent.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\UIListener_ScentTracker.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCooldown_Shared.uc">
@@ -163,6 +176,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_PerkPack.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_ScentTracking.uc">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>

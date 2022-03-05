@@ -127,3 +127,10 @@ LocHelpText="Until the end of turn, squadmates will have their action points ref
 LocPromotionPopupText="<bullet/> Rallying Howl always breaks concealment.<br/><bullet/> To get action points refunded, a squadmate has to end up closer to the howling unit than they were before they started moving.<br/><bullet/> <Ability:IRI_RallyingHowl_Charges/> use(s) per mission.<br/><bullet/> <Ability:IRI_RallyingHowl_Cooldown/> turn cooldown, shared with other units with Rallying Howl.<br/><bullet/> Rallying Howl ends soldier's turn when used: <Ability:IRI_RallyingHowl_EndsTurn/><br/><bullet/> Rallying Howl does not cost an Action to activate: <Ability:IRI_RallyingHowl_FreeActionCost/>"
 LocFlyOverText="Rallying Howl - Actions Refunded"
 
+[IRI_ScentTracking X2AbilityTemplate]
+LocFriendlyName="Scent Tracking"
+LocLongDescription="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocHelpText="While not visible to any enemies, sense direction to unseen enemies within <Ability:IRI_KeenNose_Distance_Tiles/> tiles."
+LocPromotionPopupText=""
+LocFlyOverText="Scent Tracking"
+

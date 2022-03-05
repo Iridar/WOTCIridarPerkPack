@@ -7,20 +7,24 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
+	// Rat
 	Templates.AddItem(IRI_TunnelingClaws());
 	Templates.AddItem(IRI_ToxinAptitude());
 	Templates.AddItem(IRI_TunnelRat());
 
+	// Hyena
 	Templates.AddItem(IRI_Scavenger());
 	Templates.AddItem(IRI_PackHunter());
 	Templates.AddItem(PurePassive('IRI_PackHunter_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_PackHunter", false, 'eAbilitySource_Perk', true));
 	Templates.AddItem(PurePassive('IRI_LaughItOff', "img:///IRIPerkPack_UILibrary.UIPerk_LaughItOff", false, 'eAbilitySource_Perk', true));
 
-	Templates.AddItem(IRI_KeenNose());
-	Templates.AddItem(IRI_KeenNose_Remover());
-	Templates.AddItem(PurePassive('IRI_KeenNose_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_KeenNose", false, 'eAbilitySource_Perk', true));
+	// Wolf
+	//Templates.AddItem(IRI_KeenNose());
+	//Templates.AddItem(IRI_KeenNose_Remover());
+	//Templates.AddItem(PurePassive('IRI_KeenNose_Passive', "img:///IRIPerkPack_UILibrary.UIPerk_KeenNose", false, 'eAbilitySource_Perk', true));
 	Templates.AddItem(PurePassive('IRI_LastingEndurance', "img:///IRIPerkPack_UILibrary.UIPerk_LastingEndurance", false, 'eAbilitySource_Perk', true));
 	Templates.AddItem(IRI_RallyingHowl());
+	Templates.AddItem(PurePassive('IRI_ScentTracking', "img:///IRIPerkPack_UILibrary.UIPerk_KeenNose", false, 'eAbilitySource_Perk', true));
 
 	return Templates;
 }
