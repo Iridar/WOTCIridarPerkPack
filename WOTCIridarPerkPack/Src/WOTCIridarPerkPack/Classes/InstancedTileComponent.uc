@@ -1,32 +1,37 @@
 class InstancedTileComponent extends X2TargetingMethod;
 
-function CustomInit()
+final function CustomInit()
 {
     AOEMeshActor = `XWORLDINFO.Spawn(class'InstancedMeshActor');
 }
  
-function SetMesh(StaticMesh Mesh)
+final function SetMesh(StaticMesh Mesh)
 {
     AOEMeshActor.InstancedMeshComponent.SetStaticMesh(Mesh);
 }
 
 // X2TargetingMethod requires that Ability is set. Do it with this function.
-function SetMockParameters(XComGameState_Ability AbilityState)
+final function SetMockParameters(XComGameState_Ability AbilityState)
 {
 	Ability = AbilityState;
 }
 
-function SetTiles(const out array<TTile> Tiles)
+final function SetTiles(const out array<TTile> Tiles)
 {
     DrawAOETiles(Tiles);
 }
  
-function Dispose()
+final function Dispose()
 {
     AOEMeshActor.Destroy();
 }
 
-function SetVisible(bool Visible)
+final function SetVisible(bool Visible)
 {
 	AOEMeshActor.SetVisible(Visible);
+}
+
+final function bool IsFullyInit()
+{
+	return Ability != none;
 }

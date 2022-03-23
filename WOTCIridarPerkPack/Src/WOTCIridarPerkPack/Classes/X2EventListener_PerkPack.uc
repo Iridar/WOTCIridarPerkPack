@@ -43,7 +43,7 @@ static function EventListenerReturn ScentTrackingListner(Object EventData, Objec
     local XComGameState_Unit			UnitState;
 	local XComGameState_ScentTracking	ScentTracking;
 	local XComGameStateContext_Ability	AbilityContext;
-	local XComGameState_Ability AbilityState;
+	//local XComGameState_Ability AbilityState;
 
 	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
 	if (AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt || AbilityContext.InputContext.MovementPaths.Length == 0)
@@ -53,15 +53,16 @@ static function EventListenerReturn ScentTrackingListner(Object EventData, Objec
 	if (UnitState == none)
 		return ELR_NoInterrupt;
 
-	if (!UnitState.IsEnemyTeam(eTeam_XCom))
-		return ELR_NoInterrupt;
+// TODO: DEBUG ONLY
+//if (!UnitState.IsEnemyTeam(eTeam_XCom))
+//	return ELR_NoInterrupt;
 
-	AbilityState = XComGameState_Ability(EventData);
-	if (AbilityState == none)
-		return ELR_NoInterrupt;
+	//AbilityState = XComGameState_Ability(EventData);
+	//if (AbilityState == none)
+	//	return ELR_NoInterrupt;
 
 	ScentTracking = class'XComGameState_ScentTracking'.static.GetOrCreate(NewGameState);
-	ScentTracking.AddContext(AbilityContext, AbilityState);
+	ScentTracking.AddContext(AbilityContext);
 
     return ELR_NoInterrupt;
 }
