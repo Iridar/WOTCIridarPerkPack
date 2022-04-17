@@ -10,7 +10,7 @@ var array<int> UnitsWithAbility;
 var array<int> UnitsWithoutAbility;
 
 var bool bTilesShown;
-
+/*
 event PostBeginPlay()
 {
 	local XComGameStateHistory History;
@@ -27,14 +27,14 @@ event PostBeginPlay()
 		`LOG("Init ability:" @ AbilityState.GetMyTemplateName(),, 'IRIACTOR');
 		break;
 	}
-}
+}*/
 
 event Destroyed()
 {
 	TileComponent.Dispose();
 	super.Destroyed();
 }
-
+/*
 event Tick(float DeltaTime)
 {
 	local XGUnit						ActiveUnit;
@@ -111,3 +111,4 @@ event Tick(float DeltaTime)
 		TileComponent.SetVisible(false);
 	}	
 }
+*/
