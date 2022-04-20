@@ -18,3 +18,34 @@ final static function int TileDistanceBetweenUnitAndTile(const XComGameState_Uni
 
 	return Tiles;
 }
+
+static final function bool IsModActive(const name ModName)
+{
+    local XComOnlineEventMgr    EventManager;
+    local int                   Index;
+
+    EventManager = `ONLINEEVENTMGR;
+
+    for (Index = EventManager.GetNumDLC() - 1; Index >= 0; Index--) 
+    {
+        if (EventManager.GetDLCNames(Index) == ModName) 
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static final function bool AreModsActive(const array<name> ModNames)
+{
+	local name ModName;
+
+	foreach ModNames(ModName)
+	{
+		if (!IsModActive(ModName))
+		{
+			return false;
+		}
+	}
+	return true;
+}

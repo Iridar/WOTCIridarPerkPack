@@ -1,114 +1,99 @@
 class X2Ability_PerkPack extends X2Ability config(IridarPerkPack);
 
-struct PerkPackConfigStruct
+/*
+
+*/
+
+struct ConfigStruct
 {
-	var name P;
-	var string V;
-	var array<string> VA;
+	// Config property name
+	var name N; 
+
+	// Properties
+	var string				V;	// Value of the property
+	var array<string>		VA; // Array of values (when appropriate)
+	var WeaponDamageValue	Damage;
+	var StrategyCost		Cost;
+	var StrategyRequirement	Requirements;
+
+	var array<name>			RDLC;		// List of required modnames for this config entry to be considered
+	var int					Priority;	// Priority. If several config entries share the same name N, the entry with highest priority will be used. 
+										// If priority matches, the latest entry in config load order will be used.
+	structdefaultproperties
+	{
+		Priority = 50
+	}
 };
-var private config array<PerkPackConfigStruct> PerkPackConfig;
-var private config array<WeaponDamageValue> AbilityDamage;
+var private config array<ConfigStruct> Configs;
 
-
-final static function bool GetConfigBool(name Property, optional bool bDefaultValue = false)
+static final function ConfigStruct GetConfig(const name ConfigName)
 {
-	local int Index;
+	local ConfigStruct ReturnConfig;
+	local ConfigStruct CycleConfig;
+	local ConfigStruct EmptyConfig;
 
-	Index = default.PerkPackConfig.Find('P', Property);
-	if (Index != INDEX_NONE)
+	foreach default.Configs(CycleConfig)
 	{
-		return bool(default.PerkPackConfig[Index].V);
-	}
-
-	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
-	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
-
-	return bDefaultValue;
-}
-
-final static function int GetConfigInt(name Property)
-{
-	local int Index;
-
-	Index = default.PerkPackConfig.Find('P', Property);
-	if (Index != INDEX_NONE)
-	{
-		return int(default.PerkPackConfig[Index].V);
-	}
-
-	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
-	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
-
-	return 0;
-}
-
-final static function float GetConfigFloat(name Property)
-{
-	local int Index;
-
-	Index = default.PerkPackConfig.Find('P', Property);
-	if (Index != INDEX_NONE)
-	{
-		return float(default.PerkPackConfig[Index].V);
-	}
-
-	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
-	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
-
-	return 0;
-}
-
-final static function name GetConfigName(name Property)
-{
-	local int Index;
-
-	Index = default.PerkPackConfig.Find('P', Property);
-	if (Index != INDEX_NONE)
-	{
-		return name(default.PerkPackConfig[Index].V);
-	}
-
-	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
-	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
-
-	return '';
-}
-
-final static function string GetConfigString(name Property)
-{
-	local int Index;
-
-	Index = default.PerkPackConfig.Find('P', Property);
-	if (Index != INDEX_NONE)
-	{
-		return default.PerkPackConfig[Index].V;
-	}
-
-	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
-	`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
-
-	return "";
-}
-
-final static function array<int> GetConfigArrayInt(name Property)
-{
-	local array<string> StringArray;
-	local array<int> ReturnArray;
-	local int Index;
-
-	Index = default.PerkPackConfig.Find('P', Property);
-	if (Index != INDEX_NONE)
-	{
-		StringArray = default.PerkPackConfig[Index].VA;
-		for (Index = 0; Index < StringArray.Length; Index++)
+		if (!class'Help'.static.AreModsActive(CycleConfig.RDLC))
 		{
-			ReturnArray.AddItem(int(StringArray[Index]));
+			continue;
+		}
+		if (CycleConfig.N == ConfigName && CycleConfig.Priority >= ReturnConfig.Priority)
+		{
+			ReturnConfig = CycleConfig;
 		}
 	}
-	else
+
+	if (ReturnConfig == EmptyConfig)
 	{
-		`LOG("WARNING ::" @ GetFuncName() @ "Failed to find Perk Pack Config for Property:" @ Property,, 'WOTCIridarPerkPack');
-		`LOG(GetScriptTrace(),, 'WOTCIridarPerkPack');
+		`LOG("WARNING :: Failed to find Config with N name:" @ ConfigName);
+		`LOG(GetScriptTrace());
+	}
+
+	return ReturnConfig;
+}
+
+static final function string GetConfigValue(const name ConfigName)
+{
+	return GetConfig(ConfigName).V;
+}
+
+
+static final function bool GetConfigBool(const name ConfigName)
+{
+	return bool(GetConfigValue(ConfigName));
+}
+
+static final function int GetConfigInt(const name ConfigName)
+{
+	return int(GetConfigValue(ConfigName));
+}
+
+static final function float GetConfigFloat(const name ConfigName)
+{
+	return float(GetConfigValue(ConfigName));
+}
+
+static final function name GetConfigName(const name ConfigName)
+{
+	return name(GetConfigValue(ConfigName));
+}
+
+static final function string GetConfigString(const name ConfigName)
+{
+	return GetConfigValue(ConfigName);
+}
+
+static final function array<int> GetConfigArrayInt(const name ConfigName)
+{
+	local array<string>	StringArray;
+	local array<int>	ReturnArray;
+	local int			Index;
+
+	StringArray = GetConfig(ConfigName).VA;
+	for (Index = 0; Index < StringArray.Length; Index++)
+	{
+		ReturnArray.AddItem(int(StringArray[Index]));
 	}
 
 	return ReturnArray;
@@ -129,22 +114,9 @@ final static function int GetArrayMaxInt(const array<int> IntArray)
 	return Max;
 }
 
-
-final static function WeaponDamageValue GetAbilityDamage(name AbilityName)
+static final function WeaponDamageValue GetAbilityDamage(name AbilityName)
 {
-	local WeaponDamageValue EmptyDamageValue;
-	local int Index;
-
-	Index = default.AbilityDamage.Find('Tag', AbilityName);
-	if (Index != INDEX_NONE)
-	{
-		return default.AbilityDamage[Index];
-	}
-
-	`LOG("WARNING ::" @ GetFuncName() @ "Failed to find AbilityDamage for ability:" @ AbilityName,, 'WOTCIridarPerkPack');
-
-	EmptyDamageValue.Damage = 0;
-	return EmptyDamageValue;
+	return GetConfig(AbilityName).Damage;
 }
 
 //	========================================
@@ -465,17 +437,7 @@ static function AddCharges(out X2AbilityTemplate Template, int InitialCharges)
 	}
 }
 
-static function AddFreeCost(out X2AbilityTemplate Template)
-{
-	local X2AbilityCost_ActionPoints ActionPointCost;
-
-	ActionPointCost = new class'X2AbilityCost_ActionPoints';
-	ActionPointCost.iNumPoints = 1;
-	ActionPointCost.bFreeCost = true;
-	Template.AbilityCosts.AddItem(ActionPointCost);
-}
-
-static function RemoveVoiceLines(out X2AbilityTemplate Template)
+static function RemoveSpeech(out X2AbilityTemplate Template)
 {
 	Template.ActivationSpeech = '';
 	Template.SourceHitSpeech = '';

@@ -123,6 +123,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Animals.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Items.uc">
       <SubType>Content</SubType>
     </Content>
@@ -151,6 +154,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_DeadlyShadow.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_Items_Supercharge.uc">
       <SubType>Content</SubType>
     </Content>
