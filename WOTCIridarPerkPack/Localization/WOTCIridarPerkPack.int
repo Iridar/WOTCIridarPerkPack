@@ -1,3 +1,2 @@
-[X2Ability_Animals]
-strRallyingHowlEffectFriendlyDesc_Target="This unit will have action points refunded if they move towards the howling unit."
-strRallyingHowlEffectFriendlyDesc_Source="This unit has unleashed a Rallying Howl. Their squadmates will have their action points refunded if they move towards the howling unit."
+[Help]
+SomeString = "localized_value"

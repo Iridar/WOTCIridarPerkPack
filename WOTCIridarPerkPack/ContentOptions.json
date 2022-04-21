@@ -1,11 +1,6 @@
 {
     "sfStandalone": [
-		"IRIPerkPack_UILibrary",
-		"IRIParryReworkPerk",
-		"IRIParryReworkAnims",
-        "IRISoulShotPerk",
-		"IRIApotheosisPerk",
-		"IRIScavengerPerk",
-		"IRIRallyingHowlPerk"
+        "PackageName1",
+		"PackageName2"
     ]
 }

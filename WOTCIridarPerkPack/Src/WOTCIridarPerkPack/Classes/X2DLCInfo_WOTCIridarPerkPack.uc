@@ -1,175 +1,5 @@
 class X2DLCInfo_WOTCIridarPerkPack extends X2DownloadableContentInfo;
 
-static function string DLCAppendSockets(XComUnitPawn Pawn)
-{
-	local array<SkeletalMeshSocket> NewSockets;
-	local SkeletalMeshSocket		NewSocket;
-
-	// ******************************************************************
-	//						SOUL SHOT
-
-	// For playing the arrow particle effect when firing the soul bow
-	NewSocket = new class'SkeletalMeshSocket';
-    NewSocket.SocketName = 'IRI_SoulBow_Arrow';
-    NewSocket.BoneName = 'RHand';
-    NewSocket.RelativeRotation.Pitch = -1183;
-    NewSocket.RelativeRotation.Yaw = -364;
-	NewSockets.AddItem(NewSocket);
-
-	// For playing the "arrow stuck in body" particle effect when hit by the soul bow
-	NewSocket = new class'SkeletalMeshSocket';
-    NewSocket.SocketName = 'IRI_SoulBow_Arrow_Hit';
-    NewSocket.BoneName = 'Ribcage';
-    NewSocket.RelativeRotation.Yaw = 16384;
-	NewSocket.RelativeRotation.Roll = -16384;
-	NewSockets.AddItem(NewSocket);
-
-	// ******************************************************************
-
-	Pawn.Mesh.AppendSockets(NewSockets, true);
-
-	return "";
-}
-
-static function bool AbilityTagExpandHandler(string InString, out string OutString)
-{
-	local name TagText;
-	
-	TagText = name(InString);
-	switch (TagText)
-	{
-	case 'IRI_Singe_TriggerChance':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Singe_TriggerChance'));
-		return true;
-	case 'IRI_Tag_Singe_ArmorShred':
-		OutString = string(class'X2Ability_PerkPack'.static.GetAbilityDamage('IRI_Singe').Shred);
-		return true;
-
-	case 'IRI_Supercharge_ExtraArmorPiercing':
-		OutString = string(class'X2Ability_PerkPack'.static.GetArrayMaxInt(class'X2Ability_PerkPack'.static.GetConfigArrayInt('IRI_Supercharge_ExtraArmorPiercing')));
-		return true;
-	case 'IRI_Supercharge_ExtraCritChance':
-		OutString = string(class'X2Ability_PerkPack'.static.GetArrayMaxInt(class'X2Ability_PerkPack'.static.GetConfigArrayInt('IRI_Supercharge_ExtraCritChance')));
-		return true;
-
-	case 'IRI_SoulShot_Cooldown':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_SoulShot_Cooldown'));
-		return true;
-
-	case 'IRI_Apotheosis_Cooldown':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Apotheosis_Cooldown'));
-		return true;
-	case 'IRI_Apotheosis_Duration':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Apotheosis_Duration'));
-		return true;
-
-	case 'IRI_TunnelingClaws_Cooldown':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_TunnelingClaws_Cooldown'));
-		return true;
-
-	case 'IRI_ToxinAptitude_DamageModifier':
-		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_ToxinAptitude_DamageModifier') * 100));
-		return true;
-		
-
-	case 'IRI_TunnelRat_MobilityBonus':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_TunnelRat_MobilityBonus'));
-		return true;
-	case 'IRI_TunnelRat_DetectionModifier':
-		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_TunnelRat_DetectionModifier') * 100));
-		return true;
-
-	case 'IRI_Scavenger_Charges':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Scavenger_Charges'));
-		return true;
-	case 'IRI_Scavenger_Cooldown':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_Scavenger_Cooldown'));
-		return true;		
-
-	case 'IRI_PackHunter_TileDistance':
-		OutString = string(class'X2Effect_PackHunter'.default.iDistanceTiles);
-		return true;
-	case 'IRI_PackHunter_DodgeBonus':
-		OutString = string(class'X2Effect_PackHunter'.default.iDodgePerStack);
-		return true;
-	case 'IRI_PackHunter_CritChanceBonus':
-		OutString = string(class'X2Effect_PackHunter'.default.iCritChancePerStack);
-		return true;
-	case 'IRI_PackHunter_CritChanceDefense':
-		OutString = string(class'X2Effect_PackHunter'.default.iCritDefensePerStack);
-		return true;
-	case 'IRI_PackHunter_MaxStacks':
-		OutString = string(class'X2Effect_PackHunter'.default.iMaxStacks);
-		return true;
-
-	case 'IRI_LaughItOff_RecoverPercent':
-		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LaughItOff_RecoverPercent') * 100));
-		return true;
-
-	case 'IRI_KeenNose_Distance_Tiles':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_KeenNose_Distance_Tiles'));
-		return true;
-
-	case 'IRI_LastingEndurance_MinWillPercentage':
-		OutString = string(int(class'X2Ability_PerkPack'.static.GetConfigFloat('IRI_LastingEndurance_MinWillPercentage') * 100));
-		return true;
-
-	case 'IRI_RallyingHowl_Cooldown':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_RallyingHowl_Cooldown'));
-		return true;
-	case 'IRI_RallyingHowl_Charges':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigInt('IRI_RallyingHowl_Charges'));
-		return true;
-	case 'IRI_RallyingHowl_FreeActionCost':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigBool('IRI_RallyingHowl_FreeActionCost'));
-		return true;
-	case 'IRI_RallyingHowl_EndsTurn':
-		OutString = string(class'X2Ability_PerkPack'.static.GetConfigBool('IRI_RallyingHowl_EndsTurn'));
-		return true;
-		
-		
-	
-	default:
-		return false;
-    }  
-} 
-
-static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseObj, XComGameState GameState)
-{
-    local XComGameStateHistory	History;
-    local XComGameState_Effect	EffectState;
-    local XComGameState_Ability	AbilityState;
-    local XComGameState_Unit	UnitState;
-
-    if (InString != "TEMPLAR_SHIELD_TAG")
-        return false;
-
-    UnitState = XComGameState_Unit(StrategyParseObj);
-	if (UnitState == none)
-	{
-		History = `XCOMHISTORY;
-		EffectState = XComGameState_Effect(ParseObj);
-		if (EffectState != none)
-		{
-			UnitState = XComGameState_Unit(History.GetGameStateForObjectID(EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID));
-		}
-		else 
-		{
-			AbilityState = XComGameState_Ability(ParseObj);
-			if (AbilityState != none)
-			{
-				UnitState = XComGameState_Unit(History.GetGameStateForObjectID(AbilityState.OwnerStateObject.ObjectID));
-			}
-		}
-	}
-    if (UnitState == none)
-		return false;
-
-	OutString = "<font color='#a622fa'>" $ class'X2Effect_TemplarShield'.static.GetShieldStrength(UnitState, GameState) $ "</font>";
-
-    return true;
-}
-
 
 /// <summary>
 /// This method is run if the player loads a saved game that was created prior to this DLC / Mod being installed, and allows the 
@@ -238,7 +68,39 @@ static event OnExitPostMissionSequence()
 /// </summary>
 static event OnPostTemplatesCreated()
 {
+	/*
+    local X2AbilityTemplateManager	AbilityTemplateManager;
+    local X2AbilityTemplate			Template;
+    local array<X2DataTemplate>		DataTemplates;
+    local X2DataTemplate			DataTemplate;
+	
+	local X2ItemTemplateManager		ItemMgr;
+	local X2WeaponTemplate			Template;
 
+    AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+
+    AbilityTemplateManager.FindDataTemplateAllDifficulties('TemplateName', DataTemplates);
+
+    foreach DataTemplates(DataTemplate)
+    {
+        Template = X2AbilityTemplate(DataTemplate);
+        if (Template != none)
+        {
+            // Make changes to Template
+        }
+    }
+	
+
+	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+	ItemMgr.FindDataTemplateAllDifficulties('TemplateName', DataTemplates);
+
+	foreach DataTemplates(DataTemplate)
+	{
+		Template = X2WeaponTemplate(DataTemplate);
+
+		// Do stuff with the Template
+	}
+	*/
 }
 
 /// <summary>
@@ -346,6 +208,15 @@ static function string GetAdditionalMissionDesc(StateObjectReference MissionRef)
 }
 
 /// <summary>
+/// Called from X2AbilityTag:ExpandHandler after processing the base game tags. Return true (and fill OutString correctly)
+/// to indicate the tag has been expanded properly and no further processing is needed.
+/// </summary>
+static function bool AbilityTagExpandHandler(string InString, out string OutString)
+{
+	return false;
+}
+
+/// <summary>
 /// Called from XComGameState_Unit:GatherUnitAbilitiesForInit after the game has built what it believes is the full list of
 /// abilities for the unit based on character, class, equipment, et cetera. You can add or remove abilities in SetupData.
 /// </summary>
@@ -375,6 +246,62 @@ static event OnLoadedSavedGameToTactical()
 
 }
 //#end issue #647
+
+/// Start Issue #21
+/// <summary>
+/// Called from XComUnitPawn.DLCAppendSockets
+/// Allows DLC/Mods to append sockets to units
+/// </summary>
+static function string DLCAppendSockets(XComUnitPawn Pawn)
+{
+	/*
+	local XComGameState_Unit		UnitState;
+	local array<SkeletalMeshSocket> NewSockets;
+
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(Pawn.ObjectID));
+	if (UnitState == none)
+		return "";
+
+	if (UnitState.IsSoldier())
+	{
+		if (UnitState.kAppearance.iGender == eGender_Male)
+		{
+			NewSockets.AddItem(CreateSocket('iri_electro_pulse', 'SwordSheath', 8.182021f, 4.002287f, 26.015682f, 8, -78, -270));
+			Pawn.Mesh.AppendSockets(NewSockets, true);
+		}
+		else
+		{
+			NewSockets.AddItem(CreateSocket('iri_electro_pulse', 'SwordSheath', 8.226833f, -0.804468f, 21.837490f, 6, -78, -270));
+			Pawn.Mesh.AppendSockets(NewSockets, true);
+		}
+	}
+	*/
+	return "";
+}
+/// End Issue #21
+
+static private function SkeletalMeshSocket CreateSocket(const name SocketName, const name BoneName, optional const float X, optional const float Y, optional const float Z, optional const float dRoll, optional const float dPitch, optional const float dYaw, optional float ScaleX = 1.0f, optional float ScaleY = 1.0f, optional float ScaleZ = 1.0f)
+{
+	local SkeletalMeshSocket NewSocket;
+
+	NewSocket = new class'SkeletalMeshSocket';
+    NewSocket.SocketName = SocketName;
+    NewSocket.BoneName = BoneName;
+
+    NewSocket.RelativeLocation.X = X;
+    NewSocket.RelativeLocation.Y = Y;
+    NewSocket.RelativeLocation.Z = Z;
+
+    NewSocket.RelativeRotation.Roll = dRoll * DegToUnrRot;
+    NewSocket.RelativeRotation.Pitch = dPitch * DegToUnrRot;
+    NewSocket.RelativeRotation.Yaw = dYaw * DegToUnrRot;
+
+	NewSocket.RelativeScale.X = ScaleX;
+	NewSocket.RelativeScale.Y = ScaleY;
+	NewSocket.RelativeScale.Z = ScaleZ;
+    
+	return NewSocket;
+}
 
 /// Start Issue #24
 /// <summary>
@@ -653,8 +580,40 @@ static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments,
 /// Start Issue #245
 /// Called from XGWeapon:Init.
 /// This function gets called when the weapon archetype is initialized.
-static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, optional XComGameState_Item ItemState=none)
-{}
+static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, optional XComGameState_Item ItemState = none)
+{
+	/*
+	local XComGameState_Unit	UnitState;
+	local X2WeaponTemplate		WeaponTemplate;
+	local XComContentManager	Content;
+
+    if (ItemState == none) 
+	{	
+		ItemState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(WeaponArchetype.ObjectID));
+		`AMLOG("WARNING :: Had to reach into History to get Item State.");
+	}
+	if (ItemState == none)
+		return;
+
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ItemState.OwnerStateObject.ObjectID));
+	if (UnitState == none || UnitState.GetMyTemplate().bIsCosmetic) 
+		return;
+
+	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
+	if (WeaponTemplate == none)
+		return;
+	
+	// Do stuff
+	Content = `CONTENT;
+	Weapon.CustomUnitPawnAnimsets.AddItem(AnimSet(Content.RequestGameArchetype("IRISparkHeavyWeapons.Anims.AS_Heavy_Spark")));
+	
+	Weapon.DefaultSocket = '';
+	
+	Weapon.WeaponFireAnimSequenceName = 'FF_FireLAC_MK2';
+	
+	SkeletalMeshComponent(Weapon.Mesh).AnimSets.AddItem(AnimSet(Content.RequestGameArchetype("IRI_MECRockets.Anims.AS_OrdnanceLauncher_MG_Rockets")));
+	*/
+}
 /// End Issue #245
 
 /// Start Issue #246
@@ -741,6 +700,15 @@ static function OnPreCreateTemplates()
 }
 /// End issue #412
 
+/// Start Issue #419
+/// <summary>
+/// Called from X2AbilityTag.ExpandHandler
+/// Expands vanilla AbilityTagExpandHandler to allow reflection
+/// </summary>
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{
+	return false;
+}
 
 /// Start Issue #409
 /// <summary>
@@ -820,101 +788,98 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 }
 /// End Issue #455
 
-/// Start Issue #511
-/// <summary>
-/// Allowes mod to define dlc run order dependencies
-/// RunPriorityGroup can be STANDARD = 0, FIRST = 1 or LAST = 2
-/// Only change load priority if you really sure that its needed for you mod.
-/// RunBefore and RunAfter only work within the defined LoadPriority group
+// Start Issue #783
+// <summary>
+/// Called from XGCharacterGenerator:CreateTSoldier
+/// Has no return value, just modify the CharGen.kSoldier directly.
+/// HL-Docs: feature:ModifyGeneratedUnitAppearance; issue:783; tags:customization,compatibility
+/// ## Usage
+/// This DLC hook allows mods to make arbitrary changes to unit appearance 
+/// after it has been generated by `XGCharacterGenerator::CreateTSoldier()`.
+/// The generated appearance is stored in `CharGen.kSoldier`, which you can modify directly.
+/// Other arguments are provided to you mostly for reference, 
+/// and presented to you as they were used by the `CreateTSoldier()` function.
+/// The UnitState and the GameState will be passed to this hook 
+/// only if the `CreateTSoldier()` function was called from `CreateTSoldierFromUnit()`, 
+/// which normally happens only in the Shell code (TQL / Challenge Mode / Character Pool),
+/// and will be `none` otherwise.
+/// If you wish to "redo" some parts of the process of generating unit's appearance, 
+/// you can call various methods in the Character Generator, 
+/// but you must avoid calling the `CreateTSoldier()` and `CreateTSoldierFromUnit()` methods,
+/// as that will retrigger the hook, potentially causing an inception loop and crashing the game.
+/// ## Compatibility
+/// Custom `XGCharacterGenerator` classes used by mods to generate appearance of custom units
+/// can potentially interfere with the normal operation of this hook for themselves.
+/// If the Character Generator implements a custom `CreateTSoldier()` function that
+/// does not call `super.CreateTSoldier()`, then this DLC hook will not be called for that class.
+/// If `super.CreateTSoldier()` *is* called, but the custom `CreateTSoldier()` function 
+/// makes changes to the generated appearance afterwards, it can potentially override
+/// changes made by this hook.
+/// For example, Character Generators for Faction Hero classes had to be adjusted
+/// in the Highlander so that they do not override Country and Nickname after
+/// calling `super.CreateTSoldier()`, and instead override the `SetCountry()` and 
+/// `GenerateName()` methods, which are called by `super.CreateTSoldier()`.
+/// For best compatibility with this hook, mod-added `XGCharacterGenerator()` classes
+/// should avoid making any appearance changes after calling `super.CreateTSoldier()`.
+/// Ideally, that function should not be overridden at all, and the Character Generator
+/// should rely on overriding other methods called by `CreateTSoldier()` as much as possible.
+// </summary>
+static function ModifyGeneratedUnitAppearance(XGCharacterGenerator CharGen, const name CharacterTemplateName, const EGender eForceGender, const name nmCountry, const int iRace, const name ArmorName, XComGameState_Unit UnitState, XComGameState UseGameState)
+{}
+/// End Issue #783
+
+// Start issue #808
+/// HL-Docs: feature:OnLoadedSavedGameWithDLCExisting; issue:808; tags:
+/// When loading a save the game makes a distinction between "existing" and "new" mods/DLCs.
+/// The list of the "existing" mods is stored inside the save and is used as "source of truth" during the loading process.
+/// 
+/// First, the game checks if any of the "existing" mods are currently not active. If such exist, the player gets
+/// the "missing mods" popup.
+/// 
+/// Then, the game checks whether any of the currently active mods are not listed as "existing". Such
+/// mods are considered "new" and the `OnLoadedSavedGame` hook is called on their DLCInfos.
+/// 
+/// Finally, the "new" mods are marked as "existing" to prevent the previous step from occurring again the next
+/// time the same campaign is loaded and to facilitate the popup, should any of them be removed.
+/// 
+/// The above process misses an important aspect - what happens if the mod is "existing" but wants to make
+/// state changes before the save is loaded? An example use case would be adjusting existing campaigns due to
+/// updates in the mod code. `OnLoadedSavedGameWithDLCExisting` fills that gap - it is called on the "existing"
+/// mods every time a save is loaded.
 ///
-/// Should be specified in the mods XComGame.ini like
-/// [ModSafeName CHDLCRunOrder]
-/// +RunBefore=...
-/// +RunAfter=...
-/// RunPriorityGroup=...
+/// Important note 1: `OnLoadedSavedGameWithDLCExisting` is exclusive with `OnLoadedSavedGame`. If the mod was just
+/// added (it is "new") then only `OnLoadedSavedGame` will be called. On subsequent loads of saves from that
+/// campaign (the mod is now "existing") only `OnLoadedSavedGameWithDLCExisting` will be called.
+/// 
+/// Important note 2: this (and the base game OnLoadedSavedGame) is called before the ruleset of the save is initialized.
+/// This is great as any state changes done here will be picked up automatically (no need to refresh anything anywhere),
+/// however it imposes several limitations:
 ///
-/// </summary>
-final function array<string> GetRunBeforeDLCIdentifiers()
+/// 1. You cannot use `SubmitGameStateContext`/`SubmitGameState`. Use `XComGameStateHistory::AddGameStateToHistory` instead
+/// 2. Event listener templates should be assumed as not registered
+/// 3. In fact, due to (1), only `ELD_Immediate` listeners (that are registered on state objects) will be triggered.
+///    Therefore, you are advised to not trigger any events at all.
+///
+/// If the above is too limiting for your use case, consider using `OnLoadedSavedGameToStrategy`/`OnLoadedSavedGameToTactical`,
+/// which are called after the relevant listener templates are registered and most of the presentation has loaded.
+///
+/// Important note 3: in case the save is loaded mid-tactical, some strategy state objects will be **missing** from the history.
+/// This is intended behaviour and you must account for it when using this hook. You can read more about it here: 
+/// https://robojumper.github.io/too-real/history/#archived
+///
+/// Important note 4: the list of "existing" mods is not cleared when the mod is removed (in order to facilitate the popup).
+/// This means that add -> save -> remove -> load -> save -> add -> load will trigger `OnLoadedSavedGameWithDLCExisting`
+/// as the mod will be considered "existing". However, any state objects which are instances of class(es) added by the mod
+/// **will be gone** as they will fail to deserialize when the save is loaded without the mod active. The only exception to
+/// this is the "Remove Missing Mods" mod which removes the missing mods from the list of the "existing" ones. In that case,
+/// the mod will be considered "new" (again).
+///
+/// *While any mod can potentially manipulate that list, the "Remove Missing Mods" mod is currently the only known way of
+/// removing entries from said list*
+///
+/// Important note 5: the decision to consider a mod either "new" or "existing" is made using its `DLCName`.
+/// See [`ModDependencyCheck`](./ModDependencyCheck.md) for an explanation.
+static function OnLoadedSavedGameWithDLCExisting ()
 {
-	local CHDLCRunOrder RunOrder;
-
-	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	// Equivalent to empty array if not specified in config
-	return RunOrder.RunBefore;
 }
-
-final function array<string> GetRunAfterDLCIdentifiers()
-{
-	local CHDLCRunOrder RunOrder;
-
-	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	// Equivalent to empty array if not specified in config
-	return RunOrder.RunAfter;
-}
-
-final function int GetRunPriorityGroup()
-{
-	local CHDLCRunOrder RunOrder;
-
-	RunOrder = new(none, DLCIdentifier)class'CHDLCRunOrder';
-	// Equivalent to RUN_STANDARD if not specified in config
-	return RunOrder.RunPriorityGroup;
-}
-/// End Issue #511
-
-/// Start Issue #524
-/// <summary>
-/// Allow mods to specify array of incompatible and required mod.
-/// Should be specified in the mods XComGame.ini like
-/// [ModSafeName CHModDependency]
-/// +IncompatibleMods=...
-/// +IgnoreIncompatibleMods=...
-/// +RequiredMods=...
-/// +IgnoreRequiredMods=...
-/// DisplayName="..."
-/// </summary>
-final function array<string> GetIncompatibleDLCIdentifiers()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.IncompatibleMods;
-}
-
-final function array<string> GetIgnoreIncompatibleDLCIdentifiers()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.IgnoreIncompatibleMods;
-}
-
-final function array<string> GetRequiredDLCIdentifiers()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.RequiredMods;
-}
-
-final function array<string> GetIgnoreRequiredDLCIdentifiers()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty array if not specified in config
-	return ModDependency.IgnoreRequiredMods;
-}
-
-final function string GetDisplayName()
-{
-	local CHModDependency ModDependency;
-
-	ModDependency = new(none, DLCIdentifier)class'CHModDependency';
-	// Equivalent to empty string if not specified in localization
-	return ModDependency.DisplayName;
-}
-/// End Issue #524
+// End issue #808

@@ -11,7 +11,12 @@ Write-Host "Sourcing $common"
 . ($common)
 
 $builder = [BuildProject]::new("WOTCIridarPerkPack", $srcDirectory, $sdkPath, $gamePath)
-$builder.IncludeSrc("$srcDirectory\X2WOTCCommunityHighlander\X2WOTCCommunityHighlander\Src")
+
+# Use GIT to add Highlander submodule.
+# git submodule add https://github.com/X2CommunityCore/X2WOTCCommunityHighlander.git
+
+# Uncomment the next line to enable building against Highlander.
+# $builder.IncludeSrc("$srcDirectory\X2WOTCCommunityHighlander\X2WOTCCommunityHighlander\Src")
 
 switch ($config)
 {
@@ -25,5 +30,6 @@ switch ($config)
     default { ThrowFailure "Unknown build configuration $config" }
 }
 
-$builder.SetContentOptionsJsonFilename("ContentOptions.json")
+# Uncomment this line to enable cooking.
+# $builder.SetContentOptionsJsonFilename("ContentOptions.json")
 $builder.InvokeBuild()
