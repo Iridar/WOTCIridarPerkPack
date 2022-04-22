@@ -7,10 +7,9 @@
     <SteamPublishID>0</SteamPublishID>
     <AssemblyName>WOTCIridarPerkPack</AssemblyName>
     <RootNamespace>WOTCIridarPerkPack</RootNamespace>
+    <ProjectGuid>{a150ab06-76ea-4679-b682-17beccdb9c42}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
-    
-    
     <Folder Include="Config\" />
     <Folder Include="Config\Base\" />
     <Folder Include="Localization\" />
@@ -21,19 +20,6 @@
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="ContentOptions.json" />
@@ -45,9 +31,27 @@
     <Content Include="Localization\XComGame.int" />
     <Content Include="Localization\WOTCIridarPerkPack.int" />
     <Content Include="Src\extra_globals.uci" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_EnterCover.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ExitCover.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
     <Content Include="Src\WOTCIridarPerkPack\Classes\Help.uc" />
     <Content Include="Src\WOTCIridarPerkPack\Classes\ConfigEngine.uc" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BaseDamageBonus.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_DeadlyShadow.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_BountyHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <SolutionRoot>$(MSBuildProjectDirectory)\..\</SolutionRoot>
