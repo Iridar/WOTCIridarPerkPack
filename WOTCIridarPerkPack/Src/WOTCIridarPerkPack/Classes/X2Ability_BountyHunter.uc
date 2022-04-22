@@ -6,7 +6,9 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	Templates.AddItem(IRI_DeadlyShadow());
-	Templates.AddItem(IRI_DeadlyShadow_Passive());
+	Templates.AddItem(PurePassive('IRI_DeadlyShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false, 'eAbilitySource_Perk', true));
+
+	Templates.AddItem(IRI_ChasingShot());
 
 	Templates.AddItem(Blind());
 
@@ -35,7 +37,7 @@ static function X2AbilityTemplate IRI_DeadlyShadow()
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AbilityShooterConditions.AddItem(new class'X2Condition_BountyHunter_Stealth'); // Must not be flanked
+	Template.AbilityShooterConditions.AddItem(new class'X2Condition_BountyHunter_Stealth'); // Must not be flanked and not in Deadly Shadow
 	Template.AddShooterEffectExclusions();
 
 	// Costs
@@ -76,28 +78,94 @@ static function X2AbilityTemplate IRI_DeadlyShadow()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_DeadlyShadow_Passive()
+static function X2AbilityTemplate IRI_ChasingShot()
 {
-	local X2AbilityTemplate			Template;
-	local X2Effect_BaseDamageBonus	BaseDamageBonus;
+	local X2AbilityTemplate                 Template;	
+	local X2AbilityCost_Ammo                AmmoCost;
+	local X2AbilityCost_ActionPoints        ActionPointCost;
+	local X2Effect_Knockback				KnockbackEffect;
+	//local X2Condition_Visibility            VisibilityCondition;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_DeadlyShadow_Passive');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_ChasingShot');
 
-	SetPassive(Template);
-	SetHidden(Template);
+	// Icon
+	Template.bDontDisplayInAbilitySummary = true;
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_SHOT_PRIORITY;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.DisplayTargetHitChance = true;
+	Template.AbilitySourceName = 'eAbilitySource_Standard';                                       // color of the icon
+	
+	// Targeting and Triggering
+	//Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
 
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
-	BaseDamageBonus = new class'X2Effect_BaseDamageBonus';
-	BaseDamageBonus.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
-	//BaseDamageBonus.bRemoveWhenTargetConcealmentBroken = true;
-	BaseDamageBonus.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
-	BaseDamageBonus.DamageMod = 0.5f; // TODO: Make config
-	BaseDamageBonus.bOnlyWhileConcealed = true;
-	Template.AddTargetEffect(BaseDamageBonus);
+	Template.AbilityToHitCalc = default.SimpleStandardAim;
+	Template.AbilityToHitOwnerOnMissCalc = default.SimpleStandardAim;
 
-	return Template;
+	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ChasingShot';
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
+
+	//VisibilityCondition = new class'X2Condition_Visibility';
+	//VisibilityCondition.bRequireGameplayVisible = true;
+	//VisibilityCondition.bAllowSquadsight = true;
+	//Template.AbilityTargetConditions.AddItem(VisibilityCondition);
+
+	// Action Point
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.bMoveCost = true;
+	ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MoveActionPoint);
+	ActionPointCost.AllowedTypes.RemoveItem(class'X2CharacterTemplateManager'.default.RunAndGunActionPoint);
+	//ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Ammo
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
+	
+	// Effects
+	Template.bAllowAmmoEffects = true; 
+	Template.bAllowBonusWeaponEffects = true;
+	Template.bAllowFreeFireWeaponUpgrade = true;
+
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.ShredderDamageEffect());
+	Template.AddTargetEffect(default.WeaponUpgradeMissDamage);
+
+	KnockbackEffect = new class'X2Effect_Knockback';
+	KnockbackEffect.KnockbackDistance = 2;
+	Template.AddTargetEffect(KnockbackEffect);
+
+	// State and Vis
+	Template.bUsesFiringCamera = true;
+	Template.CinescriptCameraType = "StandardGunFiring";	
+	//Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	//Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;	
+	//Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+
+	Template.BuildNewGameStateFn = TypicalMoveEndAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;	
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	Template.AssociatedPassives.AddItem('HoloTargeting');
+
+	return Template;	
 }
 
 

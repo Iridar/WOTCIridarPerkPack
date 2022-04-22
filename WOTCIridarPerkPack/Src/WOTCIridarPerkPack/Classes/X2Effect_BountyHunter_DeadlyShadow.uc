@@ -2,6 +2,8 @@ class X2Effect_BountyHunter_DeadlyShadow extends X2Effect_Shadow;
 
 var private name AlreadyConcealedValue;
 
+// TODO: Display flyover when this effect naturally runs out
+
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager EventMgr;

@@ -58,6 +58,12 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2MeleePathingPawn_BountyHunter_ChasingShot.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2TargetingMethod_BountyHunter_ChasingShot.uc">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <SolutionRoot>$(MSBuildProjectDirectory)\..\</SolutionRoot>
