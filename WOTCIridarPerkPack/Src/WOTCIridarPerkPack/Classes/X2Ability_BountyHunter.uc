@@ -84,6 +84,7 @@ static function X2AbilityTemplate IRI_ChasingShot()
 	local X2AbilityCost_Ammo                AmmoCost;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Effect_Knockback				KnockbackEffect;
+	local X2AbilityToHitCalc_StandardAim	StandardAim;
 	//local X2Condition_Visibility            VisibilityCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_ChasingShot');
@@ -93,17 +94,19 @@ static function X2AbilityTemplate IRI_ChasingShot()
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_SHOT_PRIORITY;
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-	Template.DisplayTargetHitChance = true;
+	
 	Template.AbilitySourceName = 'eAbilitySource_Standard';                                       // color of the icon
 	
 	// Targeting and Triggering
 	//Template.AbilityTargetStyle = default.SimpleSingleTarget;
 	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
-
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
-	Template.AbilityToHitCalc = default.SimpleStandardAim;
-	Template.AbilityToHitOwnerOnMissCalc = default.SimpleStandardAim;
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bGuaranteedHit = true;
+	StandardAim.bAllowCrit = true;
+	Template.AbilityToHitCalc = StandardAim;
+	Template.DisplayTargetHitChance = false;
 
 	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ChasingShot';
 
@@ -164,6 +167,14 @@ static function X2AbilityTemplate IRI_ChasingShot()
 	Template.bFrameEvenWhenUnitIsHidden = true;
 
 	Template.AssociatedPassives.AddItem('HoloTargeting');
+
+	Template.bSkipMoveStop = true;
+	Template.CustomMovingFireAnim = 'FF_Fire';
+	Template.CustomMovingFireKillAnim = 'FF_Fire';
+	Template.CustomMovingTurnLeftFireAnim = 'FF_Fire';
+	Template.CustomMovingTurnLeftFireKillAnim = 'FF_Fire';
+	Template.CustomMovingTurnRightFireAnim = 'FF_Fire';
+	Template.CustomMovingTurnRightFireKillAnim = 'FF_Fire';
 
 	return Template;	
 }
