@@ -17,6 +17,7 @@ static function X2AbilityTemplate IRI_DeadlyShadow()
 {
 	local X2AbilityTemplate						Template;
 	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
+	local X2Effect_AdditionalAnimSets			Effect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_DeadlyShadow');
 
@@ -34,7 +35,7 @@ static function X2AbilityTemplate IRI_DeadlyShadow()
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AbilityShooterConditions.AddItem(new class'X2Condition_Stealth'); // Must not be flanked
+	Template.AbilityShooterConditions.AddItem(new class'X2Condition_BountyHunter_Stealth'); // Must not be flanked
 	Template.AddShooterEffectExclusions();
 
 	// Costs
@@ -45,11 +46,18 @@ static function X2AbilityTemplate IRI_DeadlyShadow()
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
 	StealthEffect.BuildPersistentEffect(2, false, true, false, eGameRule_PlayerTurnEnd);
 	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
-	//StealthEffect.bRemoveWhenTargetConcealmentBroken = true;
 	Template.AddTargetEffect(StealthEffect);
 
-	Template.AddTargetEffect(class'X2Ability_ReaperAbilitySet'.static.ShadowAnimEffect());
 	Template.AddTargetEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
+
+	Effect = new class'X2Effect_AdditionalAnimSets';
+	Effect.EffectName = 'ShadowAnims';
+	Effect.DuplicateResponse = eDupe_Ignore;
+	Effect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
+	Effect.bRemoveWhenTargetConcealmentBroken = true;
+	Effect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
+	Effect.EffectName = 'IRI_DeadlyShadow_Effect';
+	Template.AddTargetEffect(Effect);
 
 	// State and Viz
 	Template.Hostility = eHostility_Neutral;
@@ -67,8 +75,6 @@ static function X2AbilityTemplate IRI_DeadlyShadow()
 	
 	return Template;
 }
-
-
 
 static function X2AbilityTemplate IRI_DeadlyShadow_Passive()
 {

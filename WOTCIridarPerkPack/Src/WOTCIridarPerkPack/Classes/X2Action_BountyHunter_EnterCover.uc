@@ -1,5 +1,7 @@
 class X2Action_BountyHunter_EnterCover extends X2Action_EnterCover;
 
+// Currently unused.
+
 // Copy of the original action that uses NO_FireStop_Shadow instead of NO_FireStop. That is all.
 var name OutOfCoverAnim;
 

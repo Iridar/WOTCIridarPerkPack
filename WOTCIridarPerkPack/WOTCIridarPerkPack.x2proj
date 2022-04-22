@@ -20,6 +20,9 @@
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ContentForCook\IRIBountyHunter.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="ContentOptions.json" />
@@ -38,6 +41,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ExitCover.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_BountyHunter_Stealth.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />

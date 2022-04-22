@@ -1,5 +1,7 @@
 class X2Action_BountyHunter_ExitCover extends X2Action_ExitCover;
 
+// Currently unused.
+
 // Copy of the original action that uses 'NO_FireStart_Shadow' instead of 'NO_FireStart'. That is all.
 
 simulated state Executing
