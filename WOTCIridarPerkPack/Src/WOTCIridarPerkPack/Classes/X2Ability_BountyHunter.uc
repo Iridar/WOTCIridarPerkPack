@@ -6,7 +6,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	Templates.AddItem(IRI_DeadlyShadow());
-	Templates.AddItem(PurePassive('IRI_DeadlyShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false, 'eAbilitySource_Perk', true));
+	Templates.AddItem(IRI_DeadlyShadow_Passive());
+	//Templates.AddItem(PurePassive('IRI_DeadlyShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false, 'eAbilitySource_Perk', true));
 
 	Templates.AddItem(IRI_ChasingShot());
 
@@ -74,6 +75,28 @@ static function X2AbilityTemplate IRI_DeadlyShadow()
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
 
 	Template.AdditionalAbilities.AddItem('IRI_DeadlyShadow_Passive');
+	
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_DeadlyShadow_Passive()
+{
+	local X2AbilityTemplate						Template;
+	local X2Effect_BountyHunter_CritMagic	CritMagic;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_DeadlyShadow_Passive');
+
+	SetPassive(Template);
+	SetHidden(Template);
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+
+	CritMagic = new class'X2Effect_BountyHunter_CritMagic';
+	CritMagic.BuildPersistentEffect(1, true);
+	CritMagic.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddTargetEffect(CritMagic);
 	
 	return Template;
 }
@@ -168,13 +191,15 @@ static function X2AbilityTemplate IRI_ChasingShot()
 
 	Template.AssociatedPassives.AddItem('HoloTargeting');
 
+	// TODO: Combine MoveStop animation with tumble
 	Template.bSkipMoveStop = true;
-	Template.CustomMovingFireAnim = 'FF_Fire';
-	Template.CustomMovingFireKillAnim = 'FF_Fire';
-	Template.CustomMovingTurnLeftFireAnim = 'FF_Fire';
-	Template.CustomMovingTurnLeftFireKillAnim = 'FF_Fire';
-	Template.CustomMovingTurnRightFireAnim = 'FF_Fire';
-	Template.CustomMovingTurnRightFireKillAnim = 'FF_Fire';
+	Template.CustomMovingFireAnim = 'MV_TumbleFire';	
+	Template.CustomMovingFireKillAnim = 'MV_TumbleFire';	
+	//Template.CustomMovingFireKillAnim = 'FF_Fire';
+	//Template.CustomMovingTurnLeftFireAnim = 'FF_Fire';
+	//Template.CustomMovingTurnLeftFireKillAnim = 'FF_Fire';
+	//Template.CustomMovingTurnRightFireAnim = 'FF_Fire';
+	//Template.CustomMovingTurnRightFireKillAnim = 'FF_Fire';
 
 	return Template;	
 }
