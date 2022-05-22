@@ -1,0 +1,34 @@
+[IRI_BH_Headhunter X2AbilityTemplate]
+LocFriendlyName="Headhunter"
+LocLongDescription="Killing an enemy permanently increases critical chance against other enemies of that type by +1%. This bonus is cumulative."
+LocHelpText="Killing an enemy permanently increases critical chance against other enemies of that type by +1%. This bonus is cumulative."
+LocPromotionPopupText=""
+LocFlyOverText="Headhunter"
+
+[IRI_BH_DeadlyShadow X2AbilityTemplate]
+LocFriendlyName="Deadly Shadow"
+LocLongDescription="Activate to enter Deadly Shadow for 2 turns, an advanced form of concealment with reduced detection radius."
+LocHelpText="Activate to enter Deadly Shadow for 2 turns, an advanced form of concealment with reduced detection radius."
+LocPromotionPopupText="<br/> 5 turn cooldown."
+LocFlyOverText="Deadly Shadow"
+
+[IRI_BH_DeadlyShadow_Passive X2AbilityTemplate]
+LocFriendlyName="Deadly Shadow"
+LocLongDescription="When attacking enemies that do not see you, all your hits will be critical, and critical chance will increase base damage instead."
+LocHelpText="When attacking enemies that do not see you, all your hits will be critical, and critical chance will increase base damage instead."
+LocPromotionPopupText=""
+LocFlyOverText="Deadly Shadow"
+
+[IRI_BH_ChasingShot X2AbilityTemplate]
+LocFriendlyName="Chase"
+LocLongDescription="Move to a location within 6 tiles of a target and attack it with your <Ability:SecondaryWeaponName/>. This attack is guaranteed to hit. While moving, the first reaction attack against you will be evaded."
+LocHelpText="Move to a location within 6 tiles of a target and attack it with your <Ability:SecondaryWeaponName/>. The first reaction attack against you will be evaded."
+LocPromotionPopupText="<br/> Has the same action cost as regular movement. <br/> X turn cooldown."
+LocFlyOverText="Chase"
+
+[IRI_BH_Blindside X2AbilityTemplate]
+LocFriendlyName="Blindside"
+LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. This attack ignores armor and does not cost an action, but can be used only against enemies that do not see you."
+LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target. Ignores armor. Does not cost an action. Can be used only against enemies that do not see you."
+LocPromotionPopupText="<br/> X turn cooldown."
+LocFlyOverText="Blindside"
