@@ -41,6 +41,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ApplyWeaponDamageToUnit.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_EnterCover.uc">
       <SubType>Content</SubType>
     </Content>

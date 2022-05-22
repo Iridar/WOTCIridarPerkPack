@@ -208,7 +208,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	//Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
 
 	Template.BuildNewGameStateFn = TypicalMoveEndAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildVisualizationFn = ChasingShot_BuildVisualization;
 	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;	
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
@@ -234,6 +234,40 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	// Remove "getting shot" animation while moving. // Need a custom X2Action_ApplyWeaponDamageToUnit
 
 	return Template;	
+}
+
+static function ChasingShot_BuildVisualization(XComGameState VisualizeGameState)
+{	
+	local XComGameStateVisualizationMgr	VisMgr;
+	local X2Action						FindAction;
+	local array<X2Action>				FindActions;
+	local XComGameStateContext_Ability	AbilityContext;
+	//local X2Action_MarkerNamed		ReplaceAction;
+
+	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
+
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	/*VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_CameraFollowUnit', FindActions);
+	foreach FindActions(FindAction)
+	{
+		ReplaceAction = X2Action_MarkerNamed(class'X2Action'.static.CreateVisualizationActionClass(class'X2Action_MarkerNamed', AbilityContext));
+		ReplaceAction.SetName("ReplaceCinescriptCamera");
+		VisMgr.ReplaceNode(ReplaceAction, FindAction);
+	}
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_CameraRemove', FindActions);
+	foreach FindActions(FindAction)
+	{
+		ReplaceAction = X2Action_MarkerNamed(class'X2Action'.static.CreateVisualizationActionClass(class'X2Action_MarkerNamed', AbilityContext));
+		ReplaceAction.SetName("ReplaceCinescriptCamera2");
+		VisMgr.ReplaceNode(ReplaceAction, FindAction);
+	}*/
+
+	//`log("======================================",, 'IRIPISTOLVIZ');
+	//`log("Build Tree",, 'IRIPISTOLVIZ');
+	//PrintActionRecursive(VisMgr.BuildVisTree.TreeRoot, 0);
+	//`log("--------------------------------------",, 'IRIPISTOLVIZ');
 }
 
 static function X2AbilityTemplate IRI_BH_ChasingShot_Passive()
