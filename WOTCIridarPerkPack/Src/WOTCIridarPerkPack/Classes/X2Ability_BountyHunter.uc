@@ -21,8 +21,9 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Lieutenant
 	Templates.AddItem(IRI_BH_Folowthrough());
-	Templates.AddItem(PurePassive('IRI_BH_DeadlierShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	
+	Templates.AddItem(IRI_BH_Untraceable());
+	Templates.AddItem(PurePassive('IRI_BH_Untraceable_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
 	// Captain
 	Templates.AddItem(IRI_BH_WitchHunt());
 	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
@@ -30,10 +31,49 @@ static function array<X2DataTemplate> CreateTemplates()
 	// Major
 	Templates.AddItem(IRI_BH_RightInTheEye());
 	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	
+	Templates.AddItem(PurePassive('IRI_BH_DeadlierShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	// Colonel
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_Untraceable()
+{
+	local X2AbilityTemplate			Template;
+	local X2Effect_ReduceCooldowns	ReduceCooldown;
+	local X2Condition_UnitValue		UnitValueCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Untraceable');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_flamethrower";
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnEnded', ELD_OnStateSubmitted, eFilter_Player, 50);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+
+	UnitValueCondition = new class'X2Condition_UnitValue';
+	UnitValueCondition.AddCheckValue('AttacksThisTurn', 0, eCheck_Exact);
+	Template.AbilityShooterConditions.AddItem(UnitValueCondition);
+
+	ReduceCooldown = new class'X2Effect_ReduceCooldowns';
+	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_DeadlyShadow');
+	Template.AddTargetEffect(ReduceCooldown);
+
+	// State and Viz
+	Template.bIsPassive = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+
+	Template.AdditionalAbilities.AddItem('IRI_BH_Untraceable_Passive');
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_BH_RightInTheEye()
@@ -202,7 +242,7 @@ static function X2AbilityTemplate IRI_BH_DeadlyShadow()
 
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);
-	AddCooldown(Template, `GetConfigInt('IRI_DeadlyShadow_Cooldown')); // TODO: Config
+	AddCooldown(Template, `GetConfigInt('IRI_DeadlyShadow_Cooldown'));
 	
 	// Effects
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';

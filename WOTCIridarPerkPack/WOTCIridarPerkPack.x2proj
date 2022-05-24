@@ -22,6 +22,9 @@
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\BountyHunter\XComGame.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\BountyHunter\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>

@@ -81,4 +81,18 @@ LocFriendlyName="Right In The Eye"
 LocLongDescription="Your critical hits blind enemies for 1 turn, preventing them from seeing you."
 LocHelpText="Your critical hits blind enemies for 1 turn, preventing them from seeing you."
 LocPromotionPopupText=""
-LocFlyOverText="Right In The Eye
+LocFlyOverText="Right In The Eye"
+
+[IRI_BH_Untraceable X2AbilityTemplate]
+LocFriendlyName="Untraceable"
+LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocPromotionPopupText=""
+LocFlyOverText="Untraceable"
+
+[IRI_BH_Untraceable_Passive X2AbilityTemplate]
+LocFriendlyName="Untraceable"
+LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocPromotionPopupText=""
+LocFlyOverText="Untraceable"
