@@ -55,3 +55,17 @@ LocHelpText="Attacks will no longer break Deadly Shadow concealment."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Deadlier Shadow"
 
+[IRI_BH_WitchHunt X2AbilityTemplate]
+LocFriendlyName="Witch Hunt"
+LocLongDescription="Your critical hits against psionic units set them on fire."
+LocHelpText=="Your critical hits against psionic units set them on fire."
+LocPromotionPopupText=""
+LocFlyOverText="Witch Hunt"
+
+[IRI_BH_WitchHunt_Passive X2AbilityTemplate]
+LocFriendlyName="Witch Hunt"
+LocLongDescription="Your critical hits against psionic units set them on fire."
+LocHelpText=="Your critical hits against psionic units set them on fire."
+LocPromotionPopupText=""
+LocFlyOverText="Witch Hunt"
+
