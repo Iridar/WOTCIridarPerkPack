@@ -32,9 +32,52 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_RightInTheEye());
 	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(PurePassive('IRI_BH_DeadlierShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
 	// Colonel
+	Templates.AddItem(IRI_BH_NamedBullet());
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_NamedBullet()
+{
+	local X2AbilityTemplate					Template;	
+	local X2AbilityCost_ActionPoints		ActionPointCost;
+	local X2AbilityToHitCalc_StandardAim    ToHitCalc;
+	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
+
+	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NamedBullet');
+
+	// Icon
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';   
+
+	ToHitCalc = new class'X2AbilityToHitCalc_StandardAim';
+	ToHitCalc.bGuaranteedHit = false;
+	Template.AbilityToHitCalc = ToHitCalc;
+
+	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
+	BurstFireMultiTarget.NumExtraShots = 2;
+	Template.AbilityMultiTargetStyle = BurstFireMultiTarget;
+	
+	// Needs to be specifically the same effect to visualize damage markers properly. Chalk up another rake stepped on.
+	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[0]);
+	//Template.AddMultiTargetEffect(new class'X2Effect_ApplyWeaponDamage');
+	
+	// Reset costs, keep only AP cost.
+	Template.AbilityCosts.Length = 0;   
+
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bConsumeAllPoints = true;
+	Template.AbilityCosts.AddItem(ActionPointCost);	
+
+	// TODO: Add charges
+
+	Template.ActivationSpeech = 'FanFire';
+	//SetFireAnim(Template, 'FF_NamedBullet');
+
+	return Template;	
 }
 
 static function X2AbilityTemplate IRI_BH_Untraceable()

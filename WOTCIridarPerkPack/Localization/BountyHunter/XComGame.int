@@ -96,3 +96,10 @@ LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is 
 LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
 LocPromotionPopupText=""
 LocFlyOverText="Untraceable"
+
+[IRI_BH_NamedBullet X2AbilityTemplate]
+LocFriendlyName="Named Bullet"
+LocLongDescription="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
+LocHelpText="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
+LocPromotionPopupText=""
+LocFlyOverText="Named Bullet"
