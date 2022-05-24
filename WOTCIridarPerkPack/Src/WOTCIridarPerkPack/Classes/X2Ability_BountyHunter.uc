@@ -53,8 +53,14 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';   
 
 	ToHitCalc = new class'X2AbilityToHitCalc_StandardAim';
-	ToHitCalc.bGuaranteedHit = false;
+	ToHitCalc.bGuaranteedHit = true;
 	Template.AbilityToHitCalc = ToHitCalc;
+
+	X2Condition_Visibility(Template.AbilityTargetConditions[0]).bRequireMatchCoverType = true;
+	X2Condition_Visibility(Template.AbilityTargetConditions[0]).TargetCover = CT_None;
+
+	X2Condition_UnitProperty(Template.AbilityTargetConditions[1]).RequireWithinRange = true;
+	X2Condition_UnitProperty(Template.AbilityTargetConditions[1]).WithinRange = class'XComWorldData'.const.WORLD_StepSize * 6; // TODO: Configurable
 
 	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
 	BurstFireMultiTarget.NumExtraShots = 2;
@@ -75,6 +81,8 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	// TODO: Add charges
 
 	Template.ActivationSpeech = 'FanFire';
+
+	// TODO: Fancy animation. Blue muzzle flash, ricochet sound, ricochet pfx.
 	//SetFireAnim(Template, 'FF_NamedBullet');
 
 	return Template;	
