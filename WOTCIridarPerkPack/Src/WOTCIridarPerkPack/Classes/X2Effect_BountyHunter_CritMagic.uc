@@ -12,7 +12,7 @@ function bool ChangeHitResultForAttacker(XComGameState_Unit Attacker, XComGameSt
 		class'XComGameStateContext_Ability'.static.IsHitResultHit(CurrentResult))
 	{
 		NewHitResult = eHit_Crit;
-		`AMLOG("Making crit guaranteed");
+		//`AMLOG("Making crit guaranteed");
 		return true;
 	}
 	return false;
@@ -33,7 +33,7 @@ function float GetPreDefaultAttackingDamageModifier_CH(XComGameState_Effect Effe
 
 		Multiplier = Breakdown.ResultTable[eHit_Crit] / 100.0f;
 
-		`AMLOG("Target:" @ TargetUnit.GetFullName() @ "Crit chance:" @ Multiplier @ "Current damage:" @ CurrentDamage @ ", modified by:" @ CurrentDamage * Multiplier);
+		//`AMLOG("Target:" @ TargetUnit.GetFullName() @ "Crit chance:" @ Multiplier @ "Current damage:" @ CurrentDamage @ ", modified by:" @ CurrentDamage * Multiplier);
 
 		return CurrentDamage * Multiplier; 
 	}

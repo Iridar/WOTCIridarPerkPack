@@ -48,15 +48,6 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_EnterCover.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ExitCover.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_MoveBegin.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_BountyHunter_Stealth.uc">
       <SubType>Content</SubType>
     </Content>
@@ -79,12 +70,6 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_BountyHunter.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2MeleePathingPawn_BountyHunter_ChasingShot.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2TargetingMethod_BountyHunter_ChasingShot.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_BountyHunter_Followthrough.uc">

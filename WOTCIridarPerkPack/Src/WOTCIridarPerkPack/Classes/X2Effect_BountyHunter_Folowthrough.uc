@@ -153,6 +153,8 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 	AbilityState = XComGameState_Ability(EventData);
 	if (AbilityState == none)
 		return ELR_NoInterrupt;
+
+	`AMLOG(UnitState.GetFullName() @ AbilityState.GetMyTemplateName() @ "running");
 	
 	if (!class'BountyHunter'.static.IsAbilityValidForFollowthrough(AbilityState))
 	{

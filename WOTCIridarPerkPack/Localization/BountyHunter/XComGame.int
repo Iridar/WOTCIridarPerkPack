@@ -21,10 +21,18 @@ LocFlyOverText="Deadly Shadow"
 
 [IRI_BH_ChasingShot X2AbilityTemplate]
 LocFriendlyName="Chase"
-LocLongDescription="Move to a location within 6 tiles of a target and attack it with your <Ability:SecondaryWeaponName/>. This attack is guaranteed to hit. While moving, the first reaction attack against you will be evaded."
-LocHelpText="Move to a location within 6 tiles of a target and attack it with your <Ability:SecondaryWeaponName/>. The first reaction attack against you will be evaded."
-LocPromotionPopupText="<br/> Has the same action cost as regular movement. <br/> X turn cooldown."
+LocLongDescription="Mark a target. After your next move, fire your <Ability:SecondaryWeaponName/> for free against that target."
+LocHelpText="This target is being chased by a Bounty Hunter."
+LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Chase"
+
+[IRI_BH_ChasingShot_Attack X2AbilityTemplate]
+LocFriendlyName="Chase"
+LocLongDescription="Mark a target. After your next move, fire your <Ability:SecondaryWeaponName/> for free against that target."
+LocHelpText="This target is being chased by a Bounty Hunter."
+LocPromotionPopupText="<br/> X turn cooldown."
+LocFlyOverText="Chase"
+
 
 [IRI_BH_Blindside X2AbilityTemplate]
 LocFriendlyName="Blindside"
