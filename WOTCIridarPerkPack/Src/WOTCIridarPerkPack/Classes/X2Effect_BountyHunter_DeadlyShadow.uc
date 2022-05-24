@@ -16,27 +16,160 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectGameState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 
 	EventMgr.RegisterForEvent(EffectObj, 'RetainConcealmentOnActivation', OnRetainConcealmentOnActivation, ELD_Immediate, 10, ,, UnitState);	
+	EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', OnAbilityActivated, ELD_Immediate,, UnitState,, EffectObj);	
 	
-	//	local X2EventManager EventMgr;
-	//	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(SourceUnit.FindAbility('ABILITY_NAME').ObjectID));
-	//	EventMgr = `XEVENTMGR;
-	//	EventMgr.TriggerEvent('X2Effect_DeadlyShadow_Event', AbilityState, SourceUnit, NewGameState);
-	//EventMgr.RegisterForEvent(EffectObj, 'X2Effect_DeadlyShadow_Event', EffectGameState.TriggerAbilityFlyover, ELD_OnStateSubmitted, , UnitState);
-	
-	/*
-	native function RegisterForEvent( ref Object SourceObj, 
-									Name EventID, 
-									delegate<OnEventDelegate> NewDelegate, 
-									optional EventListenerDeferral Deferral=ELD_Immediate, 
-									optional int Priority=50, 
-									optional Object PreFilterObject, 
-									optional bool bPersistent, 
-									optional Object CallbackData );*/
-
-	//EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', OnAbilityActivated, ELD_Immediate,, UnitState,, EffectObj);	
-	//EventMgr.RegisterForEvent(EffectObj, 'UnitConcealmentBroken', OnTargetConcealmentBroken, ELD_OnStateSubmitted,, UnitState,, EffectObj);
-	
+	//EventMgr.RegisterForEvent(EffectObj, 'TacticalHUD_RealizeConcealmentStatus', OnTacticalHUD_RealizeConcealmentStatus, ELD_Immediate, 10, UnitState);	
+	EventMgr.RegisterForEvent(EffectObj, 'TacticalHUD_UpdateReaperHUD', OnTacticalHUD_UpdateReaperHUD, ELD_Immediate, 10, UnitState);	
+		
 	super.RegisterForEvents(EffectGameState);
+}
+
+// Display concealment break chance as 100% if we don't have Deadly Shadow, and 0 if we do.
+static private function EventListenerReturn OnTacticalHUD_RealizeConcealmentStatus(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+{
+	local XComLWTuple			Tuple;
+	local XComGameState_Unit	UnitState;
+
+	Tuple = XComLWTuple(EventData);
+	if (Tuple == none) 
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none) 
+		return ELR_NoInterrupt;
+
+	Tuple.Data[0].b = true; // bShowReaperUI
+
+	if (UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+	{
+		Tuple.Data[1].f = 0;	 // CurrentConcealLossCH
+		Tuple.Data[2].f = 0;	 // ModifiedLossCH
+	}
+	else
+	{
+		Tuple.Data[1].f = 1;	 // CurrentConcealLossCH
+		Tuple.Data[2].f = 1;	 // ModifiedLossCH
+	}
+}
+
+static private function EventListenerReturn OnTacticalHUD_UpdateReaperHUD(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+{
+	local XComLWTuple			Tuple;
+	local XComGameState_Unit	UnitState;
+
+	Tuple = XComLWTuple(EventData);
+	if (Tuple == none) 
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none) 
+		return ELR_NoInterrupt;
+
+	Tuple.Data[0].b = true; // bShowReaperUI
+	Tuple.Data[3].b = true; // bShowReaperShotHUD
+	
+	if (UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+	{
+		Tuple.Data[1].f = 0;	 // CurrentConcealLossCH
+		Tuple.Data[2].f = 0;	 // ModifiedLossCH
+	}
+	else
+	{
+		Tuple.Data[1].f = 1;	 // CurrentConcealLossCH
+		Tuple.Data[2].f = 1;	 // ModifiedLossCH
+	}
+}
+
+// Technical Challenge: I need Deadly Shadow to have the same detection radius as Shadow, but otherwise behave like regular concealment.
+// This can be achieved by using regular concealment and modifying detection radius via stat modifiers, 
+// but any additional stat modifiers will reduce detection radius to zero, which I don't want.
+// So to get the detection radius I need, I still set the bSuperConcealed flag, but remove it the moment the game considers running the "chance to break super concealment" roll.
+
+static private function ShadowPassiveEffectAdded(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
+{
+	XComGameState_Unit(kNewTargetState).bHasSuperConcealment = true;
+	//XComGameState_Unit(kNewTargetState).SuperConcealmentLoss = 100;
+}
+
+// Responsible for preserving concealment when attacking if the unit has a specific passive ability.
+static private function EventListenerReturn OnRetainConcealmentOnActivation(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+{
+	local XComLWTuple					Tuple;
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameState_Unit			UnitState;
+	local XComGameState_Ability			AbilityState;
+
+	// Exit early if this ability retains concealment.
+	Tuple = XComLWTuple(EventData);
+	if (Tuple == none || Tuple.Data[0].b) 
+		return ELR_NoInterrupt;
+
+	AbilityContext = XComGameStateContext_Ability(EventSource);
+	if (AbilityContext == none) 
+		return ELR_NoInterrupt;
+
+	// EventSource is Context, so can't use object filter when registering for the event.
+	// Do this check to make sure the unit in this event is the same unit to which this effect is applied.
+	UnitState = XComGameState_Unit(CallbackData);
+	if (UnitState == none || AbilityContext.InputContext.SourceObject.ObjectID != UnitState.ObjectID)
+		return ELR_NoInterrupt;
+
+	AbilityState = XComGameState_Ability(GameState.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+
+	// If the unit has the passive that makes all attacks not break concealment
+	if (class'BountyHunter'.static.IsAbilityValidForDeadlierShadow(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+	{
+		// Then don't break concealment and exit.
+		Tuple.Data[0].b = true;
+		return ELR_NoInterrupt;
+	}
+
+	return ELR_NoInterrupt;
+}
+
+// Responsible for bypassing the Reaper roll when activating abilities that normally break concelament.
+static function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState NewGameState, name InEventID, Object CallbackData)
+{
+    local XComGameState_Unit			UnitState;
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameState_Ability			AbilityState;
+
+	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
+	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none)
+		return ELR_NoInterrupt; 
+
+	AbilityState = XComGameState_Ability(EventData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt; 
+	
+	// Exit early if the unit has the passive that allows to always retain concealment when attacking.
+	if (class'BountyHunter'.static.IsAbilityValidForDeadlierShadow(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+		return ELR_NoInterrupt; 
+
+	// Exit early if the unit is affected by Followthrough, it has its own listener for this event, let it handle this.
+	if (class'BountyHunter'.static.IsAbilityValidForFollowthrough(AbilityState) && UnitState.IsUnitAffectedByEffectName(class'X2Effect_BountyHunter_Folowthrough'.default.EffectName))
+	{
+		`AMLOG(UnitState.GetFullName() @ AbilityState.GetMyTemplateName() @ "exiting early because unit is affected by Followthrough.");
+		return ELR_NoInterrupt; 
+	}
+
+	if (!AbilityState.RetainConcealmentOnActivation(AbilityContext))
+	{
+		UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(UnitState.ObjectID));
+		if (UnitState == none)
+			return ELR_NoInterrupt; 
+
+		`AMLOG(UnitState.GetFullName() @ AbilityState.GetMyTemplateName() @ "breaking super concealment.");
+		UnitState.bHasSuperConcealment = false;
+	}
+	
+    return ELR_NoInterrupt;
 }
 
 simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState, XComGameState_Effect NewEffectState)
@@ -46,6 +179,7 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	UnitState = XComGameState_Unit(kNewTargetState);
 	if (UnitState != none)
 	{
+		// Mark the unit with a unit value if they were already concealed when the effect was applied.
 		if (UnitState.IsConcealed())
 		{
 			UnitState.SetUnitFloatValue(AlreadyConcealedValue, 1, eCleanup_BeginTactical);
@@ -59,67 +193,34 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	super.OnEffectAdded(ApplyEffectParameters, kNewTargetState, NewGameState, NewEffectState);
 }
 
-
-// Technical Challenge: I need Deadly Shadow to have the same detection radius as Shadow, but otherwise behave like regular concealment.
-// This can be achieved by using regular concealment and modifying detection radius via stat modifiers, but any additional stat modifiers
-// will reduce detection radius to zero, which I don't want.
-// So to get the detection radius I need, I still set the bSuperConcealed flag, but remove it the moment the game considers running the "chance to break super concealment" roll.
-static private function EventListenerReturn OnRetainConcealmentOnActivation(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+static private function ShadowEffectRemoved(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState, bool bCleansed)
 {
-	local XComLWTuple					Tuple;
-	local XComGameStateContext_Ability	AbilityContext;
-	local XComGameState_Unit			UnitState;
-	local XComGameState_Ability			AbilityState;
-	local XComGameStateHistory			History;
-	local X2AbilityTemplate				AbilityTemplate;
+	local XComGameState_Unit	UnitState;
+	local UnitValue				UV;
 
-	// Don't proceed if this ability retains concealment.
-	Tuple = XComLWTuple(EventData);
-	if (Tuple == none || Tuple.Data[0].b) 
-		return ELR_NoInterrupt;
-
-	AbilityContext = XComGameStateContext_Ability(EventSource);
-	if (AbilityContext == none) 
-		return ELR_NoInterrupt;
-
-	// EventSource is Context, so can't use object filter when registering for the event.
-	// Do this check to make sure the unit in this event is the same unit to which this effect is applied.
-	if (XComGameState_Unit(CallbackData) == none || 
-		AbilityContext.InputContext.SourceObject.ObjectID != XComGameState_Unit(CallbackData).ObjectID)
-		return ELR_NoInterrupt;
-	
-	History = `XCOMHISTORY;
-	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
-	if (AbilityState == none) 
-		return ELR_NoInterrupt;
-
-	AbilityTemplate = AbilityState.GetMyTemplate();
-	if (AbilityTemplate == none) 
-		return ELR_NoInterrupt;
-
-	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
-	if (UnitState == none) 
-		return ELR_NoInterrupt;
-
-	// If we're here then this ability does not allow to retain concealment.
-
-	// If the unit has the passive and this is a concelment-breaking attack, don't break concealment.
-	if (UnitState.HasSoldierAbility('SomeAbility') && AbilityTemplate.TargetEffectsDealDamage(AbilityState.GetSourceWeapon(), AbilityState) && AbilityTemplate.Hostility == eHostility_Offensive)
+	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
+	if (UnitState == none)
 	{
-		Tuple.Data[0].b = true;
-	}
-	else
-	{
-		// Concealment is about to break.
-		// Remove the super concealment flag.
-		UnitState.bHasSuperConcealment = false;
+		UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	}
 
-	return ELR_NoInterrupt;
+	// Break concealment when the effect runs out, but only if the unit wasn't already concealed when the effect was applied.
+	if (!UnitState.GetUnitValue(default.AlreadyConcealedValue, UV))
+	{
+		`XEVENTMGR.TriggerEvent('EffectBreakUnitConcealment', UnitState, UnitState, NewGameState);
+	}
 }
 
-
-
+defaultproperties
+{
+	//bBringRemoveVisualizationForward = true
+	AlreadyConcealedValue = "IRI_BountyHunter_DeadlyShadow_AlreadyConcealed"
+	bRemoveWhenTargetConcealmentBroken = true
+	EffectAddedFn = ShadowPassiveEffectAdded
+	EffectRemovedFn = ShadowEffectRemoved
+	DuplicateResponse = eDupe_Ignore
+	EffectName = "IRI_BH_X2Effect_DeadlyShadow_Effect"
+}
 
 
 /*
@@ -357,37 +458,3 @@ static private function bool TriggerRetainConcealmentOnActivationOverride(XComGa
 	return Tuple.Data[0].b;
 }
 */
-
-static private function ShadowPassiveEffectAdded(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
-{
-	XComGameState_Unit(kNewTargetState).bHasSuperConcealment = true;
-}
-
-static private function ShadowEffectRemoved(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState, bool bCleansed)
-{
-	local XComGameState_Unit	UnitState;
-	local UnitValue				UV;
-
-	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
-	if (UnitState == none)
-	{
-		UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.TargetStateObjectRef.ObjectID));
-	}
-
-	// Break concealment when the effect runs out, but only if the unit wasn't already concealed when the effect was applied.
-	if (!UnitState.GetUnitValue(default.AlreadyConcealedValue, UV))
-	{
-		`XEVENTMGR.TriggerEvent('EffectBreakUnitConcealment', UnitState, UnitState, NewGameState);
-	}
-}
-
-defaultproperties
-{
-	//bBringRemoveVisualizationForward = true
-	AlreadyConcealedValue = "IRI_BountyHunter_DeadlyShadow_AlreadyConcealed"
-	bRemoveWhenTargetConcealmentBroken = true
-	EffectAddedFn = ShadowPassiveEffectAdded
-	EffectRemovedFn = ShadowEffectRemoved
-	DuplicateResponse = eDupe_Ignore
-	EffectName = "X2Effect_DeadlyShadow_Effect"
-}

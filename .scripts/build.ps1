@@ -24,12 +24,10 @@ switch ($config)
         $builder.EnableDebug()
     }
     "default" {
-        # Nothing special
+        $builder.SetContentOptionsJsonFilename("ContentOptions.json")
     }
     "" { ThrowFailure "Missing build configuration" }
     default { ThrowFailure "Unknown build configuration $config" }
 }
 
-# Uncomment this line to enable cooking.
-$builder.SetContentOptionsJsonFilename("ContentOptions.json")
 $builder.InvokeBuild()

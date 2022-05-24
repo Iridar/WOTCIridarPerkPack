@@ -13,10 +13,16 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Corporal
 	Templates.AddItem(IRI_BH_ChasingShot());
-	Templates.AddItem(IRI_BH_ChasingShot_Passive());
-	
 	Templates.AddItem(IRI_BH_Blindside());
 
+	// Sergeant
+
+	// ..
+
+	// Lieutenant
+	Templates.AddItem(IRI_BH_Folowthrough());
+	Templates.AddItem(PurePassive('IRI_BH_DeadlierShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	
 	Templates.AddItem(Blind());
 
 	return Templates;
@@ -145,9 +151,8 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_SHOT_PRIORITY;
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-	
-	Template.AbilitySourceName = 'eAbilitySource_Standard';                                       // color of the icon
-	
+	Template.AbilitySourceName = 'eAbilitySource_Standard';          
+	                             // color of the icon
 	// Targeting and Triggering
 	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
@@ -185,6 +190,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	AmmoCost = new class'X2AbilityCost_Ammo';
 	AmmoCost.iAmmo = 1;
 	Template.AbilityCosts.AddItem(AmmoCost);
+	Template.bUseAmmoAsChargesForHUD = true;
 	
 	// Effects
 	Template.bAllowAmmoEffects = true; 
@@ -203,13 +209,13 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	// State and Vis
 	Template.bUsesFiringCamera = true;
 	Template.CinescriptCameraType = "StandardGunFiring";	
-	//Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	//Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;	
-	//Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
 
 	Template.BuildNewGameStateFn = TypicalMoveEndAbility_BuildGameState;
 	Template.BuildVisualizationFn = ChasingShot_BuildVisualization;
-	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;	
+	//Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;	
+	//Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;	
+	// Interrupting this ability sometimes breaks its visualization.
+	Template.BuildInterruptGameStateFn = none;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
@@ -222,74 +228,61 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	Template.bSkipMoveStop = true;
 	Template.CustomMovingFireAnim = 'MV_TumbleFire';	
 	Template.CustomMovingFireKillAnim = 'MV_TumbleFire';	
-	Template.CustomMovingFireKillAnim = 'MV_TumbleFire';
 	Template.CustomMovingTurnLeftFireAnim = 'MV_TumbleFire';
 	Template.CustomMovingTurnLeftFireKillAnim = 'MV_TumbleFire';
 	Template.CustomMovingTurnRightFireAnim = 'MV_TumbleFire';
 	Template.CustomMovingTurnRightFireKillAnim = 'MV_TumbleFire';
 
-	Template.AdditionalAbilities.AddItem('IRI_BH_ChasingShot_Passive');
-
 	// TODO: Remove movement camera. 
-	// Remove "getting shot" animation while moving. // Need a custom X2Action_ApplyWeaponDamageToUnit
 
 	return Template;	
 }
 
 static function ChasingShot_BuildVisualization(XComGameState VisualizeGameState)
 {	
-	local XComGameStateVisualizationMgr	VisMgr;
-	local X2Action						FindAction;
-	local array<X2Action>				FindActions;
-	local XComGameStateContext_Ability	AbilityContext;
-	//local X2Action_MarkerNamed		ReplaceAction;
+	local XComGameStateVisualizationMgr		VisMgr;
+	local X2Action							FindAction;
+	local array<X2Action>					FindActions;
+	local XComGameStateContext_Ability		AbilityContext;
+	local X2Action_BountyHunter_MoveBegin	MoveReplaceAction;
+	local X2Action_MarkerNamed				ReplaceAction;
+	local X2Action_MoveBegin				MoveBegin;
 
 	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
-
+/*
 	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
 	VisMgr = `XCOMVISUALIZATIONMGR;
+	
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_MoveBegin', FindActions,, AbilityContext.InputContext.SourceObject.ObjectID);
+	foreach FindActions(FindAction)
+	{
+		MoveBegin = X2Action_MoveBegin(FindAction);
+		MoveReplaceAction = X2Action_BountyHunter_MoveBegin(class'X2Action'.static.CreateVisualizationActionClass(class'X2Action_BountyHunter_MoveBegin', AbilityContext));
+		
+		MoveReplaceAction.CurrentMoveData = MoveBegin.CurrentMoveData;
+		MoveReplaceAction.CurrentMoveResultData = MoveBegin.CurrentMoveResultData;
 
-	/*VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_CameraFollowUnit', FindActions);
+		VisMgr.ReplaceNode(MoveReplaceAction, FindAction);
+	}
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_CameraFollowUnit', FindActions,, AbilityContext.InputContext.SourceObject.ObjectID);
 	foreach FindActions(FindAction)
 	{
 		ReplaceAction = X2Action_MarkerNamed(class'X2Action'.static.CreateVisualizationActionClass(class'X2Action_MarkerNamed', AbilityContext));
 		ReplaceAction.SetName("ReplaceCinescriptCamera");
 		VisMgr.ReplaceNode(ReplaceAction, FindAction);
 	}
-	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_CameraRemove', FindActions);
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_CameraRemove', FindActions,, AbilityContext.InputContext.SourceObject.ObjectID);
 	foreach FindActions(FindAction)
 	{
 		ReplaceAction = X2Action_MarkerNamed(class'X2Action'.static.CreateVisualizationActionClass(class'X2Action_MarkerNamed', AbilityContext));
 		ReplaceAction.SetName("ReplaceCinescriptCamera2");
 		VisMgr.ReplaceNode(ReplaceAction, FindAction);
-	}*/
+	}
 
-	//`log("======================================",, 'IRIPISTOLVIZ');
-	//`log("Build Tree",, 'IRIPISTOLVIZ');
-	//PrintActionRecursive(VisMgr.BuildVisTree.TreeRoot, 0);
-	//`log("--------------------------------------",, 'IRIPISTOLVIZ');
-}
-
-static function X2AbilityTemplate IRI_BH_ChasingShot_Passive()
-{
-	local X2AbilityTemplate				Template;
-	local X2Effect_BountyHunter_Chase	ChaseEffect;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ChasingShot_Passive');
-
-	SetPassive(Template);
-	SetHidden(Template);
-
-	// Icon Setup
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
-
-	ChaseEffect = new class'X2Effect_BountyHunter_Chase';
-	ChaseEffect.BuildPersistentEffect(1, true);
-	ChaseEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, false);
-	Template.AddTargetEffect(ChaseEffect);
-	
-	return Template;
+	`log("======================================",, 'IRIPISTOLVIZ');
+	`log("Build Tree",, 'IRIPISTOLVIZ');
+	PrintActionRecursive(VisMgr.BuildVisTree.TreeRoot, 0);
+	`log("--------------------------------------",, 'IRIPISTOLVIZ');*/
 }
 
 static function X2AbilityTemplate IRI_BH_Blindside()
@@ -306,10 +299,10 @@ static function X2AbilityTemplate IRI_BH_Blindside()
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standardpistol";
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_PISTOL_SHOT_PRIORITY;
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-	Template.DisplayTargetHitChance = true;
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 
 	// Targeting and Triggering
+	Template.DisplayTargetHitChance = true;
 	Template.AbilityTargetStyle = default.SimpleSingleTarget;
 	Template.TargetingMethod = class'X2TargetingMethod_OverTheShoulder';
 	Template.AbilityToHitCalc = default.SimpleStandardAim;
@@ -333,6 +326,7 @@ static function X2AbilityTemplate IRI_BH_Blindside()
 	AmmoCost = new class'X2AbilityCost_Ammo';	
 	AmmoCost.iAmmo = 1;
 	Template.AbilityCosts.AddItem(AmmoCost);
+	Template.bUseAmmoAsChargesForHUD = true;
 
 	// Effects
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
@@ -353,6 +347,56 @@ static function X2AbilityTemplate IRI_BH_Blindside()
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;	
 	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_BH_Folowthrough()
+{
+	local X2AbilityTemplate						Template;	
+	local X2Effect_BountyHunter_Folowthrough	Folowthrough;
+
+	// Macro to do localisation and stuffs
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Folowthrough');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standardpistol";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_PISTOL_SHOT_PRIORITY;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+
+	// Targeting and Triggering
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+	
+	// Costs
+	Template.AbilityCosts.AddItem(default.FreeActionCost);	
+	// TODO: Cooldown
+
+	// Effects
+	Folowthrough = new class'X2Effect_BountyHunter_Folowthrough';
+	Folowthrough.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
+	Folowthrough.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddTargetEffect(Folowthrough);
+
+	// State and Viz
+	Template.AbilityConfirmSound = "TacticalUI_Activate_Ability_Run_N_Gun";
+	Template.bSkipFireAction = true;
+	Template.bShowActivation = true;
+	Template.ConcealmentRule = eConceal_Always;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;	
+	//Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;

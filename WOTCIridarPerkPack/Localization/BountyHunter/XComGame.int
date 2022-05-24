@@ -32,3 +32,18 @@ LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. This a
 LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target. Ignores armor. Does not cost an action. Can be used only against enemies that do not see you."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Blindside"
+
+[IRI_BH_Folowthrough X2AbilityTemplate]
+LocFriendlyName="Folowthrough"
+LocLongDescription="Activate to make your next damaging ability trigger twice."
+LocHelpText="Activate to make your next damaging ability trigger twice."
+LocPromotionPopupText="<br/> X turn cooldown."
+LocFlyOverText="Folowthrough"
+
+[IRI_BH_DeadlierShadow_Passive X2AbilityTemplate]
+LocFriendlyName="Deadlier Shadow"
+LocLongDescription="Attacks will no longer break Deadly Shadow concealment."
+LocHelpText="Attacks will no longer break Deadly Shadow concealment."
+LocPromotionPopupText="<br/> X turn cooldown."
+LocFlyOverText="Deadlier Shadow"
+
