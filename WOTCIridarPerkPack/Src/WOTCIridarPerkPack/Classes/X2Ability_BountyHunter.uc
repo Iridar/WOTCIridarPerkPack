@@ -27,15 +27,74 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_WitchHunt());
 	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	
-	Templates.AddItem(Blind());
+	// Major
+	Templates.AddItem(IRI_BH_RightInTheEye());
+	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	
+	// Colonel
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_RightInTheEye()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityTrigger_EventListener	Trigger;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RightInTheEye');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_flamethrower";
+	SetHidden(Template);
+	
+	// Targeting and Triggering
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityToHitCalc = default.DeadEye;
+
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'AbilityActivated';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Unit;
+	Trigger.ListenerData.Priority = 40;
+	Trigger.ListenerData.EventFn = class'Help'.static.FollowUpShot_EventListenerTrigger_CritOnly;
+	Template.AbilityTriggers.AddItem(Trigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+
+	// Ability Effects
+	Template.bAllowAmmoEffects = false;
+	Template.bAllowBonusWeaponEffects = false;
+	Template.bAllowFreeFireWeaponUpgrade = false;
+	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(2, 0));
+
+	// State and Vis
+	Template.FrameAbilityCameraType = eCameraFraming_Never; 
+	Template.bSkipExitCoverWhenFiring = true;
+	Template.bSkipFireAction = true;
+	Template.bShowActivation = true;
+	Template.bUsesFiringCamera = false;
+	Template.Hostility = eHostility_Neutral;
+
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = class'Help'.static.FollowUpShot_BuildVisualization;
+	Template.MergeVisualizationFn = class'Help'.static.FollowUpShot_MergeVisualization;
+	Template.BuildInterruptGameStateFn = none;
+
+	Template.AdditionalAbilities.AddItem('IRI_BH_RightInTheEye_Passive');
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_BH_WitchHunt()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Condition_UnitProperty			UnitProperty;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_WitchHunt');
 
@@ -60,7 +119,15 @@ static function X2AbilityTemplate IRI_BH_WitchHunt()
 
 	// Target Conditions
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
-	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+
+	UnitProperty = new class'X2Condition_UnitProperty';
+	UnitProperty.ExcludeAlive = false;
+	UnitProperty.ExcludeDead = true;
+	UnitProperty.ExcludeFriendlyToSource = true;
+	UnitProperty.ExcludeHostileToSource = false;
+	UnitProperty.TreatMindControlledSquadmateAsHostile = true;
+	UnitProperty.ExcludeNonPsionic = true;
+	Template.AbilityTargetConditions.AddItem(UnitProperty);
 
 	// Ability Effects
 	Template.bAllowAmmoEffects = false;
@@ -467,73 +534,6 @@ static function X2AbilityTemplate IRI_BH_Folowthrough()
 
 	return Template;	
 }
-
-static function X2AbilityTemplate Blind()
-{
-	local X2AbilityTemplate                 Template;
-	local X2AbilityCost_ActionPoints        ActionPointCost;
-	local X2Condition_UnitProperty          TargetProperty;
-	local X2Condition_Visibility            TargetVisibilityCondition;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_Blind');
-
-	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_soulfire";
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY;
-
-	// Targeting and Triggering
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
-	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-
-	// Shooter Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AddShooterEffectExclusions();
-
-	// Target Conditions
-	TargetProperty = new class'X2Condition_UnitProperty';
-	TargetProperty.ExcludeRobotic = true;
-	TargetProperty.FailOnNonUnits = true;
-	TargetProperty.TreatMindControlledSquadmateAsHostile = true;
-	Template.AbilityTargetConditions.AddItem(TargetProperty);
-
-	TargetVisibilityCondition = new class'X2Condition_Visibility';
-	TargetVisibilityCondition.bRequireGameplayVisible = true;
-	TargetVisibilityCondition.bAllowSquadsight = true;
-	Template.AbilityTargetConditions.AddItem(TargetVisibilityCondition);
-
-	// Costs
-	ActionPointCost = new class'X2AbilityCost_ActionPoints';
-	ActionPointCost.bConsumeAllPoints = true;
-	ActionPointCost.iNumPoints = 1;
-	Template.AbilityCosts.AddItem(ActionPointCost);
-	
-	//AddCooldown(Template, GetConfigInt('IRI_SoulShot_Cooldown'));
-
-	// Effects
-	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(2, 0));
-
-	// State and Viz
-	Template.bShowActivation = false;
-
-	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
-	Template.ActivationSpeech = 'IonicStorm';
-	//Template.CinescriptCameraType = "IRI_SoulShot";
-
-	Template.bFrameEvenWhenUnitIsHidden = true;
-	Template.Hostility = eHostility_Offensive;
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	
-	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
-	
-	return Template;
-}
-
 
 //	========================================
 //				COMMON CODE

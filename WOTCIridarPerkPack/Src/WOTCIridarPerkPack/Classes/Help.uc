@@ -438,7 +438,7 @@ final static function EventListenerReturn FollowUpShot_EventListenerTrigger_Crit
 
 	FollowUpShotAbilityState = XComGameState_Ability(CallbackData);
 	if (FollowUpShotAbilityState == none ||
-		FollowUpShotAbilityState.SourceWeapon != AbilityState.SourceWeapon ||
+		//FollowUpShotAbilityState.SourceWeapon != AbilityState.SourceWeapon ||
 		AbilityContext.InputContext.AbilityTemplateName == FollowUpShotAbilityState.GetMyTemplateName()) // Prevent inception
 		return ELR_NoInterrupt;
 
