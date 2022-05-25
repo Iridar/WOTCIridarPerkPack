@@ -20,6 +20,9 @@ static final function bool IsAbilityValidForFollowthrough(const XComGameState_Ab
 	if (!AbilityTemplate.TargetEffectsDealDamage(AbilityState.GetSourceWeapon(), AbilityState))
 		return false;
 
+	if (AbilityTemplate.Hostility != eHostility_Offensive)
+		return false;
+
 	if (X2AbilityTarget_Single(AbilityTemplate.AbilityTargetStyle) == none)
 		return false;
 

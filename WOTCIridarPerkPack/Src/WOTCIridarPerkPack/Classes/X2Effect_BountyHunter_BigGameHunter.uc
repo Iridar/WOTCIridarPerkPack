@@ -48,7 +48,7 @@ static function EventListenerReturn AbilityActivated_Listener(Object EventData, 
 		return ELR_NoInterrupt;
 
 	IncludedAbilities = `GetConfigArrayName('IRI_BH_BigGameHunter_InclusionList');
-	if (AbilityState.IsAbilityInputTriggered() && Template.TargetEffectsDealDamage(AbilityState.GetSourceWeapon(), AbilityState) || 
+	if (AbilityState.IsAbilityInputTriggered() && Template.TargetEffectsDealDamage(AbilityState.GetSourceWeapon(), AbilityState) && Template.Hostility != eHostility_Offensive || 
 		IncludedAbilities.Find(Template.DataName) != INDEX_NONE)
 	{	
 		EffecState = XComGameState_Effect_BountyHunter_BigGameHunter(CallbackData);

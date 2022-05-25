@@ -21,6 +21,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Sergeant
 	Templates.AddItem(IRI_BH_CustomShadowstrike());
+	Templates.AddItem(IRI_BH_CustomZeroIn());
 
 	// Lieutenant
 	Templates.AddItem(IRI_BH_Folowthrough());
@@ -43,6 +44,25 @@ static function array<X2DataTemplate> CreateTemplates()
 	return Templates;
 }
 
+static function X2AbilityTemplate IRI_BH_CustomZeroIn()
+{
+	local X2AbilityTemplate						Template;
+	local X2Effect_BountyHunter_CustomZeroIn	BonusEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_CustomZeroIn');
+
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ZeroIn";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetPassive(Template);
+
+	BonusEffect = new class'X2Effect_BountyHunter_CustomZeroIn';
+	BonusEffect.BuildPersistentEffect(1, true, false, false);
+	BonusEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddTargetEffect(BonusEffect);
+
+	return Template;
+}
+
 static function X2AbilityTemplate IRI_BH_CustomShadowstrike()
 {
 	local X2AbilityTemplate						Template;
@@ -53,33 +73,29 @@ static function X2AbilityTemplate IRI_BH_CustomShadowstrike()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_CustomShadowstrike');
 
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
-	Template.Hostility = eHostility_Neutral;
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_shadowstrike";
-
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SelfTarget;
-	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetPassive(Template);
 
 	Effect = new class'X2Effect_ToHitModifier';
 	Effect.EffectName = 'IRI_BH_CustomShadowstrike';
 	Effect.DuplicateResponse = eDupe_Ignore;
 	Effect.BuildPersistentEffect(1, true, false);
-	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage,,,Template.AbilitySourceName);
-	Effect.AddEffectHitModifier(eHit_Success, `GetConfigInt('IRI_BH_CustomShadowstrike_AimBonus'), Template.LocFriendlyName);
-	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_CustomShadowstrike_CritBonus'), Template.LocFriendlyName);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
+	Effect.AddEffectHitModifier(eHit_Success, `GetConfigInt('IRI_BH_CustomShadowstrike_AimBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
+	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_CustomShadowstrike_CritBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
+	
 
 	VisCondition = new class'X2Condition_Visibility';
 	VisCondition.bExcludeGameplayVisible = true;
-	VisCondition.bRequireNotMatchCoverType = true;
-	VisCondition.TargetCover = CT_None;
 	Effect.ToHitConditions.AddItem(VisCondition);
 
-	Template.AddTargetEffect(Effect);
+	//VisCondition = new class'X2Condition_Visibility';
+	//VisCondition.bRequireNotMatchCoverType = true;
+	//VisCondition.TargetCover = CT_None;
+	//Effect.ToHitConditions.AddItem(VisCondition);
 
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	//  NOTE: No visualization on purpose!
+	Template.AddTargetEffect(Effect);
 
 	return Template;
 }
@@ -114,7 +130,8 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BigGameHunter_Passive');
 
-	SetHidden(Template);
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_shadowstrike";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	SetPassive(Template);
 
 	Effect = new class'X2Effect_BountyHunter_BigGameHunter';
@@ -157,6 +174,8 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	local X2AbilityCost_ActionPoints		ActionPointCost;
 	local X2AbilityToHitCalc_StandardAim    ToHitCalc;
 	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
+	local X2Condition_Visibility			VisibilityCondition;
+	local X2Condition_UnitProperty			PropertyCondition;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NamedBullet');
 
@@ -168,11 +187,24 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	ToHitCalc.bGuaranteedHit = true;
 	Template.AbilityToHitCalc = ToHitCalc;
 
-	X2Condition_Visibility(Template.AbilityTargetConditions[0]).bRequireMatchCoverType = true;
-	X2Condition_Visibility(Template.AbilityTargetConditions[0]).TargetCover = CT_None;
+	Template.AbilityTargetConditions.Length = 0;
 
-	X2Condition_UnitProperty(Template.AbilityTargetConditions[1]).RequireWithinRange = true;
-	X2Condition_UnitProperty(Template.AbilityTargetConditions[1]).WithinRange = class'XComWorldData'.const.WORLD_StepSize * `GetConfigInt('IRI_BH_NamedBullet_Distance_Tiles');
+	VisibilityCondition = new class'X2Condition_Visibility';
+	VisibilityCondition.bRequireGameplayVisible = true;
+	VisibilityCondition.bRequireBasicVisibility = true;
+	VisibilityCondition.bRequireMatchCoverType = true;
+	VisibilityCondition.TargetCover = CT_None;
+	Template.AbilityTargetConditions.AddItem(VisibilityCondition);
+
+	PropertyCondition = new class'X2Condition_UnitProperty';
+	PropertyCondition.ExcludeAlive = false;
+	PropertyCondition.ExcludeDead = true;
+	PropertyCondition.ExcludeFriendlyToSource = true;
+	PropertyCondition.ExcludeHostileToSource = false;
+	PropertyCondition.TreatMindControlledSquadmateAsHostile = true;
+	PropertyCondition.RequireWithinRange = true;
+	PropertyCondition.WithinRange = class'XComWorldData'.const.WORLD_StepSize * `GetConfigInt('IRI_BH_NamedBullet_Distance_Tiles');
+	Template.AbilityTargetConditions.AddItem(PropertyCondition);
 
 	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
 	BurstFireMultiTarget.NumExtraShots = 2;
@@ -363,12 +395,11 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Headhunter');
 
-	SetPassive(Template);
-	SetHidden(Template);
-
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+
+	SetPassive(Template);
 
 	Headhunter = new class'X2Effect_BountyHunter_Headhunter';
 	Headhunter.BuildPersistentEffect(1, true);
@@ -448,13 +479,11 @@ static function X2AbilityTemplate IRI_BH_DeadlyShadow_Passive()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_DeadlyShadow_Passive');
 
-	SetPassive(Template);
-	SetHidden(Template);
-
-	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
 
+	SetPassive(Template);
+	
 	CritMagic = new class'X2Effect_BountyHunter_CritMagic';
 	CritMagic.BuildPersistentEffect(1, true);
 	CritMagic.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);

@@ -224,7 +224,7 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 	{
 		AbilityTemplate = kAbility.GetMyTemplate();
 
-		if (AbilityTemplate != none && AbilityTemplate.TargetEffectsDealDamage(kAbility.GetSourceWeapon(), kAbility))
+		if (AbilityTemplate != none && AbilityTemplate.TargetEffectsDealDamage(kAbility.GetSourceWeapon(), kAbility) && AbilityTemplate.Hostility != eHostility_Offensive)
 		{
 			`AMLOG("Restoring action points");
 

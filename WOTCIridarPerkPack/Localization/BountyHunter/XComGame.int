@@ -130,7 +130,15 @@ LocFlyOverText="Big Game Hunter"
 
 [IRI_BH_CustomShadowstrike X2AbilityTemplate]
 LocFriendlyName="Custom Shadowstrike"
-LocLongDescription="Gain +25 Aim and +25 Crit when attacking uncovered targets that do not see you."
-LocHelpText="Gain +25 Aim and +25 Crit when attacking uncovered targets that do not see you."
+LocLongDescription="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
+LocHelpText="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
 LocPromotionPopupText=""
 LocFlyOverText="Custom Shadowstrike"
+
+[IRI_BH_CustomZeroIn X2AbilityTemplate]
+LocFriendlyName="Custom Zero In"
+LocLongDescription="Attacking an enemy grants +10 Aim and +10 Crit against them until the start of your next turn. This bonus is cumulative."
+LocHelpText="Attacking an enemy grants +10 Aim and +10 Crit against them until the start of your next turn. This bonus is cumulative."
+LocPromotionPopupText=""
+LocFlyOverText="Custom Zero In"
+
