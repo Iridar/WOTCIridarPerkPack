@@ -63,6 +63,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BaseDamageBonus.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BigGameHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_CritMagic.uc">
       <SubType>Content</SubType>
     </Content>
@@ -76,6 +79,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_BountyHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_BountyHunter_BigGameHunter.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_BountyHunter_Followthrough.uc">

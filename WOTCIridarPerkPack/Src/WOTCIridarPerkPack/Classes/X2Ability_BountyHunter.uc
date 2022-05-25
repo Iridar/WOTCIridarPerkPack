@@ -38,9 +38,53 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Colonel
 	Templates.AddItem(IRI_BH_NamedBullet());
-
+	Templates.AddItem(IRI_BH_BigGameHunter());
+	Templates.AddItem(IRI_BH_BigGameHunter_Passive());
 	return Templates;
 }
+
+static function X2AbilityTemplate IRI_BH_BigGameHunter()
+{
+	local X2AbilityTemplate		Template;	
+	local X2AbilityCost_Ammo	AmmoCost;
+
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_BigGameHunter', true, false, false);
+	SetHidden(Template);
+
+	Template.AbilityTriggers.Length = 0;
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
+	
+	// Need just the ammo cost.
+	Template.AbilityCosts.Length = 0;
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	Template.bShowActivation = true;
+
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
+{
+	local X2AbilityTemplate Template;	
+	local X2Effect_BountyHunter_BigGameHunter Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BigGameHunter_Passive');
+
+	SetHidden(Template);
+	SetPassive(Template);
+
+	Effect = new class'X2Effect_BountyHunter_BigGameHunter';
+	Effect.BuildPersistentEffect(1, true);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddTargetEffect(Effect);
+
+	Template.AdditionalAbilities.AddItem('IRI_BH_BigGameHunter');
+
+	return Template;	
+}
+
 
 static function X2AbilityTemplate IRI_BH_FirePistol()
 {

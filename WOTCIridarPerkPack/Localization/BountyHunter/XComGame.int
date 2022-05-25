@@ -112,3 +112,19 @@ LocLongDescription="Use your <Ability:SecondaryWeaponName/> to fire a special bu
 LocHelpText="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
 LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"
+
+
+[IRI_BH_BigGameHunter X2AbilityTemplate]
+LocFriendlyName="Big Game Hunter"
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
+LocPromotionPopupText=""
+LocFlyOverText="Named Bullet"
+
+[IRI_BH_BigGameHunter_Passive X2AbilityTemplate]
+LocFriendlyName="Big Game Hunter"
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
+LocPromotionPopupText=""
+LocFlyOverText="Big Game Hunter"
+

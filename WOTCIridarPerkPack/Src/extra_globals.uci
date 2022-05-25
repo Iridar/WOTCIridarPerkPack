@@ -14,4 +14,4 @@
 `define GetConfigString(VarName) class'ConfigEngine'.static.GetConfigString(`VarName)
 `define GetConfigArrayInt(VarName) class'ConfigEngine'.static.GetConfigArrayInt(`VarName)
 `define GetConfigArrayFloat(VarName) class'ConfigEngine'.static.GetConfigArrayFloat(`VarName)
-
+`define GetConfigArrayName(VarName) class'ConfigEngine'.static.GetConfigArrayName(`VarName)
