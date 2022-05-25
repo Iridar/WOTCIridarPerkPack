@@ -128,3 +128,9 @@ LocHelpText="Whenever your score two critical hits against the same target in a 
 LocPromotionPopupText=""
 LocFlyOverText="Big Game Hunter"
 
+[IRI_BH_CustomShadowstrike X2AbilityTemplate]
+LocFriendlyName="Custom Shadowstrike"
+LocLongDescription="Gain +25 Aim and +25 Crit when attacking uncovered targets that do not see you."
+LocHelpText="Gain +25 Aim and +25 Crit when attacking uncovered targets that do not see you."
+LocPromotionPopupText=""
+LocFlyOverText="Custom Shadowstrike"

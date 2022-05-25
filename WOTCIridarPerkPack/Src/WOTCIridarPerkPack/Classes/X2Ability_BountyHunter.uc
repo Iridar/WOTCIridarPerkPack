@@ -20,7 +20,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_Blindside());
 
 	// Sergeant
-	// ..
+	Templates.AddItem(IRI_BH_CustomShadowstrike());
 
 	// Lieutenant
 	Templates.AddItem(IRI_BH_Folowthrough());
@@ -41,6 +41,47 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_BigGameHunter());
 	Templates.AddItem(IRI_BH_BigGameHunter_Passive());
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_CustomShadowstrike()
+{
+	local X2AbilityTemplate						Template;
+	local X2Effect_ToHitModifier                Effect;
+	local X2Condition_Visibility                VisCondition;
+
+	// Same as original, but require no cover.
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_CustomShadowstrike');
+
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	Template.Hostility = eHostility_Neutral;
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_shadowstrike";
+
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+
+	Effect = new class'X2Effect_ToHitModifier';
+	Effect.EffectName = 'IRI_BH_CustomShadowstrike';
+	Effect.DuplicateResponse = eDupe_Ignore;
+	Effect.BuildPersistentEffect(1, true, false);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage,,,Template.AbilitySourceName);
+	Effect.AddEffectHitModifier(eHit_Success, `GetConfigInt('IRI_BH_CustomShadowstrike_AimBonus'), Template.LocFriendlyName);
+	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_CustomShadowstrike_CritBonus'), Template.LocFriendlyName);
+
+	VisCondition = new class'X2Condition_Visibility';
+	VisCondition.bExcludeGameplayVisible = true;
+	VisCondition.bRequireNotMatchCoverType = true;
+	VisCondition.TargetCover = CT_None;
+	Effect.ToHitConditions.AddItem(VisCondition);
+
+	Template.AddTargetEffect(Effect);
+
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	//  NOTE: No visualization on purpose!
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_BH_BigGameHunter()
@@ -131,7 +172,7 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	X2Condition_Visibility(Template.AbilityTargetConditions[0]).TargetCover = CT_None;
 
 	X2Condition_UnitProperty(Template.AbilityTargetConditions[1]).RequireWithinRange = true;
-	X2Condition_UnitProperty(Template.AbilityTargetConditions[1]).WithinRange = class'XComWorldData'.const.WORLD_StepSize * 6; // TODO: Configurable
+	X2Condition_UnitProperty(Template.AbilityTargetConditions[1]).WithinRange = class'XComWorldData'.const.WORLD_StepSize * `GetConfigInt('IRI_BH_NamedBullet_Distance_Tiles');
 
 	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
 	BurstFireMultiTarget.NumExtraShots = 2;
@@ -149,7 +190,7 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	ActionPointCost.bConsumeAllPoints = true;
 	Template.AbilityCosts.AddItem(ActionPointCost);	
 
-	// TODO: Add charges
+	AddCharges(Template, `GetConfigInt('IRI_BH_NamedBullet_Charges'));
 
 	Template.ActivationSpeech = 'FanFire';
 
@@ -459,7 +500,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	Template.AbilityCosts.AddItem(AmmoCost);
 	Template.bUseAmmoAsChargesForHUD = true;
 
-	// TODO: Cooldown
+	AddCooldown(Template, `GetConfigInt('IRI_BH_ChasingShot_Cooldown'));
 
 	// Effects
 	ChasingShotEffect = new class'X2Effect_Persistent';
@@ -611,7 +652,7 @@ static function X2AbilityTemplate IRI_BH_Blindside()
 	
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);	
-	// TODO: Cooldown
+	AddCooldown(Template, `GetConfigInt('IRI_BH_Blindside_Cooldown'));
 
 	// Ammo
 	AmmoCost = new class'X2AbilityCost_Ammo';	
@@ -672,7 +713,7 @@ static function X2AbilityTemplate IRI_BH_Folowthrough()
 	
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);	
-	// TODO: Cooldown
+	AddCooldown(Template, `GetConfigInt('IRI_BH_Folowthrough_Cooldown'));
 
 	// Effects
 	Folowthrough = new class'X2Effect_BountyHunter_Folowthrough';
