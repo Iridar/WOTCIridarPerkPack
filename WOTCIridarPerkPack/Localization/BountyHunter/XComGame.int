@@ -5,6 +5,15 @@ LocHelpText="Killing an enemy permanently increases critical chance against othe
 LocPromotionPopupText=""
 LocFlyOverText="Headhunter"
 
+
+[IRI_BH_FirePistol X2AbilityTemplate]
+LocFriendlyName="Fire Pistol"
+LocLongDescription="You have been trained to effectively utilize the full flexibility of a <Ability:SecondaryWeaponName/>."
+LocHelpText="Fire your pistol at a target."
+LocFlyOverText=""
+LocPromotionPopupText=""
+
+
 [IRI_BH_DeadlyShadow X2AbilityTemplate]
 LocFriendlyName="Deadly Shadow"
 LocLongDescription="Activate to enter Deadly Shadow for 2 turns, an advanced form of concealment with reduced detection radius."
