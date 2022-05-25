@@ -69,6 +69,7 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
 {
 	local X2AbilityTemplate Template;	
 	local X2Effect_BountyHunter_BigGameHunter Effect;
+	local X2Effect_Persistent PersistentEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BigGameHunter_Passive');
 
@@ -77,8 +78,13 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
 
 	Effect = new class'X2Effect_BountyHunter_BigGameHunter';
 	Effect.BuildPersistentEffect(1, true);
-	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
 	Template.AddTargetEffect(Effect);
+
+	PersistentEffect = new class'X2Effect_Persistent';
+	PersistentEffect.BuildPersistentEffect(1, true);
+	PersistentEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddTargetEffect(PersistentEffect);
 
 	Template.AdditionalAbilities.AddItem('IRI_BH_BigGameHunter');
 

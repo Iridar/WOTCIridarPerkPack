@@ -1,5 +1,6 @@
 class X2Effect_BountyHunter_BigGameHunter extends X2Effect_Persistent;
 
+// TODO: Tag handler for this.
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager EventMgr;
@@ -11,25 +12,12 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 	EffectObj = EffectGameState;
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectGameState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 
-	EventMgr.RegisterForEvent(EffectObj, 'X2Effect_BountyHunter_BigGameHunter_Event', EffectGameState.TriggerAbilityFlyover, ELD_OnStateSubmitted, , UnitState);
-	
-	//	local X2EventManager EventMgr;
-	//	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(SourceUnit.FindAbility('ABILITY_NAME').ObjectID));
-	//	EventMgr = `XEVENTMGR;
-	//	EventMgr.TriggerEvent('X2Effect_BountyHunter_BigGameHunter_Event', AbilityState, SourceUnit, NewGameState);
-	
 	EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', AbilityActivated_Listener, ELD_OnStateSubmitted, 30, UnitState,, EffectObj);	
-	/*
-	native function RegisterForEvent( ref Object SourceObj, 
-									Name EventID, 
-									delegate<OnEventDelegate> NewDelegate, 
-									optional EventListenerDeferral Deferral=ELD_Immediate, 
-									optional int Priority=50, 
-									optional Object PreFilterObject, 
-									optional bool bPersistent, 
-									optional Object CallbackData );*/
-	
-	//super.RegisterForEvents(EffectGameState);
+}
+
+function bool IsEffectCurrentlyRelevant(XComGameState_Effect EffectGameState, XComGameState_Unit TargetUnit) 
+{
+	return XComGameState_Effect_BountyHunter_BigGameHunter(EffectGameState).iNumConsecutiveCrits > 0; 
 }
 
 static function EventListenerReturn AbilityActivated_Listener(Object EventData, Object EventSource, XComGameState GameState, name InEventID, Object CallbackData)
@@ -46,7 +34,9 @@ static function EventListenerReturn AbilityActivated_Listener(Object EventData, 
 	local X2AbilityTemplate									Template;
 		
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
-	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+	if (AbilityContext == none || 
+		AbilityContext.InputContext.AbilityTemplateName == 'IRI_BH_BigGameHunter' || // Prevent inception
+		AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
 		return ELR_NoInterrupt;
 
 	AbilityState = XComGameState_Ability(EventData);
