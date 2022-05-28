@@ -28,6 +28,9 @@
     <Content Include="Config\BountyHunter\XComGameCore.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\BountyHunter\XComGameData.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\IRIBountyHunter.upk">
       <SubType>Content</SubType>
     </Content>
@@ -46,6 +49,9 @@
     <Content Include="Localization\WOTCIridarPerkPack.int" />
     <Content Include="Src\extra_globals.uci" />
     <Content Include="Src\WOTCIridarPerkPack\Classes\BountyHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCost_BHAmmo.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">

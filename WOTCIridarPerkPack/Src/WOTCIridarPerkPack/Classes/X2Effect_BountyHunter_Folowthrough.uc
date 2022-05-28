@@ -133,6 +133,7 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 	local XComGameState					NewGameState;
 	local UnitValue						UV;
 	local bool							bRetainConcealment;
+	local int							iCooldown;
 	local XComGameState_Effect_BountyHunter_Followthrough EffectState;
 
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
@@ -180,6 +181,11 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 	{
 		UnitState.bHasSuperConcealment = false;
 	}
+
+	AbilityState = XComGameState_Ability(NewGameState.ModifyStateObject(AbilityState.Class, AbilityState.ObjectID));
+	iCooldown = AbilityState.iCooldown;
+	AbilityState.iCooldown = 0;
+	
 	`GAMERULES.SubmitGameState(NewGameState);
 
 	`AMLOG("Cleared Unit Value, retriggering ability, which will break concealment:" @ !bRetainConcealment);
@@ -208,6 +214,8 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 			UnitState.bHasSuperConcealment = false;
 			`XEVENTMGR.TriggerEvent('EffectBreakUnitConcealment', UnitState, UnitState, NewGameState);
 		}
+		AbilityState = XComGameState_Ability(NewGameState.ModifyStateObject(AbilityState.Class, AbilityState.ObjectID));
+		AbilityState.iCooldown = iCooldown;
 		`GAMERULES.SubmitGameState(NewGameState);
 	}
 	
@@ -220,24 +228,19 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 	local UnitValue UV;
 	local XComGameState_Effect_BountyHunter_Followthrough FollowthroughEffectState;
 
-	if (SourceUnit.GetUnitValue(EffectName, UV))
+	if (SourceUnit.GetUnitValue(EffectName, UV) && class'BountyHunter'.static.IsAbilityValidForFollowthrough(kAbility))
 	{
-		AbilityTemplate = kAbility.GetMyTemplate();
+		`AMLOG("Restoring action points");
 
-		if (AbilityTemplate != none && AbilityTemplate.TargetEffectsDealDamage(kAbility.GetSourceWeapon(), kAbility) && AbilityTemplate.Hostility != eHostility_Offensive)
-		{
-			`AMLOG("Restoring action points");
+		// Store unit's action points in Effect State so they can be restored later in case Followthrough fails to activate for whatever reason.
+		FollowthroughEffectState = XComGameState_Effect_BountyHunter_Followthrough(NewGameState.ModifyStateObject(class'XComGameState_Effect_BountyHunter_Followthrough', EffectState.ObjectID));
+		FollowthroughEffectState.ActionPoints = SourceUnit.ActionPoints;
+		FollowthroughEffectState.ReserveActionPoints = SourceUnit.ReserveActionPoints;
 
-			// Store unit's action points in Effect State so they can be restored later in case Followthrough fails to activate for whatever reason.
-			FollowthroughEffectState = XComGameState_Effect_BountyHunter_Followthrough(NewGameState.ModifyStateObject(class'XComGameState_Effect_BountyHunter_Followthrough', EffectState.ObjectID));
-			FollowthroughEffectState.ActionPoints = SourceUnit.ActionPoints;
-			FollowthroughEffectState.ReserveActionPoints = SourceUnit.ReserveActionPoints;
+		SourceUnit.ActionPoints = PreCostActionPoints;
+		SourceUnit.ReserveActionPoints = PreCostReservePoints;
 
-			SourceUnit.ActionPoints = PreCostActionPoints;
-			SourceUnit.ReserveActionPoints = PreCostReservePoints;
-
-			return true; 
-		}
+		return true; 
 	}
 
 	return false;

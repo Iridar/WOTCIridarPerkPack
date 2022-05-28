@@ -142,3 +142,16 @@ LocHelpText="Attacking an enemy grants +10 Aim and +10 Crit against them until t
 LocPromotionPopupText=""
 LocFlyOverText="Custom Zero In"
 
+[IRI_BH_ToolsOfTheTrade X2AbilityTemplate]
+LocFriendlyName="Tools of the Trade"
+LocLongDescription="Gain a Grenade and Ammo slots."
+LocHelpText="Gain a Grenade and Ammo slots."
+LocPromotionPopupText=""
+LocFlyOverText="Tools of the Trade"
+
+[IRI_BH_ShadowRounds_Passive X2AbilityTemplate]
+LocFriendlyName="Shadow Rounds"
+LocLongDescription="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
+LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
+LocPromotionPopupText=""
+LocFlyOverText="Shadow Rounds"

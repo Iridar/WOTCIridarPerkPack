@@ -31,11 +31,13 @@ static function array<X2DataTemplate> CreateTemplates()
 	// Captain
 	Templates.AddItem(IRI_BH_WitchHunt());
 	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	
+	Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
 	// Major
 	Templates.AddItem(IRI_BH_RightInTheEye());
 	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(PurePassive('IRI_BH_DeadlierShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(PurePassive('IRI_BH_ShadowRounds_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
 	// Colonel
 	Templates.AddItem(IRI_BH_NamedBullet());
@@ -152,21 +154,27 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
 
 static function X2AbilityTemplate IRI_BH_FirePistol()
 {
-	local X2AbilityTemplate Template;	
+	local X2AbilityTemplate				Template;	
+	local X2AbilityCost_ActionPoints	ActionPointCost;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_FirePistol');
 
-	// Yep, just for that.
 	Template.bUseAmmoAsChargesForHUD = true;
+	
+	Template.AbilityCosts.Length = 0;
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BHAmmo');
 
-	Template.AdditionalAbilities.AddItem('PistolOverwatchShot');
-	Template.AdditionalAbilities.AddItem('PistolReturnFire');
+	ActionPointCost = new class'X2AbilityCost_QuickdrawActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bConsumeAllPoints = true;
+	Template.AbilityCosts.AddItem(ActionPointCost);	
+
+	//Template.AdditionalAbilities.AddItem('PistolOverwatchShot');
+	//Template.AdditionalAbilities.AddItem('PistolReturnFire');
 	Template.AdditionalAbilities.AddItem('HotLoadAmmo');
 
 	return Template;	
 }
-
-
 
 static function X2AbilityTemplate IRI_BH_NamedBullet()
 {
@@ -523,8 +531,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);	
 
-	AmmoCost = new class'X2AbilityCost_Ammo';
-	AmmoCost.iAmmo = 1;
+	AmmoCost = new class'X2AbilityCost_BHAmmo';
 	AmmoCost.bFreeCost = true; // Require ammo only for activation
 	Template.AbilityCosts.AddItem(AmmoCost);
 	Template.bUseAmmoAsChargesForHUD = true;
@@ -561,7 +568,6 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 static function X2AbilityTemplate IRI_BH_ChasingShot_Attack()
 {
 	local X2AbilityTemplate							Template;	
-	local X2AbilityCost_Ammo						AmmoCost;
 	local X2AbilityTrigger_EventListener			Trigger;
 	local X2Condition_UnitEffectsWithAbilitySource	UnitEffectsCondition;
 
@@ -586,9 +592,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot_Attack()
 	
 	// Reset costs, keep only ammo cost.
 	Template.AbilityCosts.Length = 0;   
-	AmmoCost = new class'X2AbilityCost_Ammo';
-	AmmoCost.iAmmo = 1;
-	Template.AbilityCosts.AddItem(AmmoCost);
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BHAmmo');
 
 	Template.bShowActivation = true;
 	Template.AssociatedPlayTiming = SPT_AfterSequential;
@@ -604,6 +608,8 @@ static private function EventListenerReturn ChasingShotTriggerListener(Object Ev
 	local XComGameState					NewGameState;
 	local XComGameStateHistory			History;
 	local XComGameState_Effect			EffectState;
+	//local XComGameState_Ability			AbilityState;
+	//local StateObjectReference			AbilityRef;
 
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
 	if (AbilityContext == none) 
@@ -621,7 +627,7 @@ static private function EventListenerReturn ChasingShotTriggerListener(Object Ev
 	if (AbilityContext.InputContext.MovementPaths.Length > 0 && 
         AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length > 0)
     {
-        if (AbilityContext.InputContext.MovementPaths[0].MovementTiles[0] == UnitState.TileLocation)
+        if (AbilityContext.InputContext.MovementPaths[0].MovementTiles[AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length - 1] == UnitState.TileLocation)
 		{
 			if (ChasingShotState.AbilityTriggerAgainstTargetIndex(0))
 			{
@@ -638,8 +644,25 @@ static private function EventListenerReturn ChasingShotTriggerListener(Object Ev
 						break;
 					}
 				}
+
+				
+
 				`GAMERULES.SubmitGameState(NewGameState);
 			}
+			// Reset cooldown if Chase Shot failed to activate
+			// -> but the effect remains on target, you can try again.
+			//else
+			//{
+			//	AbilityRef = UnitState.FindAbility('IRI_BH_ChasingShot', ChasingShotState.SourceWeapon);
+			//	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(AbilityRef.ObjectID));
+			//	if (AbilityState != none)
+			//	{
+			//		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Reset Chase Cooldown");
+			//		AbilityState = XComGameState_Ability(NewGameState.ModifyStateObject(AbilityState.Class, AbilityState.ObjectID));
+			//		AbilityState.iCooldown = 0;
+			//		`GAMERULES.SubmitGameState(NewGameState);
+			//	}
+			//}
 		}
 	}	
 
@@ -649,7 +672,6 @@ static private function EventListenerReturn ChasingShotTriggerListener(Object Ev
 static function X2AbilityTemplate IRI_BH_Blindside()
 {
 	local X2AbilityTemplate                 Template;	
-	local X2AbilityCost_Ammo                AmmoCost;
 	local X2Effect_ApplyWeaponDamage        WeaponDamageEffect;
 	local X2Effect_Knockback				KnockbackEffect;
 
@@ -684,9 +706,7 @@ static function X2AbilityTemplate IRI_BH_Blindside()
 	AddCooldown(Template, `GetConfigInt('IRI_BH_Blindside_Cooldown'));
 
 	// Ammo
-	AmmoCost = new class'X2AbilityCost_Ammo';	
-	AmmoCost.iAmmo = 1;
-	Template.AbilityCosts.AddItem(AmmoCost);
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BHAmmo');
 	Template.bUseAmmoAsChargesForHUD = true;
 
 	// Effects
