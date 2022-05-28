@@ -1,6 +1,7 @@
 class X2Ability_BountyHunter extends X2Ability;
 
 var private X2Condition_Visibility UnitDoesNotSeeCondition;
+var private X2Condition_Visibility GameplayVisibilityAllowSquadsight;
 
 static function array<X2DataTemplate> CreateTemplates()
 {
@@ -306,14 +307,14 @@ static function X2AbilityTemplate IRI_BH_RightInTheEye()
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 
 	// Target Conditions
-	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityAllowSquadsight);
 	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
 
 	// Ability Effects
 	Template.bAllowAmmoEffects = false;
 	Template.bAllowBonusWeaponEffects = false;
 	Template.bAllowFreeFireWeaponUpgrade = false;
-	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(2, 0));
+	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(1, 0));
 
 	// State and Vis
 	Template.FrameAbilityCameraType = eCameraFraming_Never; 
@@ -361,7 +362,7 @@ static function X2AbilityTemplate IRI_BH_WitchHunt()
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 
 	// Target Conditions
-	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityAllowSquadsight);
 
 	UnitProperty = new class'X2Condition_UnitProperty';
 	UnitProperty.ExcludeAlive = false;
@@ -964,6 +965,13 @@ defaultproperties
     bExcludeGameplayVisible = true; //condition will FAIL if there is GameplayVisibility FROM the target TO the source
     End Object
     UnitDoesNotSeeCondition = DefaultVisibilityCondition;
+
+	Begin Object Class=X2Condition_Visibility Name=DefaultGameplayVisibilityAllowSquadsight
+	bRequireGameplayVisible = true;
+	bAllowSquadsight = true;
+    End Object
+    GameplayVisibilityAllowSquadsight = DefaultGameplayVisibilityAllowSquadsight;
+	
 }
 
 

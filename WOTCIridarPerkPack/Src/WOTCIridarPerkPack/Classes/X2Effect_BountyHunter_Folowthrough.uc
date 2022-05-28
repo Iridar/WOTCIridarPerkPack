@@ -224,7 +224,6 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 
 function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStateContext_Ability AbilityContext, XComGameState_Ability kAbility, XComGameState_Unit SourceUnit, XComGameState_Item AffectWeapon, XComGameState NewGameState, const array<name> PreCostActionPoints, const array<name> PreCostReservePoints) 
 {
-	local X2AbilityTemplate AbilityTemplate;
 	local UnitValue UV;
 	local XComGameState_Effect_BountyHunter_Followthrough FollowthroughEffectState;
 
