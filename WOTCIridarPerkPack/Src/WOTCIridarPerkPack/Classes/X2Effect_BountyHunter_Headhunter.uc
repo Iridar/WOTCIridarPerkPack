@@ -25,15 +25,18 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 
 static private function EventListenerReturn OnKillMail(Object EventData, Object EventSource, XComGameState GameState, name InEventID, Object CallbackData)
 {
-    local XComGameState_Unit    SourceUnit;
-	local XComGameState_Unit    KilledUnit;
-	local UnitValue				UV;
-	local name					GroupName;
-	local XComGameState			NewGameState;
-	local name					ValueName;
+    local XComGameState_Unit			SourceUnit;
+	local XComGameState_Unit			KilledUnit;
+	local UnitValue						UV;
+	local name							GroupName;
+	local XComGameState					NewGameState;
+	local name							ValueName;
+	local DamageResult					DmgResult;
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameState_Item			ItemState;
 		
 	KilledUnit = XComGameState_Unit(EventData);
-	if (KilledUnit == none)
+	if (KilledUnit == none || KilledUnit.DamageResults.Length == 0)
 		return ELR_NoInterrupt;
 
 	GroupName = KilledUnit.GetMyTemplateGroupName();
@@ -42,6 +45,15 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 
 	SourceUnit = XComGameState_Unit(EventSource);
 	if (SourceUnit == none)
+		return ELR_NoInterrupt;
+
+	DmgResult = KilledUnit.DamageResults[KilledUnit.DamageResults.Length - 1];
+	AbilityContext = XComGameStateContext_Ability(DmgResult.Context);
+	if (AbilityContext == none)
+		return ELR_NoInterrupt;
+
+	ItemState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.ItemObject.ObjectID));
+	if (ItemState == none || ItemState.GetWeaponCategory() != 'iri_bounty_pistol')
 		return ELR_NoInterrupt;
 
 	ValueName = Name(default.UVPrefix $ GroupName);
@@ -57,15 +69,17 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 
 function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit Attacker, XComGameState_Unit Target, XComGameState_Ability AbilityState, class<X2AbilityToHitCalc> ToHitType, bool bMelee, bool bFlanking, bool bIndirectFire, out array<ShotModifierInfo> ShotModifiers)
 {
-	local ShotModifierInfo	ShotModifier;
-	local UnitValue			UV;
-	local name				GroupName;
+	local ShotModifierInfo		ShotModifier;
+	local UnitValue				UV;
+	local name					GroupName;
+	local XComGameState_Item	SourceWeapon;
 
 	GroupName = Target.GetMyTemplateGroupName();
 	if (GroupName == '')
 		return;
 
-	if (Attacker.GetUnitValue(Name(UVPrefix $ GroupName), UV))
+	SourceWeapon = AbilityState.GetSourceWeapon();
+	if (SourceWeapon != none && SourceWeapon.GetWeaponCategory() == 'iri_bounty_pistol' && Attacker.GetUnitValue(Name(UVPrefix $ GroupName), UV))
 	{
 		ShotModifier.ModType = eHit_Crit;
 		ShotModifier.Value = UV.fValue;
