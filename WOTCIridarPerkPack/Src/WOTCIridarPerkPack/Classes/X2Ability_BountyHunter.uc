@@ -89,7 +89,7 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley()
 	
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.bConsumeAllPoints = true;   //  this will guarantee the unit has at least 1 action point
-	ActionPointCost.bAddWeaponTypicalCost = true;
+	ActionPointCost.iNumPoints = 1;
 	Template.AbilityCosts.AddItem(ActionPointCost);
 
 	// Effects
@@ -136,33 +136,13 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
 {
 	local X2AbilityTemplate					Template;	
 	local X2AbilityCost_Ammo				AmmoCost;
-	local X2AbilityTrigger_EventListener	Trigger;
-
-	local X2Condition_EffectGrantsThisTurn_MatchSource	TargetEffectCondition;
-	local X2Effect_SetEffectGrantsThisTurn				SetGrantsThisTurn;
-
 	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_RoutingVolley_Attack', true, false, false);
 	SetHidden(Template);
 
 	Template.AbilityTriggers.Length = 0;
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
 
-	TargetEffectCondition = new class'X2Condition_EffectGrantsThisTurn_MatchSource';
-	TargetEffectCondition.AddCheckValue(class'X2Effect_BountyHunter_RoutingVolley'.default.EffectName, 0, eCheck_Exact);
-	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
-
-	Trigger = new class'X2AbilityTrigger_EventListener';
-	Trigger.ListenerData.EventID = 'AbilityActivated';
-	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
-	Trigger.ListenerData.Filter = eFilter_None;
-	Trigger.ListenerData.EventFn = RoutingVolleyTriggerListener;
-	Template.AbilityTriggers.AddItem(Trigger);
-
-	SetGrantsThisTurn = new class'X2Effect_SetEffectGrantsThisTurn';
-	SetGrantsThisTurn.EffectName = class'X2Effect_BountyHunter_RoutingVolley'.default.EffectName;
-	SetGrantsThisTurn.bSet = true;
-	SetGrantsThisTurn.iValue = 1;
-	SetGrantsThisTurn.bMatchSource = true;
-	Template.AddTargetEffect(SetGrantsThisTurn);
+	Template.AddShooterEffect(new class'X2Effect_BountyHunter_UpdateSuppressionHistoryIndex');
 	
 	// Need just the ammo cost.
 	Template.AbilityCosts.Length = 0;
@@ -177,25 +157,48 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
 
 	SetFireAnim(Template, 'FF_FireSuppress');
 
+	Template.BuildVisualizationFn = RoutingVolley_Attack_BuildVisualization;
+
 	return Template;	
 }
 
-static private function EventListenerReturn RoutingVolleyTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+static final function RoutingVolley_Attack_BuildVisualization(XComGameState VisualizeGameState)
 {
-	local XComGameState_Ability AbilityState;
+	local XComGameStateHistory			History;
+	local XComGameStateContext_Ability	Context;
+	local StateObjectReference			InteractingUnitRef;
+	local VisualizationActionMetadata	ActionMetadata;
+	local XComGameState_Item			SourceWeapon;
+	local XComGameState_Unit			TargetUnit;
+	local X2Action_MoveTurn				MoveTurn;
 
-	if (GameState.GetContext().InterruptionStatus != eInterruptionStatus_Interrupt)
-		return ELR_NoInterrupt;
+	TypicalAbility_BuildVisualization(VisualizeGameState);
+  
+	History = `XCOMHISTORY;
+	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
 
-	AbilityState = XComGameState_Ability(CallbackData);
-	if (AbilityState == none)
-		return ELR_NoInterrupt;
+	SourceWeapon = XComGameState_Item(History.GetGameStateForObjectID(Context.InputContext.ItemObject.ObjectID));
+	if (SourceWeapon == none || SourceWeapon.Ammo == 0)
+		return;
 
-	// Repurposing the overwatch listener so it works with any ability activation.
-	`AMLOG("Attempting trigger by ability:" @ XComGameStateContext_Ability(GameState.GetContext()).InputContext.AbilityTemplateName);
-	AbilityState.TypicalOverwatchListener(EventSource, EventSource, GameState, Event, CallbackData);
+	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(Context.InputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit == none || TargetUnit.IsDead())
+		return;
 
-	return ELR_NoInterrupt;
+	//Configure the visualization track for the shooter
+	//****************************************************************************************
+	InteractingUnitRef = Context.InputContext.SourceObject;
+	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
+	ActionMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
+
+	// Make the suppressing unit turns to the new location of the suppressed unit.
+	MoveTurn = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
+	MoveTurn.m_vFacePoint = `XWORLD.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
+
+	//class'X2Action_BountyHunter_UpdateWeaponSpread'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+	
+	//class'X2Action_StartSuppression'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
 }
 
 static function X2AbilityTemplate IRI_BH_CustomZeroIn()
