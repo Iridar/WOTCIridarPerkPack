@@ -175,6 +175,8 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
 	//don't want to exit cover, we are already in suppression/alert mode.
 	Template.bSkipExitCoverWhenFiring = true;
 
+	SetFireAnim(Template, 'FF_FireSuppress');
+
 	return Template;	
 }
 
