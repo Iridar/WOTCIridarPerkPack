@@ -170,3 +170,10 @@ LocLongDescription="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attac
 LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
 LocPromotionPopupText=""
 LocFlyOverText="Routing Volley"
+
+[IRI_BH_RoutingVolley2 X2AbilityTemplate]
+LocFriendlyName="Routing Volley No Run"
+LocLongDescription="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
+LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
+LocPromotionPopupText=""
+LocFlyOverText="Routing Volley"

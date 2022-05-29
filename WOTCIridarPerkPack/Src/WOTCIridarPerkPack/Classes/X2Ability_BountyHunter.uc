@@ -47,9 +47,37 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_BH_RoutingVolley());
 	Templates.AddItem(IRI_BH_RoutingVolley_Attack());
+	Templates.AddItem(IRI_BH_RoutingVolley_Resuppress());
+	
 
 	return Templates;
 }
+
+// This ability is a bit complicated. Desired function:
+// You Suppress the target and force it to move, immediately triggering an attack against it.
+// The suppression effect should remain on target, allowing further reaction attacks until the target dies, 
+// moves out of LoS, or shooter runs out of ammo.
+// 
+// Here's how this is achieved:
+// IRI_BH_RoutingVolley applies the initial suppression effect and forces the target to run. 
+// It also applies a unit value which will be used later to make sure that later we retrigger suppression only against this particular target.
+// This suppression effect registers for ability activation event, and triggers the IRI_BH_RoutingVolley_Attack,
+// which records the Event Chain Start History Index as a unit value on the target and removes the suppression effect from the target.
+// If the target is not moving, we resuppress it right away by triggering the IRI_BH_RoutingVolley_Resuppress in that same listener.
+// If the target is moving, then we don't do anything.
+// The IRI_BH_RoutingVolley_Resuppress has its own event listener trigger, but it will activate only against a unit that activates an ability
+// whose Event Chain Start History Index is not the one that we already recoreded on the suppressed unit as a unit value.
+// This ensures the event chain fully resolves before we are able to resuppress the target.
+// This convoluted process is required mainly to address various issues that occur when the same suppression effect is used for multiple suppression shots on the same moving target:
+// 1. After the unit moves, the suppressing unit continues suppressing the unit's original location. 
+// This can be addressed by updating the m_SuppressionHistoryIndex on the suppressing unit state.
+// 2. Even if the previous issue is addressed, the suppressing unit will still face the target's original location with their lower body, 
+// turning only arms and upper torso as much as possible to aim at the new location.
+// This can be addressed via custom Build Vis function for the suppression shot which will add X2Action_MoveTurn after the suppression shot goes through.
+// 3. Even if previous issues are addressed, the following suppression cosmetic shots will visually hit the target dead center, producing blood splatter, but not hurting the target,
+// as the shots are just for the show.
+// I couldn't figure out any way to address this other than removing and reapplying the suppression effect from the target after each shot.
+// The ressuppressing needs to be handled by a separate ability and not the suppression shot itself to prevent inception.
 
 static function X2AbilityTemplate IRI_BH_RoutingVolley()
 {
@@ -59,6 +87,7 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley()
 	local X2Effect_BountyHunter_RoutingVolley	SuppressionEffect;
 	local X2Effect_AutoRunBehaviorTree		RunTree;
 	local X2Effect_GrantActionPoints		GrantActionPoints;
+	local X2Effect_SetUnitValue				UnitValueEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RoutingVolley');
 
@@ -93,12 +122,18 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley()
 	Template.AbilityCosts.AddItem(ActionPointCost);
 
 	// Effects
+	UnitValueEffect = new class'X2Effect_SetUnitValue';
+	UnitValueEffect.UnitName = 'IRI_BH_RoutingVolley_UnitValue_SuppressTarget';
+	UnitValueEffect.NewValueToSet = 1.0f;
+	UnitValueEffect.CleanupType = eCleanup_BeginTurn;
+	Template.AddTargetEffect(UnitValueEffect);
+
 	Template.bIsASuppressionEffect = true;
 	SuppressionEffect = new class'X2Effect_BountyHunter_RoutingVolley';
 	SuppressionEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
 	SuppressionEffect.bRemoveWhenTargetDies = true;
 	SuppressionEffect.bRemoveWhenSourceDamaged = true;
-	SuppressionEffect.bBringRemoveVisualizationForward = true;
+	//SuppressionEffect.bBringRemoveVisualizationForward = true;
 	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage);
 	SuppressionEffect.SetSourceDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionSourceEffectDesc, Template.IconImage);
 	Template.AddTargetEffect(SuppressionEffect);
@@ -128,21 +163,26 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley()
 
 	Template.AssociatedPassives.AddItem('HoloTargeting');
 	Template.AdditionalAbilities.AddItem('IRI_BH_RoutingVolley_Attack');
+	Template.AdditionalAbilities.AddItem('IRI_BH_RoutingVolley_Resuppress');
 
 	return Template;	
 }
 
 static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
 {
-	local X2AbilityTemplate					Template;	
-	local X2AbilityCost_Ammo				AmmoCost;
+	local X2AbilityTemplate						Template;	
+	local X2AbilityCost_Ammo					AmmoCost;
+	local X2Effect_RemoveEffects_MatchSource	RemoveSuppression;
+
 	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_RoutingVolley_Attack', true, false, false);
 	SetHidden(Template);
 
 	Template.AbilityTriggers.Length = 0;
 	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
 
-	Template.AddShooterEffect(new class'X2Effect_BountyHunter_UpdateSuppressionHistoryIndex');
+	RemoveSuppression = new class'X2Effect_RemoveEffects_MatchSource';
+	RemoveSuppression.EffectNamesToRemove.AddItem(class'X2Effect_BountyHunter_RoutingVolley'.default.EffectName);
+	Template.AddTargetEffect(RemoveSuppression);
 	
 	// Need just the ammo cost.
 	Template.AbilityCosts.Length = 0;
@@ -157,49 +197,133 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
 
 	SetFireAnim(Template, 'FF_FireSuppress');
 
-	Template.BuildVisualizationFn = RoutingVolley_Attack_BuildVisualization;
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_BH_RoutingVolley_Resuppress()
+{
+	local X2AbilityTemplate						Template;	
+	local X2Effect_BountyHunter_RoutingVolley	SuppressionEffect;
+	local X2AbilityTrigger_EventListener		Trigger;
+	local X2AbilityCost_Ammo					AmmoCost;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RoutingVolley_Resuppress');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;	
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.TargetingMethod = class'X2TargetingMethod_OverTheShoulder';
+
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'AbilityActivated';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_None;
+	Trigger.ListenerData.Priority = 40;
+	Trigger.ListenerData.EventFn = RoutingVolleyTriggerListener_Resuppress;
+	Template.AbilityTriggers.AddItem(Trigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Costs
+	AmmoCost = new class'X2AbilityCost_Ammo';	
+	AmmoCost.iAmmo = 1;
+	AmmoCost.bFreeCost = true; // Check ammo for activation only.
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityAllowSquadsight);
+
+	// Effects
+	Template.bIsASuppressionEffect = true;
+	SuppressionEffect = new class'X2Effect_BountyHunter_RoutingVolley';
+	SuppressionEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
+	SuppressionEffect.bRemoveWhenTargetDies = true;
+	SuppressionEffect.bRemoveWhenSourceDamaged = true;
+	SuppressionEffect.bBringRemoveVisualizationForward = true;
+	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage);
+	SuppressionEffect.SetSourceDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionSourceEffectDesc, Template.IconImage);
+	Template.AddTargetEffect(SuppressionEffect);
+
+	// State and Viz
+	Template.Hostility = eHostility_Offensive;
+	//Template.CinescriptCameraType = "StandardSuppression";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = class'BountyHunter'.static.SuppressionBuildVisualization;
+	Template.BuildAppliedVisualizationSyncFn = class'BountyHunter'.static.SuppressionBuildVisualizationSync;
+
+	Template.AssociatedPlayTiming = SPT_AfterSequential;
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
 
 	return Template;	
 }
 
-static final function RoutingVolley_Attack_BuildVisualization(XComGameState VisualizeGameState)
+static private function EventListenerReturn RoutingVolleyTriggerListener_Resuppress(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
-	local XComGameStateHistory			History;
-	local XComGameStateContext_Ability	Context;
-	local StateObjectReference			InteractingUnitRef;
-	local VisualizationActionMetadata	ActionMetadata;
-	local XComGameState_Item			SourceWeapon;
+	local XComGameState_Ability			AbilityState;
+	local XComGameStateContext_Ability	AbilityContext;
 	local XComGameState_Unit			TargetUnit;
-	local X2Action_MoveTurn				MoveTurn;
+	local XComGameStateHistory			History;
+	local UnitValue						UV;
 
-	TypicalAbility_BuildVisualization(VisualizeGameState);
-  
+	// Process only abilities that involve movement.
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt || AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length == 0)
+		return ELR_NoInterrupt;
+
+	AbilityState = XComGameState_Ability(EventData);
+	if (AbilityState == none || !AbilityState.IsAbilityInputTriggered())
+		return ELR_NoInterrupt;
+
+	TargetUnit = XComGameState_Unit(EventSource);
+	if (TargetUnit == none)
+		return ELR_NoInterrupt;
+
+	// Use this value to filter out ability activations from units that we didn't manually suppress previously.
+	if (!TargetUnit.GetUnitValue('IRI_BH_RoutingVolley_UnitValue_SuppressTarget', UV))
+		return ELR_NoInterrupt;
+
+	`AMLOG("Attempting trigger resuppress by ability:" @ AbilityContext.InputContext.AbilityTemplateName);
+
 	History = `XCOMHISTORY;
-	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	TargetUnit.GetUnitValue('IRI_BH_RoutingVolley_UnitValue', UV);
+	if (UV.fValue != History.GetEventChainStartIndex())
+	{
+		`AMLOG("Routing Volley has not yet responded to this event chain start, exiting.");
+		return ELR_NoInterrupt;
+	}
 
-	SourceWeapon = XComGameState_Item(History.GetGameStateForObjectID(Context.InputContext.ItemObject.ObjectID));
-	if (SourceWeapon == none || SourceWeapon.Ammo == 0)
-		return;
+	if (AbilityContext.InputContext.MovementPaths[0].MovementTiles[AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length - 1] != TargetUnit.TileLocation)
+	{
+		`AMLOG("Unit is not yet on final tile of movement, exiting");
+		return ELR_NoInterrupt;
+	}
 
-	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(Context.InputContext.PrimaryTarget.ObjectID));
-	if (TargetUnit == none || TargetUnit.IsDead())
-		return;
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
 
-	//Configure the visualization track for the shooter
-	//****************************************************************************************
-	InteractingUnitRef = Context.InputContext.SourceObject;
-	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
-	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
-	ActionMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
+	`AMLOG("Attempting resuppress");
 
-	// Make the suppressing unit turns to the new location of the suppressed unit.
-	MoveTurn = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
-	MoveTurn.m_vFacePoint = `XWORLD.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
+	if (AbilityState.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false))
+	{
+		`AMLOG("resuppress succeess");
+	}
 
-	//class'X2Action_BountyHunter_UpdateWeaponSpread'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
-	
-	//class'X2Action_StartSuppression'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+	return ELR_NoInterrupt;
 }
+
+
 
 static function X2AbilityTemplate IRI_BH_CustomZeroIn()
 {
