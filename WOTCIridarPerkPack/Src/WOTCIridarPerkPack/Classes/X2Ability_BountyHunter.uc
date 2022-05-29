@@ -44,7 +44,156 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_NamedBullet());
 	Templates.AddItem(IRI_BH_BigGameHunter());
 	Templates.AddItem(IRI_BH_BigGameHunter_Passive());
+
+	Templates.AddItem(IRI_BH_RoutingVolley());
+	Templates.AddItem(IRI_BH_RoutingVolley_Attack());
+
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_RoutingVolley()
+{
+	local X2AbilityTemplate                 Template;	
+	local X2AbilityCost_Ammo                AmmoCost;
+	local X2AbilityCost_ActionPoints        ActionPointCost;
+	local X2Effect_BountyHunter_RoutingVolley	SuppressionEffect;
+	local X2Effect_AutoRunBehaviorTree		RunTree;
+	local X2Effect_GrantActionPoints		GrantActionPoints;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RoutingVolley');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;	
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.TargetingMethod = class'X2TargetingMethod_OverTheShoulder';
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityAllowSquadsight);
+
+	// Costs
+	AmmoCost = new class'X2AbilityCost_Ammo';	
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
+	
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.bConsumeAllPoints = true;   //  this will guarantee the unit has at least 1 action point
+	ActionPointCost.bAddWeaponTypicalCost = true;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Effects
+	Template.bIsASuppressionEffect = true;
+	SuppressionEffect = new class'X2Effect_BountyHunter_RoutingVolley';
+	SuppressionEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
+	SuppressionEffect.bRemoveWhenTargetDies = true;
+	SuppressionEffect.bRemoveWhenSourceDamaged = true;
+	SuppressionEffect.bBringRemoveVisualizationForward = true;
+	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage);
+	SuppressionEffect.SetSourceDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionSourceEffectDesc, Template.IconImage);
+	Template.AddTargetEffect(SuppressionEffect);
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
+
+	GrantActionPoints = new class'X2Effect_GrantActionPoints';
+	GrantActionPoints.NumActionPoints = 1;
+	GrantActionPoints.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
+	Template.AddTargetEffect(GrantActionPoints);
+
+	RunTree = new class'X2Effect_AutoRunBehaviorTree';
+	RunTree.BehaviorTree = 'IRI_PP_FlushRoot';
+	Template.AddTargetEffect(RunTree);
+
+	// State and Viz
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.Hostility = eHostility_Offensive;
+	Template.CinescriptCameraType = "StandardSuppression";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = class'BountyHunter'.static.SuppressionBuildVisualization;
+	Template.BuildAppliedVisualizationSyncFn = class'BountyHunter'.static.SuppressionBuildVisualizationSync;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	Template.AssociatedPassives.AddItem('HoloTargeting');
+	Template.AdditionalAbilities.AddItem('IRI_BH_RoutingVolley_Attack');
+
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
+{
+	local X2AbilityTemplate					Template;	
+	local X2AbilityCost_Ammo				AmmoCost;
+	local X2AbilityTrigger_EventListener	Trigger;
+
+	local X2Condition_EffectGrantsThisTurn_MatchSource	TargetEffectCondition;
+	local X2Effect_SetEffectGrantsThisTurn				SetGrantsThisTurn;
+
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_RoutingVolley_Attack', true, false, false);
+	SetHidden(Template);
+
+	Template.AbilityTriggers.Length = 0;
+
+	TargetEffectCondition = new class'X2Condition_EffectGrantsThisTurn_MatchSource';
+	TargetEffectCondition.AddCheckValue(class'X2Effect_BountyHunter_RoutingVolley'.default.EffectName, 0, eCheck_Exact);
+	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
+
+	Trigger = new class'X2AbilityTrigger_EventListener';
+	Trigger.ListenerData.EventID = 'AbilityActivated';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_None;
+	Trigger.ListenerData.EventFn = RoutingVolleyTriggerListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+
+	SetGrantsThisTurn = new class'X2Effect_SetEffectGrantsThisTurn';
+	SetGrantsThisTurn.EffectName = class'X2Effect_BountyHunter_RoutingVolley'.default.EffectName;
+	SetGrantsThisTurn.bSet = true;
+	SetGrantsThisTurn.iValue = 1;
+	SetGrantsThisTurn.bMatchSource = true;
+	Template.AddTargetEffect(SetGrantsThisTurn);
+	
+	// Need just the ammo cost.
+	Template.AbilityCosts.Length = 0;
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	Template.bShowActivation = true;
+
+	//don't want to exit cover, we are already in suppression/alert mode.
+	Template.bSkipExitCoverWhenFiring = true;
+
+	return Template;	
+}
+
+static private function EventListenerReturn RoutingVolleyTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+{
+	local XComGameState_Ability AbilityState;
+
+	if (GameState.GetContext().InterruptionStatus != eInterruptionStatus_Interrupt)
+		return ELR_NoInterrupt;
+
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+
+	// Repurposing the overwatch listener so it works with any ability activation.
+	`AMLOG("Attempting trigger by ability:" @ XComGameStateContext_Ability(GameState.GetContext()).InputContext.AbilityTemplateName);
+	AbilityState.TypicalOverwatchListener(EventSource, EventSource, GameState, Event, CallbackData);
+
+	return ELR_NoInterrupt;
 }
 
 static function X2AbilityTemplate IRI_BH_CustomZeroIn()

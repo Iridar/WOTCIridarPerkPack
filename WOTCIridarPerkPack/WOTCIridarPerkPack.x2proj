@@ -22,6 +22,9 @@
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\BountyHunter\XComAI.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\BountyHunter\XComGame.ini">
       <SubType>Content</SubType>
     </Content>
@@ -63,9 +66,15 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_BountyHunter_Stealth.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_EffectGrantsThisTurn_MatchSource.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
     <Content Include="Src\WOTCIridarPerkPack\Classes\Help.uc" />
     <Content Include="Src\WOTCIridarPerkPack\Classes\ConfigEngine.uc" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_AutoRunBehaviorTree.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BaseDamageBonus.uc">
       <SubType>Content</SubType>
     </Content>
@@ -85,6 +94,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Folowthrough.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_RoutingVolley.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_SetEffectGrantsThisTurn.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_BountyHunter.uc">
