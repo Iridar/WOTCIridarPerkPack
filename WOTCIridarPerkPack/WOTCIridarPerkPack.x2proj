@@ -105,6 +105,12 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2MeleePathingPawn_BountyHunter_ShadowTeleport.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2TargetingMethod_BountyHunter_ShadowTeleport.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_BountyHunter_BigGameHunter.uc">
       <SubType>Content</SubType>
     </Content>

@@ -71,13 +71,17 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;	
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-	Template.TargetingMethod = class'X2TargetingMethod_OverTheShoulder';
+	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ShadowTeleport';
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
+
+	// Target conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 	
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.bConsumeAllPoints = true;
@@ -92,13 +96,20 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	GrantActionPoints.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
 	Template.AddShooterEffect(GrantActionPoints);
 
-
+	Template.AddShooterEffect(new class'X2Effect_BountyHunter_ShadowTeleport');
 	// State and Viz
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.Hostility = eHostility_Neutral;
 	//Template.CinescriptCameraType = "StandardSuppression";
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	//Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	//Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.BuildNewGameStateFn = class'X2Ability_Cyberus'.static.Teleport_BuildGameState;
+	//Template.BuildVisualizationFn = class'X2Ability_DLC_Day60ItemGrantedAbilitySet'.static.IcarusJump_BuildVisualization;
+	//Template.BuildVisualizationFn = ShadowTeleport_BuildVisualization;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.ModifyNewContextFn = class'X2Ability_Cyberus'.static.Teleport_ModifyActivatedAbilityContext;
+	Template.BuildInterruptGameStateFn = none;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
@@ -107,6 +118,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 
 	return Template;	
 }
+
 
 // This ability is a bit complicated. Desired function:
 // You Suppress the target and force it to move, immediately triggering an attack against it.
