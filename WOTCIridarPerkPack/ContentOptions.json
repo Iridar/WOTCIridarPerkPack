@@ -1,5 +1,6 @@
 {
     "sfStandalone": [
-        "IRIBountyHunter"
+        "IRIBountyHunter",
+		"IRIShadowTeleportPerk"
     ]
 }

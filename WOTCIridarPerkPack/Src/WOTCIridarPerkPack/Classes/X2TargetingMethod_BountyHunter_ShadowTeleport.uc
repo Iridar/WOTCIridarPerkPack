@@ -1,5 +1,7 @@
 class X2TargetingMethod_BountyHunter_ShadowTeleport extends X2TargetingMethod_MeleePath;
 
+var private X2GrapplePuck GrapplePuck;
+
 function Init(AvailableAction InAction, int NewTargetIndex)
 {
 	local XComPresentationLayer Pres;
@@ -22,6 +24,9 @@ function Init(AvailableAction InAction, int NewTargetIndex)
 	LevelBorderManager.UpdateCursorLocation(Cursor.Location, true);
 
 	DirectSelectNearestTarget();
+
+	//GrapplePuck = `CURSOR.Spawn(class'X2GrapplePuck', `CURSOR);
+	//GrapplePuck.InitForUnitState(UnitState);
 }
 
 function GetTargetLocations(out array<Vector> TargetLocations)
@@ -36,5 +41,36 @@ function GetTargetLocations(out array<Vector> TargetLocations)
 	{	
 		FinalTile = PathTiles[PathTiles.Length - 1];
 		TargetLocations.AddItem(`XWORLD.GetPositionFromTileCoordinates(FinalTile));
+
+		`AMLOG("Setting target location as:" @ TargetLocations[0]);
 	}
+}
+/*
+function Canceled()
+{
+	GrapplePuck.Destroy();
+	super.Canceled();
+}
+
+function Committed()
+{
+	GrapplePuck.ShowConfirmAndDestroy();
+	super.Committed();
+}*/
+/*
+function GetTargetLocations(out array<Vector> TargetLocations)
+{
+	local Vector TargetLocation;
+
+	TargetLocations.Length = 0;
+
+	if(GrapplePuck.GetGrappleTargetLocation(TargetLocation))
+	{
+		TargetLocations.AddItem(TargetLocation);
+	}
+}
+*/
+function name ValidateTargetLocations(const array<Vector> TargetLocations)
+{
+	return TargetLocations.Length == 1 ? 'AA_Success' : 'AA_NoTargets';
 }

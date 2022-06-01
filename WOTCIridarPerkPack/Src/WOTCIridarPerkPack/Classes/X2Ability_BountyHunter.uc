@@ -57,8 +57,142 @@ static function array<X2DataTemplate> CreateTemplates()
 
 static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 {
+	local X2AbilityTemplate             Template;
+	local X2AbilityCost_ActionPoints    ActionPointCost;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
+	
+	// Costs
+	ActionPointCost = new class'X2AbilityCost_BountyHunter_ShadowTeleport';
+	ActionPointCost.bConsumeAllPoints = true;
+	ActionPointCost.iNumPoints = 1;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+	
+	// Effects
+	
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	//Template.AbilityTargetStyle = new class'X2AbilityTarget_Cursor';
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.TargetingMethod = class'X2TargetingMethod_Grapple';
+	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ShadowTeleport';
+
+	//Template.Hostility = eHostility_Movement;
+	Template.Hostility = eHostility_Neutral;
+	Template.CinescriptCameraType = "Soldier_Grapple";
+	Template.bLimitTargetIcons = true;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+
+	Template.BuildNewGameStateFn = class'X2Ability_DefaultAbilitySet'.static.Grapple_BuildGameState;
+	//Template.BuildVisualizationFn = class'X2Ability_DefaultAbilitySet'.static.Grapple_BuildVisualization;
+	Template.BuildVisualizationFn = ShadowTeleport_BuildVisualization;
+	Template.ModifyNewContextFn = ShadowTeleport_ModifyActivatedAbilityContext;
+	Template.BuildInterruptGameStateFn = none;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;
+}
+static simulated function ShadowTeleport_ModifyActivatedAbilityContext(XComGameStateContext Context)
+{
+	local XComGameStateContext_Ability AbilityContext;
+	
+	// Move the primary target ID from primary to multi target.
+	// We don't want it as primary target, cuz then projectiles will fly to it, and soldier will aim at it.
+	// We still need to store it somewhere, so then later we can retrieve target's location for the visulization for the point in time
+	// where we do want to aim at the enemy.
+	AbilityContext = XComGameStateContext_Ability(Context);
+
+	AbilityContext = XComGameStateContext_Ability(Context);
+	AbilityContext.InputContext.MultiTargets.AddItem(AbilityContext.InputContext.PrimaryTarget);
+	AbilityContext.InputContext.PrimaryTarget.ObjectID = 0;
+}
+
+static private function ShadowTeleport_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateHistory History;
+	local StateObjectReference MovingUnitRef;	
+	local VisualizationActionMetadata ActionMetadata;
+	local VisualizationActionMetadata EmptyTrack;
+	local XComGameStateContext_Ability AbilityContext;
+	local XComGameState_EnvironmentDamage EnvironmentDamage;
+	local X2Action_PlaySoundAndFlyOver CharSpeechAction;
+	local X2Action_BountyHunter_ShadowTeleport GrappleAction;
+	local X2Action_ExitCover ExitCoverAction;
+	local X2Action_RevealArea RevealAreaAction;
+	local X2Action_UpdateFOW FOWUpdateAction;
+	
+	History = `XCOMHISTORY;
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	MovingUnitRef = AbilityContext.InputContext.SourceObject;
+	
+	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(MovingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(MovingUnitRef.ObjectID);
+	ActionMetadata.VisualizeActor = History.GetVisualizer(MovingUnitRef.ObjectID);
+
+	CharSpeechAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'GrapplingHook', eColor_Good); // TODO: Speech
+
+	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	RevealAreaAction.TargetLocation = AbilityContext.InputContext.TargetLocations[0];
+	RevealAreaAction.AssociatedObjectID = MovingUnitRef.ObjectID;
+	RevealAreaAction.ScanningRadius = class'XComWorldData'.const.WORLD_StepSize * 4;
+	RevealAreaAction.bDestroyViewer = false;
+
+	FOWUpdateAction = X2Action_UpdateFOW(class'X2Action_UpdateFOW'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	FOWUpdateAction.BeginUpdate = true;
+
+	ExitCoverAction = X2Action_ExitCover(class'X2Action_BountyHunter_ShadowTeleport_ExitCover'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	ExitCoverAction.bUsePreviousGameState = true;
+
+	GrappleAction = X2Action_BountyHunter_ShadowTeleport(class'X2Action_BountyHunter_ShadowTeleport'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	GrappleAction.DesiredLocation = AbilityContext.InputContext.TargetLocations[0];
+
+	`AMLOG("Visualizing target location as:" @ AbilityContext.InputContext.TargetLocations[0]);
+
+	// destroy any windows we flew through
+	foreach VisualizeGameState.IterateByClassType(class'XComGameState_EnvironmentDamage', EnvironmentDamage)
+	{
+		ActionMetadata = EmptyTrack;
+
+		//Don't necessarily have a previous state, so just use the one we know about
+		ActionMetadata.StateObject_OldState = EnvironmentDamage;
+		ActionMetadata.StateObject_NewState = EnvironmentDamage;
+		ActionMetadata.VisualizeActor = History.GetVisualizer(EnvironmentDamage.ObjectID);
+
+		class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded);
+		class'X2Action_ApplyWeaponDamageToTerrain'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext());
+	}
+
+	FOWUpdateAction = X2Action_UpdateFOW(class'X2Action_UpdateFOW'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	FOWUpdateAction.EndUpdate = true;
+
+	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	RevealAreaAction.AssociatedObjectID = MovingUnitRef.ObjectID;
+	RevealAreaAction.bDestroyViewer = true;
+}
+
+static function X2AbilityTemplate IRI_BH_ShadowTeleport11()
+{
 	local X2AbilityTemplate                 Template;	
-	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Effect_GrantActionPoints		GrantActionPoints;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
@@ -71,9 +205,9 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;	
-	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
+	
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ShadowTeleport';
+	
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
@@ -83,10 +217,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
 	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 	
-	ActionPointCost = new class'X2AbilityCost_ActionPoints';
-	ActionPointCost.bConsumeAllPoints = true;
-	ActionPointCost.iNumPoints = 1;
-	Template.AbilityCosts.AddItem(ActionPointCost);
+	
 
 	// TODO: Charges
 
@@ -96,7 +227,6 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	GrantActionPoints.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
 	Template.AddShooterEffect(GrantActionPoints);
 
-	Template.AddShooterEffect(new class'X2Effect_BountyHunter_ShadowTeleport');
 	// State and Viz
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.Hostility = eHostility_Neutral;
@@ -111,10 +241,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.ModifyNewContextFn = class'X2Ability_Cyberus'.static.Teleport_ModifyActivatedAbilityContext;
 	Template.BuildInterruptGameStateFn = none;
 
-	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
-	Template.bFrameEvenWhenUnitIsHidden = true;
+	
 
 	return Template;	
 }

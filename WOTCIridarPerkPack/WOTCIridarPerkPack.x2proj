@@ -40,6 +40,9 @@
     <Content Include="ContentForCook\IRIBountyHunter.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\IRIShadowTeleportPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\BountyHunter\XComGame.int">
       <SubType>Content</SubType>
     </Content>
@@ -60,10 +63,19 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCost_BHAmmo.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCost_BountyHunter_ShadowTeleport.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_ApplyWeaponDamageToTerrain_NoFlinch.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ShadowTeleport.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ShadowTeleport_ExitCover.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_BountyHunter_Stealth.uc">
