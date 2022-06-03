@@ -1,5 +1,6 @@
 class X2DLCInfo_WOTCIridarPerkPack extends X2DownloadableContentInfo;
 
+var private SkeletalMeshSocket ShadowTeleportSocket;
 
 /// <summary>
 /// This method is run if the player loads a saved game that was created prior to this DLC / Mod being installed, and allows the 
@@ -254,28 +255,12 @@ static event OnLoadedSavedGameToTactical()
 /// </summary>
 static function string DLCAppendSockets(XComUnitPawn Pawn)
 {
-	/*
-	local XComGameState_Unit		UnitState;
 	local array<SkeletalMeshSocket> NewSockets;
 
-	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(Pawn.ObjectID));
-	if (UnitState == none)
-		return "";
+	NewSockets.AddItem(default.ShadowTeleportSocket);
 
-	if (UnitState.IsSoldier())
-	{
-		if (UnitState.kAppearance.iGender == eGender_Male)
-		{
-			NewSockets.AddItem(CreateSocket('iri_electro_pulse', 'SwordSheath', 8.182021f, 4.002287f, 26.015682f, 8, -78, -270));
-			Pawn.Mesh.AppendSockets(NewSockets, true);
-		}
-		else
-		{
-			NewSockets.AddItem(CreateSocket('iri_electro_pulse', 'SwordSheath', 8.226833f, -0.804468f, 21.837490f, 6, -78, -270));
-			Pawn.Mesh.AppendSockets(NewSockets, true);
-		}
-	}
-	*/
+	Pawn.Mesh.AppendSockets(NewSockets, true);
+
 	return "";
 }
 /// End Issue #21
@@ -883,3 +868,12 @@ static function OnLoadedSavedGameWithDLCExisting ()
 {
 }
 // End issue #808
+
+defaultproperties
+{
+	Begin Object Class=SkeletalMeshSocket Name=DefaultShadowTeleportSocket
+		SocketName = "IRIShadowTeleportSocket"
+		BoneName = "RHand"
+	End Object
+	ShadowTeleportSocket = DefaultShadowTeleportSocket;
+}
