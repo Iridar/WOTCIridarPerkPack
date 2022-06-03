@@ -157,28 +157,26 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 			if (!World.CanUnitsEnterTile(AdjacentTile) || !World.IsFloorTileAndValidDestination(AdjacentTile, ChasingUnitState))
 				continue;
 
-			AdjacentLocation = World.GetPositionFromTileCoordinates(AdjacentTile);
-
-			// Presumably returns true if the raytrace path is blocked.
-			World.VoxelRaytrace_Locations(FiringLocation, AdjacentLocation, Raytrace);
-			if (Raytrace.BlockedFlag != 0x0)
-			{
-				
-				VisUnit.GetDirectionInfoForPosition(AdjacentLocation, OutVisibilityInfo, Direction, PeekSide, CanSeeFromDefault, OutRequiresLean, true);
-				if (PeekSide != eNoPeek)
-				{
-					PeekData = World.GetCachedCoverAndPeekData(ChasingUnitState.TileLocation);
-					if (PeekSide == ePeekLeft)
-						PeekTile = PeekData.CoverDirectionInfo[Direction].LeftPeek.PeekTile;
-					else
-						PeekTile = PeekData.CoverDirectionInfo[Direction].RightPeek.PeekTile;
-
-					World.VoxelRaytrace_Tiles(PeekTile, AdjacentTile, Raytrace);
-
-					if (Raytrace.BlockedFlag != 0x0)
-						continue;
-				}		
-			}
+			//AdjacentLocation = World.GetPositionFromTileCoordinates(AdjacentTile);
+			//World.VoxelRaytrace_Locations(FiringLocation, AdjacentLocation, Raytrace); // Presumably returns true if the raytrace path is blocked.
+			//if (Raytrace.BlockedFlag != 0x0)
+			//{
+			//	
+			//	VisUnit.GetDirectionInfoForPosition(AdjacentLocation, OutVisibilityInfo, Direction, PeekSide, CanSeeFromDefault, OutRequiresLean, true);
+			//	if (PeekSide != eNoPeek)
+			//	{
+			//		PeekData = World.GetCachedCoverAndPeekData(ChasingUnitState.TileLocation);
+			//		if (PeekSide == ePeekLeft)
+			//			PeekTile = PeekData.CoverDirectionInfo[Direction].LeftPeek.PeekTile;
+			//		else
+			//			PeekTile = PeekData.CoverDirectionInfo[Direction].RightPeek.PeekTile;
+			//
+			//		World.VoxelRaytrace_Tiles(PeekTile, AdjacentTile, Raytrace);
+			//
+			//		if (Raytrace.BlockedFlag != 0x0)
+			//			continue;
+			//	}		
+			//}
 
 			if (bCheckForFlanks)
 			{

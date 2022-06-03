@@ -55,18 +55,21 @@ Begin:
 	
 	// ## 1. Play firing animation.
 	Params.AnimName = 'NO_ShadowTeleport_Fire';
-	UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params);
+	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params));
 
 	// send messages to do the window break visualization
 	// -> Earlier.
 	SendWindowBreakNotifies();
 
-	while (ProjectileHit == false)
-	{
-		Sleep(0.0f);
-	}
+	//while (ProjectileHit == false)
+	//{
+	//	Sleep(0.0f);
+	//}
 	// Let projectile hit PFX play for a bit.
-	Sleep(0.1f);
+	//Sleep(0.1f);
+
+	// hide the targeting icon
+	Unit.SetDiscState(eDS_None);
 
 	// ## 2. Play jumping into teleport animation.
 	Params.AnimName = 'NO_ShadowTeleport_Start';
@@ -76,14 +79,14 @@ Begin:
 	StartingAtom.Translation = UnitPawn.Location;
 	StartingAtom.Scale = 1.0f;
 	UnitPawn.GetAnimTreeController().GetDesiredEndingAtomFromStartingAtom(Params, StartingAtom);
-	PlayingSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params);
-
-	// hide the targeting icon
-	Unit.SetDiscState(eDS_None);
+	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params));
 
 	// Play first part of the animation, then jump teleport the unit to the end tile.
-	Sleep(0.25f);
+	//Sleep(0.25f);
 	UnitPawn.SetLocationNoCollisionCheck(DesiredLocation);
+	Sleep(0.1f);
+
+	// TODO: figure out what to do about the delay between projectile hitting and soldier teleporting. Leave a portal open there, perhaps?
 
 	// Make unit aim at the enemy location
 	UnitPawn.TargetLoc = TargetUnitLocation;
@@ -94,7 +97,7 @@ Begin:
 	Params.DesiredEndingAtoms.Add(1);
 	Params.DesiredEndingAtoms[0].Scale = 1.0f;
 	Params.DesiredEndingAtoms[0].Translation = DesiredLocation;
-	Params.DesiredEndingAtoms[0].Rotation = QuatFromRotator(DesiredEndRotation);
+	Params.DesiredEndingAtoms[0].Rotation = QuatFromRotator(DesiredRotation);
 	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params));
 	UnitPawn.bSkipIK = false;
 

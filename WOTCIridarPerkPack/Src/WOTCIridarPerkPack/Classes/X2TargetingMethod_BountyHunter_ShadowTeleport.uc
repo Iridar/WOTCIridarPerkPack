@@ -1,6 +1,6 @@
 class X2TargetingMethod_BountyHunter_ShadowTeleport extends X2TargetingMethod_MeleePath;
 
-var private X2GrapplePuck GrapplePuck;
+//var private X2GrapplePuck GrapplePuck;
 
 function Init(AvailableAction InAction, int NewTargetIndex)
 {
