@@ -16,12 +16,14 @@ var private Rotator DesiredEndRotation;
 
 var private XComGameState_Unit TargetUnitState;
 var private vector TargetUnitLocation;
+var private float PlayingTime;
+var private XGUnit GameUnit;
 
 function Init()
 {
 	super.Init();
 
-	TargetUnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	TargetUnitState = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
 	TargetUnitLocation = `XWORLD.GetPositionFromTileCoordinates(TargetUnitState.TileLocation);
 	TargetUnitLocation.Z += class'XComWorldData'.const.WORLD_FloorHeight;
 
@@ -30,6 +32,8 @@ function Init()
 	DesiredEndRotation = Rotator(Normal(TargetUnitLocation - DesiredLocation));
 	DesiredEndRotation.Pitch = 0.0f;
 	DesiredEndRotation.Roll = 0.0f;
+
+	GameUnit = XGUnit(History.GetVisualizer(AbilityContext.InputContext.SourceObject.ObjectID));
 }
 function ProjectileNotifyHit(bool bMainImpactNotify, Vector HitLocation)
 {
@@ -52,7 +56,7 @@ Begin:
 	UnitPawn.EnableRMA(true, true);
 	UnitPawn.EnableRMAInteractPhysics(true);
 	UnitPawn.bSkipIK = true;
-	
+
 	// ## 1. Play firing animation.
 	Params.AnimName = 'NO_ShadowTeleport_Fire';
 	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params));
@@ -79,26 +83,44 @@ Begin:
 	StartingAtom.Translation = UnitPawn.Location;
 	StartingAtom.Scale = 1.0f;
 	UnitPawn.GetAnimTreeController().GetDesiredEndingAtomFromStartingAtom(Params, StartingAtom);
-	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params));
+
+	PlayingSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params);
+
+	`AMLOG("000 Playing animation, end time:" @ PlayingSequence.AnimSeq.SequenceLength);
 
 	// Play first part of the animation, then jump teleport the unit to the end tile.
-	//Sleep(0.25f);
-	UnitPawn.SetLocationNoCollisionCheck(DesiredLocation);
-	Sleep(0.1f);
-
-	// TODO: figure out what to do about the delay between projectile hitting and soldier teleporting. Leave a portal open there, perhaps?
+	while (PlayingSequence.AnimSeq.SequenceLength - PlayingTime > 0.1f)
+	{
+		`AMLOG("Playing animation, current time:" @ PlayingTime);
+		Sleep(0.05f);
+		PlayingTime += 0.05f;
+	}
+	
+	GameUnit.m_bForceHidden = true;
+	UnitPawn.UpdatePawnVisibility();
 
 	// Make unit aim at the enemy location
 	UnitPawn.TargetLoc = TargetUnitLocation;
+	UnitPawn.SetLocationNoCollisionCheck(DesiredLocation);
+
+	FinishAnim(PlayingSequence);
 
 	// ## 3. Play jumping out of teleport animation.
 	Params = default.Params;
 	Params.AnimName = 'NO_ShadowTeleport_Stop';
-	Params.DesiredEndingAtoms.Add(1);
-	Params.DesiredEndingAtoms[0].Scale = 1.0f;
-	Params.DesiredEndingAtoms[0].Translation = DesiredLocation;
-	Params.DesiredEndingAtoms[0].Rotation = QuatFromRotator(DesiredRotation);
-	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params));
+	//Params.DesiredEndingAtoms.Add(1);
+	//Params.DesiredEndingAtoms[0].Scale = 1.0f;
+	//Params.DesiredEndingAtoms[0].Translation = DesiredLocation;
+	//Params.DesiredEndingAtoms[0].Rotation = QuatFromRotator(DesiredRotation);
+
+	PlayingSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params);
+	Sleep(0.05f);
+
+	GameUnit.m_bForceHidden = false;
+	UnitPawn.UpdatePawnVisibility();
+	
+	FinishAnim(PlayingSequence);
+
 	UnitPawn.bSkipIK = false;
 
 	CompleteAction();
