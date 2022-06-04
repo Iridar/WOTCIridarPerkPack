@@ -9,4 +9,7 @@ function Init()
 	AimAtLocation = TargetLocation;
 	//PrimaryTarget = none;
 	`AMLOG("Setting AimAtLocation:" @ AimAtLocation);
+
+	// So that exit cover visualization is not skipped
+	bIsEndMoveAbility = false;
 }

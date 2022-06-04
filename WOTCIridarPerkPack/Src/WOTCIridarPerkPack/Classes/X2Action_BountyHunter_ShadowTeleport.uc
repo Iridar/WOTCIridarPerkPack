@@ -62,15 +62,7 @@ Begin:
 	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params));
 
 	// send messages to do the window break visualization
-	// -> Earlier.
 	SendWindowBreakNotifies();
-
-	//while (ProjectileHit == false)
-	//{
-	//	Sleep(0.0f);
-	//}
-	// Let projectile hit PFX play for a bit.
-	//Sleep(0.1f);
 
 	// hide the targeting icon
 	Unit.SetDiscState(eDS_None);
@@ -86,16 +78,15 @@ Begin:
 
 	PlayingSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params);
 
-	`AMLOG("000 Playing animation, end time:" @ PlayingSequence.AnimSeq.SequenceLength);
-
-	// Play first part of the animation, then jump teleport the unit to the end tile.
+	// Play the animation until there's less than 0.1 seconds left
 	while (PlayingSequence.AnimSeq.SequenceLength - PlayingTime > 0.1f)
 	{
-		`AMLOG("Playing animation, current time:" @ PlayingTime);
 		Sleep(0.05f);
 		PlayingTime += 0.05f;
 	}
 	
+	// Then hide the pawn. The final part of the animation moves the pawn by the pelvis to a X coordinate
+	// that is somewhat close to the X coordinate of the next "jumping out of the teleport" animation, so we achieve better animation sync this way.
 	GameUnit.m_bForceHidden = true;
 	UnitPawn.UpdatePawnVisibility();
 
@@ -108,21 +99,19 @@ Begin:
 	// ## 3. Play jumping out of teleport animation.
 	Params = default.Params;
 	Params.AnimName = 'NO_ShadowTeleport_Stop';
-	//Params.DesiredEndingAtoms.Add(1);
-	//Params.DesiredEndingAtoms[0].Scale = 1.0f;
-	//Params.DesiredEndingAtoms[0].Translation = DesiredLocation;
-	//Params.DesiredEndingAtoms[0].Rotation = QuatFromRotator(DesiredRotation);
-
 	PlayingSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params);
+
+	// Play a bit of the animation so that the pawn can get into the position
 	Sleep(0.05f);
 
+	// And only then unhide it.
 	GameUnit.m_bForceHidden = false;
 	UnitPawn.UpdatePawnVisibility();
 	
 	FinishAnim(PlayingSequence);
 
-	UnitPawn.bSkipIK = false;
 
+	UnitPawn.bSkipIK = false;
 	CompleteAction();
 }
 

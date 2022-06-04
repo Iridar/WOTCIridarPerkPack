@@ -94,10 +94,12 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 
 	//Template.Hostility = eHostility_Movement;
 	Template.Hostility = eHostility_Neutral;
-	Template.CinescriptCameraType = "Soldier_Grapple";
+	//Template.CinescriptCameraType = "Soldier_Grapple";
 	Template.bLimitTargetIcons = true;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 
+	Template.bUsesFiringCamera = true;
+	Template.CinescriptCameraType = "StandardGunFiring";
 	Template.BuildNewGameStateFn = class'X2Ability_DefaultAbilitySet'.static.Grapple_BuildGameState;
 	//Template.BuildVisualizationFn = class'X2Ability_DefaultAbilitySet'.static.Grapple_BuildVisualization;
 	Template.BuildVisualizationFn = ShadowTeleport_BuildVisualization;
@@ -136,9 +138,10 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	local XComGameState_EnvironmentDamage EnvironmentDamage;
 	local X2Action_PlaySoundAndFlyOver CharSpeechAction;
 	local X2Action_BountyHunter_ShadowTeleport GrappleAction;
-	local X2Action_ExitCover ExitCoverAction;
+	local X2Action_BountyHunter_ShadowTeleport_ExitCover ExitCoverAction;
 	local X2Action_RevealArea RevealAreaAction;
 	local X2Action_UpdateFOW FOWUpdateAction;
+	local X2Action_MoveTurn MoveTurn;
 	
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
@@ -149,7 +152,7 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	ActionMetadata.VisualizeActor = History.GetVisualizer(MovingUnitRef.ObjectID);
 
 	CharSpeechAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
-	CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'GrapplingHook', eColor_Good); // TODO: Speech
+	CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'Invert', eColor_Good); // TODO: Speech
 
 	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	RevealAreaAction.TargetLocation = AbilityContext.InputContext.TargetLocations[0];
@@ -160,11 +163,15 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	FOWUpdateAction = X2Action_UpdateFOW(class'X2Action_UpdateFOW'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	FOWUpdateAction.BeginUpdate = true;
 
-	ExitCoverAction = X2Action_ExitCover(class'X2Action_BountyHunter_ShadowTeleport_ExitCover'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	MoveTurn = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	MoveTurn.m_vFacePoint = AbilityContext.InputContext.TargetLocations[0];
+
+	ExitCoverAction = X2Action_BountyHunter_ShadowTeleport_ExitCover(class'X2Action_BountyHunter_ShadowTeleport_ExitCover'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, MoveTurn));
 	ExitCoverAction.bUsePreviousGameState = true;
 
-	GrappleAction = X2Action_BountyHunter_ShadowTeleport(class'X2Action_BountyHunter_ShadowTeleport'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	GrappleAction = X2Action_BountyHunter_ShadowTeleport(class'X2Action_BountyHunter_ShadowTeleport'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, ExitCoverAction));
 	GrappleAction.DesiredLocation = AbilityContext.InputContext.TargetLocations[0];
+	GrappleAction.SetFireParameters(true);
 
 	`AMLOG("Visualizing target location as:" @ AbilityContext.InputContext.TargetLocations[0]);
 
