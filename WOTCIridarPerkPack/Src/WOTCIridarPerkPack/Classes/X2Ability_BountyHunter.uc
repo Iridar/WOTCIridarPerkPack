@@ -58,7 +58,6 @@ static function array<X2DataTemplate> CreateTemplates()
 static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 {
 	local X2AbilityTemplate             Template;
-	local X2AbilityCost_ActionPoints    ActionPointCost;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
@@ -77,31 +76,28 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 	
 	// Costs
-	ActionPointCost = new class'X2AbilityCost_BountyHunter_ShadowTeleport';
-	ActionPointCost.bConsumeAllPoints = true;
-	ActionPointCost.iNumPoints = 1;
-	Template.AbilityCosts.AddItem(ActionPointCost);
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BountyHunter_ShadowTeleport');
 	
 	// Effects
 	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
 	//Template.AbilityTargetStyle = new class'X2AbilityTarget_Cursor';
-	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_BountyHunter_ShadowTeleport';
+	//X2AbilityTarget_MovingMelee(Template.AbilityTargetStyle).MovementRangeAdjustment = -99; // Only works towards reduction, apparently.
+	// bAllowDestructibleObjects = false
+
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-	Template.TargetingMethod = class'X2TargetingMethod_Grapple';
 	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ShadowTeleport';
 
-	//Template.Hostility = eHostility_Movement;
 	Template.Hostility = eHostility_Neutral;
-	//Template.CinescriptCameraType = "Soldier_Grapple";
-	Template.bLimitTargetIcons = true;
+	//Template.bLimitTargetIcons = true;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 
 	Template.bUsesFiringCamera = true;
-	Template.CinescriptCameraType = "StandardGunFiring";
+	Template.CinescriptCameraType = "Gremlin_Hack_Soldier";
+	Template.FrameAbilityCameraType = eCameraFraming_Never;
 	Template.BuildNewGameStateFn = class'X2Ability_DefaultAbilitySet'.static.Grapple_BuildGameState;
-	//Template.BuildVisualizationFn = class'X2Ability_DefaultAbilitySet'.static.Grapple_BuildVisualization;
 	Template.BuildVisualizationFn = ShadowTeleport_BuildVisualization;
 	Template.ModifyNewContextFn = ShadowTeleport_ModifyActivatedAbilityContext;
 	Template.BuildInterruptGameStateFn = none;
@@ -142,6 +138,7 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	local X2Action_RevealArea RevealAreaAction;
 	local X2Action_UpdateFOW FOWUpdateAction;
 	local X2Action_MoveTurn MoveTurn;
+	local X2Action_CameraFrameAbility CameraFrame;
 	
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
@@ -162,6 +159,10 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 
 	FOWUpdateAction = X2Action_UpdateFOW(class'X2Action_UpdateFOW'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	FOWUpdateAction.BeginUpdate = true;
+
+	CameraFrame = X2Action_CameraFrameAbility(class'X2Action_CameraFrameAbility'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	CameraFrame.AbilitiesToFrame.AddItem(AbilityContext);
+	CameraFrame.CameraTag = 'AbilityFraming';
 
 	MoveTurn = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	MoveTurn.m_vFacePoint = AbilityContext.InputContext.TargetLocations[0];
