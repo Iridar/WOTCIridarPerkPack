@@ -83,10 +83,12 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
 	//Template.AbilityTargetStyle = new class'X2AbilityTarget_Cursor';
-	Template.AbilityTargetStyle = new class'X2AbilityTarget_BountyHunter_ShadowTeleport';
-	//X2AbilityTarget_MovingMelee(Template.AbilityTargetStyle).MovementRangeAdjustment = -99; // Only works towards reduction, apparently.
-	// bAllowDestructibleObjects = false
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
+	X2AbilityTarget_MovingMelee(Template.AbilityTargetStyle).bAllowDestructibleObjects = false;
 
+	//Template.AbilityTargetStyle = new class'X2AbilityTarget_BountyHunter_ShadowTeleport';
+	//X2AbilityTarget_MovingMelee(Template.AbilityTargetStyle).MovementRangeAdjustment = -99; // Only works towards reduction, apparently.
+	
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ShadowTeleport';
 
