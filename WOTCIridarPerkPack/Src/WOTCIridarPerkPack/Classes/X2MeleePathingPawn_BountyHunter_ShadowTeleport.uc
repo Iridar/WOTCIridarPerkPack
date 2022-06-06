@@ -95,8 +95,8 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	local GameRulesCache_VisibilityInfo		VisibilityInfo;
 	local XComWorldData						World;
 
-	//local vector							FiringLocation;
-	//local VoxelRaytraceCheckResult			Raytrace;
+	local vector							FiringLocation;
+	local VoxelRaytraceCheckResult			Raytrace;
 	local vector							AdjacentLocation;
 	local GameRulesCache_VisibilityInfo		OutVisibilityInfo;
 	local int								Direction;
@@ -143,8 +143,8 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	// Collect non-duplicate tiles around every Target Tile to see which tiles we can attack from.
 	GatherTilesAdjacentToTiles_BH(TargetTiles, AdjacentTiles);
 	World = `XWORLD;
-	//FiringLocation = World.GetPositionFromTileCoordinates(ChasingUnitState.TileLocation);
-	//VisUnit = XGUnit(ChasingUnitState.GetVisualizer());
+	FiringLocation = World.GetPositionFromTileCoordinates(ChasingUnitState.TileLocation);
+	VisUnit = XGUnit(ChasingUnitState.GetVisualizer());
 	foreach TargetTiles(TargetTile)
 	{
 		foreach AdjacentTiles(AdjacentTile)

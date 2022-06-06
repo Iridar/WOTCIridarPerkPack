@@ -66,9 +66,6 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCost_BountyHunter_ShadowTeleport.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityTarget_BountyHunter_ShadowTeleport.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
@@ -79,9 +76,6 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ShadowTeleport_ExitCover.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2BountyHunter_ShadowTeleport_PuckActor.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_BountyHunter_Stealth.uc">
