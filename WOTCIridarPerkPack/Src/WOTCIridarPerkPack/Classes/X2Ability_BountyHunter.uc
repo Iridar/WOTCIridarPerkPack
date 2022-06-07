@@ -58,6 +58,8 @@ static function array<X2DataTemplate> CreateTemplates()
 static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 {
 	local X2AbilityTemplate             Template;
+	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
+	local X2Effect_AdditionalAnimSets			Effect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
@@ -79,6 +81,21 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BountyHunter_ShadowTeleport');
 	
 	// Effects
+	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
+	StealthEffect.BuildPersistentEffect(2, false, true, false, eGameRule_PlayerTurnEnd);
+	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddShooterEffect(StealthEffect);
+
+	Template.AddShooterEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
+
+	Effect = new class'X2Effect_AdditionalAnimSets';
+	Effect.EffectName = 'ShadowAnims';
+	Effect.DuplicateResponse = eDupe_Ignore;
+	Effect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
+	Effect.bRemoveWhenTargetConcealmentBroken = true;
+	Effect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
+	Effect.EffectName = 'IRI_DeadlyShadow_Effect';
+	Template.AddShooterEffect(Effect);
 	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -99,7 +116,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.bUsesFiringCamera = true;
 	Template.CinescriptCameraType = "Gremlin_Hack_Soldier";
 	Template.FrameAbilityCameraType = eCameraFraming_Never;
-	Template.BuildNewGameStateFn = class'X2Ability_DefaultAbilitySet'.static.Grapple_BuildGameState;
+	Template.BuildNewGameStateFn = ShadowTeleport_BuildGameState;
 	Template.BuildVisualizationFn = ShadowTeleport_BuildVisualization;
 	Template.ModifyNewContextFn = ShadowTeleport_ModifyActivatedAbilityContext;
 	Template.BuildInterruptGameStateFn = none;
@@ -111,6 +128,50 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 
 	return Template;
 }
+
+static private function XComGameState ShadowTeleport_BuildGameState(XComGameStateContext Context)
+{
+	local XComWorldData						WorldData;
+	local XComGameState						NewGameState;
+	local XComGameState_Unit				MovingUnitState;
+	local XComGameStateContext_Ability		AbilityContext;
+	local TTile								UnitTile;
+	local TTile								PrevUnitTile;
+	local TTile								OverhangTile;
+	local Vector							TilePos;
+	local Vector							PrevTilePos;
+	local Vector							TilePosDiff;
+
+	//Build the new game state frame, and unit state object for the moving unit
+	NewGameState = TypicalAbility_BuildGameState(Context);	
+
+	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());	
+	MovingUnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
+
+	WorldData = `XWORLD;
+	TilePos = AbilityContext.InputContext.TargetLocations[0];
+	UnitTile = WorldData.GetTileCoordinatesFromPosition(TilePos);
+
+	//Set the unit's new location
+	PrevUnitTile = MovingUnitState.TileLocation;
+	MovingUnitState.SetVisibilityLocation(UnitTile);
+
+	if (UnitTile != PrevUnitTile)
+	{
+		TilePos = WorldData.GetPositionFromTileCoordinates( UnitTile );
+		PrevTilePos = WorldData.GetPositionFromTileCoordinates( PrevUnitTile );
+		TilePosDiff = TilePos - PrevTilePos;
+		TilePosDiff.Z = 0;
+
+		MovingUnitState.MoveOrientation = Rotator( TilePosDiff );
+	}
+	
+	`XEVENTMGR.TriggerEvent( 'ObjectMoved', MovingUnitState, MovingUnitState, NewGameState );
+	`XEVENTMGR.TriggerEvent( 'UnitMoveFinished', MovingUnitState, MovingUnitState, NewGameState );
+
+	return NewGameState;	
+}
+
 static simulated function ShadowTeleport_ModifyActivatedAbilityContext(XComGameStateContext Context)
 {
 	local XComGameStateContext_Ability AbilityContext;
@@ -750,6 +811,7 @@ static function X2AbilityTemplate IRI_BH_Untraceable()
 
 	ReduceCooldown = new class'X2Effect_ReduceCooldowns';
 	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_DeadlyShadow');
+	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_ShadowTeleport');
 	Template.AddTargetEffect(ReduceCooldown);
 
 	// State and Viz
