@@ -381,66 +381,41 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	local array<TTile>               TargetTiles; // Array of tiles occupied by the target; these tiles can be attacked by melee.
 	local TTile                      TargetTile;
 	local array<TTile>               AdjacentTiles;	// Array of tiles adjacent to Target Tiles; the attacking unit can move to these tiles to attack.
+	local array<TTile>               AllAdjacentTiles;
+	local array<TTile>               DirectlyAdjacentTiles;
 	local TTile                      AdjacentTile;
 	local XComGameState_Unit         TargetUnit;
-	local XComGameState_Destructible TargetObject;
-	local XComDestructibleActor      DestructibleActor;
 	local bool						 bCheckForFlanks;
 
 	local X2GameRulesetVisibilityManager	VisibilityMgr;
 	local GameRulesCache_VisibilityInfo		VisibilityInfo;
 	local XComWorldData						World;
-
-	local vector							FiringLocation;
-	local VoxelRaytraceCheckResult			Raytrace;
-	local vector							AdjacentLocation;
-	local GameRulesCache_VisibilityInfo		OutVisibilityInfo;
-	local int								Direction;
-	local int								CanSeeFromDefault;
-	local UnitPeekSide						PeekSide;
-	local int								OutRequiresLean;
-	local CachedCoverAndPeekData			PeekData;
-	local TTile								PeekTile;
-	local XGUnit							VisUnit;
+	local float								SightRadiusUnitsSq;
 
 	TargetUnit = XComGameState_Unit(TargetState);
-	if (TargetUnit != none)
-	{
-		GatherTilesOccupiedByUnit_BH(TargetUnit, TargetTiles);
-		
-		// Only gather flanking tiles if the target can take cover.
-		if (TargetUnit.CanTakeCover())
-		{
-			bCheckForFlanks = true;
-			VisibilityMgr = `TACTICALRULES.VisibilityMgr;
-		}
-	}
-	else
-	{
-		TargetObject = XComGameState_Destructible(TargetState);
-		if (TargetObject == none)
-		{
-			`LOG(self.Class.Name @ GetFuncName() @ ":: WARNING, target is not a unit and not a destructible object! Its class is:" @ TargetState.Class.Name @ ", unable to detect additional tiles to melee attack from. Attacking unit:" @ UnitState.GetFullName());
-			return false;
-		}
+	if (TargetUnit == none)
+		return false;
 
-		DestructibleActor = XComDestructibleActor(TargetObject.GetVisualizer());
-		if (DestructibleActor == none)
-		{
-			`LOG(self.Class.Name @ GetFuncName() @ ":: WARNING, no visualizer found for destructible object with ID:" @ TargetObject.ObjectID @ ", unable to detect additional tiles to melee attack from. Attacking unit:" @ UnitState.GetFullName());
-			return false;
-		}
-
-		// AssociatedTiles is the array of tiles occupied by the destructible object.
-	    // In theory, every tile from that array can be targeted by a melee attack.
-		TargetTiles = DestructibleActor.AssociatedTiles;
+	// Only gather flanking tiles if the target can take cover.
+	if (TargetUnit.CanTakeCover())
+	{
+		bCheckForFlanks = true;
+		VisibilityMgr = `TACTICALRULES.VisibilityMgr;
 	}
+
+	GatherTilesOccupiedByUnit_BH(TargetUnit, TargetTiles);
 
 	// Collect non-duplicate tiles around every Target Tile to see which tiles we can attack from.
-	GatherTilesAdjacentToTiles_BH(TargetTiles, AdjacentTiles);
+	GatherTilesAdjacentToTiles_BH(TargetTiles, AllAdjacentTiles, ChasingShotTileDistance);
+
+	// Remove from that array tiles that are directly adjacent to the unit, cuz teleporting there would break concealment.
+	GatherTilesAdjacentToTiles_BH(TargetTiles, DirectlyAdjacentTiles, 1);
+	class'Helpers'.static.RemoveTileSubset(AdjacentTiles, AllAdjacentTiles, DirectlyAdjacentTiles);
+
+	SightRadiusUnitsSq = `METERSTOUNITS(ChasingUnitState.GetVisibilityRadius());
+	SightRadiusUnitsSq = SightRadiusUnitsSq * SightRadiusUnitsSq;
+
 	World = `XWORLD;
-	FiringLocation = World.GetPositionFromTileCoordinates(ChasingUnitState.TileLocation);
-	VisUnit = XGUnit(ChasingUnitState.GetVisualizer());
 	foreach TargetTiles(TargetTile)
 	{
 		foreach AdjacentTiles(AdjacentTile)
@@ -448,31 +423,16 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 			if (class'Helpers'.static.FindTileInList(AdjacentTile, SortedPossibleTiles) != INDEX_NONE)
 				continue;		
 
-			//if (!ActiveCache.IsTileReachable(AdjacentTile))
-			//	continue;
 			if (!World.CanUnitsEnterTile(AdjacentTile) || !World.IsFloorTileAndValidDestination(AdjacentTile, ChasingUnitState))
 				continue;
 
-			AdjacentLocation = World.GetPositionFromTileCoordinates(AdjacentTile);
-			World.VoxelRaytrace_Locations(FiringLocation, AdjacentLocation, Raytrace); // Presumably returns true if the raytrace path is blocked.
-			if (Raytrace.BlockedFlag != 0x0)
-			{
-				
-				VisUnit.GetDirectionInfoForPosition(AdjacentLocation, OutVisibilityInfo, Direction, PeekSide, CanSeeFromDefault, OutRequiresLean, true);
-				if (PeekSide != eNoPeek)
-				{
-					PeekData = World.GetCachedCoverAndPeekData(ChasingUnitState.TileLocation);
-					if (PeekSide == ePeekLeft)
-						PeekTile = PeekData.CoverDirectionInfo[Direction].LeftPeek.PeekTile;
-					else
-						PeekTile = PeekData.CoverDirectionInfo[Direction].RightPeek.PeekTile;
-			
-					World.VoxelRaytrace_Tiles(PeekTile, AdjacentTile, Raytrace);
-			
-					if (Raytrace.BlockedFlag != 0x0)
-						continue;
-				}		
-			}
+			// Checks for line of sight, but not sight distance.
+			if (!World.CanSeeTileToTile(ChasingUnitState.TileLocation, AdjacentTile, VisibilityInfo))
+				continue;
+
+			// Skip tile if it's outside unit's sight radius.
+			if (SightRadiusUnitsSq < VisibilityInfo.DefaultTargetDist)
+				continue;
 
 			if (bCheckForFlanks)
 			{
@@ -491,7 +451,7 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	return SortedPossibleTiles.Length > 0;
 }
 
-private function GatherTilesAdjacentToTiles_BH(out array<TTile> TargetTiles, out array<TTile> AdjacentTiles)
+private function GatherTilesAdjacentToTiles_BH(out array<TTile> TargetTiles, out array<TTile> AdjacentTiles, const int TileDistance)
 {	
 	local XComWorldData      WorldData;
 	local array<TilePosPair> TilePosPairs;
@@ -510,13 +470,13 @@ private function GatherTilesAdjacentToTiles_BH(out array<TTile> TargetTiles, out
 		Minimum = WorldData.GetPositionFromTileCoordinates(TargetTile);
 		Maximum = Minimum;
 
-		Minimum.X -= WorldData.WORLD_StepSize * ChasingShotTileDistance;
-		Minimum.Y -= WorldData.WORLD_StepSize * ChasingShotTileDistance;
-		Minimum.Z -= WorldData.WORLD_FloorHeight * ChasingShotTileDistance;
+		Minimum.X -= WorldData.WORLD_StepSize * TileDistance;
+		Minimum.Y -= WorldData.WORLD_StepSize * TileDistance;
+		Minimum.Z -= WorldData.WORLD_FloorHeight * TileDistance;
 
-		Maximum.X += WorldData.WORLD_StepSize * ChasingShotTileDistance;
-		Maximum.Y += WorldData.WORLD_StepSize * ChasingShotTileDistance;
-		Maximum.Z += WorldData.WORLD_FloorHeight * ChasingShotTileDistance;
+		Maximum.X += WorldData.WORLD_StepSize * TileDistance;
+		Maximum.Y += WorldData.WORLD_StepSize * TileDistance;
+		Maximum.Z += WorldData.WORLD_FloorHeight * TileDistance;
 
 		WorldData.CollectTilesInBox(TilePosPairs, Minimum, Maximum);
 
