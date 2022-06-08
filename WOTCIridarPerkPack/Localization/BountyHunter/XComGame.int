@@ -1,9 +1,9 @@
 [IRI_BH_Headhunter X2AbilityTemplate]
 LocFriendlyName="Headhunter"
-LocLongDescription="Killing an enemy permanently increases critical chance against other enemies of that type by +1%. This bonus is cumulative."
-LocHelpText="Killing an enemy permanently increases critical chance against other enemies of that type by +1%. This bonus is cumulative."
+LocLongDescription="Killing an enemy with your <Ability:SecondaryWeaponName/> permanently increases its critical chance against other enemies of that type by +1%. This bonus is cumulative."
+LocHelpText="Killing an enemy with your <Ability:SecondaryWeaponName/> permanently increases its critical chance against other enemies of that type by +1%. This bonus is cumulative."
 LocPromotionPopupText=""
-LocFlyOverText="Headhunter"
+LocFlyOverText="Headhunter: +1% crit"
 
 
 [IRI_BH_FirePistol X2AbilityTemplate]

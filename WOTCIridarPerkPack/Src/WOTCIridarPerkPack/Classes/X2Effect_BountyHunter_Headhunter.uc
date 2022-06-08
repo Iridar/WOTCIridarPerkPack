@@ -4,23 +4,17 @@ var private name UVPrefix;
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
-	local X2EventManager EventMgr;
-	local XComGameState_Unit UnitState;
-	local Object EffectObj;
+	local X2EventManager		EventMgr;
+	local XComGameState_Unit	UnitState;
+	local Object				EffectObj;
 
 	EventMgr = `XEVENTMGR;
 
 	EffectObj = EffectGameState;
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectGameState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
-
-	//EventMgr.RegisterForEvent(EffectObj, 'X2Effect_BountyHunter_Headhunter_Event', EffectGameState.TriggerAbilityFlyover, ELD_OnStateSubmitted, , UnitState);
-
-	//	local X2EventManager EventMgr;
-	//	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(SourceUnit.FindAbility('ABILITY_NAME').ObjectID));
-	//	EventMgr = `XEVENTMGR;
-	//	EventMgr.TriggerEvent('X2Effect_BountyHunter_Headhunter_Event', AbilityState, SourceUnit, NewGameState);
 	
-	EventMgr.RegisterForEvent(EffectObj, 'KillMail', OnKillMail, ELD_OnStateSubmitted,, UnitState);	
+	EventMgr.RegisterForEvent(EffectObj, 'IRI_X2Effect_BountyHunter_Headhunter_Event', EffectGameState.TriggerAbilityFlyover, ELD_OnStateSubmitted,, UnitState);
+	EventMgr.RegisterForEvent(EffectObj, 'KillMail', OnKillMail, ELD_OnStateSubmitted,, UnitState,, EffectObj);	
 }
 
 static private function EventListenerReturn OnKillMail(Object EventData, Object EventSource, XComGameState GameState, name InEventID, Object CallbackData)
@@ -34,6 +28,8 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	local DamageResult					DmgResult;
 	local XComGameStateContext_Ability	AbilityContext;
 	local XComGameState_Item			ItemState;
+	local XComGameState_Ability			AbilityState;
+	local XComGameState_Effect			EffectState;
 		
 	KilledUnit = XComGameState_Unit(EventData);
 	if (KilledUnit == none || KilledUnit.DamageResults.Length == 0)
@@ -62,6 +58,17 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Increase Headhunter count:" @ GroupName);
 	SourceUnit = XComGameState_Unit(NewGameState.ModifyStateObject(SourceUnit.Class, SourceUnit.ObjectID));
 	SourceUnit.SetUnitFloatValue(ValueName, UV.fValue + 1, eCleanup_Never);
+
+	EffectState = XComGameState_Effect(CallbackData);
+	if (EffectState != none)
+	{
+		AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
+		if (AbilityState != none)
+		{
+			`XEVENTMGR.TriggerEvent('IRI_X2Effect_BountyHunter_Headhunter_Event', AbilityState, SourceUnit, NewGameState);
+		}
+	}
+	
 	`GAMERULES.SubmitGameState(NewGameState);
 	
     return ELR_NoInterrupt;
