@@ -12,8 +12,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_FirePistol());
 	//Templates.AddItem(IRI_BH_PistolOverwatch());
 
-	Templates.AddItem(IRI_BH_DeadlyShadow());
-	Templates.AddItem(IRI_BH_DeadlyShadow_Passive());
+	Templates.AddItem(IRI_BH_Nightfall());
+	Templates.AddItem(IRI_BH_Nightfall_Passive());
 
 	// Corporal
 	Templates.AddItem(IRI_BH_ChasingShot());
@@ -137,7 +137,6 @@ static private function XComGameState ShadowTeleport_BuildGameState(XComGameStat
 	local XComGameStateContext_Ability		AbilityContext;
 	local TTile								UnitTile;
 	local TTile								PrevUnitTile;
-	local TTile								OverhangTile;
 	local Vector							TilePos;
 	local Vector							PrevTilePos;
 	local Vector							TilePosDiff;
@@ -810,7 +809,7 @@ static function X2AbilityTemplate IRI_BH_Untraceable()
 	Template.AbilityShooterConditions.AddItem(UnitValueCondition);
 
 	ReduceCooldown = new class'X2Effect_ReduceCooldowns';
-	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_DeadlyShadow');
+	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_Nightfall');
 	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_ShadowTeleport');
 	Template.AddTargetEffect(ReduceCooldown);
 
@@ -965,13 +964,13 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_DeadlyShadow()
+static function X2AbilityTemplate IRI_BH_Nightfall()
 {
 	local X2AbilityTemplate						Template;
 	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
 	local X2Effect_AdditionalAnimSets			Effect;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_DeadlyShadow');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Nightfall');
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
@@ -992,7 +991,7 @@ static function X2AbilityTemplate IRI_BH_DeadlyShadow()
 
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);
-	AddCooldown(Template, `GetConfigInt('IRI_DeadlyShadow_Cooldown'));
+	AddCooldown(Template, `GetConfigInt('IRI_BH_Nightfall_Cooldown'));
 	
 	// Effects
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
@@ -1023,17 +1022,17 @@ static function X2AbilityTemplate IRI_BH_DeadlyShadow()
 	
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
 
-	Template.AdditionalAbilities.AddItem('IRI_BH_DeadlyShadow_Passive');
+	Template.AdditionalAbilities.AddItem('IRI_BH_Nightfall_Passive');
 	
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_DeadlyShadow_Passive()
+static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_BountyHunter_CritMagic	CritMagic;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_DeadlyShadow_Passive');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Nightfall_Passive');
 
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";

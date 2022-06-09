@@ -1,6 +1,6 @@
 class X2Effect_BountyHunter_Headhunter extends X2Effect_Persistent;
 
-var private name UVPrefix;
+var privatewrite name UVPrefix;
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {

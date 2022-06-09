@@ -2,6 +2,86 @@ class X2DLCInfo_WOTCIridarPerkPack extends X2DownloadableContentInfo;
 
 var private SkeletalMeshSocket ShadowTeleportSocket;
 
+
+static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
+{	// 	`AMLOG(ParseObj.Class.Name @ StrategyParseOb.Class.Name);
+	// In strategy (ability description): WOTCIridarPerkPack: AbilityTagExpandHandler_CH X2AbilityTemplate XComGameState_Unit
+	// In tactical (ability description): WOTCIridarPerkPack: AbilityTagExpandHandler_CH X2AbilityTemplate none (big oof)
+	switch (InString)
+	{
+	case "IRI_TAG_BH_Headhunter_Bonuses":
+		OutString = GetHeadhunterBonusValues(XComGameState_Unit(StrategyParseOb));
+		return true;
+
+	case "IRI_TAG_BH_Handcannon_Ammo":
+		OutString = GetSecondaryWeaponClipSize(XComGameState_Unit(StrategyParseOb), GameState);
+		return true;
+
+	case "IRI_BH_Nightfall_Cooldown":
+		OutString = string(`GetConfigInt('IRI_BH_Nightfall_Cooldown'));
+		return true;
+
+	default:
+		break;
+	}
+
+	return false;
+}
+
+static private function string GetSecondaryWeaponClipSize(const XComGameState_Unit UnitState, optional XComGameState CheckGameState)
+{
+	local XComGameState_Item ItemState;
+
+	if (UnitState != none)
+	{
+		ItemState = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
+		if(ItemState != none)
+		{
+			return string(ItemState.GetClipSize());
+		}
+	}
+
+	return "N/A";
+}
+
+static private function string GetHeadhunterBonusValues(const XComGameState_Unit UnitState)
+{
+	local X2DataTemplate				DataTemplate;
+	local X2CharacterTemplate			CharTemplate;
+	local array<name>					HandledCharGroups;
+	local X2CharacterTemplateManager	CharMgr;
+	local string						ReturnString;
+	local UnitValue						UV;
+	local name							ValuePrefix;
+
+	if (UnitState != none)
+	{
+		CharMgr = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager();
+		ValuePrefix = class'X2Effect_BountyHunter_Headhunter'.default.UVPrefix;
+		foreach CharMgr.IterateTemplates(DataTemplate)
+		{
+			CharTemplate = X2CharacterTemplate(DataTemplate);
+			if (CharTemplate == none)
+				continue;
+
+			if (HandledCharGroups.Find(CharTemplate.CharacterGroupName) != INDEX_NONE)
+				continue;
+
+			HandledCharGroups.AddItem(CharTemplate.CharacterGroupName);
+
+			if (UnitState.GetUnitValue(name(ValuePrefix $ CharTemplate.CharacterGroupName), UV))
+			{
+				ReturnString $= "<br/>- " $ CharTemplate.strCharacterName $ ": " $ int(UV.fValue) $ "%";
+			}
+		}
+	}
+	if (ReturnString == "")
+	{
+		ReturnString = " " $ class'UIPhotoboothBase'.default.m_strEmptyOption;
+	}
+	return ReturnString;
+}
+
 /// <summary>
 /// This method is run if the player loads a saved game that was created prior to this DLC / Mod being installed, and allows the 
 /// DLC / Mod to perform custom processing in response. This will only be called once the first time a player loads a save that was
@@ -684,16 +764,6 @@ static function OnPreCreateTemplates()
 {
 }
 /// End issue #412
-
-/// Start Issue #419
-/// <summary>
-/// Called from X2AbilityTag.ExpandHandler
-/// Expands vanilla AbilityTagExpandHandler to allow reflection
-/// </summary>
-static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
-{
-	return false;
-}
 
 /// Start Issue #409
 /// <summary>

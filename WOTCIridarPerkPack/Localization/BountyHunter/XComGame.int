@@ -2,26 +2,26 @@
 LocFriendlyName="Headhunter"
 LocLongDescription="Killing an enemy with your <Ability:SecondaryWeaponName/> permanently increases its critical chance against other enemies of that type by +1%. This bonus is cumulative."
 LocHelpText="Killing an enemy with your <Ability:SecondaryWeaponName/> permanently increases its critical chance against other enemies of that type by +1%. This bonus is cumulative."
-LocPromotionPopupText=""
+LocPromotionPopupText="Current bonuses:<Ability:IRI_TAG_BH_Headhunter_Bonuses/>"
 LocFlyOverText="Headhunter: +1% crit"
 
 
 [IRI_BH_FirePistol X2AbilityTemplate]
-LocFriendlyName="Fire Pistol"
-LocLongDescription="You have been trained to effectively utilize the full flexibility of a <Ability:SecondaryWeaponName/>."
-LocHelpText="Fire your pistol at a target."
+LocFriendlyName="Handcannon"
+LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. It is incredibly destructive, but its ammunition is rare and must be used sparingly."
+LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target."
 LocFlyOverText=""
-LocPromotionPopupText=""
+LocPromotionPopupText="Limited to <Ability:IRI_TAG_BH_Handcannon_Ammo/> ammo per mission."
 
 
-[IRI_BH_DeadlyShadow X2AbilityTemplate]
-LocFriendlyName="Deadly Shadow"
-LocLongDescription="Activate to enter Deadly Shadow for 2 turns, an advanced form of concealment with reduced detection radius."
-LocHelpText="Activate to enter Deadly Shadow for 2 turns, an advanced form of concealment with reduced detection radius."
-LocPromotionPopupText="<br/> 5 turn cooldown."
-LocFlyOverText="Deadly Shadow"
+[IRI_BH_Nightfall X2AbilityTemplate]
+LocFriendlyName="Nightfall"
+LocLongDescription="Activate to enter Nightfall for 2 turns, an advanced form of concealment with reduced detection radius."
+LocHelpText="Activate to enter Nightfall for 2 turns, an advanced form of concealment with reduced detection radius."
+LocPromotionPopupText="<br/> <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown."
+LocFlyOverText="Nightfall"
 
-[IRI_BH_DeadlyShadow_Passive X2AbilityTemplate]
+[IRI_BH_Nightfall_Passive X2AbilityTemplate]
 LocFriendlyName="Deadly Shadow"
 LocLongDescription="When attacking enemies that do not see you, all your hits will be critical, and critical chance will increase base damage instead."
 LocHelpText="When attacking enemies that do not see you, all your hits will be critical, and critical chance will increase base damage instead."
