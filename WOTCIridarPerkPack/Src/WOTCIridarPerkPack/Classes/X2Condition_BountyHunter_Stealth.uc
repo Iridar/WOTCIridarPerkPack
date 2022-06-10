@@ -20,7 +20,7 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 		return 'AA_UnitIsConcealed';
 
 	// But not in Deadly Shadow itself.
-	if (UnitState.IsUnitAffectedByEffectName('IRI_DeadlyShadow_Effect'))
+	if (UnitState.IsUnitAffectedByEffectName('IRI_BH_Nightfall_Anim_Effect'))
 		return 'AA_UnitIsConcealed';
 
 	// Check flanking only when not concealed already

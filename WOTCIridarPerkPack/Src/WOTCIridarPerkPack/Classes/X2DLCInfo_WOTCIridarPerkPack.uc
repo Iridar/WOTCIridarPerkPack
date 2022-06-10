@@ -18,7 +18,8 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		return true;
 
 	case "IRI_BH_Nightfall_Cooldown":
-		OutString = string(`GetConfigInt('IRI_BH_Nightfall_Cooldown'));
+	case "IRI_BH_Nightfall_Duration":
+		OutString = string(`GetConfigInt(name(InString)));
 		return true;
 
 	default:
@@ -149,6 +150,16 @@ static event OnExitPostMissionSequence()
 /// </summary>
 static event OnPostTemplatesCreated()
 {
+	//local X2SoldierClassTemplateManager	ClassMgr;
+	//local X2SoldierClassTemplate		ClassTemplate;
+	//
+	//ClassMgr = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
+	//ClassTemplate = ClassMgr.FindSoldierClassTemplate('IRI_BountyHunter');
+	//if (ClassTemplate != none)
+	//{
+	//	ClassTemplate.CheckSpecialCritLabelFn = BountyHunter_SpecialCritLabelDelegate;
+	//}
+	//
 	/*
     local X2AbilityTemplateManager	AbilityTemplateManager;
     local X2AbilityTemplate			Template;
@@ -184,6 +195,17 @@ static event OnPostTemplatesCreated()
 	*/
 }
 
+/*
+static private function string BountyHunter_SpecialCritLabelDelegate(XComGameState_Unit UnitState, XComGameState_Ability AbilityState, XComGameState_Item WeaponState, XComGameState_Unit TargetState)
+{
+	if (UnitState.IsUnitAffectedByEffectName(class'X2Effect_BountyHunter_CritMagic'.default.EffectName) &&
+		class'X2Effect_BountyHunter_CritMagic'.static.IsCritGuaranteed(UnitState, TargetState))
+	{
+		return "CRIT DMG INCREASE";
+	}
+	return "";
+}
+*/
 /// <summary>
 /// Called when the difficulty changes and this DLC is active
 /// </summary>

@@ -105,6 +105,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_DeadlyShadow.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_DramaticEntrance.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Headhunter.uc">
       <SubType>Content</SubType>
     </Content>

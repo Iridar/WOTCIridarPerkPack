@@ -5,7 +5,6 @@ LocHelpText="Killing an enemy with your <Ability:SecondaryWeaponName/> permanent
 LocPromotionPopupText="Current bonuses:<Ability:IRI_TAG_BH_Headhunter_Bonuses/>"
 LocFlyOverText="Headhunter: +1% crit"
 
-
 [IRI_BH_FirePistol X2AbilityTemplate]
 LocFriendlyName="Handcannon"
 LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. It is incredibly destructive, but its ammunition is rare and must be used sparingly."
@@ -13,20 +12,30 @@ LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target."
 LocFlyOverText=""
 LocPromotionPopupText="Limited to <Ability:IRI_TAG_BH_Handcannon_Ammo/> ammo per mission."
 
-
 [IRI_BH_Nightfall X2AbilityTemplate]
 LocFriendlyName="Nightfall"
-LocLongDescription="Activate to enter Nightfall for 2 turns, an advanced form of concealment with reduced detection radius."
-LocHelpText="Activate to enter Nightfall for 2 turns, an advanced form of concealment with reduced detection radius."
-LocPromotionPopupText="<br/> <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown."
+LocLongDescription="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius."
+LocHelpText="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius."
+LocPromotionPopupText="<bullet/> Nightfall cannot be activated while you're flanked.<br/><bullet/> <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown."
 LocFlyOverText="Nightfall"
 
 [IRI_BH_Nightfall_Passive X2AbilityTemplate]
-LocFriendlyName="Deadly Shadow"
-LocLongDescription="When attacking enemies that do not see you, all your hits will be critical, and critical chance will increase base damage instead."
-LocHelpText="When attacking enemies that do not see you, all your hits will be critical, and critical chance will increase base damage instead."
-LocPromotionPopupText=""
-LocFlyOverText="Deadly Shadow"
+LocFriendlyName="Blood Moon"
+LocLongDescription="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
+LocHelpText="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
+LocPromotionPopupText="If your weapon's critical hits deal 4 additional damage, and your critical hit chance is 50%, Blood Moon will provive 4 * 0.5 = 2 bonus damage."
+LocFlyOverText="Blood Moon"
+
+[IRI_BH_DramaticEntrance X2AbilityTemplate]
+LocFriendlyName="Dramatic Entrance"
+LocLongDescription="Breaking concealment by attacking grants one non-move Action Point. Triggers once per turn. Mutually exclusive with Dark Night."
+LocHelpText="Breaking concealment by attacking grants one non-move Action Point. Triggers once per turn."
+LocPromotionPopupText="Only player-activated abilities may trigger Dramatic Entrance."
+LocFlyOverText="Dramatic Entrance"
+
+
+
+
 
 [IRI_BH_ChasingShot X2AbilityTemplate]
 LocFriendlyName="Chase"

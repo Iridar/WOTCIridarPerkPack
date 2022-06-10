@@ -10,12 +10,12 @@ static function array<X2DataTemplate> CreateTemplates()
 	// Squaddie
 	Templates.AddItem(IRI_BH_Headhunter());
 	Templates.AddItem(IRI_BH_FirePistol());
-	//Templates.AddItem(IRI_BH_PistolOverwatch());
-
 	Templates.AddItem(IRI_BH_Nightfall());
 	Templates.AddItem(IRI_BH_Nightfall_Passive());
 
 	// Corporal
+	Templates.AddItem(IRI_BH_DramaticEntrance());
+
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
 	Templates.AddItem(IRI_BH_Blindside());
@@ -55,9 +55,30 @@ static function array<X2DataTemplate> CreateTemplates()
 	return Templates;
 }
 
+static function X2AbilityTemplate IRI_BH_DramaticEntrance()
+{
+	local X2AbilityTemplate							Template;
+	local X2Effect_BountyHunter_DramaticEntrance	DramaticEntrance;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_DramaticEntrance');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+
+	SetPassive(Template);
+
+	DramaticEntrance = new class'X2Effect_BountyHunter_DramaticEntrance';
+	DramaticEntrance.BuildPersistentEffect(1, true);
+	DramaticEntrance.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Template.AddTargetEffect(DramaticEntrance);
+	
+	return Template;
+}
+
 static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 {
-	local X2AbilityTemplate             Template;
+	local X2AbilityTemplate						Template;
 	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
 	local X2Effect_AdditionalAnimSets			Effect;
 
@@ -82,19 +103,18 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	
 	// Effects
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
-	StealthEffect.BuildPersistentEffect(2, false, true, false, eGameRule_PlayerTurnEnd);
+	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
 	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
 	Template.AddShooterEffect(StealthEffect);
 
 	Template.AddShooterEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
 
 	Effect = new class'X2Effect_AdditionalAnimSets';
-	Effect.EffectName = 'ShadowAnims';
 	Effect.DuplicateResponse = eDupe_Ignore;
 	Effect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
 	Effect.bRemoveWhenTargetConcealmentBroken = true;
 	Effect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
-	Effect.EffectName = 'IRI_DeadlyShadow_Effect';
+	Effect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
 	Template.AddShooterEffect(Effect);
 	
 	// Targeting and Triggering
@@ -995,19 +1015,18 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 	
 	// Effects
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
-	StealthEffect.BuildPersistentEffect(2, false, true, false, eGameRule_PlayerTurnEnd);
+	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
 	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
 	Template.AddTargetEffect(StealthEffect);
 
 	Template.AddTargetEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
 
 	Effect = new class'X2Effect_AdditionalAnimSets';
-	Effect.EffectName = 'ShadowAnims';
 	Effect.DuplicateResponse = eDupe_Ignore;
 	Effect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
 	Effect.bRemoveWhenTargetConcealmentBroken = true;
 	Effect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
-	Effect.EffectName = 'IRI_DeadlyShadow_Effect';
+	Effect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
 	Template.AddTargetEffect(Effect);
 
 	// State and Viz
@@ -1022,7 +1041,7 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 	
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
 
-	Template.AdditionalAbilities.AddItem('IRI_BH_Nightfall_Passive');
+	//Template.AdditionalAbilities.AddItem('IRI_BH_Nightfall_Passive');
 	
 	return Template;
 }
