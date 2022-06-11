@@ -16,7 +16,7 @@ LocPromotionPopupText="Limited to <Ability:IRI_TAG_BH_Handcannon_Ammo/> ammo per
 LocFriendlyName="Nightfall"
 LocLongDescription="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius."
 LocHelpText="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius."
-LocPromotionPopupText="<bullet/> Nightfall cannot be activated while you're flanked.<br/><bullet/> <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown."
+LocPromotionPopupText="<bullet/> Nightfall cannot be activated while you're flanked.<br/><bullet/> <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown.<br/><bullet/> If you are already concealed when Nightfall is activated, then your concealment will not be broken if Nightfall runs out naturally."
 LocFlyOverText="Nightfall"
 
 [IRI_BH_Nightfall_Passive X2AbilityTemplate]
@@ -26,6 +26,7 @@ LocHelpText="Attacks against enemies that do not see you always deal critical da
 LocPromotionPopupText="If your weapon's critical hits deal 4 additional damage, and your critical hit chance is 50%, Blood Moon will provive 4 * 0.5 = 2 bonus damage."
 LocFlyOverText="Blood Moon"
 
+
 [IRI_BH_DramaticEntrance X2AbilityTemplate]
 LocFriendlyName="Dramatic Entrance"
 LocLongDescription="Breaking concealment by attacking grants one non-move Action Point. Triggers once per turn. Mutually exclusive with Dark Night."
@@ -33,7 +34,27 @@ LocHelpText="Breaking concealment by attacking grants one non-move Action Point.
 LocPromotionPopupText="Only player-activated abilities may trigger Dramatic Entrance."
 LocFlyOverText="Dramatic Entrance"
 
+[IRI_BH_DarkNight_Passive X2AbilityTemplate]
+LocFriendlyName="Dark Night"
+LocLongDescription="Attacking no longer breaks Nightfall concealment."
+LocHelpText="Attacking no longer breaks Nightfall concealment."
+LocPromotionPopupText="<bullet/> Dark Night allows multiple attacks to benefit from Blood Moon."
+LocFlyOverText="Dark Night"
 
+
+[IRI_BH_ShadowTeleport X2AbilityTemplate]
+LocFriendlyName="Night Dive"
+LocLongDescription="Enter Nightfall concealment and fire a special psionic round from your <Ability:SecondaryWeaponName/> that creates a rift in space and teleports you to a flanking position within <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> tiles of the target. Takes away all action points and grants one non-move Action Point. Shares cooldown with Nightfall."
+LocHelpText="Enter Nightfall concealment and teleport to a flanking position near the target. Grants one non-move action point. Shares cooldown with Nightfall."
+LocPromotionPopupText="<bullet/> If the target cannot be flanked, you can teleport to any visible tile near it."
+LocFlyOverText="Night Dive"
+
+[IRI_BH_Nightmare X2AbilityTemplate]
+LocFriendlyName="Nightmare"
+LocLongDescription="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
+LocHelpText="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
+LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Has no effect on enemies that cannot be flanked."
+LocFlyOverText="Nightmare"
 
 
 
@@ -65,13 +86,6 @@ LocLongDescription="Activate to make your next damaging ability trigger twice."
 LocHelpText="Activate to make your next damaging ability trigger twice."
 LocPromotionPopupText="If followthrough ability fails to activate, you may attempt triggering it with another ability. If the triggering ability is activated in concealment, then followthrough ability will activate from concealment as well.<br/> X turn cooldown."
 LocFlyOverText="Folowthrough"
-
-[IRI_BH_DeadlierShadow_Passive X2AbilityTemplate]
-LocFriendlyName="Deadlier Shadow"
-LocLongDescription="Attacks will no longer break Deadly Shadow concealment."
-LocHelpText="Attacks will no longer break Deadly Shadow concealment."
-LocPromotionPopupText="<br/> X turn cooldown."
-LocFlyOverText="Deadlier Shadow"
 
 [IRI_BH_WitchHunt X2AbilityTemplate]
 LocFriendlyName="Witch Hunt"
@@ -137,12 +151,6 @@ LocHelpText="Whenever your score two critical hits against the same target in a 
 LocPromotionPopupText=""
 LocFlyOverText="Big Game Hunter"
 
-[IRI_BH_CustomShadowstrike X2AbilityTemplate]
-LocFriendlyName="Custom Shadowstrike"
-LocLongDescription="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
-LocHelpText="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
-LocPromotionPopupText=""
-LocFlyOverText="Custom Shadowstrike"
 
 [IRI_BH_CustomZeroIn X2AbilityTemplate]
 LocFriendlyName="Custom Zero In"
@@ -180,10 +188,5 @@ LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do n
 LocPromotionPopupText=""
 LocFlyOverText="Routing Volley"
 
-[IRI_BH_ShadowTeleport X2AbilityTemplate]
-LocFriendlyName="Shadow Teleport"
-LocLongDescription="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocPromotionPopupText=""
-LocFlyOverText="Shadow Teleport"
+
 

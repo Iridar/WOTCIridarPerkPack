@@ -48,12 +48,13 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 		`AMLOG(kAbility.GetMyTemplateName() @ "is doesn't deal damage");
 		return false; 
 	}
+
 	// Exit early if the unit is affected by Followthrough, it has its own piece of code to handle this ability.
-	if (class'BountyHunter'.static.IsAbilityValidForFollowthrough(kAbility) && SourceUnit.IsUnitAffectedByEffectName(class'X2Effect_BountyHunter_Folowthrough'.default.EffectName))
-	{
-		`AMLOG("Followthrough effect is present, exiting");
-		return false;
-	}
+	//if (class'BountyHunter'.static.IsAbilityValidForFollowthrough(kAbility) && SourceUnit.IsUnitAffectedByEffectName(class'X2Effect_BountyHunter_Folowthrough'.default.EffectName))
+	//{
+	//	`AMLOG("Followthrough effect is present, exiting");
+	//	return false;
+	//}
 
 	`AMLOG("Triggering Dramatic Entrance");
     SourceUnit.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.RunAndGunActionPoint);

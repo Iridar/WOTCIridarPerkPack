@@ -1,7 +1,5 @@
 class X2Action_BountyHunter_ShadowTeleport extends X2Action_Fire;
 
-// MaterialInstanceTimeVarying'FX_Cyberus_Materials.M_Cyberus_Invisible_MITV'
-
 var vector  DesiredLocation;
 
 var private BoneAtom StartingAtom;

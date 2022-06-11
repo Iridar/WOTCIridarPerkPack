@@ -2,8 +2,6 @@ class X2Effect_BountyHunter_DeadlyShadow extends X2Effect_Shadow;
 
 var private name AlreadyConcealedValue;
 
-// TODO: Display flyover when this effect naturally runs out
-
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager EventMgr;
@@ -24,34 +22,6 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 	super.RegisterForEvents(EffectGameState);
 }
 
-// Display concealment break chance as 100% if we don't have Deadly Shadow, and 0 if we do.
-static private function EventListenerReturn OnTacticalHUD_RealizeConcealmentStatus(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
-{
-	local XComLWTuple			Tuple;
-	local XComGameState_Unit	UnitState;
-
-	Tuple = XComLWTuple(EventData);
-	if (Tuple == none) 
-		return ELR_NoInterrupt;
-
-	UnitState = XComGameState_Unit(EventSource);
-	if (UnitState == none) 
-		return ELR_NoInterrupt;
-
-	Tuple.Data[0].b = true; // bShowReaperUI
-
-	if (UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
-	{
-		Tuple.Data[1].f = 0;	 // CurrentConcealLossCH
-		Tuple.Data[2].f = 0;	 // ModifiedLossCH
-	}
-	else
-	{
-		Tuple.Data[1].f = 1;	 // CurrentConcealLossCH
-		Tuple.Data[2].f = 1;	 // ModifiedLossCH
-	}
-}
-
 static private function EventListenerReturn OnTacticalHUD_UpdateReaperHUD(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
 {
 	local XComLWTuple			Tuple;
@@ -68,7 +38,7 @@ static private function EventListenerReturn OnTacticalHUD_UpdateReaperHUD(Object
 	Tuple.Data[0].b = true; // bShowReaperUI
 	Tuple.Data[3].b = true; // bShowReaperShotHUD
 	
-	if (UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+	if (UnitState.HasSoldierAbility('IRI_BH_DarkNight_Passive'))
 	{
 		Tuple.Data[1].f = 0;	 // CurrentConcealLossCH
 		Tuple.Data[2].f = 0;	 // ModifiedLossCH
@@ -88,7 +58,6 @@ static private function EventListenerReturn OnTacticalHUD_UpdateReaperHUD(Object
 static private function ShadowPassiveEffectAdded(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
 {
 	XComGameState_Unit(kNewTargetState).bHasSuperConcealment = true;
-	//XComGameState_Unit(kNewTargetState).SuperConcealmentLoss = 100;
 }
 
 // Responsible for preserving concealment when attacking if the unit has a specific passive ability.
@@ -119,7 +88,7 @@ static private function EventListenerReturn OnRetainConcealmentOnActivation(Obje
 		return ELR_NoInterrupt;
 
 	// If the unit has the passive that makes all attacks not break concealment
-	if (class'BountyHunter'.static.IsAbilityValidForDeadlierShadow(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+	if (class'BountyHunter'.static.IsAbilityValidForDarkNight(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DarkNight_Passive'))
 	{
 		// Then don't break concealment and exit.
 		Tuple.Data[0].b = true;
@@ -149,15 +118,15 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 		return ELR_NoInterrupt; 
 	
 	// Exit early if the unit has the passive that allows to always retain concealment when attacking.
-	if (class'BountyHunter'.static.IsAbilityValidForDeadlierShadow(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+	if (class'BountyHunter'.static.IsAbilityValidForDarkNight(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DarkNight_Passive'))
 		return ELR_NoInterrupt; 
 
-	// Exit early if the unit is affected by Followthrough, it has its own listener for this event, let it handle this.
-	if (class'BountyHunter'.static.IsAbilityValidForFollowthrough(AbilityState) && UnitState.IsUnitAffectedByEffectName(class'X2Effect_BountyHunter_Folowthrough'.default.EffectName))
-	{
-		`AMLOG(UnitState.GetFullName() @ AbilityState.GetMyTemplateName() @ "exiting early because unit is affected by Followthrough.");
-		return ELR_NoInterrupt; 
-	}
+	//// Exit early if the unit is affected by Followthrough, it has its own listener for this event, let it handle this.
+	//if (class'BountyHunter'.static.IsAbilityValidForFollowthrough(AbilityState) && UnitState.IsUnitAffectedByEffectName(class'X2Effect_BountyHunter_Folowthrough'.default.EffectName))
+	//{
+	//	`AMLOG(UnitState.GetFullName() @ AbilityState.GetMyTemplateName() @ "exiting early because unit is affected by Followthrough.");
+	//	return ELR_NoInterrupt; 
+	//}
 
 	if (!AbilityState.RetainConcealmentOnActivation(AbilityContext))
 	{
@@ -211,6 +180,18 @@ static private function ShadowEffectRemoved(X2Effect_Persistent PersistentEffect
 	}
 }
 
+// Display flyover when this effect naturally runs out.
+simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult, XComGameState_Effect RemovedEffect)
+{
+	local X2Action_PlaySoundAndFlyOver	SoundAndFlyOver;
+	if (RemovedEffect.iTurnsRemaining == 0)
+	{
+		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, `GetLocalizedString("IRI_BH_Nightfall_Ended"), '', eColor_Attention,, 1, false);
+	}
+	super.AddX2ActionsForVisualization_Removed(VisualizeGameState, ActionMetadata, EffectApplyResult, RemovedEffect);
+}
+
 defaultproperties
 {
 	//bBringRemoveVisualizationForward = true
@@ -222,6 +203,35 @@ defaultproperties
 	EffectName = "IRI_BH_X2Effect_DeadlyShadow_Effect"
 }
 
+
+// Display concealment break chance as 100% if we don't have Deadly Shadow, and 0 if we do.
+/*
+static private function EventListenerReturn OnTacticalHUD_RealizeConcealmentStatus(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+{
+	local XComLWTuple			Tuple;
+	local XComGameState_Unit	UnitState;
+
+	Tuple = XComLWTuple(EventData);
+	if (Tuple == none) 
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none) 
+		return ELR_NoInterrupt;
+
+	Tuple.Data[0].b = true; // bShowReaperUI
+
+	if (UnitState.HasSoldierAbility('IRI_BH_DarkNight_Passive'))
+	{
+		Tuple.Data[1].f = 0;	 // CurrentConcealLossCH
+		Tuple.Data[2].f = 0;	 // ModifiedLossCH
+	}
+	else
+	{
+		Tuple.Data[1].f = 1;	 // CurrentConcealLossCH
+		Tuple.Data[2].f = 1;	 // ModifiedLossCH
+	}
+}*/
 
 /*
 static private function EventListenerReturn OnTargetConcealmentBroken(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)

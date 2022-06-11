@@ -1,2 +1,9 @@
 [Help]
-SomeString = "localized_value"
+;	====================================================
+;						BOUNTY HUNTER
+
+IRI_BH_Nightfall_EffectName = "Nightfall"
+IRI_BH_Nightfall_EffectDesc = "Special form of concelament with reduced detection radius."
+IRI_BH_Nightfall_Ended = "Nightfall Ended"
+
+;	----------------------------------------------------

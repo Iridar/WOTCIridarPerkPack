@@ -15,13 +15,18 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Corporal
 	Templates.AddItem(IRI_BH_DramaticEntrance());
+	Templates.AddItem(PurePassive('IRI_BH_DarkNight_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	
+	// Sergeant
+	Templates.AddItem(IRI_BH_ShadowTeleport()); // Night Dive
+	Templates.AddItem(IRI_BH_Nightmare());
+
+
 
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
 	Templates.AddItem(IRI_BH_Blindside());
-
-	// Sergeant
-	Templates.AddItem(IRI_BH_CustomShadowstrike());
+	
 	Templates.AddItem(IRI_BH_CustomZeroIn());
 
 	// Lieutenant
@@ -37,7 +42,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	// Major
 	Templates.AddItem(IRI_BH_RightInTheEye());
 	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(PurePassive('IRI_BH_DeadlierShadow_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	
 	Templates.AddItem(PurePassive('IRI_BH_ShadowRounds_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
 	// Colonel
@@ -49,7 +54,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_RoutingVolley_Attack());
 	Templates.AddItem(IRI_BH_RoutingVolley_Resuppress());
 
-	Templates.AddItem(IRI_BH_ShadowTeleport());
+	
 	
 
 	return Templates;
@@ -79,8 +84,8 @@ static function X2AbilityTemplate IRI_BH_DramaticEntrance()
 static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 {
 	local X2AbilityTemplate						Template;
-	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
-	local X2Effect_AdditionalAnimSets			Effect;
+	local X2AbilityCooldown						Cooldown;
+	local X2AbilityCost_ActionPoints			ActionPointCost;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
@@ -99,35 +104,29 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 	
 	// Costs
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BountyHunter_ShadowTeleport');
+	//Template.AbilityCosts.AddItem(new class'X2AbilityCost_BountyHunter_ShadowTeleport');
+
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.bConsumeAllPoints = true;
+	ActionPointCost.iNumPoints = 1;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	Cooldown = new class'X2AbilityCooldown';
+	Cooldown.iNumTurns = `GetConfigInt('IRI_BH_ShadowTeleport_Cooldown');
+	Cooldown.AditionalAbilityCooldowns.Add(1);
+	Cooldown.AditionalAbilityCooldowns[0].AbilityName = 'IRI_BH_Nightfall';
+	Cooldown.AditionalAbilityCooldowns[0].NumTurns = Cooldown.iNumTurns;
+	Template.AbilityCooldown = Cooldown;
 	
 	// Effects
-	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
-	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
-	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
-	Template.AddShooterEffect(StealthEffect);
-
-	Template.AddShooterEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
-
-	Effect = new class'X2Effect_AdditionalAnimSets';
-	Effect.DuplicateResponse = eDupe_Ignore;
-	Effect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
-	Effect.bRemoveWhenTargetConcealmentBroken = true;
-	Effect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
-	Effect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
-	Template.AddShooterEffect(Effect);
+	AddNightfallShooterEffects(Template);
 	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
-	//Template.AbilityTargetStyle = new class'X2AbilityTarget_Cursor';
-	//Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
-	//X2AbilityTarget_MovingMelee(Template.AbilityTargetStyle).bAllowDestructibleObjects = false;
-
-	Template.AbilityTargetStyle = new class'X2AbilityTarget_BountyHunter_ShadowTeleport';
-	//X2AbilityTarget_MovingMelee(Template.AbilityTargetStyle).MovementRangeAdjustment = -99; // Only works towards reduction, apparently.
-	
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ShadowTeleport';
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.TargetingMethod = class'X2TargetingMethod_BountyHunter_ShadowTeleport';	
+	//X2AbilityTarget_MovingMelee(Template.AbilityTargetStyle).MovementRangeAdjustment = -99; // Only works towards reduction, apparently.
 
 	Template.Hostility = eHostility_Neutral;
 	//Template.bLimitTargetIcons = true;
@@ -161,7 +160,6 @@ static private function XComGameState ShadowTeleport_BuildGameState(XComGameStat
 	local Vector							PrevTilePos;
 	local Vector							TilePosDiff;
 
-	//Build the new game state frame, and unit state object for the moving unit
 	NewGameState = TypicalAbility_BuildGameState(Context);	
 
 	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());	
@@ -187,6 +185,9 @@ static private function XComGameState ShadowTeleport_BuildGameState(XComGameStat
 	
 	`XEVENTMGR.TriggerEvent( 'ObjectMoved', MovingUnitState, MovingUnitState, NewGameState );
 	`XEVENTMGR.TriggerEvent( 'UnitMoveFinished', MovingUnitState, MovingUnitState, NewGameState );
+
+	// Action point cost has consumed all AP at this point, so grant an extra AP.
+	MovingUnitState.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.RunAndGunActionPoint);
 
 	return NewGameState;	
 }
@@ -255,8 +256,6 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	GrappleAction = X2Action_BountyHunter_ShadowTeleport(class'X2Action_BountyHunter_ShadowTeleport'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, ExitCoverAction));
 	GrappleAction.DesiredLocation = AbilityContext.InputContext.TargetLocations[0];
 	GrappleAction.SetFireParameters(true);
-
-	`AMLOG("Visualizing target location as:" @ AbilityContext.InputContext.TargetLocations[0]);
 
 	// destroy any windows we flew through
 	foreach VisualizeGameState.IterateByClassType(class'XComGameState_EnvironmentDamage', EnvironmentDamage)
@@ -631,37 +630,31 @@ static function X2AbilityTemplate IRI_BH_CustomZeroIn()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_CustomShadowstrike()
+static function X2AbilityTemplate IRI_BH_Nightmare()
 {
-	local X2AbilityTemplate						Template;
-	local X2Effect_ToHitModifier                Effect;
-	local X2Condition_Visibility                VisCondition;
+	local X2AbilityTemplate			Template;
+	local X2Effect_ToHitModifier	Effect;
+	local X2Condition_Visibility	VisCondition;
 
 	// Same as original, but require no cover.
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_CustomShadowstrike');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Nightmare');
 
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_shadowstrike";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	SetPassive(Template);
 
 	Effect = new class'X2Effect_ToHitModifier';
-	Effect.EffectName = 'IRI_BH_CustomShadowstrike';
+	Effect.EffectName = 'IRI_BH_Nightmare';
 	Effect.DuplicateResponse = eDupe_Ignore;
 	Effect.BuildPersistentEffect(1, true, false);
 	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
-	Effect.AddEffectHitModifier(eHit_Success, `GetConfigInt('IRI_BH_CustomShadowstrike_AimBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
-	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_CustomShadowstrike_CritBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
+	Effect.AddEffectHitModifier(eHit_Success, `GetConfigInt('IRI_BH_Nightmare_AimBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
+	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_Nightmare_CritBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
 	
-
 	VisCondition = new class'X2Condition_Visibility';
 	VisCondition.bExcludeGameplayVisible = true;
 	Effect.ToHitConditions.AddItem(VisCondition);
-
-	//VisCondition = new class'X2Condition_Visibility';
-	//VisCondition.bRequireNotMatchCoverType = true;
-	//VisCondition.TargetCover = CT_None;
-	//Effect.ToHitConditions.AddItem(VisCondition);
 
 	Template.AddTargetEffect(Effect);
 
@@ -987,8 +980,7 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 static function X2AbilityTemplate IRI_BH_Nightfall()
 {
 	local X2AbilityTemplate						Template;
-	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
-	local X2Effect_AdditionalAnimSets			Effect;
+	local X2AbilityCooldown						Cooldown;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Nightfall');
 
@@ -1011,23 +1003,16 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);
-	AddCooldown(Template, `GetConfigInt('IRI_BH_Nightfall_Cooldown'));
+
+	Cooldown = new class'X2AbilityCooldown';
+	Cooldown.iNumTurns = `GetConfigInt('IRI_BH_Nightfall_Cooldown');
+	Cooldown.AditionalAbilityCooldowns.Add(1);
+	Cooldown.AditionalAbilityCooldowns[0].AbilityName = 'IRI_BH_ShadowTeleport';
+	Cooldown.AditionalAbilityCooldowns[0].NumTurns = Cooldown.iNumTurns;
+	Template.AbilityCooldown = Cooldown;
 	
 	// Effects
-	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
-	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
-	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
-	Template.AddTargetEffect(StealthEffect);
-
-	Template.AddTargetEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
-
-	Effect = new class'X2Effect_AdditionalAnimSets';
-	Effect.DuplicateResponse = eDupe_Ignore;
-	Effect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
-	Effect.bRemoveWhenTargetConcealmentBroken = true;
-	Effect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
-	Effect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
-	Template.AddTargetEffect(Effect);
+	AddNightfallShooterEffects(Template);
 
 	// State and Viz
 	Template.Hostility = eHostility_Neutral;
@@ -1044,6 +1029,27 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 	//Template.AdditionalAbilities.AddItem('IRI_BH_Nightfall_Passive');
 	
 	return Template;
+}
+
+static private function AddNightfallShooterEffects(out X2AbilityTemplate Template)
+{
+	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
+	local X2Effect_AdditionalAnimSets			AnimEffect;
+
+	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
+	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
+	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), Template.IconImage, true);
+	Template.AddShooterEffect(StealthEffect);
+
+	Template.AddShooterEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
+
+	AnimEffect = new class'X2Effect_AdditionalAnimSets';
+	AnimEffect.DuplicateResponse = eDupe_Ignore;
+	AnimEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
+	AnimEffect.bRemoveWhenTargetConcealmentBroken = true;
+	AnimEffect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
+	AnimEffect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
+	Template.AddShooterEffect(AnimEffect);
 }
 
 static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
@@ -1199,6 +1205,7 @@ static private function EventListenerReturn ChasingShotTriggerListener(Object Ev
 			{
 				// After activating the ability, remove the Chasing Shot effect from the target.
 				// This needs to be done here so that Chasing Shot can properly interact with Followthrough.
+				// EDIT: Followthrough has been cut, but I kept this logic here cuz one way or another the effect needs to be removed
 				`AMLOG("Removing Chasing Shot Effect");
 				History = `XCOMHISTORY;
 				NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Remove Chase effect");

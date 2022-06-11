@@ -63,12 +63,6 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCost_BHAmmo.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCost_BountyHunter_ShadowTeleport.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityTarget_BountyHunter_ShadowTeleport.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>

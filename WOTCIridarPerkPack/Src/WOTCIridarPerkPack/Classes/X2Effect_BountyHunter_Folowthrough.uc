@@ -95,7 +95,7 @@ static private function EventListenerReturn OnRetainConcealmentOnActivation(Obje
 		return ELR_NoInterrupt;
 
 	// don't break concealment if attacks never break concealment.
-	if (class'BountyHunter'.static.IsAbilityValidForDeadlierShadow(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive'))
+	if (class'BountyHunter'.static.IsAbilityValidForDarkNight(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DarkNight_Passive'))
 	{
 		Tuple.Data[0].b = true;
 		return ELR_NoInterrupt;
@@ -169,7 +169,7 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 		return ELR_NoInterrupt;
 	}
 	
-	bRetainConcealment = AbilityState.RetainConcealmentOnActivation(AbilityContext) || class'BountyHunter'.static.IsAbilityValidForDeadlierShadow(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DeadlierShadow_Passive');
+	bRetainConcealment = AbilityState.RetainConcealmentOnActivation(AbilityContext) || class'BountyHunter'.static.IsAbilityValidForDarkNight(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DarkNight_Passive');
 
 	// Prepare to attempt to retrigger the ability.
 	// Clear the unit value so this event listener itself and PostAbilityCostPaid will not mess with the retrigger.

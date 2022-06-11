@@ -408,7 +408,7 @@ YourString = `GetLocalizedString('StringName');
 */
 static final function string GetLocalizedString(const coerce string StringName)
 {
-	return Localize("Help", "StringName", "WOTCIridarPerkPack");
+	return Localize("Help", StringName, "WOTCIridarPerkPack");
 }
 
 final static function EventListenerReturn FollowUpShot_EventListenerTrigger_CritOnly(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)

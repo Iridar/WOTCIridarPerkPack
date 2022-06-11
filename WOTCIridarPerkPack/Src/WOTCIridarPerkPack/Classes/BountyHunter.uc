@@ -1,6 +1,6 @@
 class BountyHunter extends Object abstract;
 
-static final function bool IsAbilityValidForDeadlierShadow(const XComGameState_Ability AbilityState)
+static final function bool IsAbilityValidForDarkNight(const XComGameState_Ability AbilityState)
 {
 	local X2AbilityTemplate Template;
 
