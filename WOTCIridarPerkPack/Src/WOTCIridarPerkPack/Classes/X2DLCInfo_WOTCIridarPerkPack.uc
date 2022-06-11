@@ -19,6 +19,10 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 
 	case "IRI_BH_Nightfall_Cooldown":
 	case "IRI_BH_Nightfall_Duration":
+	case "IRI_BH_ShadowTeleport_Cooldown":
+	case "IRI_BH_ShadowTeleport_Tile_Radius":
+	case "IRI_BH_Nightmare_CritBonus":
+	case "IRI_BH_Nightmare_AimBonus":
 		OutString = string(`GetConfigInt(name(InString)));
 		return true;
 

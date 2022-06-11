@@ -15,7 +15,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Corporal
 	Templates.AddItem(IRI_BH_DramaticEntrance());
-	Templates.AddItem(PurePassive('IRI_BH_DarkNight_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_BH_DarkNight_Passive());
 	
 	// Sergeant
 	Templates.AddItem(IRI_BH_ShadowTeleport()); // Night Dive
@@ -77,6 +77,19 @@ static function X2AbilityTemplate IRI_BH_DramaticEntrance()
 	DramaticEntrance.BuildPersistentEffect(1, true);
 	DramaticEntrance.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
 	Template.AddTargetEffect(DramaticEntrance);
+
+	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DarkNight_Passive');
+	
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_BH_DarkNight_Passive()
+{
+	local X2AbilityTemplate Template;
+
+	Template = PurePassive('IRI_BH_DarkNight_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/);
+
+	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DramaticEntrance');
 	
 	return Template;
 }
@@ -104,8 +117,6 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 	
 	// Costs
-	//Template.AbilityCosts.AddItem(new class'X2AbilityCost_BountyHunter_ShadowTeleport');
-
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.bConsumeAllPoints = true;
 	ActionPointCost.iNumPoints = 1;

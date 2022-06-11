@@ -29,7 +29,7 @@ LocFlyOverText="Blood Moon"
 
 [IRI_BH_DramaticEntrance X2AbilityTemplate]
 LocFriendlyName="Dramatic Entrance"
-LocLongDescription="Breaking concealment by attacking grants one non-move Action Point. Triggers once per turn. Mutually exclusive with Dark Night."
+LocLongDescription="Breaking concealment by attacking grants one non-move Action Point. Triggers once per turn."
 LocHelpText="Breaking concealment by attacking grants one non-move Action Point. Triggers once per turn."
 LocPromotionPopupText="Only player-activated abilities may trigger Dramatic Entrance."
 LocFlyOverText="Dramatic Entrance"
@@ -44,15 +44,15 @@ LocFlyOverText="Dark Night"
 
 [IRI_BH_ShadowTeleport X2AbilityTemplate]
 LocFriendlyName="Night Dive"
-LocLongDescription="Enter Nightfall concealment and fire a special psionic round from your <Ability:SecondaryWeaponName/> that creates a rift in space and teleports you to a flanking position within <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> tiles of the target. Takes away all action points and grants one non-move Action Point. Shares cooldown with Nightfall."
+LocLongDescription="Enter Nightfall concealment and fire a special psionic round from your <Ability:SecondaryWeaponName/> that creates a rift in space and teleports you to a flanking position within <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> tiles of the target. Takes away all action points and grants one non-move Action Point. Shares <Ability:IRI_BH_ShadowTeleport_Cooldown/> turn cooldown with Nightfall."
 LocHelpText="Enter Nightfall concealment and teleport to a flanking position near the target. Grants one non-move action point. Shares cooldown with Nightfall."
 LocPromotionPopupText="<bullet/> If the target cannot be flanked, you can teleport to any visible tile near it."
 LocFlyOverText="Night Dive"
 
 [IRI_BH_Nightmare X2AbilityTemplate]
 LocFriendlyName="Nightmare"
-LocLongDescription="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
-LocHelpText="Gain +25 Aim and +25 Crit when flanking targets that do not see you."
+LocLongDescription="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when flanking targets that do not see you."
+LocHelpText="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when flanking targets that do not see you."
 LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Has no effect on enemies that cannot be flanked."
 LocFlyOverText="Nightmare"
 

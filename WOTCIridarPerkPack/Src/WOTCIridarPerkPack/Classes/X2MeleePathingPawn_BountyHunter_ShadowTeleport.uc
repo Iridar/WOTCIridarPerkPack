@@ -1,6 +1,6 @@
 class X2MeleePathingPawn_BountyHunter_ShadowTeleport extends X2MeleePathingPawn;
 
-const ChasingShotTileDistance = 6;
+var int AroundTargetTileDistance;
 
 // ---------------------------------------------------------
 // Override some of the original functions to allow selecting any tile we want, not just those the unit has enough mobility to reach.
@@ -175,7 +175,7 @@ simulated event Tick(float DeltaTime)
 			{
 				if(PossibleTile == CursorTile)
 				{
-					`AMLOG("Rebuilding pathing information for tile:" @ CursorTile.X @ CursorTile.Y @ CursorTile.Z);
+					//`AMLOG("Rebuilding pathing information for tile:" @ CursorTile.X @ CursorTile.Y @ CursorTile.Z);
 					AbilityTemplate = AbilityState.GetMyTemplate();
 					RebuildPathingInformation_BH(CursorTile, TargetVisualizer, AbilityTemplate, InvalidTile);
 					LastDestinationTile = CursorTile;
@@ -406,7 +406,7 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	GatherTilesOccupiedByUnit_BH(TargetUnit, TargetTiles);
 
 	// Collect non-duplicate tiles around every Target Tile to see which tiles we can attack from.
-	GatherTilesAdjacentToTiles_BH(TargetTiles, AllAdjacentTiles, ChasingShotTileDistance);
+	GatherTilesAdjacentToTiles_BH(TargetTiles, AllAdjacentTiles, AroundTargetTileDistance);
 
 	// Remove from that array tiles that are directly adjacent to the unit, cuz teleporting there would break concealment.
 	GatherTilesAdjacentToTiles_BH(TargetTiles, DirectlyAdjacentTiles, 1);

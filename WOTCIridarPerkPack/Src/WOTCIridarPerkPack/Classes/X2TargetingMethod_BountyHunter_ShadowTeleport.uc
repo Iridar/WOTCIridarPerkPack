@@ -13,6 +13,7 @@ function Init(AvailableAction InAction, int NewTargetIndex)
 
 	Cursor = `CURSOR;
 	PathingPawn = Cursor.Spawn(class'X2MeleePathingPawn_BountyHunter_ShadowTeleport', Cursor); // Use custom pathing pawn.
+	X2MeleePathingPawn_BountyHunter_ShadowTeleport(PathingPawn).AroundTargetTileDistance = `GetConfigInt('IRI_BH_ShadowTeleport_Tile_Radius');
 	PathingPawn.SetVisible(true);
 	PathingPawn.Init(UnitState, Ability, self);
 	IconManager = Pres.GetActionIconMgr();
