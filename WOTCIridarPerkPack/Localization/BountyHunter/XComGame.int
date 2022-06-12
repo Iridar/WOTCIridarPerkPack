@@ -68,9 +68,22 @@ LocFlyOverText="Double Payload"
 LocFriendlyName="Nothing Personal"
 LocLongDescription="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
 LocHelpText="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
-LocPromotionPopupText=""
+LocPromotionPopupText="This attack is not guaranteed to hit."
 LocFlyOverText="Nothing Personal"
 
+[IRI_BH_BurstFire X2AbilityTemplate]
+LocFriendlyName="Overwhelming Burst"
+LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times. Squadsight aim penalties are twice as strong for this ability."
+LocHelpText="Fire a burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times."
+LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance.<br/><bullet/> <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
+LocFlyOverText="Overwhelming Burst"
+
+[IRI_BH_BurstFire_Passive X2AbilityTemplate]
+LocFriendlyName="Overwhelming Burst"
+LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times. Squadsight aim penalties are twice as strong for this ability."
+LocHelpText="Fire a burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times."
+LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance.<br/><bullet/> <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
+LocFlyOverText="Overwhelming Burst"
 
 
 
@@ -155,15 +168,15 @@ LocFlyOverText="Named Bullet"
 
 [IRI_BH_BigGameHunter X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"
 
 [IRI_BH_BigGameHunter_Passive X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your vektor rifle for free. Attacking other targets or producing results other than crit resets the counter."
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocPromotionPopupText=""
 LocFlyOverText="Big Game Hunter"
 

@@ -24,7 +24,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	// Lieutenant
 	Templates.AddItem(IRI_BH_DoublePayload());
 	Templates.AddItem(IRI_BH_NothingPersonal());
-
+	Templates.AddItem(IRI_BH_BurstFire());
+	Templates.AddItem(IRI_BH_BurstFire_Passive());
 
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
@@ -61,6 +62,59 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_BurstFire()
+{
+	local X2AbilityTemplate					Template;	
+	local X2AbilityCost_Ammo				AmmoCost;
+	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
+
+	// No ammo cost, no using while burning or disoriented
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_BurstFire', true, false, false);
+	
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 2;
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	AddCooldown(Template, `GetConfigInt('IRI_BH_BurstFire_Cooldown'));
+
+	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
+	BurstFireMultiTarget.NumExtraShots = 1;
+	Template.AbilityMultiTargetStyle = BurstFireMultiTarget;
+
+	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[2]); // Just the damage effect.
+
+	Template.bShowActivation = true;
+
+	// Placebo, actual firing animation is set by Template Master in BountyHunter\XComTemplateEditor.ini
+	SetFireAnim(Template, 'FF_FireSuppress');
+
+	Template.AdditionalAbilities.AddItem('IRI_BH_BurstFire_Passive');
+
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
+{
+	local X2AbilityTemplate							Template;
+	local X2Effect_BountyHunter_BurstFireAimPenalty BurstFireAimPenalty;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BurstFire_Passive');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+
+	SetPassive(Template);
+	SetHidden(Template);
+
+	BurstFireAimPenalty = new class'X2Effect_BountyHunter_BurstFireAimPenalty';
+	BurstFireAimPenalty.BuildPersistentEffect(1, true);
+	BurstFireAimPenalty.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, false);
+	Template.AddTargetEffect(BurstFireAimPenalty);
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_BH_NothingPersonal()
@@ -155,6 +209,8 @@ static function X2AbilityTemplate IRI_BH_DoublePayload()
 	BaseDamageBonus.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
 	BaseDamageBonus.EffectName = 'IRI_BH_DoublePayload_BonusDamageEffect';
 	Template.AddTargetEffect(BaseDamageBonus);
+
+	Template.PrerequisiteAbilities.AddItem('HomingMine');
 	
 	return Template;
 }
@@ -601,6 +657,7 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
 	//don't want to exit cover, we are already in suppression/alert mode.
 	Template.bSkipExitCoverWhenFiring = true;
 
+	// Placebo, actual firing animation is set by Template Master in BountyHunter\XComTemplateEditor.ini
 	SetFireAnim(Template, 'FF_FireSuppress');
 
 	return Template;	
