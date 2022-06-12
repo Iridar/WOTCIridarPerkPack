@@ -21,6 +21,18 @@ function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit 
 	ShotModifiers.AddItem(ShotMod);	
 }
 
+// Need this bit for Bomb Raider / Biggest Booms to work properly.
+function bool ChangeHitResultForAttacker(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const EAbilityHitResult CurrentResult, out EAbilityHitResult NewHitResult) 
+{ 
+	if (VisibilityCondition.MeetsConditionWithSource(TargetUnit, Attacker) == 'AA_Success' && 
+		class'XComGameStateContext_Ability'.static.IsHitResultHit(CurrentResult))
+	{
+		NewHitResult = eHit_Crit;
+		return true;
+	}
+	return false;
+}
+
 static final function int GetCritDamageBonus(const XComGameState_Unit Attacker, const XComGameState_Unit TargetUnit, const XComGameState_Ability AbilityState)
 {
 	local ShotBreakdown			Breakdown;

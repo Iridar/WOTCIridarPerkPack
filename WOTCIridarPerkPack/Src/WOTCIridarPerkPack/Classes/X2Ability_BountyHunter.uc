@@ -27,6 +27,9 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_BurstFire());
 	Templates.AddItem(IRI_BH_BurstFire_Passive());
 
+	// Captain
+	Templates.AddItem(IRI_BH_BombRaider());
+
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
 	Templates.AddItem(IRI_BH_Blindside());
@@ -38,7 +41,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_Untraceable());
 	Templates.AddItem(PurePassive('IRI_BH_Untraceable_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
-	// Captain
+	
 	Templates.AddItem(IRI_BH_WitchHunt());
 	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
@@ -62,6 +65,27 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_BombRaider()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_BiggestBooms	BiggestBoomsEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BombRaider');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+
+	SetPassive(Template);
+
+	BiggestBoomsEffect = new class'X2Effect_BiggestBooms';
+	BiggestBoomsEffect.BuildPersistentEffect(1, true, true, true);
+	BiggestBoomsEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
+	Template.AddTargetEffect(BiggestBoomsEffect);
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_BH_BurstFire()

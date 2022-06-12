@@ -23,7 +23,7 @@ LocFlyOverText="Nightfall"
 LocFriendlyName="Dead of Night"
 LocLongDescription="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
 LocHelpText="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
-LocPromotionPopupText="If your weapon's critical hits deal 4 additional damage, and your critical hit chance is 50%, Blood Moon will provive 4 * 0.5 = 2 bonus damage."
+LocPromotionPopupText="If your weapon's critical hits deal 4 additional damage, and your critical hit chance is 50%, this ability will provive 4 * 0.5 = 2 bonus damage."
 LocFlyOverText="Dead of Night"
 
 
@@ -38,7 +38,7 @@ LocFlyOverText="Dramatic Entrance"
 LocFriendlyName="Dark Night"
 LocLongDescription="Attacking no longer breaks Nightfall concealment."
 LocHelpText="Attacking no longer breaks Nightfall concealment."
-LocPromotionPopupText="<bullet/> Dark Night allows multiple attacks to benefit from Blood Moon."
+LocPromotionPopupText="<bullet/> Dark Night allows multiple attacks to benefit from Dead of Night."
 LocFlyOverText="Dark Night"
 
 
@@ -84,6 +84,13 @@ LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Cos
 LocHelpText="Fire a burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times."
 LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance.<br/><bullet/> <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
 LocFlyOverText="Overwhelming Burst"
+
+[IRI_BH_BombRaider X2AbilityTemplate]
+LocFriendlyName="Bomb Raider"
+LocLongDescription="Gain a grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
+LocHelpText="Gain a grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
+LocPromotionPopupText="<bullet/> This ability allows explosives to benefit from Dead of Night, making critical hits guaranteed when using explosives while in Nightfall concealment."
+LocFlyOverText="Bomb Raider"
 
 
 
