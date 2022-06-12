@@ -1,21 +1,15 @@
 class X2Action_BountyHunter_ShadowTeleport extends X2Action_Fire;
 
-var vector  DesiredLocation;
+var vector						DesiredLocation;
 
-var private BoneAtom StartingAtom;
-var private Rotator DesiredRotation;
-var private CustomAnimParams Params;
-var private vector StartingLocation;
-var private float DistanceFromStartSquared;
-var private bool ProjectileHit;
-var private float StopDistanceSquared; // distance from the origin of the grapple past which we are done
-var private AnimNodeSequence PlayingSequence;
-var private Rotator DesiredEndRotation;
-
-var private XComGameState_Unit TargetUnitState;
-var private vector TargetUnitLocation;
-var private float PlayingTime;
-var private XGUnit GameUnit;
+var private BoneAtom			StartingAtom;
+var private Rotator				DesiredRotation;
+var private CustomAnimParams	Params;
+var private AnimNodeSequence	PlayingSequence;
+var private XComGameState_Unit	TargetUnitState;
+var private vector				TargetUnitLocation;
+var private float				PlayingTime;
+var private XGUnit				GameUnit;
 
 function Init()
 {
@@ -25,17 +19,7 @@ function Init()
 	TargetUnitLocation = `XWORLD.GetPositionFromTileCoordinates(TargetUnitState.TileLocation);
 	TargetUnitLocation.Z += class'XComWorldData'.const.WORLD_FloorHeight;
 
-	//DesiredEndRotation = UnitPawn.Rotation;
-	// Desired rotation is towards enemy location.
-	DesiredEndRotation = Rotator(Normal(TargetUnitLocation - DesiredLocation));
-	DesiredEndRotation.Pitch = 0.0f;
-	DesiredEndRotation.Roll = 0.0f;
-
 	GameUnit = XGUnit(History.GetVisualizer(AbilityContext.InputContext.SourceObject.ObjectID));
-}
-function ProjectileNotifyHit(bool bMainImpactNotify, Vector HitLocation)
-{
-	ProjectileHit = true;
 }
 
 simulated state Executing
@@ -97,6 +81,14 @@ Begin:
 	// ## 3. Play jumping out of teleport animation.
 	Params = default.Params;
 	Params.AnimName = 'NO_ShadowTeleport_Stop';
+
+	Params.DesiredEndingAtoms.Add(1);
+	Params.DesiredEndingAtoms[0].Scale = 1.0f;
+	Params.DesiredEndingAtoms[0].Translation = DesiredLocation;
+	DesiredRotation.Pitch = 0.0f;
+	DesiredRotation.Roll = 0.0f;
+	Params.DesiredEndingAtoms[0].Rotation = QuatFromRotator(DesiredRotation);
+
 	PlayingSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(Params);
 
 	// Play a bit of the animation so that the pawn can get into the position
@@ -120,9 +112,4 @@ function CompleteAction()
 	// since we step out of and step into cover from different tiles, 
 	// need to set the enter cover restore to the destination location
 	Unit.RestoreLocation = DesiredLocation;
-}
-
-defaultproperties
-{
-	ProjectileHit = false;
 }

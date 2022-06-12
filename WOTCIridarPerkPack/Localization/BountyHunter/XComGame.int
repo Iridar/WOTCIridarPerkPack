@@ -66,8 +66,8 @@ LocFlyOverText="Double Payload"
 
 [IRI_BH_NothingPersonal X2AbilityTemplate]
 LocFriendlyName="Nothing Personal"
-LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
-LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
+LocLongDescription="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
+LocHelpText="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
 LocPromotionPopupText=""
 LocFlyOverText="Nothing Personal"
 

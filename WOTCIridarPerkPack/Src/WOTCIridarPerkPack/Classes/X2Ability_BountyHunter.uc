@@ -101,7 +101,11 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	Template.AddTargetEffect(KnockbackEffect);
 
 	Template.bShowActivation = true;
+
+	SetFireAnim(Template, 'FF_NothingPersonal');
 	//Template.AssociatedPlayTiming = SPT_AfterSequential;
+
+	Template.PrerequisiteAbilities.AddItem('IRI_BH_ShadowTeleport');
 
 	return Template;
 }
@@ -194,9 +198,10 @@ static function X2AbilityTemplate IRI_BH_DarkNight_Passive()
 
 static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 {
-	local X2AbilityTemplate						Template;
-	local X2AbilityCooldown						Cooldown;
-	local X2AbilityCost_ActionPoints			ActionPointCost;
+	local X2AbilityTemplate							Template;
+	local X2AbilityCooldown							Cooldown;
+	local X2AbilityCost_ActionPoints				ActionPointCost;
+	local X2Effect_AdditionalAbilityDamagePreview	DamagePreview;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
@@ -229,6 +234,11 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	
 	// Effects
 	AddNightfallShooterEffects(Template);
+
+	DamagePreview = new class'X2Effect_AdditionalAbilityDamagePreview';
+	DamagePreview.AbilityName = 'IRI_BH_NothingPersonal';
+	DamagePreview.bMatchSourceWeapon = true;
+	Template.AddTargetEffect(DamagePreview);
 	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
