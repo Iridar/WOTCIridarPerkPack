@@ -120,6 +120,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_RoutingVolley.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_UnrelentingPressure.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_GrantCharges.uc">
       <SubType>Content</SubType>
     </Content>

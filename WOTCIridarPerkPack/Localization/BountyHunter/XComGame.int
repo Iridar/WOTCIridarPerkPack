@@ -68,7 +68,7 @@ LocFlyOverText="Double Payload"
 LocFriendlyName="Nothing Personal"
 LocLongDescription="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
 LocHelpText="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
-LocPromotionPopupText="This attack is not guaranteed to hit."
+LocPromotionPopupText="<bullet/> This attack is not guaranteed to hit.<br/><bullet/> This attack will immediately break Nightfall concealment if you don't have the Dark Night ability."
 LocFlyOverText="Nothing Personal"
 
 [IRI_BH_BurstFire X2AbilityTemplate]
@@ -87,12 +87,45 @@ LocFlyOverText="Overwhelming Burst"
 
 [IRI_BH_BombRaider X2AbilityTemplate]
 LocFriendlyName="Bomb Raider"
-LocLongDescription="Gain a grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
-LocHelpText="Gain a grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
+LocLongDescription="Gain a Grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
+LocHelpText="Gain a Grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
 LocPromotionPopupText="<bullet/> This ability allows explosives to benefit from Dead of Night, making critical hits guaranteed when using explosives while in Nightfall concealment."
 LocFlyOverText="Bomb Raider"
 
+[IRI_BH_ToolsOfTheTrade X2AbilityTemplate]
+LocFriendlyName="Tools of the Trade"
+LocLongDescription="Gain am Ammo slot."
+LocHelpText="Gain am Ammo slot."
+LocPromotionPopupText=""
+LocFlyOverText="Tools of the Trade"
 
+[IRI_BH_UnrelentingPressure X2AbilityTemplate]
+LocFriendlyName="Unrelenting Pressure"
+LocLongDescription="Critical hits with your <Ability:WeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
+LocHelpText="Critical hits with your <Ability:WeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
+LocPromotionPopupText="This ability does not trigger off Overwhelming Burst itself."
+LocFlyOverText="Unrelenting Pressure"
+
+
+
+
+
+
+
+
+[IRI_BH_BigGameHunter X2AbilityTemplate]
+LocFriendlyName="Big Game Hunter"
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocPromotionPopupText=""
+LocFlyOverText="Named Bullet"
+
+[IRI_BH_BigGameHunter_Passive X2AbilityTemplate]
+LocFriendlyName="Big Game Hunter"
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocPromotionPopupText=""
+LocFlyOverText="Big Game Hunter"
 
 [IRI_BH_ChasingShot X2AbilityTemplate]
 LocFriendlyName="Chase"
@@ -173,20 +206,6 @@ LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"
 
 
-[IRI_BH_BigGameHunter X2AbilityTemplate]
-LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocPromotionPopupText=""
-LocFlyOverText="Named Bullet"
-
-[IRI_BH_BigGameHunter_Passive X2AbilityTemplate]
-LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocPromotionPopupText=""
-LocFlyOverText="Big Game Hunter"
-
 
 [IRI_BH_CustomZeroIn X2AbilityTemplate]
 LocFriendlyName="Custom Zero In"
@@ -195,12 +214,7 @@ LocHelpText="Attacking an enemy grants +10 Aim and +10 Crit against them until t
 LocPromotionPopupText=""
 LocFlyOverText="Custom Zero In"
 
-[IRI_BH_ToolsOfTheTrade X2AbilityTemplate]
-LocFriendlyName="Tools of the Trade"
-LocLongDescription="Gain a Grenade and Ammo slots."
-LocHelpText="Gain a Grenade and Ammo slots."
-LocPromotionPopupText=""
-LocFlyOverText="Tools of the Trade"
+
 
 [IRI_BH_ShadowRounds_Passive X2AbilityTemplate]
 LocFriendlyName="Shadow Rounds"

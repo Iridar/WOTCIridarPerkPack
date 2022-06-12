@@ -25,6 +25,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_Nightmare_AimBonus":
 	case "IRI_BH_DoublePayload_NumBonusCharges":
 	case "IRI_BH_BurstFire_Cooldown":
+	case "IRI_BH_UnrelentingPressure_CooldownReduction":
 		OutString = string(`GetConfigInt(name(InString)));
 		return true;
 

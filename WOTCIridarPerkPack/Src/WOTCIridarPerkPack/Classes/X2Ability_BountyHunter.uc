@@ -29,6 +29,8 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Captain
 	Templates.AddItem(IRI_BH_BombRaider());
+	Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_BH_UnrelentingPressure());
 
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
@@ -44,7 +46,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 	Templates.AddItem(IRI_BH_WitchHunt());
 	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	
 
 	// Major
 	Templates.AddItem(IRI_BH_RightInTheEye());
@@ -65,6 +67,27 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_UnrelentingPressure()
+{
+	local X2AbilityTemplate							Template;
+	local X2Effect_BountyHunter_UnrelentingPressure	ReduceCooldown;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_UnrelentingPressure');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_flamethrower";
+	SetPassive(Template);
+
+	ReduceCooldown = new class'X2Effect_BountyHunter_UnrelentingPressure';
+	ReduceCooldown.BuildPersistentEffect(1, true, true, true);
+	ReduceCooldown.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
+	Template.AddTargetEffect(ReduceCooldown);
+	
+	Template.PrerequisiteAbilities.AddItem('IRI_BH_BurstFire');
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_BH_BombRaider()
@@ -108,8 +131,6 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 	Template.AbilityMultiTargetStyle = BurstFireMultiTarget;
 
 	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[2]); // Just the damage effect.
-
-	Template.bShowActivation = true;
 
 	// Placebo, actual firing animation is set by Template Master in BountyHunter\XComTemplateEditor.ini
 	SetFireAnim(Template, 'FF_FireSuppress');
