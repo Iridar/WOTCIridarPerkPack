@@ -21,6 +21,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_ShadowTeleport()); // Night Dive
 	Templates.AddItem(IRI_BH_Nightmare());
 
+	// Lieutenant
+	Templates.AddItem(IRI_BH_DoublePayload());
 
 
 	Templates.AddItem(IRI_BH_ChasingShot());
@@ -29,7 +31,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 	Templates.AddItem(IRI_BH_CustomZeroIn());
 
-	// Lieutenant
+	
 	Templates.AddItem(IRI_BH_Folowthrough());
 	Templates.AddItem(IRI_BH_Untraceable());
 	Templates.AddItem(PurePassive('IRI_BH_Untraceable_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
@@ -59,6 +61,40 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	return Templates;
 }
+
+static function X2AbilityTemplate IRI_BH_DoublePayload()
+{
+	local X2AbilityTemplate			Template;
+	local X2Effect_GrantCharges		GrantCharges;
+	local X2Effect_BaseDamageBonus	BaseDamageBonus;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_DoublePayload');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+
+	SetPassive(Template);
+
+	GrantCharges = new class'X2Effect_GrantCharges';
+	GrantCharges.AbilityName = 'HomingMine';
+	GrantCharges.NumCharges = `GetConfigInt('IRI_BH_DoublePayload_NumBonusCharges');
+	Template.AddTargetEffect(GrantCharges);
+
+	BaseDamageBonus = new class'X2Effect_BaseDamageBonus';
+	BaseDamageBonus.AbilityName = 'HomingMineDetonation';
+	BaseDamageBonus.DamageMod = `GetConfigFloat('IRI_BH_DoublePayload_BonusDamage');
+	BaseDamageBonus.bOnlyPrimaryTarget = true;
+	BaseDamageBonus.BuildPersistentEffect(1, true);
+	BaseDamageBonus.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	BaseDamageBonus.EffectName = 'IRI_BH_DoublePayload_BonusDamageEffect';
+	Template.AddTargetEffect(BaseDamageBonus);
+	
+	return Template;
+}
+
+
+
 
 static function X2AbilityTemplate IRI_BH_DramaticEntrance()
 {

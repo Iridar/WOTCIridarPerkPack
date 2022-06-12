@@ -57,6 +57,14 @@ LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Has
 LocFlyOverText="Nightmare"
 
 
+[IRI_BH_DoublePayload X2AbilityTemplate]
+LocFriendlyName="Double Payload"
+LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
+LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
+LocPromotionPopupText=""
+LocFlyOverText="Double Payload"
+
+
 
 [IRI_BH_ChasingShot X2AbilityTemplate]
 LocFriendlyName="Chase"

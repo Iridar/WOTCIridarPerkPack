@@ -23,7 +23,12 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_ShadowTeleport_Tile_Radius":
 	case "IRI_BH_Nightmare_CritBonus":
 	case "IRI_BH_Nightmare_AimBonus":
+	case "IRI_BH_DoublePayload_NumBonusCharges":
 		OutString = string(`GetConfigInt(name(InString)));
+		return true;
+
+	case "IRI_BH_DoublePayload_BonusDamage":
+		OutString = GetPercentValue(name(InString));
 		return true;
 
 	default:
@@ -31,6 +36,15 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	}
 
 	return false;
+}
+
+static private function string GetPercentValue(name ConfigName)
+{
+	local int PercentValue;
+
+	PercentValue = `GetConfigFloat(ConfigName) * 100;
+
+	return string(PercentValue);
 }
 
 static private function string GetSecondaryWeaponClipSize(const XComGameState_Unit UnitState, optional XComGameState CheckGameState)
