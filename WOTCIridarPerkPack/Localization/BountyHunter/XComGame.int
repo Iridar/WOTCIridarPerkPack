@@ -20,11 +20,11 @@ LocPromotionPopupText="<bullet/> Nightfall cannot be activated while you're flan
 LocFlyOverText="Nightfall"
 
 [IRI_BH_Nightfall_Passive X2AbilityTemplate]
-LocFriendlyName="Blood Moon"
+LocFriendlyName="Dead of Night"
 LocLongDescription="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
 LocHelpText="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
 LocPromotionPopupText="If your weapon's critical hits deal 4 additional damage, and your critical hit chance is 50%, Blood Moon will provive 4 * 0.5 = 2 bonus damage."
-LocFlyOverText="Blood Moon"
+LocFlyOverText="Dead of Night"
 
 
 [IRI_BH_DramaticEntrance X2AbilityTemplate]
@@ -63,6 +63,14 @@ LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusChar
 LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
 LocPromotionPopupText=""
 LocFlyOverText="Double Payload"
+
+[IRI_BH_NothingPersonal X2AbilityTemplate]
+LocFriendlyName="Nothing Personal"
+LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
+LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
+LocPromotionPopupText=""
+LocFlyOverText="Nothing Personal"
+
 
 
 

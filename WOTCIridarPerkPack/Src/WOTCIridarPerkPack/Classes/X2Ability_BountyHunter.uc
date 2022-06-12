@@ -23,6 +23,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Lieutenant
 	Templates.AddItem(IRI_BH_DoublePayload());
+	Templates.AddItem(IRI_BH_NothingPersonal());
 
 
 	Templates.AddItem(IRI_BH_ChasingShot());
@@ -60,6 +61,67 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_BH_NothingPersonal()
+{
+	local X2AbilityTemplate					Template;	
+	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect_ApplyWeaponDamage		WeaponDamageEffect;
+	local X2Effect_Knockback				KnockbackEffect;
+
+	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NothingPersonal');
+
+	// Icon
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';   
+	SetHidden(Template);	    
+
+	// Trigger
+	Template.AbilityTriggers.Length = 0;	
+	Trigger = new class'X2AbilityTrigger_EventListener';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.EventID = 'IRI_BH_ShadowTeleport';
+	Trigger.ListenerData.Filter = eFilter_Unit;
+	Trigger.ListenerData.EventFn = NothingPersonalTriggerListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+	
+	// Costs
+	Template.AbilityCosts.Length = 0;   
+	
+	// Effects
+	Template.AbilityTargetEffects.Length = 0;
+	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	WeaponDamageEffect.DamageTag = 'IRI_BH_NothingPersonal';
+	WeaponDamageEffect.bIgnoreBaseDamage = true;
+	Template.AddTargetEffect(WeaponDamageEffect);
+
+	KnockbackEffect = new class'X2Effect_Knockback';
+	KnockbackEffect.KnockbackDistance = 2;
+	Template.AddTargetEffect(KnockbackEffect);
+
+	Template.bShowActivation = true;
+	//Template.AssociatedPlayTiming = SPT_AfterSequential;
+
+	return Template;
+}
+
+static private function EventListenerReturn NothingPersonalTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+{
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameState_Ability			NothingPersonalState;
+
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+	if (AbilityContext == none) 
+		return ELR_NoInterrupt;
+
+	NothingPersonalState = XComGameState_Ability(CallbackData);
+	if (NothingPersonalState == none || AbilityContext.InputContext.MultiTargets.Length == 0 || AbilityContext.InputContext.MultiTargets[0].ObjectID == 0)
+		return ELR_NoInterrupt;
+
+	NothingPersonalState.AbilityTriggerAgainstSingleTarget(AbilityContext.InputContext.MultiTargets[0], false);
+	
+	return ELR_NoInterrupt;
 }
 
 static function X2AbilityTemplate IRI_BH_DoublePayload()
@@ -191,6 +253,8 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	Template.PostActivationEvents.AddItem('IRI_BH_ShadowTeleport');
 
 	return Template;
 }
