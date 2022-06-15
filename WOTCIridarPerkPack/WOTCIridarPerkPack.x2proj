@@ -63,9 +63,6 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCost_BHAmmo.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
@@ -109,6 +106,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_DramaticEntrance.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_GrantAmmo.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Headhunter.uc">

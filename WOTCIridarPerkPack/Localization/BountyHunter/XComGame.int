@@ -107,10 +107,41 @@ LocPromotionPopupText="This ability does not trigger off Overwhelming Burst itse
 LocFlyOverText="Unrelenting Pressure"
 
 
+[IRI_BH_WitchHunt X2AbilityTemplate]
+LocFriendlyName="Witch Hunt"
+LocLongDescription="Your critical hits against psionic units set them on fire."
+LocHelpText="Your critical hits against psionic units set them on fire."
+LocPromotionPopupText="Applied by all attacks that can cause critical damage."
+LocFlyOverText="Witch Hunt"
+
+[IRI_BH_WitchHunt_Passive X2AbilityTemplate]
+LocFriendlyName="Witch Hunt"
+LocLongDescription="Your critical hits against psionic units set them on fire."
+LocHelpText="Your critical hits against psionic units set them on fire."
+LocPromotionPopupText=""
+LocFlyOverText="Witch Hunt"
+
+[IRI_BH_FeelingLucky_Passive X2AbilityTemplate]
+LocFriendlyName="Feeling Lucky"
+LocLongDescription="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent."
+LocHelpText="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent."
+LocPromotionPopupText=""
+LocFlyOverText="Feeling Lucky"
 
 
+[IRI_BH_RightInTheEye X2AbilityTemplate]
+LocFriendlyName="Right In The Eye"
+LocLongDescription="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s), preventing them from seeing you."
+LocHelpText="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s), preventing them from seeing you."
+LocPromotionPopupText="<bullet/> Applied by all attacks that can cause critical damage.<br/><bullet/> Blinded enemies cannot see any units or objects, so they cannot take most of their offensive or supportive actions.<br/><bullet/> Since blinded enemies cannot see you, Dead of Night and some of the other abilities will work against them even outside Nightfall concealment."
+LocFlyOverText="Right In The Eye"
 
-
+[IRI_BH_RightInTheEye_Passive X2AbilityTemplate]
+LocFriendlyName="Right In The Eye"
+LocLongDescription="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s) turn, preventing them from seeing you."
+LocHelpText="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s) turn, preventing them from seeing you."
+LocPromotionPopupText=""
+LocFlyOverText="Right In The Eye"
 
 
 [IRI_BH_BigGameHunter X2AbilityTemplate]
@@ -156,33 +187,9 @@ LocHelpText="Activate to make your next damaging ability trigger twice."
 LocPromotionPopupText="If followthrough ability fails to activate, you may attempt triggering it with another ability. If the triggering ability is activated in concealment, then followthrough ability will activate from concealment as well.<br/> X turn cooldown."
 LocFlyOverText="Folowthrough"
 
-[IRI_BH_WitchHunt X2AbilityTemplate]
-LocFriendlyName="Witch Hunt"
-LocLongDescription="Your critical hits against psionic units set them on fire."
-LocHelpText="Your critical hits against psionic units set them on fire."
-LocPromotionPopupText=""
-LocFlyOverText="Witch Hunt"
 
-[IRI_BH_WitchHunt_Passive X2AbilityTemplate]
-LocFriendlyName="Witch Hunt"
-LocLongDescription="Your critical hits against psionic units set them on fire."
-LocHelpText="Your critical hits against psionic units set them on fire."
-LocPromotionPopupText=""
-LocFlyOverText="Witch Hunt"
 
-[IRI_BH_RightInTheEye X2AbilityTemplate]
-LocFriendlyName="Right In The Eye"
-LocLongDescription="Your critical hits blind enemies for 1 turn, preventing them from seeing you."
-LocHelpText="Your critical hits blind enemies for 1 turn, preventing them from seeing you."
-LocPromotionPopupText=""
-LocFlyOverText="Right In The Eye"
 
-[IRI_BH_RightInTheEye_Passive X2AbilityTemplate]
-LocFriendlyName="Right In The Eye"
-LocLongDescription="Your critical hits blind enemies for 1 turn, preventing them from seeing you."
-LocHelpText="Your critical hits blind enemies for 1 turn, preventing them from seeing you."
-LocPromotionPopupText=""
-LocFlyOverText="Right In The Eye"
 
 [IRI_BH_Untraceable X2AbilityTemplate]
 LocFriendlyName="Untraceable"
@@ -213,15 +220,6 @@ LocLongDescription="Attacking an enemy grants +10 Aim and +10 Crit against them 
 LocHelpText="Attacking an enemy grants +10 Aim and +10 Crit against them until the start of your next turn. This bonus is cumulative."
 LocPromotionPopupText=""
 LocFlyOverText="Custom Zero In"
-
-
-
-[IRI_BH_ShadowRounds_Passive X2AbilityTemplate]
-LocFriendlyName="Shadow Rounds"
-LocLongDescription="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocPromotionPopupText=""
-LocFlyOverText="Shadow Rounds"
 
 
 [IRI_BH_RoutingVolley X2AbilityTemplate]

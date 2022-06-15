@@ -32,6 +32,18 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(IRI_BH_UnrelentingPressure());
 
+	// Major
+	Templates.AddItem(IRI_BH_WitchHunt());
+	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(PurePassive('IRI_BH_FeelingLucky_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
+	// Colonel
+	Templates.AddItem(IRI_BH_RightInTheEye());
+	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
+	// GTS
+	Templates.AddItem(PurePassive('IRI_BH_Untraceable_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
 	Templates.AddItem(IRI_BH_Blindside());
@@ -41,20 +53,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 	Templates.AddItem(IRI_BH_Folowthrough());
 	Templates.AddItem(IRI_BH_Untraceable());
-	Templates.AddItem(PurePassive('IRI_BH_Untraceable_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-
 	
-	Templates.AddItem(IRI_BH_WitchHunt());
-	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	
-
-	// Major
-	Templates.AddItem(IRI_BH_RightInTheEye());
-	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	
-	Templates.AddItem(PurePassive('IRI_BH_ShadowRounds_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-
-	// Colonel
 	Templates.AddItem(IRI_BH_NamedBullet());
 	Templates.AddItem(IRI_BH_BigGameHunter());
 	Templates.AddItem(IRI_BH_BigGameHunter_Passive());
@@ -62,9 +62,6 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_RoutingVolley());
 	Templates.AddItem(IRI_BH_RoutingVolley_Attack());
 	Templates.AddItem(IRI_BH_RoutingVolley_Resuppress());
-
-	
-	
 
 	return Templates;
 }
@@ -187,6 +184,7 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	
 	// Costs
 	Template.AbilityCosts.Length = 0;   
+	// TODO: Ammo cost?
 	
 	// Effects
 	Template.AbilityTargetEffects.Length = 0;
@@ -438,13 +436,18 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	local XComGameStateContext_Ability AbilityContext;
 	local XComGameState_EnvironmentDamage EnvironmentDamage;
 	local X2Action_PlaySoundAndFlyOver CharSpeechAction;
+	local X2Action_PlaySoundAndFlyOver Flyover;
 	local X2Action_BountyHunter_ShadowTeleport GrappleAction;
 	local X2Action_BountyHunter_ShadowTeleport_ExitCover ExitCoverAction;
 	local X2Action_RevealArea RevealAreaAction;
 	local X2Action_UpdateFOW FOWUpdateAction;
 	local X2Action_MoveTurn MoveTurn;
 	local X2Action_CameraFrameAbility CameraFrame;
+	local XComGameState_Unit UnitState;
+	local XComGameStateVisualizationMgr VisMgr;
+	local array<X2Action> LeafNodes;
 	
+	VisMgr = `XCOMVISUALIZATIONMGR;
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
 	MovingUnitRef = AbilityContext.InputContext.SourceObject;
@@ -452,6 +455,8 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(MovingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
 	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(MovingUnitRef.ObjectID);
 	ActionMetadata.VisualizeActor = History.GetVisualizer(MovingUnitRef.ObjectID);
+
+	UnitState = XComGameState_Unit(ActionMetadata.StateObject_NewState);
 
 	CharSpeechAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'Invert', eColor_Good); // TODO: Speech
@@ -499,64 +504,21 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	RevealAreaAction.AssociatedObjectID = MovingUnitRef.ObjectID;
 	RevealAreaAction.bDestroyViewer = true;
+
+	// TODO: Don't show these if Nothing Personal is active.
+	// TODO: Make Nothing Personal show these flyovers instead.
+	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, LeafNodes);
+
+	if (UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive'))
+	{
+		Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,,, LeafNodes));
+		Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('IRI_BH_FeelingLucky_Flyover_Added'), '', eColor_Good);
+	}
+
+	Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,, Flyover, LeafNodes));
+	Flyover.SetSoundAndFlyOverParameters(None, class'XComPresentationLayer'.default.m_strRunAndGunActionPointRemaining, '', eColor_Good);
+
 }
-
-static function X2AbilityTemplate IRI_BH_ShadowTeleport11()
-{
-	local X2AbilityTemplate                 Template;	
-	local X2Effect_GrantActionPoints		GrantActionPoints;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
-
-	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
-
-	// Targeting and Triggering
-	Template.AbilityToHitCalc = default.DeadEye;	
-	
-	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-	
-
-	// Shooter Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AddShooterEffectExclusions();
-
-	// Target conditions
-	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
-	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
-	
-	
-
-	// TODO: Charges
-
-	// Effects
-	GrantActionPoints = new class'X2Effect_GrantActionPoints';
-	GrantActionPoints.NumActionPoints = 1;
-	GrantActionPoints.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
-	Template.AddShooterEffect(GrantActionPoints);
-
-	// State and Viz
-	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
-	Template.Hostility = eHostility_Neutral;
-	//Template.CinescriptCameraType = "StandardSuppression";
-	//Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	//Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-
-	Template.BuildNewGameStateFn = class'X2Ability_Cyberus'.static.Teleport_BuildGameState;
-	//Template.BuildVisualizationFn = class'X2Ability_DLC_Day60ItemGrantedAbilitySet'.static.IcarusJump_BuildVisualization;
-	//Template.BuildVisualizationFn = ShadowTeleport_BuildVisualization;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.ModifyNewContextFn = class'X2Ability_Cyberus'.static.Teleport_ModifyActivatedAbilityContext;
-	Template.BuildInterruptGameStateFn = none;
-
-	
-
-	return Template;	
-}
-
 
 // This ability is a bit complicated. Desired function:
 // You Suppress the target and force it to move, immediately triggering an attack against it.
@@ -936,21 +898,12 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
 
 static function X2AbilityTemplate IRI_BH_FirePistol()
 {
-	local X2AbilityTemplate				Template;	
-	local X2AbilityCost_ActionPoints	ActionPointCost;
+	local X2AbilityTemplate Template;	
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_FirePistol');
 
 	Template.bUseAmmoAsChargesForHUD = true;
 	
-	Template.AbilityCosts.Length = 0;
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BHAmmo');
-
-	ActionPointCost = new class'X2AbilityCost_QuickdrawActionPoints';
-	ActionPointCost.iNumPoints = 1;
-	ActionPointCost.bConsumeAllPoints = true;
-	Template.AbilityCosts.AddItem(ActionPointCost);	
-
 	//Template.AdditionalAbilities.AddItem('PistolOverwatchShot');
 	//Template.AdditionalAbilities.AddItem('PistolReturnFire');
 	Template.AdditionalAbilities.AddItem('HotLoadAmmo');
@@ -1096,7 +1049,7 @@ static function X2AbilityTemplate IRI_BH_RightInTheEye()
 	Template.bAllowAmmoEffects = false;
 	Template.bAllowBonusWeaponEffects = false;
 	Template.bAllowFreeFireWeaponUpgrade = false;
-	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(1, 0));
+	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(`GetConfigInt('IRI_BH_RightInTheEye_DurationTurns'), 0));
 
 	// State and Vis
 	Template.FrameAbilityCameraType = eCameraFraming_Never; 
@@ -1106,6 +1059,7 @@ static function X2AbilityTemplate IRI_BH_RightInTheEye()
 	Template.bUsesFiringCamera = false;
 	Template.Hostility = eHostility_Neutral;
 
+	Template.ConcealmentRule = eConceal_AlwaysEvenWithObjective;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = class'Help'.static.FollowUpShot_BuildVisualization;
 	Template.MergeVisualizationFn = class'Help'.static.FollowUpShot_MergeVisualization;
@@ -1258,6 +1212,8 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 {
 	local X2Effect_BountyHunter_DeadlyShadow	StealthEffect;
 	local X2Effect_AdditionalAnimSets			AnimEffect;
+	local X2Effect_BountyHunter_GrantAmmo		GrantAmmo;
+	local X2Condition_AbilityProperty			AbilityCondition;
 
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
 	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
@@ -1273,7 +1229,20 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 	AnimEffect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
 	AnimEffect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
 	Template.AddShooterEffect(AnimEffect);
+
+	GrantAmmo = new class'X2Effect_BountyHunter_GrantAmmo';
+	GrantAmmo.BuildPersistentEffect(1, true);
+	GrantAmmo.bRemoveWhenTargetConcealmentBroken = true;
+	GrantAmmo.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), Template.IconImage, true);
+
+	AbilityCondition = new class'X2Condition_AbilityProperty';
+	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_BH_FeelingLucky_Passive');
+	GrantAmmo.TargetConditions.AddItem(AbilityCondition);
+
+	Template.AddShooterEffect(GrantAmmo);
 }
+
+
 
 static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 {
@@ -1326,8 +1295,9 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	// Costs
 	Template.AbilityCosts.AddItem(default.FreeActionCost);	
 
-	AmmoCost = new class'X2AbilityCost_BHAmmo';
+	AmmoCost = new class'X2AbilityCost_Ammo';
 	AmmoCost.bFreeCost = true; // Require ammo only for activation
+	AmmoCost.iAmmo = 1;
 	Template.AbilityCosts.AddItem(AmmoCost);
 	Template.bUseAmmoAsChargesForHUD = true;
 
@@ -1365,6 +1335,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot_Attack()
 	local X2AbilityTemplate							Template;	
 	local X2AbilityTrigger_EventListener			Trigger;
 	local X2Condition_UnitEffectsWithAbilitySource	UnitEffectsCondition;
+	local X2AbilityCost_Ammo						AmmoCost;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_ChasingShot_Attack');
 
@@ -1387,7 +1358,9 @@ static function X2AbilityTemplate IRI_BH_ChasingShot_Attack()
 	
 	// Reset costs, keep only ammo cost.
 	Template.AbilityCosts.Length = 0;   
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BHAmmo');
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
 
 	Template.bShowActivation = true;
 	Template.AssociatedPlayTiming = SPT_AfterSequential;
@@ -1470,6 +1443,7 @@ static function X2AbilityTemplate IRI_BH_Blindside()
 	local X2AbilityTemplate                 Template;	
 	local X2Effect_ApplyWeaponDamage        WeaponDamageEffect;
 	local X2Effect_Knockback				KnockbackEffect;
+	local X2AbilityCost_Ammo				AmmoCost;
 
 	// Macro to do localisation and stuffs
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Blindside');
@@ -1502,7 +1476,9 @@ static function X2AbilityTemplate IRI_BH_Blindside()
 	AddCooldown(Template, `GetConfigInt('IRI_BH_Blindside_Cooldown'));
 
 	// Ammo
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_BHAmmo');
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
 	Template.bUseAmmoAsChargesForHUD = true;
 
 	// Effects

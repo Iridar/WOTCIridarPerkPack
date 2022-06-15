@@ -5,5 +5,8 @@
 IRI_BH_Nightfall_EffectName = "Nightfall"
 IRI_BH_Nightfall_EffectDesc = "Special form of concelament with reduced detection radius."
 IRI_BH_Nightfall_Ended = "Nightfall Ended"
+IRI_BH_FeelingLucky_Flyover_Added = "Feeling Lucky: +1 Ammo"
+IRI_BH_FeelingLucky_Flyover_Removed = "Feeling Lucky: -1 Ammo"
+
 
 ;	----------------------------------------------------
