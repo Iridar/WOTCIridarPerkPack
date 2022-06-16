@@ -911,7 +911,6 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	local X2AbilityTemplate					Template;	
 	local X2AbilityCost_ActionPoints		ActionPointCost;
 	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
-	//local X2Effect_Persistent				PFX;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NamedBullet');
 
@@ -927,7 +926,10 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	//Template.AddMultiTargetEffect(new class'X2Effect_ApplyWeaponDamage');
 	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[0]);
 
-	// TODO: Allow targeting units only
+	// Allow targeting only visible units.
+	Template.AbilityTargetConditions.Length = 0;
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
 
 	// Reset costs, keep only AP cost.
 	Template.AbilityCosts.Length = 0;   
@@ -942,7 +944,6 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	// State and Viz
 	Template.ActivationSpeech = 'FanFire';
 
-	//SetFireAnim(Template, 'FF_NamedBullet');
 	Template.AdditionalAbilities.AddItem('IRI_BH_NamedBullet_AnimPassive');
 	Template.BuildVisualizationFn = NamedBullet_BuildVisualization;
 	Template.ModifyNewContextFn = NamedBullet_ModifyContext;
@@ -953,7 +954,7 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 static simulated function NamedBullet_ModifyContext(XComGameStateContext Context)
 {
 	local XComGameStateContext_Ability	AbilityContext;
-	//local EffectResults					DamageEffectHitResult;
+	//local EffectResults				DamageEffectHitResult;
 	//local int j;
 	local int i;
 	
@@ -1008,25 +1009,17 @@ static private function NamedBullet_BuildVisualization(XComGameState VisualizeGa
 
 	VisMgr = `XCOMVISUALIZATIONMGR;
 
-	`AMLOG("Running");
-	
 	FireAction = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_Fire');
 	if (FireAction == none)
 		return;
-
-	`AMLOG("Have Fire Action");
 
 	AbilityContext = XComGameStateContext_Ability(FireAction.StateChangeContext);
 	if (AbilityContext == none || !AbilityContext.IsResultContextHit())
 		return;
 
-	`AMLOG("Have Context");
-
 	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_ApplyWeaponDamageToUnit', UnitTakeDamageActions,, AbilityContext.InputContext.PrimaryTarget.ObjectID);
 	if (UnitTakeDamageActions.Length == 0)
 		return;
-
-	`AMLOG("Have damage target actions");
 
 	ActionMetaData = FireAction.Metadata;
 	TargetMetadata = UnitTakeDamageActions[0].Metadata;
@@ -1057,8 +1050,6 @@ static private function NamedBullet_BuildVisualization(XComGameState VisualizeGa
 		ImpactSoundCue = SoundCue(`CONTENT.RequestGameArchetype("SoundAmbience.BulletImpactsFleshCue"));
 	}
 
-	`AMLOG("Have impact cue:" @ ImpactSoundCue != none);
-
 	PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(TargetMetadata, AbilityContext, false, WaitAction));
 	PlaySound.SetSoundAndFlyOverParameters(ImpactSoundCue, "", '', eColor_Xcom);
 	PlaySound.BlockUntilFinished = true;
@@ -1082,8 +1073,6 @@ static private function NamedBullet_BuildVisualization(XComGameState VisualizeGa
 
 	PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, FireAction.ParentActions));
 	PlaySound.SetSoundAndFlyOverParameters(SoundCue(`CONTENT.RequestGameArchetype("IRIBountyHunter.NamedShotClicks_Cue")), "", '', eColor_Xcom);
-
-	`AMLOG("Have cue:" @ SoundCue(`CONTENT.RequestGameArchetype("IRIBountyHunter.NamedShotClicks_Cue")) != none);
 
 	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, FireAction.ParentActions));
 	TimeDilation.TimeDilation = 0.9f;
