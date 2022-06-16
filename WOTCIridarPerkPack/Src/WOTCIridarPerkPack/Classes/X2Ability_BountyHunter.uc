@@ -38,30 +38,25 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(PurePassive('IRI_BH_FeelingLucky_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
 	// Colonel
-	Templates.AddItem(IRI_BH_RightInTheEye());
-	Templates.AddItem(PurePassive('IRI_BH_RightInTheEye_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_BH_BlindingFire());
+	Templates.AddItem(PurePassive('IRI_BH_BlindingFire_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_BH_NamedBullet());
+	Templates.AddItem(IRI_BH_Terminate());
+	Templates.AddItem(IRI_BH_Terminate_Attack());
+	Templates.AddItem(IRI_BH_Terminate_Resuppress());
 
 	// GTS
+	Templates.AddItem(IRI_BH_Untraceable());
 	Templates.AddItem(PurePassive('IRI_BH_Untraceable_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
+	// Unused
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
 	Templates.AddItem(IRI_BH_Blindside());
-	
 	Templates.AddItem(IRI_BH_CustomZeroIn());
-
-	
 	Templates.AddItem(IRI_BH_Folowthrough());
-	Templates.AddItem(IRI_BH_Untraceable());
-	
-	
-	Templates.AddItem(IRI_BH_NamedBullet());
 	Templates.AddItem(IRI_BH_BigGameHunter());
 	Templates.AddItem(IRI_BH_BigGameHunter_Passive());
-
-	Templates.AddItem(IRI_BH_RoutingVolley());
-	Templates.AddItem(IRI_BH_RoutingVolley_Attack());
-	Templates.AddItem(IRI_BH_RoutingVolley_Resuppress());
 
 	return Templates;
 }
@@ -184,7 +179,6 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	
 	// Costs
 	Template.AbilityCosts.Length = 0;   
-	// TODO: Ammo cost?
 	
 	// Effects
 	Template.AbilityTargetEffects.Length = 0;
@@ -330,6 +324,8 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	Cooldown.AditionalAbilityCooldowns[0].AbilityName = 'IRI_BH_Nightfall';
 	Cooldown.AditionalAbilityCooldowns[0].NumTurns = Cooldown.iNumTurns;
 	Template.AbilityCooldown = Cooldown;
+
+	AddCharges(Template, `GetConfigInt('IRI_BH_ShadowTeleport_Charges'));
 	
 	// Effects
 	AddNightfallShooterEffects(Template);
@@ -526,13 +522,13 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 // moves out of LoS, or shooter runs out of ammo.
 // 
 // Here's how this is achieved:
-// IRI_BH_RoutingVolley applies the initial suppression effect and forces the target to run. 
+// IRI_BH_Terminate applies the initial suppression effect and forces the target to run. 
 // It also applies a unit value which will be used later to make sure that later we retrigger suppression only against this particular target.
-// This suppression effect registers for ability activation event, and triggers the IRI_BH_RoutingVolley_Attack,
+// This suppression effect registers for ability activation event, and triggers the IRI_BH_Terminate_Attack,
 // which records the Event Chain Start History Index as a unit value on the target and removes the suppression effect from the target.
-// If the target is not moving, we resuppress it right away by triggering the IRI_BH_RoutingVolley_Resuppress in that same listener.
+// If the target is not moving, we resuppress it right away by triggering the IRI_BH_Terminate_Resuppress in that same listener.
 // If the target is moving, then we don't do anything.
-// The IRI_BH_RoutingVolley_Resuppress has its own event listener trigger, but it will activate only against a unit that activates an ability
+// The IRI_BH_Terminate_Resuppress has its own event listener trigger, but it will activate only against a unit that activates an ability
 // whose Event Chain Start History Index is not the one that we already recoreded on the suppressed unit as a unit value.
 // This ensures the event chain fully resolves before we are able to resuppress the target.
 // This convoluted process is required mainly to address various issues that occur when the same suppression effect is used for multiple suppression shots on the same moving target:
@@ -546,7 +542,7 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 // I couldn't figure out any way to address this other than removing and reapplying the suppression effect from the target after each shot.
 // The ressuppressing needs to be handled by a separate ability and not the suppression shot itself to prevent inception.
 
-static function X2AbilityTemplate IRI_BH_RoutingVolley()
+static function X2AbilityTemplate IRI_BH_Terminate()
 {
 	local X2AbilityTemplate                 Template;	
 	local X2AbilityCost_Ammo                AmmoCost;
@@ -556,7 +552,7 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley()
 	local X2Effect_GrantActionPoints		GrantActionPoints;
 	local X2Effect_SetUnitValue				UnitValueEffect;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RoutingVolley');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Terminate');
 
 	// Icon Setup
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
@@ -588,11 +584,11 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley()
 	ActionPointCost.iNumPoints = 1;
 	Template.AbilityCosts.AddItem(ActionPointCost);
 
-	// TODO: Charges
+	AddCharges(Template, `GetConfigInt('IRI_BH_Terminate_Charges'));
 
 	// Effects
 	UnitValueEffect = new class'X2Effect_SetUnitValue';
-	UnitValueEffect.UnitName = 'IRI_BH_RoutingVolley_UnitValue_SuppressTarget';
+	UnitValueEffect.UnitName = 'IRI_BH_Terminate_UnitValue_SuppressTarget';
 	UnitValueEffect.NewValueToSet = 1.0f;
 	UnitValueEffect.CleanupType = eCleanup_BeginTurn;
 	Template.AddTargetEffect(UnitValueEffect);
@@ -631,19 +627,19 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley()
 	Template.bFrameEvenWhenUnitIsHidden = true;
 
 	Template.AssociatedPassives.AddItem('HoloTargeting');
-	Template.AdditionalAbilities.AddItem('IRI_BH_RoutingVolley_Attack');
-	Template.AdditionalAbilities.AddItem('IRI_BH_RoutingVolley_Resuppress');
+	Template.AdditionalAbilities.AddItem('IRI_BH_Terminate_Attack');
+	Template.AdditionalAbilities.AddItem('IRI_BH_Terminate_Resuppress');
 
 	return Template;	
 }
 
-static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
+static function X2AbilityTemplate IRI_BH_Terminate_Attack()
 {
 	local X2AbilityTemplate						Template;	
 	local X2AbilityCost_Ammo					AmmoCost;
 	local X2Effect_RemoveEffects_MatchSource	RemoveSuppression;
 
-	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_RoutingVolley_Attack', true, false, false);
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_Terminate_Attack', true, false, false);
 	SetHidden(Template);
 
 	Template.AbilityTriggers.Length = 0;
@@ -670,14 +666,14 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Attack()
 	return Template;	
 }
 
-static function X2AbilityTemplate IRI_BH_RoutingVolley_Resuppress()
+static function X2AbilityTemplate IRI_BH_Terminate_Resuppress()
 {
 	local X2AbilityTemplate						Template;	
 	local X2Effect_BountyHunter_RoutingVolley	SuppressionEffect;
 	local X2AbilityTrigger_EventListener		Trigger;
 	local X2AbilityCost_Ammo					AmmoCost;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RoutingVolley_Resuppress');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Terminate_Resuppress');
 
 	// Icon Setup
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
@@ -694,7 +690,7 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Resuppress()
 	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
 	Trigger.ListenerData.Filter = eFilter_None;
 	Trigger.ListenerData.Priority = 40;
-	Trigger.ListenerData.EventFn = RoutingVolleyTriggerListener_Resuppress;
+	Trigger.ListenerData.EventFn = TerminateTriggerListener_Resuppress;
 	Template.AbilityTriggers.AddItem(Trigger);
 
 	// Shooter Conditions
@@ -739,7 +735,7 @@ static function X2AbilityTemplate IRI_BH_RoutingVolley_Resuppress()
 	return Template;	
 }
 
-static private function EventListenerReturn RoutingVolleyTriggerListener_Resuppress(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+static private function EventListenerReturn TerminateTriggerListener_Resuppress(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
 	local XComGameState_Ability			AbilityState;
 	local XComGameStateContext_Ability	AbilityContext;
@@ -761,16 +757,16 @@ static private function EventListenerReturn RoutingVolleyTriggerListener_Resuppr
 		return ELR_NoInterrupt;
 
 	// Use this value to filter out ability activations from units that we didn't manually suppress previously.
-	if (!TargetUnit.GetUnitValue('IRI_BH_RoutingVolley_UnitValue_SuppressTarget', UV))
+	if (!TargetUnit.GetUnitValue('IRI_BH_Terminate_UnitValue_SuppressTarget', UV))
 		return ELR_NoInterrupt;
 
 	`AMLOG("Attempting trigger resuppress by ability:" @ AbilityContext.InputContext.AbilityTemplateName);
 
 	History = `XCOMHISTORY;
-	TargetUnit.GetUnitValue('IRI_BH_RoutingVolley_UnitValue', UV);
+	TargetUnit.GetUnitValue('IRI_BH_Terminate_UnitValue', UV);
 	if (UV.fValue != History.GetEventChainStartIndex())
 	{
-		`AMLOG("Routing Volley has not yet responded to this event chain start, exiting.");
+		`AMLOG("Terminate has not yet responded to this event chain start, exiting.");
 		return ELR_NoInterrupt;
 	}
 
@@ -915,47 +911,21 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 {
 	local X2AbilityTemplate					Template;	
 	local X2AbilityCost_ActionPoints		ActionPointCost;
-	local X2AbilityToHitCalc_StandardAim    ToHitCalc;
 	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
-	local X2Condition_Visibility			VisibilityCondition;
-	local X2Condition_UnitProperty			PropertyCondition;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NamedBullet');
 
 	// Icon
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';   
-
-	ToHitCalc = new class'X2AbilityToHitCalc_StandardAim';
-	ToHitCalc.bGuaranteedHit = true;
-	Template.AbilityToHitCalc = ToHitCalc;
-
-	Template.AbilityTargetConditions.Length = 0;
-
-	VisibilityCondition = new class'X2Condition_Visibility';
-	VisibilityCondition.bRequireGameplayVisible = true;
-	VisibilityCondition.bRequireBasicVisibility = true;
-	VisibilityCondition.bRequireMatchCoverType = true;
-	VisibilityCondition.TargetCover = CT_None;
-	Template.AbilityTargetConditions.AddItem(VisibilityCondition);
-
-	PropertyCondition = new class'X2Condition_UnitProperty';
-	PropertyCondition.ExcludeAlive = false;
-	PropertyCondition.ExcludeDead = true;
-	PropertyCondition.ExcludeFriendlyToSource = true;
-	PropertyCondition.ExcludeHostileToSource = false;
-	PropertyCondition.TreatMindControlledSquadmateAsHostile = true;
-	PropertyCondition.RequireWithinRange = true;
-	PropertyCondition.WithinRange = class'XComWorldData'.const.WORLD_StepSize * `GetConfigInt('IRI_BH_NamedBullet_Distance_Tiles');
-	Template.AbilityTargetConditions.AddItem(PropertyCondition);
-
+	
 	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
 	BurstFireMultiTarget.NumExtraShots = 2;
 	Template.AbilityMultiTargetStyle = BurstFireMultiTarget;
 	
 	// Needs to be specifically the same effect to visualize damage markers properly. Chalk up another rake stepped on.
-	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[0]);
 	//Template.AddMultiTargetEffect(new class'X2Effect_ApplyWeaponDamage');
+	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[0]);
 	
 	// Reset costs, keep only AP cost.
 	Template.AbilityCosts.Length = 0;   
@@ -967,6 +937,7 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 
 	AddCharges(Template, `GetConfigInt('IRI_BH_NamedBullet_Charges'));
 
+	// State and Viz
 	Template.ActivationSpeech = 'FanFire';
 
 	// TODO: Fancy animation. Blue muzzle flash, ricochet sound, ricochet pfx.
@@ -1015,12 +986,12 @@ static function X2AbilityTemplate IRI_BH_Untraceable()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_RightInTheEye()
+static function X2AbilityTemplate IRI_BH_BlindingFire()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityTrigger_EventListener	Trigger;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RightInTheEye');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BlindingFire');
 
 	// Icon Setup
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_flamethrower";
@@ -1049,7 +1020,7 @@ static function X2AbilityTemplate IRI_BH_RightInTheEye()
 	Template.bAllowAmmoEffects = false;
 	Template.bAllowBonusWeaponEffects = false;
 	Template.bAllowFreeFireWeaponUpgrade = false;
-	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(`GetConfigInt('IRI_BH_RightInTheEye_DurationTurns'), 0));
+	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(`GetConfigInt('IRI_BH_BlindingFire_DurationTurns'), 0));
 
 	// State and Vis
 	Template.FrameAbilityCameraType = eCameraFraming_Never; 
@@ -1065,7 +1036,7 @@ static function X2AbilityTemplate IRI_BH_RightInTheEye()
 	Template.MergeVisualizationFn = class'Help'.static.FollowUpShot_MergeVisualization;
 	Template.BuildInterruptGameStateFn = none;
 
-	Template.AdditionalAbilities.AddItem('IRI_BH_RightInTheEye_Passive');
+	Template.AdditionalAbilities.AddItem('IRI_BH_BlindingFire_Passive');
 
 	return Template;
 }

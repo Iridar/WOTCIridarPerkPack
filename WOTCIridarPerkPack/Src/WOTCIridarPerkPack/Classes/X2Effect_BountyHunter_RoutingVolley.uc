@@ -1,5 +1,7 @@
 class X2Effect_BountyHunter_RoutingVolley extends X2Effect_Suppression;
 
+// Routing Volley = Terminate
+
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager			EventMgr;
@@ -16,13 +18,13 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 		return;
 
 	EventMgr.RegisterForEvent(EffectObj, 'OverrideReactionFireSlomo', OnOverrideReactionFireSlomo, ELD_Immediate);	
-	EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', RoutingVolleyTriggerListener, ELD_OnStateSubmitted,, TargetUnit,, EffectObj);	
+	EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', TerminateTriggerListener, ELD_OnStateSubmitted,, TargetUnit,, EffectObj);	
 	`AMLOG("Succesfully registered all listeners");
 }
 
 
 
-static private function EventListenerReturn RoutingVolleyTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+static private function EventListenerReturn TerminateTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
 	local XComGameState_Ability			AbilityState;
 	local XComGameStateContext_Ability	AbilityContext;
@@ -53,10 +55,10 @@ static private function EventListenerReturn RoutingVolleyTriggerListener(Object 
 		return ELR_NoInterrupt;
 
 	History = `XCOMHISTORY;
-	TargetUnit.GetUnitValue('IRI_BH_RoutingVolley_UnitValue', UV);
+	TargetUnit.GetUnitValue('IRI_BH_Terminate_UnitValue', UV);
 	if (UV.fValue == History.GetEventChainStartIndex())
 	{
-		`AMLOG("Routing Volley already responded to:" @ int(UV.fValue) @ "event chain start index, skipping this ability activation");
+		`AMLOG("Terminate already responded to:" @ int(UV.fValue) @ "event chain start index, skipping this ability activation");
 		return ELR_NoInterrupt;
 	}
 
@@ -64,7 +66,7 @@ static private function EventListenerReturn RoutingVolleyTriggerListener(Object 
 	if (SourceUnit == none)
 		return ELR_NoInterrupt;
 
-	AbilityRef = SourceUnit.FindAbility('IRI_BH_RoutingVolley_Attack', EffectState.ApplyEffectParameters.ItemStateObjectRef);
+	AbilityRef = SourceUnit.FindAbility('IRI_BH_Terminate_Attack', EffectState.ApplyEffectParameters.ItemStateObjectRef);
 	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityRef.ObjectID));
 	if (AbilityState == none)
 		return ELR_NoInterrupt;
@@ -72,9 +74,9 @@ static private function EventListenerReturn RoutingVolleyTriggerListener(Object 
 	if (ActivateOverwatchAbility(AbilityState, TargetUnit, AbilityContext))
 	{
 		`AMLOG("Triggered successfully, increasing Grants This Turn, setting Event Chain Start Index:" @ History.GetEventChainStartIndex());
-		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Setting Unit Value for Routing Volley");
+		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Setting Unit Value for Terminate");
 		TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(TargetUnit.Class, TargetUnit.ObjectID));
-		TargetUnit.SetUnitFloatValue('IRI_BH_RoutingVolley_UnitValue', History.GetEventChainStartIndex(), eCleanup_BeginTurn);
+		TargetUnit.SetUnitFloatValue('IRI_BH_Terminate_UnitValue', History.GetEventChainStartIndex(), eCleanup_BeginTurn);
 		`GAMERULES.SubmitGameState(NewGameState);
 
 		TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(TargetUnit.ObjectID));
@@ -84,7 +86,7 @@ static private function EventListenerReturn RoutingVolleyTriggerListener(Object 
 		// Trigger resuppress if target unit is still alive and not moving.
 		if (AbilityContext.InputContext.MovementPaths.Length == 0)
 		{
-			AbilityRef = SourceUnit.FindAbility('IRI_BH_RoutingVolley_Resuppress', EffectState.ApplyEffectParameters.ItemStateObjectRef);
+			AbilityRef = SourceUnit.FindAbility('IRI_BH_Terminate_Resuppress', EffectState.ApplyEffectParameters.ItemStateObjectRef);
 			AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityRef.ObjectID));
 			if (AbilityState == none)
 				return ELR_NoInterrupt;
@@ -127,7 +129,7 @@ static private function bool ActivateOverwatchAbility(XComGameState_Ability Abil
 	}
 	else
 	{
-		`AMLOG("Cannot activate Routing Volley Attack, because:" @ AbilityState.CanActivateAbilityForObserverEvent(TargetUnit));
+		`AMLOG("Cannot activate Terminate Attack, because:" @ AbilityState.CanActivateAbilityForObserverEvent(TargetUnit));
 	}
 	return false;
 }
@@ -146,7 +148,7 @@ static function EventListenerReturn OnOverrideReactionFireSlomo(Object EventData
 		return ELR_NoInterrupt;
 	
 	// Make this ability visualize as a reaction fire even though it is not.
-	if (AbilityContext.InputContext.AbilityTemplateName == 'IRI_BH_RoutingVolley_Attack')
+	if (AbilityContext.InputContext.AbilityTemplateName == 'IRI_BH_Terminate_Attack')
 	{
 		Tuple.Data[0].b = true;
 	}

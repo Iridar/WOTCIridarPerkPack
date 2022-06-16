@@ -44,7 +44,7 @@ LocFlyOverText="Dark Night"
 
 [IRI_BH_ShadowTeleport X2AbilityTemplate]
 LocFriendlyName="Night Dive"
-LocLongDescription="Enter Nightfall concealment and fire a special psionic round from your <Ability:SecondaryWeaponName/> that creates a rift in space and teleports you to a flanking position within <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> tiles of the target. Takes away all action points and grants one non-move Action Point. Shares <Ability:IRI_BH_ShadowTeleport_Cooldown/> turn cooldown with Nightfall."
+LocLongDescription="Enter Nightfall concealment and fire a special psionic round from your <Ability:SecondaryWeaponName/> that creates a rift in space and teleports you to a flanking position within <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> tiles of the target. Takes away all action points and grants one non-move Action Point. Shares <Ability:IRI_BH_ShadowTeleport_Cooldown/> turn cooldown with Nightfall. <Ability:IRI_BH_ShadowTeleport_Charges/> use(s) per mission."
 LocHelpText="Enter Nightfall concealment and teleport to a flanking position near the target. Grants one non-move action point. Shares cooldown with Nightfall."
 LocPromotionPopupText="<bullet/> If the target cannot be flanked, you can teleport to any visible tile near it."
 LocFlyOverText="Night Dive"
@@ -129,19 +129,57 @@ LocPromotionPopupText=""
 LocFlyOverText="Feeling Lucky"
 
 
-[IRI_BH_RightInTheEye X2AbilityTemplate]
-LocFriendlyName="Right In The Eye"
-LocLongDescription="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s), preventing them from seeing you."
-LocHelpText="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s), preventing them from seeing you."
+[IRI_BH_BlindingFire X2AbilityTemplate]
+LocFriendlyName="Blinding Fire"
+LocLongDescription="Your critical hits blind enemies for <Ability:IRI_BH_BlindingFire_DurationTurns/> turn(s), preventing them from seeing you."
+LocHelpText="Your critical hits blind enemies for <Ability:IRI_BH_BlindingFire_DurationTurns/> turn(s), preventing them from seeing you."
 LocPromotionPopupText="<bullet/> Applied by all attacks that can cause critical damage.<br/><bullet/> Blinded enemies cannot see any units or objects, so they cannot take most of their offensive or supportive actions.<br/><bullet/> Since blinded enemies cannot see you, Dead of Night and some of the other abilities will work against them even outside Nightfall concealment."
-LocFlyOverText="Right In The Eye"
+LocFlyOverText="Blinding Fire"
 
-[IRI_BH_RightInTheEye_Passive X2AbilityTemplate]
-LocFriendlyName="Right In The Eye"
-LocLongDescription="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s) turn, preventing them from seeing you."
-LocHelpText="Your critical hits blind enemies for <Ability:IRI_BH_RightInTheEye_DurationTurns/> turn(s) turn, preventing them from seeing you."
+[IRI_BH_BlindingFire_Passive X2AbilityTemplate]
+LocFriendlyName="Blinding Fire"
+LocLongDescription="Your critical hits blind enemies for <Ability:IRI_BH_BlindingFire_DurationTurns/> turn(s) turn, preventing them from seeing you."
+LocHelpText="Your critical hits blind enemies for <Ability:IRI_BH_BlindingFire_DurationTurns/> turn(s) turn, preventing them from seeing you."
 LocPromotionPopupText=""
-LocFlyOverText="Right In The Eye"
+LocFlyOverText="Blinding Fire"
+
+
+[IRI_BH_NamedBullet X2AbilityTemplate]
+LocFriendlyName="Named Bullet"
+LocLongDescription="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
+LocHelpText="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
+LocPromotionPopupText=""
+LocFlyOverText="Named Bullet"
+
+[IRI_BH_Terminate X2AbilityTemplate]
+LocFriendlyName="Terminate"
+LocLongDescription="Use your <Ability:WeaponName/> to continously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run, and attacking it for every action it takes. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
+LocHelpText="Continously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run and attacking it for every action it takes."
+LocPromotionPopupText="<bullet/> Activating Terminate forces the target to immediately take a defensive move, if it is able.<br/><bullet/> Terminate attacks do not suffer reaction fire penalties and can deal critical damage.<br/><bullet/> Terminate will end at the start of your next turn, if you get wounded, if you run out of ammo, or if the target leaves your line of sight. Choose your position carefully to maximize the number of attacks."
+LocFlyOverText="Terminate"
+
+[IRI_BH_Terminate_Attack X2AbilityTemplate]
+LocFriendlyName="Terminate"
+LocLongDescription="Terminate"
+LocHelpText="Terminate"
+LocPromotionPopupText=""
+LocFlyOverText="Terminate"
+
+
+[IRI_BH_Untraceable X2AbilityTemplate]
+LocFriendlyName="Untraceable"
+LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocPromotionPopupText=""
+LocFlyOverText="Untraceable"
+
+[IRI_BH_Untraceable_Passive X2AbilityTemplate]
+LocFriendlyName="Untraceable"
+LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocPromotionPopupText=""
+LocFlyOverText="Untraceable"
+
 
 
 [IRI_BH_BigGameHunter X2AbilityTemplate]
@@ -191,26 +229,6 @@ LocFlyOverText="Folowthrough"
 
 
 
-[IRI_BH_Untraceable X2AbilityTemplate]
-LocFriendlyName="Untraceable"
-LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
-LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
-LocPromotionPopupText=""
-LocFlyOverText="Untraceable"
-
-[IRI_BH_Untraceable_Passive X2AbilityTemplate]
-LocFriendlyName="Untraceable"
-LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
-LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
-LocPromotionPopupText=""
-LocFlyOverText="Untraceable"
-
-[IRI_BH_NamedBullet X2AbilityTemplate]
-LocFriendlyName="Named Bullet"
-LocLongDescription="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
-LocHelpText="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
-LocPromotionPopupText=""
-LocFlyOverText="Named Bullet"
 
 
 
@@ -221,20 +239,6 @@ LocHelpText="Attacking an enemy grants +10 Aim and +10 Crit against them until t
 LocPromotionPopupText=""
 LocFlyOverText="Custom Zero In"
 
-
-[IRI_BH_RoutingVolley X2AbilityTemplate]
-LocFriendlyName="Routing Volley"
-LocLongDescription="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocPromotionPopupText=""
-LocFlyOverText="Routing Volley"
-
-[IRI_BH_RoutingVolley_Attack X2AbilityTemplate]
-LocFriendlyName="Routing Volley"
-LocLongDescription="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocHelpText="While in Deadly Shadow, <Ability:SecondaryWeaponName/> attacks do not require ammunition."
-LocPromotionPopupText=""
-LocFlyOverText="Routing Volley"
 
 
 
