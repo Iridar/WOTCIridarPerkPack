@@ -75,6 +75,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ShadowTeleport_ExitCover.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_SetGlobalTimeDilation.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_BountyHunter_Stealth.uc">
       <SubType>Content</SubType>
     </Content>

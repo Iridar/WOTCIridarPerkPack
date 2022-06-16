@@ -146,7 +146,7 @@ LocFlyOverText="Blinding Fire"
 
 [IRI_BH_NamedBullet X2AbilityTemplate]
 LocFriendlyName="Named Bullet"
-LocLongDescription="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
+LocLongDescription="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it. The bullet ricochets inside the target, applying its damage three times."
 LocHelpText="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
 LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"

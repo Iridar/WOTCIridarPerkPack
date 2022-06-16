@@ -41,6 +41,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_BlindingFire());
 	Templates.AddItem(PurePassive('IRI_BH_BlindingFire_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(IRI_BH_NamedBullet());
+	Templates.AddItem(Create_AnimSet_Passive('IRI_BH_NamedBullet_AnimPassive', "IRIBountyHunter.Anims.AS_NamedShot"));
 	Templates.AddItem(IRI_BH_Terminate());
 	Templates.AddItem(IRI_BH_Terminate_Attack());
 	Templates.AddItem(IRI_BH_Terminate_Resuppress());
@@ -416,8 +417,6 @@ static simulated function ShadowTeleport_ModifyActivatedAbilityContext(XComGameS
 	// We don't want it as primary target, cuz then projectiles will fly to it, and soldier will aim at it.
 	// We still need to store it somewhere, so then later we can retrieve target's location for the visulization for the point in time
 	// where we do want to aim at the enemy.
-	AbilityContext = XComGameStateContext_Ability(Context);
-
 	AbilityContext = XComGameStateContext_Ability(Context);
 	AbilityContext.InputContext.MultiTargets.AddItem(AbilityContext.InputContext.PrimaryTarget);
 	AbilityContext.InputContext.PrimaryTarget.ObjectID = 0;
@@ -912,6 +911,7 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	local X2AbilityTemplate					Template;	
 	local X2AbilityCost_ActionPoints		ActionPointCost;
 	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
+	//local X2Effect_Persistent				PFX;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NamedBullet');
 
@@ -926,7 +926,9 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	// Needs to be specifically the same effect to visualize damage markers properly. Chalk up another rake stepped on.
 	//Template.AddMultiTargetEffect(new class'X2Effect_ApplyWeaponDamage');
 	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[0]);
-	
+
+	// TODO: Allow targeting units only
+
 	// Reset costs, keep only AP cost.
 	Template.AbilityCosts.Length = 0;   
 
@@ -940,10 +942,190 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	// State and Viz
 	Template.ActivationSpeech = 'FanFire';
 
-	// TODO: Fancy animation. Blue muzzle flash, ricochet sound, ricochet pfx.
 	//SetFireAnim(Template, 'FF_NamedBullet');
+	Template.AdditionalAbilities.AddItem('IRI_BH_NamedBullet_AnimPassive');
+	Template.BuildVisualizationFn = NamedBullet_BuildVisualization;
+	Template.ModifyNewContextFn = NamedBullet_ModifyContext;
 
 	return Template;	
+}
+
+static simulated function NamedBullet_ModifyContext(XComGameStateContext Context)
+{
+	local XComGameStateContext_Ability	AbilityContext;
+	//local EffectResults					DamageEffectHitResult;
+	//local int j;
+	local int i;
+	
+	// For this ability, we want all three instances of damage to hit or miss together,
+	// so we assign ability's target effect/hit results to multi targets.
+
+	AbilityContext = XComGameStateContext_Ability(Context);
+
+	for (i = 0; i < AbilityContext.ResultContext.MultiTargetHitResults.Length; i++)
+	{
+		//`AMLOG(i @ "Patched multi target hit result to:" @ AbilityContext.ResultContext.HitResult);
+
+		AbilityContext.ResultContext.MultiTargetHitResults[i] = AbilityContext.ResultContext.HitResult;
+	}
+
+	// Doesn't seem to be necessary.
+	//DamageEffectHitResult = AbilityContext.ResultContext.TargetEffectResults;
+	//
+	//for (i = 0; i < DamageEffectHitResult.Effects.Length; i++)
+	//{
+	//	for (i = 0; j < AbilityContext.ResultContext.MultiTargetEffectResults.Length; j++)
+	//	{
+	//		if (AbilityContext.ResultContext.MultiTargetEffectResults[j].Effects[0] == DamageEffectHitResult.Effects[i])
+	//		{
+	//			`AMLOG(i @ j @ "Patched multi target effect result.");
+	//
+	//			AbilityContext.ResultContext.MultiTargetEffectResults[j].ApplyResults[0] = DamageEffectHitResult.ApplyResults[i];
+	//		}
+	//	}
+	//}
+}
+
+static private function NamedBullet_BuildVisualization(XComGameState VisualizeGameState)
+{	
+	local XComGameStateVisualizationMgr		VisMgr;
+	local X2Action							FireAction;
+	local XComGameStateContext_Ability		AbilityContext;
+	local VisualizationActionMetadata		ActionMetadata;
+	local VisualizationActionMetadata		TargetMetadata;
+	local X2Action_TimedWait				TimedWaitOne;
+	local X2Action_TimedWait				TimedWaitTwo;
+	local array<X2Action>					ParentActions;
+	local X2Action_SetGlobalTimeDilation	TimeDilation;
+	local array<X2Action>					UnitTakeDamageActions;
+	local X2Action_PlayEffect				PlayEffect;
+	local X2Action_WaitForAbilityEffect		WaitAction;
+	local X2Action_PlaySoundAndFlyOver		PlaySound;
+	local XComGameState_Unit				TargetUnit;
+	local SoundCue							ImpactSoundCue;
+
+	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	`AMLOG("Running");
+	
+	FireAction = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_Fire');
+	if (FireAction == none)
+		return;
+
+	`AMLOG("Have Fire Action");
+
+	AbilityContext = XComGameStateContext_Ability(FireAction.StateChangeContext);
+	if (AbilityContext == none || !AbilityContext.IsResultContextHit())
+		return;
+
+	`AMLOG("Have Context");
+
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_ApplyWeaponDamageToUnit', UnitTakeDamageActions,, AbilityContext.InputContext.PrimaryTarget.ObjectID);
+	if (UnitTakeDamageActions.Length == 0)
+		return;
+
+	`AMLOG("Have damage target actions");
+
+	ActionMetaData = FireAction.Metadata;
+	TargetMetadata = UnitTakeDamageActions[0].Metadata;
+	TargetUnit = XComGameState_Unit(TargetMetadata.StateObject_NewState);
+
+	// This action will run when the projectile connects with the target.
+	WaitAction = X2Action_WaitForAbilityEffect(class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, FireAction));
+
+	// (Also play a particle effect on the target when projectile connects)
+	PlayEffect = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(TargetMetadata, AbilityContext, false, WaitAction));
+	PlayEffect.EffectName = "IRIBountyHunter.PS_NamedShot_Impact";
+	PlayEffect.AttachToUnit = true;
+	PlayEffect.AttachToSocketName = 'FX_Chest';
+	PlayEffect.AttachToSocketsArrayName	 = 'BoneSocketActor';
+
+	// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	// Also play different impact sounds depending on target type.
+	if (TargetUnit.GetMyTemplateGroupName() == 'Cyberus')
+	{
+		ImpactSoundCue = SoundCue(`CONTENT.RequestGameArchetype("IRIBountyHunter.NamedShot_Impact_Cue"));
+	}
+	else if (TargetUnit.IsRobotic())
+	{
+		ImpactSoundCue = SoundCue(`CONTENT.RequestGameArchetype("SoundAmbience.BulletImpactsMetalCue"));
+	}
+	else
+	{
+		ImpactSoundCue = SoundCue(`CONTENT.RequestGameArchetype("SoundAmbience.BulletImpactsFleshCue"));
+	}
+
+	`AMLOG("Have impact cue:" @ ImpactSoundCue != none);
+
+	PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(TargetMetadata, AbilityContext, false, WaitAction));
+	PlaySound.SetSoundAndFlyOverParameters(ImpactSoundCue, "", '', eColor_Xcom);
+	PlaySound.BlockUntilFinished = true;
+	PlaySound.DelayDuration = 0.15f;
+
+	PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(TargetMetadata, AbilityContext, false, PlaySound));
+	PlaySound.SetSoundAndFlyOverParameters(ImpactSoundCue, "", '', eColor_Xcom);
+	PlaySound.BlockUntilFinished = true;
+	PlaySound.DelayDuration = 0.15f;
+
+	PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(TargetMetadata, AbilityContext, false, PlaySound));
+	PlaySound.SetSoundAndFlyOverParameters(ImpactSoundCue, "", '', eColor_Xcom);
+	// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+	// Wait for a second there. This will be our first parallel branch.
+	TimedWaitOne = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, WaitAction));
+	TimedWaitOne.DelayTimeSec = 1.0f;
+
+	// Begin second parallel branch. Gradually slow down the time.
+
+	PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, FireAction.ParentActions));
+	PlaySound.SetSoundAndFlyOverParameters(SoundCue(`CONTENT.RequestGameArchetype("IRIBountyHunter.NamedShotClicks_Cue")), "", '', eColor_Xcom);
+
+	`AMLOG("Have cue:" @ SoundCue(`CONTENT.RequestGameArchetype("IRIBountyHunter.NamedShotClicks_Cue")) != none);
+
+	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, FireAction.ParentActions));
+	TimeDilation.TimeDilation = 0.9f;
+
+	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
+	TimedWaitTwo.DelayTimeSec = 0.1f;
+
+	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
+	TimeDilation.TimeDilation = 0.8f;
+
+	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
+	TimedWaitTwo.DelayTimeSec = 0.1f;
+
+	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
+	TimeDilation.TimeDilation = 0.7f;
+
+	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
+	TimedWaitTwo.DelayTimeSec = 0.1f;
+
+	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
+	TimeDilation.TimeDilation = 0.6f;
+
+	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
+	TimedWaitTwo.DelayTimeSec = 0.1f;
+
+	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
+	TimeDilation.TimeDilation = 0.5f;
+
+	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
+	TimedWaitTwo.DelayTimeSec = 0.1f;
+
+	//	Then restore normal speed.
+	ParentActions.AddItem(TimedWaitOne);
+	ParentActions.AddItem(TimedWaitTwo);
+	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, ParentActions));
+	TimeDilation.TimeDilation = 1.0f;
+
+	// Do it again at the very end of the tree as a failsafe.
+	ParentActions.Length = 0;
+	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, ParentActions);
+	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, ParentActions));
+	TimeDilation.TimeDilation = 1.0f;
 }
 
 static function X2AbilityTemplate IRI_BH_Untraceable()
@@ -1626,22 +1808,13 @@ static function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, stri
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, TemplateName);
 
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
-	Template.bDisplayInUITooltip = false;
-	Template.bDisplayInUITacticalText = false;
-	Template.bDontDisplayInAbilitySummary = true;
-	Template.Hostility = eHostility_Neutral;
-
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SelfTarget;
-	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+	SetHidden(Template);
+	SetPassive(Template);
 	
 	AnimSetEffect = new class'X2Effect_AdditionalAnimSets';
 	AnimSetEffect.AddAnimSetWithPath(AnimSetPath);
 	AnimSetEffect.BuildPersistentEffect(1, true, false, false);
 	Template.AddTargetEffect(AnimSetEffect);
-
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 
 	return Template;
 }
