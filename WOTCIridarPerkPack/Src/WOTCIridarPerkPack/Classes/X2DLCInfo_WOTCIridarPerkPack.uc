@@ -29,6 +29,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_BlindingFire_DurationTurns":
 	case "IRI_BH_Terminate_Charges":
 	case "IRI_BH_ShadowTeleport_Charges":
+	case "IRI_BH_NamedBullet_Charges":
 		OutString = string(`GetConfigInt(name(InString)));
 		return true;
 
