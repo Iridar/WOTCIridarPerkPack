@@ -30,12 +30,17 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_Terminate_Charges":
 	case "IRI_BH_ShadowTeleport_Charges":
 	case "IRI_BH_NamedBullet_Charges":
-	case "IRI_BH_BigGameHunter_CritBonus":
 		OutString = BHColor(`GetConfigInt(name(InString)));
 		return true;
 
+	case "IRI_BH_BigGameHunter_CritBonus":
+	case "IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow":
+	case "IRI_BH_Nightfall_CritChanceBonusWhenUnseen":
+		OutString = BHColor(`GetConfigInt(name(InString)) $ "%");
+		return true;
+
 	case "IRI_BH_DoublePayload_BonusDamage":
-		OutString = BHColor(GetPercentValue(name(InString)));
+		OutString = BHColor(GetPercentValue(name(InString)) $ "%");
 		return true;
 
 	default:

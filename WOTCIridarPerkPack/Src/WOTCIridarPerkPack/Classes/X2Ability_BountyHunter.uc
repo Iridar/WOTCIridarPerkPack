@@ -1453,6 +1453,8 @@ static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 	CritMagic = new class'X2Effect_BountyHunter_CritMagic';
 	CritMagic.BuildPersistentEffect(1, true);
 	CritMagic.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	CritMagic.BonusCritChance = `GetConfigInt('IRI_BH_Nightfall_CritChanceBonusWhenUnseen');
+	CritMagic.GrantCritDamageForCritChanceOverflow = `GetConfigInt('IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow');
 	Template.AddTargetEffect(CritMagic);
 	
 	return Template;

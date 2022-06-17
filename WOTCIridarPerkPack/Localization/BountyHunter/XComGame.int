@@ -21,11 +21,10 @@ LocFlyOverText="Nightfall"
 
 [IRI_BH_Nightfall_Passive X2AbilityTemplate]
 LocFriendlyName="Dead of Night"
-LocLongDescription="Attacks against enemies that do not see you gain +100% critical chance. Critical chance above 100% increases weapon's critical damage bonus."
-LocHelpText=Attacks against enemies that do not see you gain +100% critical chance. Critical chance above 100% increases weapon's critical damage bonus."
-LocPromotionPopupText="<bullet/> Dead of Night increases only weapon's critical damage bonus. Bonuses to critical damage from other sources, such as Experimental Ammo, are not affected.<br/><bullet/> For example, if your weapon's critical hits deal 4 additional damage, and your critical hit chance is 150%, this ability will provide 4 * 0.5 = 2 bonus damage."
+LocLongDescription="Gain +1 Crit Damage for every <Ability:IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow/> of Crit Chance above 100%.<br/>Gain +<Ability:IRI_BH_Nightfall_CritChanceBonusWhenUnseen/> Crit Chance against enemies that do not see you."
+LocHelpText="Gain +1 Crit Damage for every <Ability:IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow/> of Crit Chance above 100%. Gain +<Ability:IRI_BH_Nightfall_CritChanceBonusWhenUnseen/> Crit Chance against enemies that do not see you."
+LocPromotionPopupText="<bullet/> Use Nightfall and flank enemies to guarantee critical hits and boost your critical damage."
 LocFlyOverText="Dead of Night"
-
 
 [IRI_BH_DramaticEntrance X2AbilityTemplate]
 LocFriendlyName="Dramatic Entrance"
@@ -59,8 +58,8 @@ LocFlyOverText="Nightmare"
 
 [IRI_BH_DoublePayload X2AbilityTemplate]
 LocFriendlyName="Double Payload"
-LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the main target."
-LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the main target."
+LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/> bonus damage to the main target."
+LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/> bonus damage to the main target."
 LocPromotionPopupText=""
 LocFlyOverText="Double Payload"
 
