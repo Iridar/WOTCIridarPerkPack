@@ -10,11 +10,11 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	switch (InString)
 	{
 	case "IRI_TAG_BH_Headhunter_Bonuses":
-		OutString = GetHeadhunterBonusValues(XComGameState_Unit(StrategyParseOb));
+		OutString = BHColor(GetHeadhunterBonusValues(XComGameState_Unit(StrategyParseOb)));
 		return true;
 
 	case "IRI_TAG_BH_Handcannon_Ammo":
-		OutString = GetSecondaryWeaponClipSize(XComGameState_Unit(StrategyParseOb), GameState);
+		OutString = BHColor(GetSecondaryWeaponClipSize(XComGameState_Unit(StrategyParseOb), GameState));
 		return true;
 
 	case "IRI_BH_Nightfall_Cooldown":
@@ -30,11 +30,12 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_Terminate_Charges":
 	case "IRI_BH_ShadowTeleport_Charges":
 	case "IRI_BH_NamedBullet_Charges":
-		OutString = string(`GetConfigInt(name(InString)));
+	case "IRI_BH_BigGameHunter_CritBonus":
+		OutString = BHColor(`GetConfigInt(name(InString)));
 		return true;
 
 	case "IRI_BH_DoublePayload_BonusDamage":
-		OutString = GetPercentValue(name(InString));
+		OutString = BHColor(GetPercentValue(name(InString)));
 		return true;
 
 	default:
@@ -42,6 +43,11 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	}
 
 	return false;
+}
+
+static private function string BHColor(coerce string strInput)
+{
+	return "<font color='#ffd700'>" $ strInput $ "</font>"; // gold
 }
 
 static private function string GetPercentValue(name ConfigName)

@@ -36,6 +36,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_WitchHunt());
 	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(PurePassive('IRI_BH_FeelingLucky_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_BH_BigGameHunter());
 
 	// Colonel
 	Templates.AddItem(IRI_BH_BlindingFire());
@@ -54,10 +55,9 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
 	Templates.AddItem(IRI_BH_Blindside());
-	Templates.AddItem(IRI_BH_CustomZeroIn());
 	Templates.AddItem(IRI_BH_Folowthrough());
-	Templates.AddItem(IRI_BH_BigGameHunter());
-	Templates.AddItem(IRI_BH_BigGameHunter_Passive());
+	Templates.AddItem(IRI_BH_BigGameHunter_Alt());
+	Templates.AddItem(IRI_BH_BigGameHunter_Alt_Passive());
 
 	return Templates;
 }
@@ -197,9 +197,46 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	SetFireAnim(Template, 'FF_NothingPersonal');
 	//Template.AssociatedPlayTiming = SPT_AfterSequential;
 
+	Template.BuildVisualizationFn = NothingPersonal_BuildVisualization;
+
 	Template.PrerequisiteAbilities.AddItem('IRI_BH_ShadowTeleport');
 
 	return Template;
+}
+
+static private function NothingPersonal_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateHistory History;
+	local StateObjectReference MovingUnitRef;	
+	local VisualizationActionMetadata ActionMetadata;
+	local XComGameStateContext_Ability AbilityContext;
+	local X2Action_PlaySoundAndFlyOver Flyover;
+	local XComGameState_Unit UnitState;
+	local XComGameStateVisualizationMgr VisMgr;
+	local array<X2Action> LeafNodes;
+	
+	VisMgr = `XCOMVISUALIZATIONMGR;
+	History = `XCOMHISTORY;
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	MovingUnitRef = AbilityContext.InputContext.SourceObject;
+
+	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(MovingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(MovingUnitRef.ObjectID);
+	ActionMetadata.VisualizeActor = History.GetVisualizer(MovingUnitRef.ObjectID);
+
+	UnitState = XComGameState_Unit(ActionMetadata.StateObject_NewState);
+
+	if (UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive'))
+	{
+		Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+		Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('IRI_BH_FeelingLucky_Flyover_Added'), '', eColor_Good);
+	}
+
+	TypicalAbility_BuildVisualization(VisualizeGameState);
+
+	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, LeafNodes);
+	Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,, Flyover, LeafNodes));
+	Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('NightDiveActionAvailable'), '', eColor_Good);
 }
 
 static private function EventListenerReturn NothingPersonalTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
@@ -454,7 +491,7 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	UnitState = XComGameState_Unit(ActionMetadata.StateObject_NewState);
 
 	CharSpeechAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
-	CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'Invert', eColor_Good); // TODO: Speech
+	CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'RunAndGun', eColor_Good);
 
 	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	RevealAreaAction.TargetLocation = AbilityContext.InputContext.TargetLocations[0];
@@ -500,10 +537,11 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	RevealAreaAction.AssociatedObjectID = MovingUnitRef.ObjectID;
 	RevealAreaAction.bDestroyViewer = true;
 
-	// TODO: Don't show these if Nothing Personal is active.
-	// TODO: Make Nothing Personal show these flyovers instead.
-	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, LeafNodes);
+	// Don't show these flyovers if Nothing Personal is present and we have enough ammo for it.
+	if (UnitState.HasSoldierAbility('IRI_BH_NothingPersonal') && (GetSecondaryWeaponAmmo(UnitState, VisualizeGameState) > 0 || UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive')))
+		return;
 
+	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, LeafNodes);
 	if (UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive'))
 	{
 		Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,,, LeafNodes));
@@ -511,8 +549,23 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	}
 
 	Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,, Flyover, LeafNodes));
-	Flyover.SetSoundAndFlyOverParameters(None, class'XComPresentationLayer'.default.m_strRunAndGunActionPointRemaining, '', eColor_Good);
+	Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('NightDiveActionAvailable'), '', eColor_Good);
+}
 
+static private function int GetSecondaryWeaponAmmo(const XComGameState_Unit UnitState, optional XComGameState CheckGameState)
+{
+	local XComGameState_Item ItemState;
+
+	if (UnitState != none)
+	{
+		ItemState = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
+		if (ItemState != none)
+		{
+			return ItemState.Ammo;
+		}
+	}
+
+	return 0;
 }
 
 // This ability is a bit complicated. Desired function:
@@ -697,7 +750,6 @@ static function X2AbilityTemplate IRI_BH_Terminate_Resuppress()
 	Template.AddShooterEffectExclusions();
 
 	// Costs
-	// TODO: Make sure resuppression happens only if ammo is present.
 	AmmoCost = new class'X2AbilityCost_Ammo';	
 	AmmoCost.iAmmo = 1;
 	AmmoCost.bFreeCost = true; // Check ammo for activation only.
@@ -791,12 +843,12 @@ static private function EventListenerReturn TerminateTriggerListener_Resuppress(
 
 
 
-static function X2AbilityTemplate IRI_BH_CustomZeroIn()
+static function X2AbilityTemplate IRI_BH_BigGameHunter()
 {
 	local X2AbilityTemplate						Template;
 	local X2Effect_BountyHunter_CustomZeroIn	BonusEffect;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_CustomZeroIn');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BigGameHunter');
 
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ZeroIn";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
@@ -841,12 +893,12 @@ static function X2AbilityTemplate IRI_BH_Nightmare()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_BigGameHunter()
+static function X2AbilityTemplate IRI_BH_BigGameHunter_Alt()
 {
 	local X2AbilityTemplate		Template;	
 	local X2AbilityCost_Ammo	AmmoCost;
 
-	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_BigGameHunter', true, false, false);
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_BigGameHunter_Alt', true, false, false);
 	SetHidden(Template);
 
 	Template.AbilityTriggers.Length = 0;
@@ -863,13 +915,13 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter()
 	return Template;	
 }
 
-static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
+static function X2AbilityTemplate IRI_BH_BigGameHunter_Alt_Passive()
 {
 	local X2AbilityTemplate Template;	
 	local X2Effect_BountyHunter_BigGameHunter Effect;
 	local X2Effect_Persistent PersistentEffect;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BigGameHunter_Passive');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BigGameHunter_Alt_Passive');
 
 	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_shadowstrike";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
@@ -885,7 +937,7 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Passive()
 	PersistentEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
 	Template.AddTargetEffect(PersistentEffect);
 
-	Template.AdditionalAbilities.AddItem('IRI_BH_BigGameHunter');
+	Template.AdditionalAbilities.AddItem('IRI_BH_BigGameHunter_Alt');
 
 	return Template;	
 }
@@ -1356,7 +1408,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 	local X2Effect_AdditionalAnimSets			AnimEffect;
 	local X2Effect_BountyHunter_GrantAmmo		GrantAmmo;
 	local X2Condition_AbilityProperty			AbilityCondition;
-
+		
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
 	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
 	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), Template.IconImage, true);

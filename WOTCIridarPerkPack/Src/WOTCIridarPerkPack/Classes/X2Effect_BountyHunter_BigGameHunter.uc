@@ -1,6 +1,6 @@
 class X2Effect_BountyHunter_BigGameHunter extends X2Effect_Persistent;
 
-// TODO: Tag handler for this.
+// TO DO / unused: Tag handler for this.
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager EventMgr;

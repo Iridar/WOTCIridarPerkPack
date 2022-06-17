@@ -7,23 +7,23 @@ LocFlyOverText="Headhunter: +1% crit"
 
 [IRI_BH_FirePistol X2AbilityTemplate]
 LocFriendlyName="Handcannon"
-LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. It is incredibly destructive, but its ammunition is rare and must be used sparingly."
+LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. It is incredibly destructive, but its ammunition is rare and must be used sparingly. Limited to <Ability:IRI_TAG_BH_Handcannon_Ammo/> shots per mission."
 LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target."
 LocFlyOverText=""
-LocPromotionPopupText="Limited to <Ability:IRI_TAG_BH_Handcannon_Ammo/> ammo per mission."
+LocPromotionPopupText=""
 
 [IRI_BH_Nightfall X2AbilityTemplate]
 LocFriendlyName="Nightfall"
-LocLongDescription="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius."
+LocLongDescription="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius. <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown."
 LocHelpText="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius."
-LocPromotionPopupText="<bullet/> Nightfall cannot be activated while you're flanked.<br/><bullet/> <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown.<br/><bullet/> If you are already concealed when Nightfall is activated, then your concealment will not be broken if Nightfall runs out naturally."
+LocPromotionPopupText="<bullet/> Nightfall cannot be activated while you're flanked.<br/><bullet/> Nightfall has a very small detection radius, but otherwise functions like regular concealment, and without special training will be broken by attacking.<br/><bullet/> Nightfall is not broken when other soldiers in your squad break concealment.<br/><bullet/> If you are already concealed when Nightfall is activated, then your concealment will not be broken if Nightfall runs out naturally."
 LocFlyOverText="Nightfall"
 
 [IRI_BH_Nightfall_Passive X2AbilityTemplate]
 LocFriendlyName="Dead of Night"
-LocLongDescription="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
-LocHelpText="Attacks against enemies that do not see you always deal critical damage, and weapon critical damage bonus is increased proportionately to critical chance."
-LocPromotionPopupText="If your weapon's critical hits deal 4 additional damage, and your critical hit chance is 50%, this ability will provive 4 * 0.5 = 2 bonus damage."
+LocLongDescription="Attacks against enemies that do not see you gain +100% critical chance. Critical chance above 100% increases weapon's critical damage bonus."
+LocHelpText=Attacks against enemies that do not see you gain +100% critical chance. Critical chance above 100% increases weapon's critical damage bonus."
+LocPromotionPopupText="<bullet/> Dead of Night increases only weapon's critical damage bonus. Bonuses to critical damage from other sources, such as Experimental Ammo, are not affected.<br/><bullet/> For example, if your weapon's critical hits deal 4 additional damage, and your critical hit chance is 150%, this ability will provide 4 * 0.5 = 2 bonus damage."
 LocFlyOverText="Dead of Night"
 
 
@@ -59,23 +59,23 @@ LocFlyOverText="Nightmare"
 
 [IRI_BH_DoublePayload X2AbilityTemplate]
 LocFriendlyName="Double Payload"
-LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
-LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the attached target."
+LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the main target."
+LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/>% bonus damage to the main target."
 LocPromotionPopupText=""
 LocFlyOverText="Double Payload"
 
 [IRI_BH_NothingPersonal X2AbilityTemplate]
 LocFriendlyName="Nothing Personal"
-LocLongDescription="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
-LocHelpText="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture."
+LocLongDescription="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture. Does not cost <Ability:SecondaryWeaponName/> ammo."
+LocHelpText="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture. Does not cost <Ability:SecondaryWeaponName/> ammo."
 LocPromotionPopupText="<bullet/> This attack is not guaranteed to hit.<br/><bullet/> This attack will immediately break Nightfall concealment if you don't have the Dark Night ability."
 LocFlyOverText="Nothing Personal"
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
-LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times. Squadsight aim penalties are twice as strong for this ability."
+LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times. Squadsight aim penalties are twice as strong for this ability. <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
 LocHelpText="Fire a burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times."
-LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance.<br/><bullet/> <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
+LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance."
 LocFlyOverText="Overwhelming Burst"
 
 [IRI_BH_BurstFire_Passive X2AbilityTemplate]
@@ -89,7 +89,7 @@ LocFlyOverText="Overwhelming Burst"
 LocFriendlyName="Bomb Raider"
 LocLongDescription="Gain a Grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
 LocHelpText="Gain a Grenade slot. Your explosive attacks can inflict critical damage (<Ability:BIGGESTBOOMSCHANCE/>% chance for +<Ability:BIGGESTBOOMSDAMAGE/> damage)."
-LocPromotionPopupText="<bullet/> This ability allows explosives to benefit from Dead of Night, making critical hits guaranteed when using explosives while in Nightfall concealment."
+LocPromotionPopupText="<bullet/> This ability allows explosives to benefit from Dead of Night, making critical hits guaranteed when using explosives while in Nightfall concealment or throwing grenades around objects that block line of sight.."
 LocFlyOverText="Bomb Raider"
 
 [IRI_BH_ToolsOfTheTrade X2AbilityTemplate]
@@ -111,7 +111,7 @@ LocFlyOverText="Unrelenting Pressure"
 LocFriendlyName="Witch Hunt"
 LocLongDescription="Your critical hits against psionic units set them on fire."
 LocHelpText="Your critical hits against psionic units set them on fire."
-LocPromotionPopupText="Applied by all attacks that can cause critical damage."
+LocPromotionPopupText="<bullet/> Applied by all attacks that can cause critical damage.<br/><bullet/> Burning prevents enemies from using many of their abilities."
 LocFlyOverText="Witch Hunt"
 
 [IRI_BH_WitchHunt_Passive X2AbilityTemplate]
@@ -127,6 +127,13 @@ LocLongDescription="Whenever you enter Nightfall, your <Ability:SecondaryWeaponN
 LocHelpText="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent."
 LocPromotionPopupText=""
 LocFlyOverText="Feeling Lucky"
+
+[IRI_BH_BigGameHunter X2AbilityTemplate]
+LocFriendlyName="Big Game Hunter"
+LocLongDescription="Damaging an enemy grants +<Ability:IRI_BH_BigGameHunter_CritBonus/> Crit against them. This bonus is cumulative, but it is reset if you damage another enemy."
+LocHelpText="Damaging an enemy grants +<Ability:IRI_BH_BigGameHunter_CritBonus/> Crit against them. This bonus is cumulative, but it is reset if you damage another enemy."
+LocPromotionPopupText=""
+LocFlyOverText="Big Game Hunter"
 
 
 [IRI_BH_BlindingFire X2AbilityTemplate]
@@ -152,7 +159,7 @@ LocFlyOverText="Named Bullet"
 
 [IRI_BH_Terminate X2AbilityTemplate]
 LocFriendlyName="Terminate"
-LocLongDescription="Use your <Ability:WeaponName/> to continously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run, and attacking it for every action it takes. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
+LocLongDescription="Use your <Ability:WeaponName/> to continuously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run, and attacking it for every action it takes. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
 LocHelpText="Continously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run and attacking it for every action it takes."
 LocPromotionPopupText="<bullet/> Activating Terminate forces the target to immediately take a defensive move, if it is able.<br/><bullet/> Terminate attacks do not suffer reaction fire penalties and can deal critical damage.<br/><bullet/> Terminate will end at the start of your next turn, if you get wounded, if you run out of ammo, or if the target leaves your line of sight. Choose your position carefully to maximize the number of attacks."
 LocFlyOverText="Terminate"
@@ -167,28 +174,28 @@ LocFlyOverText="Terminate"
 
 [IRI_BH_Untraceable X2AbilityTemplate]
 LocFriendlyName="Untraceable"
-LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
-LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocLongDescription="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
+LocHelpText="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
 LocPromotionPopupText=""
 LocFlyOverText="Untraceable"
 
 [IRI_BH_Untraceable_Passive X2AbilityTemplate]
 LocFriendlyName="Untraceable"
-LocLongDescription="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
-LocHelpText="If you don't attack for a turn, Deadly Shadow's cooldown is additionally reduced by 1 turn."
+LocLongDescription="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
+LocHelpText="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
 LocPromotionPopupText=""
 LocFlyOverText="Untraceable"
 
 
 
-[IRI_BH_BigGameHunter X2AbilityTemplate]
+[IRI_BH_BigGameHunter_Alt X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
 LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"
 
-[IRI_BH_BigGameHunter_Passive X2AbilityTemplate]
+[IRI_BH_BigGameHunter_Alt_Passive X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
 LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
@@ -209,7 +216,6 @@ LocHelpText="This target is being chased by a Bounty Hunter."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Chase"
 
-
 [IRI_BH_Blindside X2AbilityTemplate]
 LocFriendlyName="Blindside"
 LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. This attack ignores armor and does not cost an action, but can be used only against enemies that do not see you."
@@ -223,21 +229,4 @@ LocLongDescription="Activate to make your next damaging ability trigger twice."
 LocHelpText="Activate to make your next damaging ability trigger twice."
 LocPromotionPopupText="If followthrough ability fails to activate, you may attempt triggering it with another ability. If the triggering ability is activated in concealment, then followthrough ability will activate from concealment as well.<br/> X turn cooldown."
 LocFlyOverText="Folowthrough"
-
-
-
-
-
-
-
-
-[IRI_BH_CustomZeroIn X2AbilityTemplate]
-LocFriendlyName="Custom Zero In"
-LocLongDescription="Attacking an enemy grants +10 Aim and +10 Crit against them until the start of your next turn. This bonus is cumulative."
-LocHelpText="Attacking an enemy grants +10 Aim and +10 Crit against them until the start of your next turn. This bonus is cumulative."
-LocPromotionPopupText=""
-LocFlyOverText="Custom Zero In"
-
-
-
 

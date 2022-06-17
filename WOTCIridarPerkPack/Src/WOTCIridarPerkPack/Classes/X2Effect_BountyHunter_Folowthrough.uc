@@ -192,7 +192,7 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 
 	if (AbilityState.AbilityTriggerAgainstSingleTarget(AbilityContext.InputContext.PrimaryTarget, false))
 	{
-		// TODO: Get context here and insert a Merge Vis function to block enter->exit cover between shots.
+		// TO DO / unused: Get context here and insert a Merge Vis function to block enter->exit cover between shots.
 		`AMLOG("Triggered ability successfully, removing effect.");
 
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Remove Followthrough Unit Value");
