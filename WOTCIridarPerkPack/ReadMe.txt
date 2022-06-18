@@ -12,7 +12,6 @@ https://github.com/Iridar/EnhancedModProjectTemplate
 
 TODO: 
 - Special animation for Named Bullet
-- Untraceable flyover shows when Deadly Shadow is not on cooldown
+- Untraceable flyover shows when Deadly Shadow is not on cooldown?
 - ability position on the bar
 - separate script package
-- Rework Dead of Night to provide flat crit damage.

@@ -320,7 +320,7 @@ static function X2AbilityTemplate IRI_BH_DarkNight_Passive()
 {
 	local X2AbilityTemplate Template;
 
-	Template = PurePassive('IRI_BH_DarkNight_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/);
+	Template = PurePassive('IRI_BH_DarkNight_Passive', "img:///IRIPerkPackUI.UIPerk_DarkNight", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/);
 
 	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DramaticEntrance');
 	
@@ -950,6 +950,8 @@ static function X2AbilityTemplate IRI_BH_FirePistol()
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_FirePistol');
 
 	Template.bUseAmmoAsChargesForHUD = true;
+
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_HandCannon";
 	
 	//Template.AdditionalAbilities.AddItem('PistolOverwatchShot');
 	//Template.AdditionalAbilities.AddItem('PistolReturnFire');
@@ -1336,7 +1338,7 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_HeadHunter";
 
 	SetPassive(Template);
 
@@ -1359,7 +1361,7 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Nightfall";
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY;
 
 	// Targeting and Triggering
@@ -1411,7 +1413,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 		
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
 	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
-	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), Template.IconImage, true);
+	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_Nightfall", true);
 	Template.AddShooterEffect(StealthEffect);
 
 	Template.AddShooterEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
@@ -1446,10 +1448,9 @@ static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Nightfall_Passive');
 
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
-
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_DeadOfNight";
 	SetPassive(Template);
-	
+
 	CritMagic = new class'X2Effect_BountyHunter_CritMagic';
 	CritMagic.BuildPersistentEffect(1, true);
 	CritMagic.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);

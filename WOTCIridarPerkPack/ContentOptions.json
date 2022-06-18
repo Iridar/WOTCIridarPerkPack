@@ -2,6 +2,7 @@
     "sfStandalone": [
         "IRIBountyHunter",
 		"IRIShadowTeleportPerk",
-		"IRINothingPersonalPerk"
+		"IRINothingPersonalPerk",
+		"IRIPerkPackUI"
     ]
 }

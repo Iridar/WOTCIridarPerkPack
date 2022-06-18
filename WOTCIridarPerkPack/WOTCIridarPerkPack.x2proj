@@ -43,6 +43,9 @@
     <Content Include="ContentForCook\IRINothingPersonalPerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\IRIPerkPackUI.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\IRIShadowTeleportPerk.upk">
       <SubType>Content</SubType>
     </Content>
