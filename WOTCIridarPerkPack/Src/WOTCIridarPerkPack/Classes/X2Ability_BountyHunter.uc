@@ -8,44 +8,44 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	// Squaddie
-	Templates.AddItem(IRI_BH_Headhunter());
-	Templates.AddItem(IRI_BH_FirePistol());
-	Templates.AddItem(IRI_BH_Nightfall());
-	Templates.AddItem(IRI_BH_Nightfall_Passive());
+Templates.AddItem(IRI_BH_Headhunter());
+Templates.AddItem(IRI_BH_FirePistol());
+Templates.AddItem(IRI_BH_Nightfall());
+Templates.AddItem(IRI_BH_Nightfall_Passive());
 
 	// Corporal
-	Templates.AddItem(IRI_BH_DramaticEntrance());
-	Templates.AddItem(IRI_BH_DarkNight_Passive());
-	
+Templates.AddItem(IRI_BH_DramaticEntrance());
+Templates.AddItem(IRI_BH_DarkNight_Passive());
+
 	// Sergeant
-	Templates.AddItem(IRI_BH_ShadowTeleport()); // Night Dive
-	Templates.AddItem(IRI_BH_Nightmare());
+Templates.AddItem(IRI_BH_ShadowTeleport()); // Night Dive
+Templates.AddItem(IRI_BH_Nightmare());
 
 	// Lieutenant
-	Templates.AddItem(IRI_BH_DoublePayload());
-	Templates.AddItem(IRI_BH_NothingPersonal());
-	Templates.AddItem(IRI_BH_BurstFire());
-	Templates.AddItem(IRI_BH_BurstFire_Passive());
+Templates.AddItem(IRI_BH_DoublePayload());
+Templates.AddItem(IRI_BH_NothingPersonal());
+Templates.AddItem(IRI_BH_BurstFire());
+Templates.AddItem(IRI_BH_BurstFire_Passive());
 
 	// Captain
-	Templates.AddItem(IRI_BH_BombRaider());
-	Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(IRI_BH_UnrelentingPressure());
+Templates.AddItem(IRI_BH_BombRaider());
+Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///IRIPerkPackUI.UIPerk_ToolsOfTheTrade", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+Templates.AddItem(IRI_BH_UnrelentingPressure());
 
 	// Major
-	Templates.AddItem(IRI_BH_WitchHunt());
-	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(PurePassive('IRI_BH_FeelingLucky_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(IRI_BH_BigGameHunter());
+Templates.AddItem(IRI_BH_WitchHunt());
+Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+Templates.AddItem(PurePassive('IRI_BH_FeelingLucky_Passive', "img:///IRIPerkPackUI.UIPerk_FeelingLucky", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+Templates.AddItem(IRI_BH_BigGameHunter());
 
 	// Colonel
-	Templates.AddItem(IRI_BH_BlindingFire());
-	Templates.AddItem(PurePassive('IRI_BH_BlindingFire_Passive', "img:///UILibrary_PerkIcons.UIPerk_standard", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(IRI_BH_NamedBullet());
-	Templates.AddItem(Create_AnimSet_Passive('IRI_BH_NamedBullet_AnimPassive', "IRIBountyHunter.Anims.AS_NamedShot"));
-	Templates.AddItem(IRI_BH_Terminate());
-	Templates.AddItem(IRI_BH_Terminate_Attack());
-	Templates.AddItem(IRI_BH_Terminate_Resuppress());
+Templates.AddItem(IRI_BH_BlindingFire());
+Templates.AddItem(PurePassive('IRI_BH_BlindingFire_Passive', "img:///IRIPerkPackUI.UIperk_BlindingFire", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+Templates.AddItem(IRI_BH_NamedBullet());
+Templates.AddItem(Create_AnimSet_Passive('IRI_BH_NamedBullet_AnimPassive', "IRIBountyHunter.Anims.AS_NamedShot"));
+Templates.AddItem(IRI_BH_Terminate());
+Templates.AddItem(IRI_BH_Terminate_Attack());
+Templates.AddItem(IRI_BH_Terminate_Resuppress());
 
 	// GTS
 	Templates.AddItem(IRI_BH_Untraceable());
@@ -70,7 +70,7 @@ static function X2AbilityTemplate IRI_BH_UnrelentingPressure()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_UnrelentingPressure');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_flamethrower";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_UnrelentingPressure";
 	SetPassive(Template);
 
 	ReduceCooldown = new class'X2Effect_BountyHunter_UnrelentingPressure';
@@ -92,7 +92,7 @@ static function X2AbilityTemplate IRI_BH_BombRaider()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BombRaider";
 
 	SetPassive(Template);
 
@@ -112,6 +112,8 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 
 	// No ammo cost, no using while burning or disoriented
 	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_BurstFire', true, false, false);
+
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BurstFire";
 	
 	AmmoCost = new class'X2AbilityCost_Ammo';
 	AmmoCost.iAmmo = 2;
@@ -142,7 +144,7 @@ static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BurstFire";
 
 	SetPassive(Template);
 	SetHidden(Template);
@@ -165,7 +167,7 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NothingPersonal');
 
 	// Icon
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_NothingPersonal";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';   
 	SetHidden(Template);	    
 
@@ -267,7 +269,7 @@ static function X2AbilityTemplate IRI_BH_DoublePayload()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_DoublePayload";
 
 	SetPassive(Template);
 
@@ -302,7 +304,7 @@ static function X2AbilityTemplate IRI_BH_DramaticEntrance()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_shadow";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_DramaticEntrance";
 
 	SetPassive(Template);
 
@@ -337,7 +339,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ShadowTeleport";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
@@ -607,7 +609,7 @@ static function X2AbilityTemplate IRI_BH_Terminate()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Terminate');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Terminate";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
@@ -694,6 +696,8 @@ static function X2AbilityTemplate IRI_BH_Terminate_Attack()
 	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_Terminate_Attack', true, false, false);
 	SetHidden(Template);
 
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Terminate";
+
 	Template.AbilityTriggers.Length = 0;
 	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
 
@@ -728,7 +732,7 @@ static function X2AbilityTemplate IRI_BH_Terminate_Resuppress()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Terminate_Resuppress');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_supression";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Terminate";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	SetHidden(Template);
 
@@ -850,7 +854,7 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BigGameHunter');
 
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ZeroIn";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BigGameHunter";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	SetPassive(Template);
 
@@ -872,7 +876,7 @@ static function X2AbilityTemplate IRI_BH_Nightmare()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Nightmare');
 
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_shadowstrike";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Nightmare";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	SetPassive(Template);
 
@@ -969,7 +973,7 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NamedBullet');
 
 	// Icon
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_standard";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_NamedBullet";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';   
 	
 	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
@@ -1219,7 +1223,7 @@ static function X2AbilityTemplate IRI_BH_BlindingFire()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BlindingFire');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_flamethrower";
+	Template.IconImage = "img:///IRIPerkPackUI.UIperk_BlindingFire";
 	SetHidden(Template);
 	
 	// Targeting and Triggering
@@ -1275,7 +1279,7 @@ static function X2AbilityTemplate IRI_BH_WitchHunt()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_WitchHunt');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_flamethrower";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_WitchHunt";
 	SetHidden(Template);
 	
 	// Targeting and Triggering
@@ -1425,11 +1429,11 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 	AnimEffect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
 	AnimEffect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
 	Template.AddShooterEffect(AnimEffect);
-
+	
 	GrantAmmo = new class'X2Effect_BountyHunter_GrantAmmo';
 	GrantAmmo.BuildPersistentEffect(1, true);
 	GrantAmmo.bRemoveWhenTargetConcealmentBroken = true;
-	GrantAmmo.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), Template.IconImage, true);
+	GrantAmmo.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_FeelingLucky", true);
 
 	AbilityCondition = new class'X2Condition_AbilityProperty';
 	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_BH_FeelingLucky_Passive');
