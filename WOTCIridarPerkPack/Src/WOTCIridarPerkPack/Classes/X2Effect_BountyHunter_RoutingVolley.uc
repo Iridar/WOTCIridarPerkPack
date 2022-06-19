@@ -19,10 +19,7 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 
 	EventMgr.RegisterForEvent(EffectObj, 'OverrideReactionFireSlomo', OnOverrideReactionFireSlomo, ELD_Immediate);	
 	EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', TerminateTriggerListener, ELD_OnStateSubmitted,, TargetUnit,, EffectObj);	
-	`AMLOG("Succesfully registered all listeners");
 }
-
-
 
 static private function EventListenerReturn TerminateTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
@@ -44,8 +41,6 @@ static private function EventListenerReturn TerminateTriggerListener(Object Even
 	if (AbilityState == none || !AbilityState.IsAbilityInputTriggered())
 		return ELR_NoInterrupt;
 
-	`AMLOG("Attempting trigger by ability:" @ AbilityContext.InputContext.AbilityTemplateName);
-
 	EffectState = XComGameState_Effect(CallbackData);
 	if (EffectState == none)
 		return ELR_NoInterrupt;
@@ -58,7 +53,6 @@ static private function EventListenerReturn TerminateTriggerListener(Object Even
 	TargetUnit.GetUnitValue('IRI_BH_Terminate_UnitValue', UV);
 	if (UV.fValue == History.GetEventChainStartIndex())
 	{
-		`AMLOG("Terminate already responded to:" @ int(UV.fValue) @ "event chain start index, skipping this ability activation");
 		return ELR_NoInterrupt;
 	}
 
@@ -73,7 +67,6 @@ static private function EventListenerReturn TerminateTriggerListener(Object Even
 
 	if (ActivateOverwatchAbility(AbilityState, TargetUnit, AbilityContext))
 	{
-		`AMLOG("Triggered successfully, increasing Grants This Turn, setting Event Chain Start Index:" @ History.GetEventChainStartIndex());
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Setting Unit Value for Terminate");
 		TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(TargetUnit.Class, TargetUnit.ObjectID));
 		TargetUnit.SetUnitFloatValue('IRI_BH_Terminate_UnitValue', History.GetEventChainStartIndex(), eCleanup_BeginTurn);
@@ -127,10 +120,6 @@ static private function bool ActivateOverwatchAbility(XComGameState_Ability Abil
 		}
 		return AbilityState.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
 	}
-	else
-	{
-		`AMLOG("Cannot activate Terminate Attack, because:" @ AbilityState.CanActivateAbilityForObserverEvent(TargetUnit));
-	}
 	return false;
 }
 
@@ -156,21 +145,6 @@ static function EventListenerReturn OnOverrideReactionFireSlomo(Object EventData
     return ELR_NoInterrupt;
 }
 
-/*
-function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStateContext_Ability AbilityContext, XComGameState_Ability kAbility, XComGameState_Unit SourceUnit, XComGameState_Item AffectWeapon, XComGameState NewGameState, const array<name> PreCostActionPoints, const array<name> PreCostReservePoints) 
-{ 
-	local XComGameState_Effect NewEffectState;
-
-	if (EffectState.GrantsThisTurn != 0 && kAbility.IsAbilityInputTriggered())
-	{
-		`AMLOG(SourceUnit.GetFullName() @ "activated ability:" @ AbilityContext.InputContext.AbilityTemplateName @ "resetting GrantsThisTurn.");
-		NewEffectState = XComGameState_Effect(NewGameState.ModifyStateObject(class'XComGameState_Effect', EffectState.ObjectID));
-		NewEffectState.GrantsThisTurn = 0;
-	}
-
-	return false; 
-}
-*/
 simulated function AddX2ActionsForVisualization_RemovedSource(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult, XComGameState_Effect RemovedEffect)
 {
 	local X2Action_EnterCover Action;

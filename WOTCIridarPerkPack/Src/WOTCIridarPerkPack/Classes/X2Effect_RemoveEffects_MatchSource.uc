@@ -1,6 +1,7 @@
 class X2Effect_RemoveEffects_MatchSource extends X2Effect;
 
 // Copy of the original, but we skip any effects that are applied by units other than the unit that applied this effect.
+// --------------------------------------
 
 var() array<name> EffectNamesToRemove;
 var() bool        bCleanse;               //  Indicates the effect was removed "safely" for gameplay purposes so any bad "wearing off" effects should not trigger

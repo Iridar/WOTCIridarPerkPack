@@ -109,6 +109,7 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 	local X2AbilityTemplate					Template;	
 	local X2AbilityCost_Ammo				AmmoCost;
 	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
+	local int								NumExtraShots;
 
 	// No ammo cost, no using while burning or disoriented
 	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_BurstFire', true, false, false);
@@ -116,15 +117,18 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BurstFire";
 	
 	AmmoCost = new class'X2AbilityCost_Ammo';
-	AmmoCost.iAmmo = 2;
+	AmmoCost.iAmmo = `GetConfigInt('IRI_BH_BurstFire_AmmoCost');
 	Template.AbilityCosts.AddItem(AmmoCost);
 
 	AddCooldown(Template, `GetConfigInt('IRI_BH_BurstFire_Cooldown'));
 
-	BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
-	BurstFireMultiTarget.NumExtraShots = 1;
-	Template.AbilityMultiTargetStyle = BurstFireMultiTarget;
-
+	NumExtraShots = `GetConfigInt('IRI_BH_BurstFire_NumShots') - 1;
+	if (NumExtraShots > 0)
+	{
+		BurstFireMultiTarget = new class'X2AbilityMultiTarget_BurstFire';
+		BurstFireMultiTarget.NumExtraShots = NumExtraShots;
+		Template.AbilityMultiTargetStyle = BurstFireMultiTarget;
+	}
 	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[2]); // Just the damage effect.
 
 	// Placebo, actual firing animation is set by Template Master in BountyHunter\XComTemplateEditor.ini
@@ -138,7 +142,7 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 {
 	local X2AbilityTemplate							Template;
-	local X2Effect_BountyHunter_BurstFireAimPenalty BurstFireAimPenalty;
+	local X2Effect_ModifySquadsightPenalty			BurstFireAimPenalty;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BurstFire_Passive');
 
@@ -149,7 +153,9 @@ static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 	SetPassive(Template);
 	SetHidden(Template);
 
-	BurstFireAimPenalty = new class'X2Effect_BountyHunter_BurstFireAimPenalty';
+	BurstFireAimPenalty = new class'X2Effect_ModifySquadsightPenalty';
+	BurstFireAimPenalty.AbilityNames.AddItem('IRI_BH_BurstFire');
+	BurstFireAimPenalty.fModifier = `GetConfigFloat('IRI_BH_BurstFire_SquadSightPenaltyModifier');
 	BurstFireAimPenalty.BuildPersistentEffect(1, true);
 	BurstFireAimPenalty.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, false);
 	Template.AddTargetEffect(BurstFireAimPenalty);

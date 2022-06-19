@@ -2,6 +2,11 @@ class X2Effect_BountyHunter_DeadlyShadow extends X2Effect_Shadow;
 
 var private name AlreadyConcealedValue;
 
+// Technical Challenge: I need Deadly Shadow to have the same detection radius as Shadow, but otherwise behave like regular concealment.
+// This can be achieved by using regular concealment and modifying detection radius via stat modifiers, 
+// but any additional stat modifiers will reduce detection radius to zero, which I don't want.
+// So to get the detection radius I need, I still set the bSuperConcealed flag, but remove it the moment the game considers running the "chance to break super concealment" roll.
+
 // Allows the unit in Deadly Shadow remain concealed if the squad concealment is broken. 
 function bool RetainIndividualConcealment(XComGameState_Effect EffectState, XComGameState_Unit UnitState)
 {
@@ -21,8 +26,6 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 
 	EventMgr.RegisterForEvent(EffectObj, 'RetainConcealmentOnActivation', OnRetainConcealmentOnActivation, ELD_Immediate, 10, ,, UnitState);	
 	EventMgr.RegisterForEvent(EffectObj, 'AbilityActivated', OnAbilityActivated, ELD_Immediate,, UnitState,, EffectObj);	
-	
-	//EventMgr.RegisterForEvent(EffectObj, 'TacticalHUD_RealizeConcealmentStatus', OnTacticalHUD_RealizeConcealmentStatus, ELD_Immediate, 10, UnitState);	
 	EventMgr.RegisterForEvent(EffectObj, 'TacticalHUD_UpdateReaperHUD', OnTacticalHUD_UpdateReaperHUD, ELD_Immediate, 10, UnitState);	
 		
 	super.RegisterForEvents(EffectGameState);
@@ -55,11 +58,6 @@ static private function EventListenerReturn OnTacticalHUD_UpdateReaperHUD(Object
 		Tuple.Data[2].f = 1;	 // ModifiedLossCH
 	}
 }
-
-// Technical Challenge: I need Deadly Shadow to have the same detection radius as Shadow, but otherwise behave like regular concealment.
-// This can be achieved by using regular concealment and modifying detection radius via stat modifiers, 
-// but any additional stat modifiers will reduce detection radius to zero, which I don't want.
-// So to get the detection radius I need, I still set the bSuperConcealed flag, but remove it the moment the game considers running the "chance to break super concealment" roll.
 
 static private function ShadowPassiveEffectAdded(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
 {
@@ -140,7 +138,7 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 		if (UnitState == none)
 			return ELR_NoInterrupt; 
 
-		`AMLOG(UnitState.GetFullName() @ AbilityState.GetMyTemplateName() @ "breaking super concealment.");
+		//`AMLOG(UnitState.GetFullName() @ AbilityState.GetMyTemplateName() @ "breaking super concealment.");
 		UnitState.bHasSuperConcealment = false;
 	}
 	

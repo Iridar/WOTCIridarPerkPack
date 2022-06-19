@@ -1,15 +1,15 @@
 class X2Effect_BountyHunter_GrantAmmo extends X2Effect_Persistent;
 
-var EInventorySlot	Slot;
-var bool			bShowFlyovers;
-var int				iAmmo;
-
+// This effect will grant Ammo to the weapon in the specified slot. If that ammo is not spent by the time the effect is removed, the ammo is taken away.
 // Unit Value is applied when this effect is applied, to signify that we have granted bonus ammo.
 // Unit Value stores the ObjectID of the item to which we granted ammo.
 // If an ability is activated that consumed ammo on this item, unit value is removed,
 // signifying that the granted ammo was spent.
 // When the effect is removed from the unit, if the unit value is still there, it means the ammo was not spent, so we take it away ourselves.
 
+var EInventorySlot	Slot;
+var bool			bShowFlyovers;
+var int				iAmmo;
 
 // Display the effect on the unit while the unit value is there = ammo unspent.
 function bool IsEffectCurrentlyRelevant(XComGameState_Effect EffectGameState, XComGameState_Unit TargetUnit) 

@@ -1,5 +1,7 @@
 class X2Effect_AdditionalAbilityDamagePreview extends X2Effect;
 
+// When attached to an ability, this effect will add the damage of *another* specified ability into its damage preview.
+
 var name AbilityName;
 var bool bMatchSourceWeapon;
 

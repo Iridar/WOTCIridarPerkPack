@@ -26,17 +26,17 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 	History = `XCOMHISTORY;
 	if(!SourceUnit.WasConcealed(History.GetEventChainStartIndex()))
 	{
-		`AMLOG("Unit wasn't concealed, exiting");
+		//`AMLOG("Unit wasn't concealed, exiting");
 		return false;
 	}
 	if (SourceUnit.GetUnitValue(EffectName, UV))
 	{
-		`AMLOG("Unit value is present, exiting");
+		//`AMLOG("Unit value is present, exiting");
 		return false;
 	}
 	if(!kAbility.IsAbilityInputTriggered() || kAbility.RetainConcealmentOnActivation(AbilityContext))
 	{
-		`AMLOG(kAbility.GetMyTemplateName() @ "is not valid for Dramatic Entrance");
+		//`AMLOG(kAbility.GetMyTemplateName() @ "is not valid for Dramatic Entrance");
 		return false;
 	}
 	AbilityTemplate = kAbility.GetMyTemplate();
@@ -45,7 +45,7 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 
 	if (!AbilityTemplate.TargetEffectsDealDamage(kAbility.GetSourceWeapon(), kAbility))
 	{
-		`AMLOG(kAbility.GetMyTemplateName() @ "is doesn't deal damage");
+		//`AMLOG(kAbility.GetMyTemplateName() @ "is doesn't deal damage");
 		return false; 
 	}
 
@@ -56,7 +56,7 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 	//	return false;
 	//}
 
-	`AMLOG("Triggering Dramatic Entrance");
+	//`AMLOG("Triggering Dramatic Entrance");
     SourceUnit.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.RunAndGunActionPoint);
 	SourceUnit.SetUnitFloatValue(EffectName, 1.0f, eCleanup_BeginTurn);
 
@@ -79,16 +79,16 @@ static final function MaybeTriggerDramaticEntrance(out XComGameState_Unit NewUni
 	EffectState = NewUnitState.GetUnitAffectedByEffectState(default.EffectName);
 	if (EffectState == none)
 	{
-		`AMLOG("Dramatic Entrance effect is not present, exiting");
+		//`AMLOG("Dramatic Entrance effect is not present, exiting");
 		return;
 	}
 	if (NewUnitState.GetUnitValue(default.EffectName, UV))
 	{
-		`AMLOG("Unit value is present, exiting");
+		//`AMLOG("Unit value is present, exiting");
 		return;
 	}
 
-	`AMLOG("Triggering Dramatic Entrance");
+	//`AMLOG("Triggering Dramatic Entrance");
 
 	NewUnitState.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.RunAndGunActionPoint);
 	NewUnitState.SetUnitFloatValue(default.EffectName, 1.0f, eCleanup_BeginTurn);

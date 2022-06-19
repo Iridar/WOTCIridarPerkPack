@@ -72,16 +72,16 @@ LocFlyOverText="Nothing Personal"
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
-LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times. Squadsight aim penalties are twice as strong for this ability. <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
-LocHelpText="Fire a burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times."
+LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
+LocHelpText="Fire a burst from your <Ability:WeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
 LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance."
 LocFlyOverText="Overwhelming Burst"
 
 [IRI_BH_BurstFire_Passive X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
-LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times. Squadsight aim penalties are twice as strong for this ability."
-LocHelpText="Fire a burst from your <Ability:WeaponName/>. Costs 2 ammo and applies damage two times."
-LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance.<br/><bullet/> <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
+LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
+LocHelpText="Fire a burst from your <Ability:WeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
+LocPromotionPopupText=""
 LocFlyOverText="Overwhelming Burst"
 
 [IRI_BH_BombRaider X2AbilityTemplate]
@@ -160,7 +160,7 @@ LocFlyOverText="Named Bullet"
 LocFriendlyName="Terminate"
 LocLongDescription="Use your <Ability:WeaponName/> to continuously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run, and attacking it for every action it takes. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
 LocHelpText="Continously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run and attacking it for every action it takes."
-LocPromotionPopupText="<bullet/> Activating Terminate forces the target to immediately take a defensive move, if it is able.<br/><bullet/> Terminate attacks do not suffer reaction fire penalties and can deal critical damage.<br/><bullet/> Terminate will end at the start of your next turn, if you get wounded, if you run out of ammo, or if the target leaves your line of sight. Choose your position carefully to maximize the number of attacks."
+LocPromotionPopupText="<bullet/> Activating Terminate forces the target to immediately take a defensive move, if it is able.<br/><bullet/> Terminate attacks do not suffer reaction fire penalties and can deal critical damage, and they are pre-emptive when possible.<br/><bullet/> Terminate will end at the start of your next turn, if you get wounded, if you run out of ammo, or if the target leaves your line of sight. Choose your position carefully to maximize the number of attacks."
 LocFlyOverText="Terminate"
 
 [IRI_BH_Terminate_Attack X2AbilityTemplate]

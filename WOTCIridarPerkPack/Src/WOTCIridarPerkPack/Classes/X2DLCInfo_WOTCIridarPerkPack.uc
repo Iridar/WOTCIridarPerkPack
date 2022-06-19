@@ -9,6 +9,10 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	// In tactical (ability description): WOTCIridarPerkPack: AbilityTagExpandHandler_CH X2AbilityTemplate none (big oof)
 	switch (InString)
 	{
+
+	// ======================================================================================================================
+	//												BOUNTY HUNTER TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
 	case "IRI_TAG_BH_Headhunter_Bonuses":
 		OutString = BHColor(GetHeadhunterBonusValues(XComGameState_Unit(StrategyParseOb)));
 		return true;
@@ -30,6 +34,8 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_Terminate_Charges":
 	case "IRI_BH_ShadowTeleport_Charges":
 	case "IRI_BH_NamedBullet_Charges":
+	case "IRI_BH_BurstFire_AmmoCost":
+	case "IRI_BH_BurstFire_NumShots":
 		OutString = BHColor(`GetConfigInt(name(InString)));
 		return true;
 
@@ -40,9 +46,11 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		return true;
 
 	case "IRI_BH_DoublePayload_BonusDamage":
+	case "IRI_BH_BurstFire_SquadSightPenaltyModifier":
 		OutString = BHColor(GetPercentValue(name(InString)) $ "%");
 		return true;
 
+	// ----------------------------------------------------------------------------------------------------------------------
 	default:
 		break;
 	}

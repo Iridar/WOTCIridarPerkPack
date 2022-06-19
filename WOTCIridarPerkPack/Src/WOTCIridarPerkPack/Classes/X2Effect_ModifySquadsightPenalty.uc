@@ -1,11 +1,16 @@
-class X2Effect_BountyHunter_BurstFireAimPenalty extends X2Effect_Persistent;
+class X2Effect_ModifySquadsightPenalty extends X2Effect_Persistent;
+
+// Double squadsight penalties for specified abilities.
+
+var array<name> AbilityNames;
+var float fModifier;
 
 function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit Attacker, XComGameState_Unit Target, XComGameState_Ability AbilityState, class<X2AbilityToHitCalc> ToHitType, bool bMelee, bool bFlanking, bool bIndirectFire, out array<ShotModifierInfo> ShotModifiers)
 {
 	local ShotModifierInfo	ShotMod;
 	local int				Tiles;
 
-	if (AbilityState.GetMyTemplateName() != 'IRI_BH_BurstFire')
+	if (AbilityNames.Find(AbilityState.GetMyTemplateName()) == INDEX_NONE)
 		return;
 
 	//  Calculate how far into Squadsight range are we.
@@ -15,7 +20,7 @@ function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit 
 	if (Tiles > 0)
 	{
 		ShotMod.ModType = eHit_Success;
-		ShotMod.Value = class'X2AbilityToHitCalc_StandardAim'.default.SQUADSIGHT_DISTANCE_MOD * Tiles; // SQUADSIGHT_DISTANCE_MOD is already negative
+		ShotMod.Value = fModifier * float(class'X2AbilityToHitCalc_StandardAim'.default.SQUADSIGHT_DISTANCE_MOD * Tiles); // SQUADSIGHT_DISTANCE_MOD is already negative
 		ShotMod.Reason = FriendlyName;
 		ShotModifiers.AddItem(ShotMod);
 	}
@@ -24,5 +29,5 @@ function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit 
 defaultproperties
 {
 	DuplicateResponse = eDupe_Ignore
-	EffectName = "X2Effect_BountyHunter_BurstFireAimPenalty_Effect"
+	EffectName = "IRI_X2Effect_BountyHunter_BurstFireAimPenalty_Effect"
 }

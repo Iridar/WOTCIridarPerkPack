@@ -1,5 +1,7 @@
 class X2Effect_BountyHunter_CustomZeroIn extends X2Effect_Persistent;
 
+// Grant stacking crit against a target every time we damage it.
+
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager EventMgr;

@@ -2,11 +2,11 @@ class X2Effect_BountyHunter_UnrelentingPressure extends X2Effect_Persistent;
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
-	local X2EventManager EventMgr;
-	local XComGameState_Unit UnitState;
-	local XComGameState_Ability			AbilityState;
-	local XComGameStateHistory History;
-	local Object EffectObj;
+	local X2EventManager			EventMgr;
+	local XComGameState_Unit		UnitState;
+	local XComGameState_Ability		AbilityState;
+	local XComGameStateHistory		History;
+	local Object					EffectObj;
 
 	History = `XCOMHISTORY;
 	EventMgr = `XEVENTMGR;
@@ -33,13 +33,9 @@ static private function EventListenerReturn UnrelentingPressureListener(Object E
 	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt) 
 		return ELR_NoInterrupt;
 
-	`AMLOG("Running:" @ AbilityContext.InputContext.AbilityTemplateName);
-	
 	// It was a crit.
 	if (AbilityContext.ResultContext.HitResult != eHit_Crit)
 		return ELR_NoInterrupt;
-
-	`AMLOG("It was a crit");
 
 	ActivatedAbility = XComGameState_Ability(EventData);
 	if (ActivatedAbility == none)
@@ -63,8 +59,6 @@ static private function EventListenerReturn UnrelentingPressureListener(Object E
 	UnrelentingPressureState = XComGameState_Ability(CallbackData);
 	if (UnrelentingPressureState == none)
 		return ELR_NoInterrupt;
-
-	`AMLOG("Reducing cooldown");
 
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Reduce Burst Fire Cooldown");
 	BurstFireState = XComGameState_Ability(NewGameState.ModifyStateObject(BurstFireState.Class, BurstFireState.ObjectID));

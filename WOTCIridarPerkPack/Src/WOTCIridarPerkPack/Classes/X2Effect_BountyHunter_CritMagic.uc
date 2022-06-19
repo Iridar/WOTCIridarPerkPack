@@ -1,5 +1,8 @@
 class X2Effect_BountyHunter_CritMagic extends X2Effect_Persistent;
 
+// Gives bonus crit chance against enemies that don't see us.
+// If total crit chance is above 100%, overflow crit chance grants bonus crit damage.
+
 var int BonusCritChance;
 var int GrantCritDamageForCritChanceOverflow;
 
@@ -68,70 +71,16 @@ function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGa
 	if (CritChance < 0) 
 		return 0;
 
-	`AMLOG("Crit chance overflow:" @ CritChance @ "bonus damage:" @ CritChance / GrantCritDamageForCritChanceOverflow);
+	//`AMLOG("Crit chance overflow:" @ CritChance @ "bonus damage:" @ CritChance / GrantCritDamageForCritChanceOverflow);
 
 	return CritChance / GrantCritDamageForCritChanceOverflow;
 }
-
-
-static final function bool IsCritGuaranteed(const XComGameState_Unit Attacker, const XComGameState_Unit TargetUnit)
-{
-	return default.VisibilityCondition.MeetsConditionWithSource(TargetUnit, Attacker) == 'AA_Success';
-}
-/*
-function bool ChangeHitResultForAttacker(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const EAbilityHitResult CurrentResult, out EAbilityHitResult NewHitResult) 
-{ 
-	if (VisibilityCondition.MeetsConditionWithSource(TargetUnit, Attacker) == 'AA_Success' && 
-		class'XComGameStateContext_Ability'.static.IsHitResultHit(CurrentResult))
-	{
-		NewHitResult = eHit_Crit;
-		//`AMLOG("Making crit guaranteed");
-		return true;
-	}
-	return false;
-}*/
-/*
-function float GetPreDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) 
-{
-	local float					Multiplier;
-	local XComGameState_Unit	TargetUnit;
-
-	TargetUnit = XComGameState_Unit(Target);
-	if (TargetUnit != none && VisibilityCondition.MeetsConditionWithSource(TargetUnit, SourceUnit) == 'AA_Success')
-	{
-		Multiplier = GetDamageModifier(SourceUnit, TargetUnit, AbilityState);
-		//`AMLOG("Target:" @ TargetUnit.GetFullName() @ "Crit chance:" @ Multiplier @ "Current damage:" @ CurrentDamage @ ", modified by:" @ CurrentDamage * Multiplier);
-
-		return CurrentDamage * Multiplier; 
-	}
-
-	return 0;
-}
-
-static final function float GetDamageModifier(const XComGameState_Unit Attacker, const XComGameState_Unit TargetUnit, const XComGameState_Ability AbilityState)
-{
-	local ShotBreakdown			Breakdown;
-	local float					Multiplier;
-	local AvailableTarget		AvTarget;
-	local X2AbilityTemplate		Template;
-
-	Template = AbilityState.GetMyTemplate();
-	if (Template != none)
-	{
-		AvTarget.PrimaryTarget.ObjectID = TargetUnit.ObjectID;
-	
-		Template.AbilityToHitCalc.GetShotBreakdown(AbilityState, AvTarget, Breakdown);
-
-		Multiplier = Breakdown.ResultTable[eHit_Crit] / 100.0f;
-	}
-	return Multiplier;
-}
-*/
 
 defaultproperties
 {
 	DuplicateResponse = eDupe_Ignore
 	EffectName = "IRI_BH_X2Effect_BountyHunter_CritMagic_Effect"
+	bDisplayInSpecialDamageMessageUI=true
 
 	Begin Object Class=X2Condition_Visibility Name=DefaultVisibilityCondition
         bExcludeGameplayVisible = true; //condition will FAIL if there is GameplayVisibility FROM the target TO the source

@@ -99,7 +99,7 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BigGameHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BurstFireAimPenalty.uc">
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_ModifySquadsightPenalty.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_CritMagic.uc">
@@ -133,9 +133,6 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_RemoveEffects_MatchSource.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2EventListener_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2MeleePathingPawn_BountyHunter_ShadowTeleport.uc">
