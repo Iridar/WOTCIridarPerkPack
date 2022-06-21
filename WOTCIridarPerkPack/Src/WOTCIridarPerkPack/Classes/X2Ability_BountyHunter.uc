@@ -166,7 +166,7 @@ static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 	BurstFireAimPenalty.AbilityNames.AddItem('IRI_BH_BurstFire');
 	BurstFireAimPenalty.fModifier = `GetConfigFloat('IRI_BH_BurstFire_SquadSightPenaltyModifier');
 	BurstFireAimPenalty.BuildPersistentEffect(1, true);
-	BurstFireAimPenalty.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, false);
+	BurstFireAimPenalty.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, false,,Template.AbilitySourceName);
 	Template.AddTargetEffect(BurstFireAimPenalty);
 
 	return Template;
@@ -202,6 +202,7 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	Template.AbilityTargetEffects.Length = 0;
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamageEffect.DamageTag = 'IRI_BH_NothingPersonal';
+	WeaponDamageEffect.bIgnoreArmor = false;
 	WeaponDamageEffect.bIgnoreBaseDamage = true;
 	Template.AddTargetEffect(WeaponDamageEffect);
 
@@ -298,7 +299,7 @@ static function X2AbilityTemplate IRI_BH_DoublePayload()
 	BaseDamageBonus.DamageMod = `GetConfigFloat('IRI_BH_DoublePayload_BonusDamage');
 	BaseDamageBonus.bOnlyPrimaryTarget = true;
 	BaseDamageBonus.BuildPersistentEffect(1, true);
-	BaseDamageBonus.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	BaseDamageBonus.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	BaseDamageBonus.EffectName = 'IRI_BH_DoublePayload_BonusDamageEffect';
 	Template.AddTargetEffect(BaseDamageBonus);
 
@@ -325,7 +326,7 @@ static function X2AbilityTemplate IRI_BH_DramaticEntrance()
 
 	DramaticEntrance = new class'X2Effect_BountyHunter_DramaticEntrance';
 	DramaticEntrance.BuildPersistentEffect(1, true);
-	DramaticEntrance.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	DramaticEntrance.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(DramaticEntrance);
 
 	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DarkNight_Passive');
@@ -667,7 +668,7 @@ static function X2AbilityTemplate IRI_BH_Terminate()
 	SuppressionEffect.bRemoveWhenTargetDies = true;
 	SuppressionEffect.bRemoveWhenSourceDamaged = true;
 	//SuppressionEffect.bBringRemoveVisualizationForward = true;
-	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage);
+	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage,,,Template.AbilitySourceName);
 	SuppressionEffect.SetSourceDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionSourceEffectDesc, Template.IconImage);
 	Template.AddTargetEffect(SuppressionEffect);
 	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
@@ -785,7 +786,7 @@ static function X2AbilityTemplate IRI_BH_Terminate_Resuppress()
 	SuppressionEffect.bRemoveWhenTargetDies = true;
 	SuppressionEffect.bRemoveWhenSourceDamaged = true;
 	SuppressionEffect.bBringRemoveVisualizationForward = true;
-	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage);
+	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage,,,Template.AbilitySourceName);
 	SuppressionEffect.SetSourceDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionSourceEffectDesc, Template.IconImage);
 	Template.AddTargetEffect(SuppressionEffect);
 
@@ -948,12 +949,12 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Alt_Passive()
 
 	Effect = new class'X2Effect_BountyHunter_BigGameHunter';
 	Effect.BuildPersistentEffect(1, true);
-	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
 	PersistentEffect = new class'X2Effect_Persistent';
 	PersistentEffect.BuildPersistentEffect(1, true);
-	PersistentEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	PersistentEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(PersistentEffect);
 
 	Template.AdditionalAbilities.AddItem('IRI_BH_BigGameHunter_Alt');
@@ -1377,7 +1378,7 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 
 	Headhunter = new class'X2Effect_BountyHunter_Headhunter';
 	Headhunter.BuildPersistentEffect(1, true);
-	Headhunter.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Headhunter.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(Headhunter);
 	
 	return Template;
@@ -1445,7 +1446,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 		
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
 	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
-	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_Nightfall", true);
+	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_Nightfall", true,,Template.AbilitySourceName);
 	Template.AddShooterEffect(StealthEffect);
 
 	Template.AddShooterEffect(class'X2Effect_Spotted'.static.CreateUnspottedEffect());
@@ -1461,7 +1462,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 	GrantAmmo = new class'X2Effect_BountyHunter_GrantAmmo';
 	GrantAmmo.BuildPersistentEffect(1, true);
 	GrantAmmo.bRemoveWhenTargetConcealmentBroken = true;
-	GrantAmmo.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_FeelingLucky", true);
+	GrantAmmo.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_FeelingLucky", true,,Template.AbilitySourceName);
 
 	AbilityCondition = new class'X2Condition_AbilityProperty';
 	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_BH_FeelingLucky_Passive');
@@ -1485,7 +1486,7 @@ static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 
 	CritMagic = new class'X2Effect_BountyHunter_CritMagic';
 	CritMagic.BuildPersistentEffect(1, true);
-	CritMagic.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	CritMagic.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	CritMagic.BonusCritChance = `GetConfigInt('IRI_BH_Nightfall_CritChanceBonusWhenUnseen');
 	CritMagic.GrantCritDamageForCritChanceOverflow = `GetConfigInt('IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow');
 	Template.AddTargetEffect(CritMagic);
@@ -1534,7 +1535,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	// Effects
 	ChasingShotEffect = new class'X2Effect_Persistent';
 	ChasingShotEffect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
-	ChasingShotEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true); // TODO: Status icon here
+	ChasingShotEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName); // TODO: Status icon here
 	ChasingShotEffect.EffectName = 'IRI_BH_ChasingShot_Effect';
 	ChasingShotEffect.DuplicateResponse = eDupe_Allow;
 	Template.AddTargetEffect(ChasingShotEffect);
@@ -1765,7 +1766,7 @@ static function X2AbilityTemplate IRI_BH_Folowthrough()
 	// Effects
 	Folowthrough = new class'X2Effect_BountyHunter_Folowthrough';
 	Folowthrough.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
-	Folowthrough.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true);
+	Folowthrough.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(Folowthrough);
 
 	// State and Viz
