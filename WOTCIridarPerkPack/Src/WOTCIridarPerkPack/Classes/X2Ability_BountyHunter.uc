@@ -29,7 +29,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 		// Captain
 	Templates.AddItem(IRI_BH_BombRaider());
-	Templates.AddItem(PurePassive('IRI_BH_ToolsOfTheTrade', "img:///IRIPerkPackUI.UIPerk_ToolsOfTheTrade", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_BH_NightRounds());
 	Templates.AddItem(IRI_BH_UnrelentingPressure());
 
 		// Major
@@ -65,6 +65,27 @@ static function array<X2DataTemplate> CreateTemplates()
 static private function X2AbilityTemplate SetTreePosition(X2AbilityTemplate Template, int iRank)
 {
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY + 10 * iRank;
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_BH_NightRounds()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_BountyHunter_NightRounds	NightRounds;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_NightRounds');
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ToolsOfTheTrade";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetPassive(Template);
+
+	NightRounds = new class'X2Effect_BountyHunter_NightRounds';
+	NightRounds.BuildPersistentEffect(1, true);
+	NightRounds.BonusCritDamage = `GetConfigInt('IRI_BH_NightRounds_BonusCritDamage');
+	NightRounds.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
+	Template.AddTargetEffect(NightRounds);
 
 	return Template;
 }

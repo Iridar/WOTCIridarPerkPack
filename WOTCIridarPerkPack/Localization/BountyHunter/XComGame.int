@@ -91,12 +91,13 @@ LocHelpText="Gain a Grenade slot. Your explosive attacks can inflict critical da
 LocPromotionPopupText="<bullet/> This ability allows explosives to benefit from Dead of Night, making critical hits guaranteed when using explosives while in Nightfall concealment or throwing grenades around objects that block line of sight.."
 LocFlyOverText="Bomb Raider"
 
-[IRI_BH_ToolsOfTheTrade X2AbilityTemplate]
-LocFriendlyName="Tools of the Trade"
-LocLongDescription="Gain am Ammo slot."
-LocHelpText="Gain am Ammo slot."
+[IRI_BH_NightRounds X2AbilityTemplate]
+LocFriendlyName="Night Rounds"
+LocLongDescription="Gain am Ammo slot. While concealed, gain +<Ability:IRI_BH_NightRounds_BonusCritDamage/> bonus critical damage against unflankable enemies."
+LocHelpText="Gain am Ammo slot. While concealed, gain +<Ability:IRI_BH_NightRounds_BonusCritDamage/> bonus critical damage against unflankable enemies."
 LocPromotionPopupText=""
-LocFlyOverText="Tools of the Trade"
+LocFlyOverText="Night Rounds"
+
 
 [IRI_BH_UnrelentingPressure X2AbilityTemplate]
 LocFriendlyName="Unrelenting Pressure"
@@ -122,8 +123,8 @@ LocFlyOverText="Witch Hunt"
 
 [IRI_BH_FeelingLucky_Passive X2AbilityTemplate]
 LocFriendlyName="Feeling Lucky"
-LocLongDescription="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent."
-LocHelpText="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent."
+LocLongDescription="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent by the time Nightfall concealment is broken."
+LocHelpText="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent by the time Nightfall concealment is broken."
 LocPromotionPopupText=""
 LocFlyOverText="Feeling Lucky"
 
