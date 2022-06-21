@@ -116,3 +116,23 @@ static final function SuppressionBuildVisualizationSync(name EffectName, XComGam
 		class'X2Action_StartSuppression'.static.AddToVisualizationTree( ActionMetadata, VisualizeGameState.GetContext() );
 	}
 }
+
+static final function XComGameState_Ability GetAbilityFromUnit(const XComGameState_Unit UnitState, const name AbilityName, optional StateObjectReference MatchWeapon, optional XComGameState CheckGameState)
+{
+	local StateObjectReference	AbilityRef;
+	local XComGameState_Ability AbilityState;
+
+	AbilityRef = UnitState.FindAbility(AbilityName, MatchWeapon);
+	if (AbilityRef.ObjectID != 0)
+	{
+		if (CheckGameState != none)
+		{
+			AbilityState = XComGameState_Ability(CheckGameState.GetGameStateForObjectID(AbilityRef.ObjectID));
+		}
+		else
+		{
+			AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(AbilityRef.ObjectID));
+		}
+	}
+	return AbilityState;
+}

@@ -409,7 +409,7 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	GatherTilesAdjacentToTiles_BH(TargetTiles, AllAdjacentTiles, AroundTargetTileDistance);
 
 	// Remove from that array tiles that are directly adjacent to the unit, cuz teleporting there would break concealment.
-	GatherTilesAdjacentToTiles_BH(TargetTiles, DirectlyAdjacentTiles, 1);
+	GatherTilesAdjacentToTiles_BH(TargetTiles, DirectlyAdjacentTiles, 1.5f);
 	class'Helpers'.static.RemoveTileSubset(AdjacentTiles, AllAdjacentTiles, DirectlyAdjacentTiles);
 
 	SightRadiusUnitsSq = `METERSTOUNITS(ChasingUnitState.GetVisibilityRadius());
@@ -434,6 +434,10 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 			if (SightRadiusUnitsSq < VisibilityInfo.DefaultTargetDist)
 				continue;
 
+			// Skip tiles that don't have line of sight to the target unit.
+			if (!World.CanSeeTileToTile(AdjacentTile, TargetUnit.TileLocation, VisibilityInfo))
+				continue;
+
 			if (bCheckForFlanks)
 			{
 				if (VisibilityMgr.GetVisibilityInfoFromRemoteLocation(ChasingUnitState.ObjectID, AdjacentTile, TargetUnit.ObjectID, VisibilityInfo))
@@ -451,14 +455,13 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	return SortedPossibleTiles.Length > 0;
 }
 
-private function GatherTilesAdjacentToTiles_BH(out array<TTile> TargetTiles, out array<TTile> AdjacentTiles, const int TileDistance)
+private function GatherTilesAdjacentToTiles_BH(out array<TTile> TargetTiles, out array<TTile> AdjacentTiles, const float TileDistance)
 {	
 	local XComWorldData      WorldData;
 	local array<TilePosPair> TilePosPairs;
 	local TilePosPair        TilePair;
 	local TTile              TargetTile;
-	local vector             Minimum;
-	local vector             Maximum;
+	local vector             TargetLocation;
 	
 	WorldData = `XWORLD;
 
@@ -467,18 +470,9 @@ private function GatherTilesAdjacentToTiles_BH(out array<TTile> TargetTiles, out
 	// so collecting tiles on the same Z level would not be enough.
 	foreach TargetTiles(TargetTile)
 	{
-		Minimum = WorldData.GetPositionFromTileCoordinates(TargetTile);
-		Maximum = Minimum;
+		TargetLocation = WorldData.GetPositionFromTileCoordinates(TargetTile);
 
-		Minimum.X -= WorldData.WORLD_StepSize * TileDistance;
-		Minimum.Y -= WorldData.WORLD_StepSize * TileDistance;
-		Minimum.Z -= WorldData.WORLD_FloorHeight * TileDistance;
-
-		Maximum.X += WorldData.WORLD_StepSize * TileDistance;
-		Maximum.Y += WorldData.WORLD_StepSize * TileDistance;
-		Maximum.Z += WorldData.WORLD_FloorHeight * TileDistance;
-
-		WorldData.CollectTilesInBox(TilePosPairs, Minimum, Maximum);
+		WorldData.CollectTilesInSphere(TilePosPairs, TargetLocation, `TILESTOUNITS(TileDistance));
 
 		foreach TilePosPairs(TilePair)
 		{

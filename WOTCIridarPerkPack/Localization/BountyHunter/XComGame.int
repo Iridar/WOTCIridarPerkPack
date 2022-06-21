@@ -173,17 +173,19 @@ LocFlyOverText="Terminate"
 
 [IRI_BH_Untraceable X2AbilityTemplate]
 LocFriendlyName="Untraceable"
-LocLongDescription="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
-LocHelpText="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
+LocLongDescription="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by <Ability:IRI_BH_Untraceable_CooldownReduction/> turn(s)."
+LocHelpText="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by <Ability:IRI_BH_Untraceable_CooldownReduction/> turn(s)."
 LocPromotionPopupText=""
 LocFlyOverText="Untraceable"
 
 [IRI_BH_Untraceable_Passive X2AbilityTemplate]
 LocFriendlyName="Untraceable"
-LocLongDescription="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
-LocHelpText="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 1 turn."
+LocLongDescription="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by <Ability:IRI_BH_Untraceable_CooldownReduction/> turn(s)."
+LocHelpText="If you don't attack for a turn, Nightfall's cooldown is additionally reduced by <Ability:IRI_BH_Untraceable_CooldownReduction/> turn(s)."
 LocPromotionPopupText=""
 LocFlyOverText="Untraceable"
+
+
 
 
 

@@ -35,3 +35,5 @@ simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameStat
 		}
 	}
 }
+
+

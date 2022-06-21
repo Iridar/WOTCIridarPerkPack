@@ -27,7 +27,6 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	local name							ValueName;
 	local DamageResult					DmgResult;
 	local XComGameStateContext_Ability	AbilityContext;
-	local XComGameState_Item			ItemState;
 	local XComGameState_Ability			AbilityState;
 	local XComGameState_Effect			EffectState;
 		
@@ -35,12 +34,8 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	if (KilledUnit == none || KilledUnit.DamageResults.Length == 0)
 		return ELR_NoInterrupt;
 
-	GroupName = KilledUnit.GetMyTemplateGroupName();
-	if (GroupName == '')
-		return ELR_NoInterrupt;
-
-	SourceUnit = XComGameState_Unit(EventSource);
-	if (SourceUnit == none)
+	EffectState = XComGameState_Effect(CallbackData);
+	if (EffectState == none)
 		return ELR_NoInterrupt;
 
 	DmgResult = KilledUnit.DamageResults[KilledUnit.DamageResults.Length - 1];
@@ -48,8 +43,16 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	if (AbilityContext == none)
 		return ELR_NoInterrupt;
 
-	ItemState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.ItemObject.ObjectID));
-	if (ItemState == none || ItemState.GetWeaponCategory() != 'iri_bounty_pistol')
+	// Damage must be applied from the secondary weapon.
+	if (AbilityContext.InputContext.ItemObject.ObjectID != EffectState.ApplyEffectParameters.ItemStateObjectRef.ObjectID)
+		return ELR_NoInterrupt;
+
+	SourceUnit = XComGameState_Unit(EventSource);
+	if (SourceUnit == none)
+		return ELR_NoInterrupt;
+
+	GroupName = KilledUnit.GetMyTemplateGroupName();
+	if (GroupName == '')
 		return ELR_NoInterrupt;
 
 	ValueName = Name(default.UVPrefix $ GroupName);
@@ -59,14 +62,10 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	SourceUnit = XComGameState_Unit(NewGameState.ModifyStateObject(SourceUnit.Class, SourceUnit.ObjectID));
 	SourceUnit.SetUnitFloatValue(ValueName, UV.fValue + 1, eCleanup_Never);
 
-	EffectState = XComGameState_Effect(CallbackData);
-	if (EffectState != none)
+	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
+	if (AbilityState != none)
 	{
-		AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
-		if (AbilityState != none)
-		{
-			`XEVENTMGR.TriggerEvent('IRI_X2Effect_BountyHunter_Headhunter_Event', AbilityState, SourceUnit, NewGameState);
-		}
+		`XEVENTMGR.TriggerEvent('IRI_X2Effect_BountyHunter_Headhunter_Event', AbilityState, SourceUnit, NewGameState);
 	}
 	
 	`GAMERULES.SubmitGameState(NewGameState);
@@ -79,14 +78,15 @@ function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit 
 	local ShotModifierInfo		ShotModifier;
 	local UnitValue				UV;
 	local name					GroupName;
-	local XComGameState_Item	SourceWeapon;
+
+	if (EffectState.ApplyEffectParameters.ItemStateObjectRef.ObjectID != AbilityState.SourceWeapon.ObjectID)
+		return;
 
 	GroupName = Target.GetMyTemplateGroupName();
 	if (GroupName == '')
 		return;
 
-	SourceWeapon = AbilityState.GetSourceWeapon();
-	if (SourceWeapon != none && SourceWeapon.GetWeaponCategory() == 'iri_bounty_pistol' && Attacker.GetUnitValue(Name(UVPrefix $ GroupName), UV))
+	if (Attacker.GetUnitValue(Name(UVPrefix $ GroupName), UV))
 	{
 		ShotModifier.ModType = eHit_Crit;
 		ShotModifier.Value = UV.fValue;

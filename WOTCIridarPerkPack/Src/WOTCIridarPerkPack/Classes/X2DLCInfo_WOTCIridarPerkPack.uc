@@ -36,6 +36,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_NamedBullet_Charges":
 	case "IRI_BH_BurstFire_AmmoCost":
 	case "IRI_BH_BurstFire_NumShots":
+	case "IRI_BH_Untraceable_CooldownReduction":
 		OutString = BHColor(`GetConfigInt(name(InString)));
 		return true;
 
