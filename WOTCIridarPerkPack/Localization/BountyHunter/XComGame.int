@@ -40,6 +40,14 @@ LocHelpText="Attacking no longer breaks Nightfall concealment."
 LocPromotionPopupText="<bullet/> Dark Night allows multiple attacks to benefit from Dead of Night."
 LocFlyOverText="Dark Night"
 
+[IRI_BH_NightWatch X2AbilityTemplate]
+LocFriendlyName="Night Watch"
+LocLongDescription="Your <Ability:WeaponName/> gains Squadsight, allowing you to attack enemies within squadmates' sight, provided there is line of sight to the target. Night Watch does not suffer critical chance penalties normally associated with Squadsight."
+LocHelpText="Your <Ability:WeaponName/> gains Squadsight, allowing you to attack enemies within squadmates' sight, provided there is line of sight to the target. Night Watch does not suffer critical chance penalties normally associated with Squadsight."
+LocPromotionPopupText="<bullet/> Squadsight attacks benefit from Dead of Night."
+LocFlyOverText="Night Watch"
+
+
 
 [IRI_BH_ShadowTeleport X2AbilityTemplate]
 LocFriendlyName="Night Dive"
@@ -50,9 +58,9 @@ LocFlyOverText="Night Dive"
 
 [IRI_BH_Nightmare X2AbilityTemplate]
 LocFriendlyName="Nightmare"
-LocLongDescription="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when flanking targets that do not see you."
-LocHelpText="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when flanking targets that do not see you."
-LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Has no effect on enemies that cannot be flanked."
+LocLongDescription="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when attacking uncovered targets that do not see you."
+LocHelpText="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when attacking uncovered targets that do not see you."
+LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Applies only when flanking or attacking enemies that do not take cover at all."
 LocFlyOverText="Nightmare"
 
 

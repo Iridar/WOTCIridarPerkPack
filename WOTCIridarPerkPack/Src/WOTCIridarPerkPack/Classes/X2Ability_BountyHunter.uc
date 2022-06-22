@@ -16,6 +16,7 @@ static function array<X2DataTemplate> CreateTemplates()
 		// Corporal
 	Templates.AddItem(SetTreePosition(IRI_BH_DramaticEntrance(), 1));
 	Templates.AddItem(IRI_BH_DarkNight_Passive());
+	Templates.AddItem(IRI_BH_NightWatch());
 
 		// Sergeant
 	Templates.AddItem(SetTreePosition(IRI_BH_ShadowTeleport(), 2)); // Night Dive
@@ -65,6 +66,30 @@ static function array<X2DataTemplate> CreateTemplates()
 static private function X2AbilityTemplate SetTreePosition(X2AbilityTemplate Template, int iRank)
 {
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY + 10 * iRank;
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_BH_NightWatch()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_ModifySquadsightPenalty	NightWatch;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_NightWatch');
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_NightWatch";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetPassive(Template);
+
+	NightWatch = new class'X2Effect_ModifySquadsightPenalty';
+	NightWatch.iCritFlatModifier = -class'X2AbilityToHitCalc_StandardAim'.default.SQUADSIGHT_CRIT_MOD;
+	NightWatch.BuildPersistentEffect(1, true);
+	NightWatch.EffectName = 'IRI_BH_NightWatch_Effect';
+	NightWatch.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, false,,Template.AbilitySourceName);
+	Template.AddTargetEffect(NightWatch);
+
+	Template.AdditionalAbilities.AddItem('Squadsight');
 
 	return Template;
 }
@@ -185,9 +210,10 @@ static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 
 	BurstFireAimPenalty = new class'X2Effect_ModifySquadsightPenalty';
 	BurstFireAimPenalty.AbilityNames.AddItem('IRI_BH_BurstFire');
-	BurstFireAimPenalty.fModifier = `GetConfigFloat('IRI_BH_BurstFire_SquadSightPenaltyModifier');
+	BurstFireAimPenalty.fAimModifier = `GetConfigFloat('IRI_BH_BurstFire_SquadSightPenaltyModifier');
 	BurstFireAimPenalty.BuildPersistentEffect(1, true);
 	BurstFireAimPenalty.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, false,,Template.AbilitySourceName);
+	BurstFireAimPenalty.EffectName = 'IRI_BH_BurstFire_SquadsightPenalty_Effect';
 	Template.AddTargetEffect(BurstFireAimPenalty);
 
 	return Template;
@@ -387,7 +413,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 
 	// Target conditions
 	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
-	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 	
 	// Costs
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
@@ -922,11 +948,15 @@ static function X2AbilityTemplate IRI_BH_Nightmare()
 	Effect.DuplicateResponse = eDupe_Ignore;
 	Effect.BuildPersistentEffect(1, true, false);
 	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
-	Effect.AddEffectHitModifier(eHit_Success, `GetConfigInt('IRI_BH_Nightmare_AimBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
-	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_Nightmare_CritBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, false /*NonFlanked*/);
-	
+	Effect.AddEffectHitModifier(eHit_Success, `GetConfigInt('IRI_BH_Nightmare_AimBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, true /*NonFlanked*/);
+	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_Nightmare_CritBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, true /*Flanked*/, true /*NonFlanked*/);
+
+	// Require that target does not see us and has no cover.
+	// Units that don't take cover in principle should pass as well.
 	VisCondition = new class'X2Condition_Visibility';
 	VisCondition.bExcludeGameplayVisible = true;
+	VisCondition.bRequireMatchCoverType = true;
+	VisCondition.TargetCover = CT_None;
 	Effect.ToHitConditions.AddItem(VisCondition);
 
 	Template.AddTargetEffect(Effect);
@@ -1397,6 +1427,9 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 
 	SetPassive(Template);
 
+	// Let Nightfall be the ability in the popup.
+	Template.bHideOnClassUnlock = true;
+
 	Headhunter = new class'X2Effect_BountyHunter_Headhunter';
 	Headhunter.BuildPersistentEffect(1, true);
 	Headhunter.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
@@ -1417,6 +1450,8 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 	
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Nightfall";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
+
+	Template.bHideOnClassUnlock = false;
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
