@@ -13,13 +13,13 @@ https://github.com/Iridar/EnhancedModProjectTemplate
 Credit Mitzruti for Chimera Squad icons for Overwhelming Burst, Unrelenting Pressure, Bomb Raider, Named Bullet and Terminate (modified).
 
 TODO: 
+- AtSR config
 - Special animation for Named Bullet and teleport shot
 - custom puck mesh for teleport
 
 ѕеределать иконки:
 1. Nightmare, там где луна "страшна€" - слегка несерьЄзна€
 2. “елепорт - выбиваетс€ из общего стил€ иконок игры
-3. dramatic entrance - из названи€ абилки и картинки получаетс€ будто он двери высаживает, а на практике абилка про стрельбу или взрывы из засады, может тут и иконку и название мен€ть надо
+3. dramatic entrance - из названи€ абилки и картинки получаетс€ будто он двери высаживает, а на практике абилка про стрельбу или взрывы из засады, может тут и иконку и название мен€ть надо. Explosive Action, maybe?
 4. ≈сли сильно докапыватьс€, то в иконке Blinding Fire не хватает собственно Fire, по иконке можно подумать что эта абилка овервотч снимаетс€ или типа того.
-5. Night Rounds патроны с полумес€цем вместо звезды?
-6. ” иконок с луной и черным силуэтом, добавить белый контур вокруг силуэта?
+5. ѕомен€ть иконку Dead of Night, поставить череп вместо ковбо€?

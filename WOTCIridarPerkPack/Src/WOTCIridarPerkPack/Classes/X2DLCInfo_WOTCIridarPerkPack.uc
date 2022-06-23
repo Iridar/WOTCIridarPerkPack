@@ -17,9 +17,9 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		OutString = BHColor(GetHeadhunterBonusValues(XComGameState_Unit(StrategyParseOb)));
 		return true;
 
-	case "IRI_TAG_BH_Handcannon_Ammo":
-		OutString = BHColor(GetSecondaryWeaponClipSize(XComGameState_Unit(StrategyParseOb), GameState));
-		return true;
+	//case "IRI_TAG_BH_Handcannon_Ammo":
+	//	OutString = BHColor(GetSecondaryWeaponClipSize(XComGameState_Unit(StrategyParseOb), GameState));
+	//	return true;
 
 	case "IRI_BH_Nightfall_Cooldown":
 	case "IRI_BH_Nightfall_Duration":
@@ -37,13 +37,13 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_BurstFire_AmmoCost":
 	case "IRI_BH_BurstFire_NumShots":
 	case "IRI_BH_Untraceable_CooldownReduction":
-	case "IRI_BH_NightRounds_BonusCritDamage":
 		OutString = BHColor(`GetConfigInt(name(InString)));
 		return true;
 
 	case "IRI_BH_BigGameHunter_CritBonus":
 	case "IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow":
 	case "IRI_BH_Nightfall_CritChanceBonusWhenUnseen":
+	case "IRI_BH_NightRounds_CritBonus":
 		OutString = BHColor(`GetConfigInt(name(InString)) $ "%");
 		return true;
 
@@ -74,21 +74,21 @@ static private function string GetPercentValue(name ConfigName)
 	return string(PercentValue);
 }
 
-static private function string GetSecondaryWeaponClipSize(const XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item ItemState;
-
-	if (UnitState != none)
-	{
-		ItemState = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
-		if(ItemState != none)
-		{
-			return string(ItemState.GetClipSize());
-		}
-	}
-
-	return "N/A";
-}
+//static private function string GetSecondaryWeaponClipSize(const XComGameState_Unit UnitState, optional XComGameState CheckGameState)
+//{
+//	local XComGameState_Item ItemState;
+//
+//	if (UnitState != none)
+//	{
+//		ItemState = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
+//		if(ItemState != none)
+//		{
+//			return string(ItemState.GetClipSize());
+//		}
+//	}
+//
+//	return "N/A";
+//}
 
 static private function string GetHeadhunterBonusValues(const XComGameState_Unit UnitState)
 {

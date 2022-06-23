@@ -25,6 +25,7 @@ static function array<X2DataTemplate> CreateTemplates()
 		// Lieutenant
 	Templates.AddItem(IRI_BH_DoublePayload());
 	Templates.AddItem(IRI_BH_NothingPersonal());
+	Templates.AddItem(PurePassive('IRI_BH_NothingPersonal_Passive', "img:///IRIPerkPackUI.UIPerk_NothingPersonal", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(SetTreePosition(IRI_BH_BurstFire(), 3));
 	Templates.AddItem(IRI_BH_BurstFire_Passive());
 
@@ -96,8 +97,9 @@ static function X2AbilityTemplate IRI_BH_NightWatch()
 
 static function X2AbilityTemplate IRI_BH_NightRounds()
 {
-	local X2AbilityTemplate					Template;
-	local X2Effect_BountyHunter_NightRounds	NightRounds;
+	local X2AbilityTemplate			Template;
+	local X2Effect_ToHitModifier	Effect;
+	local X2Condition_Visibility	VisCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_NightRounds');
 
@@ -106,11 +108,22 @@ static function X2AbilityTemplate IRI_BH_NightRounds()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	SetPassive(Template);
 
-	NightRounds = new class'X2Effect_BountyHunter_NightRounds';
-	NightRounds.BuildPersistentEffect(1, true);
-	NightRounds.BonusCritDamage = `GetConfigInt('IRI_BH_NightRounds_BonusCritDamage');
-	NightRounds.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
-	Template.AddTargetEffect(NightRounds);
+	Effect = new class'X2Effect_ToHitModifier';
+	Effect.EffectName = 'IRI_BH_Nightmare';
+	Effect.DuplicateResponse = eDupe_Ignore;
+	Effect.BuildPersistentEffect(1, true, false);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
+	Effect.AddEffectHitModifier(eHit_Crit, `GetConfigInt('IRI_BH_NightRounds_CritBonus'), Template.LocFriendlyName, /*ToHitCalClass*/,,, false /*Flanked*/, true /*NonFlanked*/);
+
+	// Require that target does not see us and has no cover, but we're not flanking. 
+	// This should make sure the bonus is ever applied only against enemies that don't take cover.
+	VisCondition = new class'X2Condition_Visibility';
+	VisCondition.bExcludeGameplayVisible = true;
+	VisCondition.bRequireMatchCoverType = true;
+	VisCondition.TargetCover = CT_None;
+	Effect.ToHitConditions.AddItem(VisCondition);
+
+	Template.AddTargetEffect(Effect);
 
 	return Template;
 }
@@ -265,6 +278,7 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	Template.BuildVisualizationFn = NothingPersonal_BuildVisualization;
 
 	Template.PrerequisiteAbilities.AddItem('IRI_BH_ShadowTeleport');
+	Template.AdditionalAbilities.AddItem('IRI_BH_NothingPersonal_Passive');
 
 	return Template;
 }

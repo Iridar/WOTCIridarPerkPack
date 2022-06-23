@@ -7,7 +7,7 @@ LocFlyOverText="Headhunter: +1% crit"
 
 [IRI_BH_FirePistol X2AbilityTemplate]
 LocFriendlyName="Handcannon"
-LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. It is incredibly destructive, but its ammunition is rare and must be used sparingly. Limited to <Ability:IRI_TAG_BH_Handcannon_Ammo/> shots per mission."
+LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. It is incredibly destructive, but its ammunition is limited and must be used sparingly."
 LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target."
 LocFlyOverText=""
 LocPromotionPopupText=""
@@ -21,9 +21,9 @@ LocFlyOverText="Nightfall"
 
 [IRI_BH_Nightfall_Passive X2AbilityTemplate]
 LocFriendlyName="Dead of Night"
-LocLongDescription="Gain +1 Crit Damage for every <Ability:IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow/> of Crit Chance above 100%.<br/>Gain +<Ability:IRI_BH_Nightfall_CritChanceBonusWhenUnseen/> Crit Chance against enemies that do not see you."
-LocHelpText="Gain +1 Crit Damage for every <Ability:IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow/> of Crit Chance above 100%. Gain +<Ability:IRI_BH_Nightfall_CritChanceBonusWhenUnseen/> Crit Chance against enemies that do not see you."
-LocPromotionPopupText="<bullet/> Use Nightfall and flank enemies to guarantee critical hits and boost your critical damage."
+LocLongDescription="Gain +<Ability:IRI_BH_Nightfall_CritChanceBonusWhenUnseen/> Crit Chance against enemies that do not see you.<br/>Gain +1 Crit Damage for every <Ability:IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow/> of Crit Chance above 100%."
+LocHelpText="Gain +<Ability:IRI_BH_Nightfall_CritChanceBonusWhenUnseen/> Crit Chance against enemies that do not see you. Gain +1 Crit Damage for every <Ability:IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow/> of Crit Chance above 100%."
+LocPromotionPopupText="<bullet/> Use Nightfall and flank enemies to boost your damage output."
 LocFlyOverText="Dead of Night"
 
 [IRI_BH_DramaticEntrance X2AbilityTemplate]
@@ -58,8 +58,8 @@ LocFlyOverText="Night Dive"
 
 [IRI_BH_Nightmare X2AbilityTemplate]
 LocFriendlyName="Nightmare"
-LocLongDescription="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when attacking uncovered targets that do not see you."
-LocHelpText="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit when attacking uncovered targets that do not see you."
+LocLongDescription="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit Chance when attacking uncovered targets that do not see you."
+LocHelpText="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit Chance when attacking uncovered targets that do not see you."
 LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Applies only when flanking or attacking enemies that do not take cover at all."
 LocFlyOverText="Nightmare"
 
@@ -77,6 +77,14 @@ LocLongDescription="After using Night Dive, automatically fire a free <Ability:S
 LocHelpText="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture. Does not cost <Ability:SecondaryWeaponName/> ammo."
 LocPromotionPopupText="<bullet/> This attack is not guaranteed to hit.<br/><bullet/> This attack will immediately break Nightfall concealment if you don't have the Dark Night ability."
 LocFlyOverText="Nothing Personal"
+
+[IRI_BH_NothingPersonal_Passive X2AbilityTemplate]
+LocFriendlyName="Nothing Personal"
+LocLongDescription="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture. Does not cost <Ability:SecondaryWeaponName/> ammo."
+LocHelpText="After using Night Dive, automatically fire a free <Ability:SecondaryWeaponName/> shot at its target. The bullet is coated with residiual psionic energy from the rift, and deals psionic damage, piercing all armor and applying rupture. Does not cost <Ability:SecondaryWeaponName/> ammo."
+LocPromotionPopupText="<bullet/> This attack is not guaranteed to hit.<br/><bullet/> This attack will immediately break Nightfall concealment if you don't have the Dark Night ability."
+LocFlyOverText="Nothing Personal"
+
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
@@ -101,8 +109,8 @@ LocFlyOverText="Bomb Raider"
 
 [IRI_BH_NightRounds X2AbilityTemplate]
 LocFriendlyName="Night Rounds"
-LocLongDescription="Gain am Ammo slot. While concealed, gain +<Ability:IRI_BH_NightRounds_BonusCritDamage/> bonus critical damage against unflankable enemies."
-LocHelpText="Gain am Ammo slot. While concealed, gain +<Ability:IRI_BH_NightRounds_BonusCritDamage/> bonus critical damage against unflankable enemies."
+LocLongDescription="Gain am Ammo slot. Gain +<Ability:IRI_BH_NightRounds_CritBonus/> Crit Chance against unflankable enemies."
+LocHelpText="Gain am Ammo slot. Gain +<Ability:IRI_BH_NightRounds_CritBonus/> Crit Chance against unflankable enemies."
 LocPromotionPopupText=""
 LocFlyOverText="Night Rounds"
 
@@ -138,8 +146,8 @@ LocFlyOverText="Feeling Lucky"
 
 [IRI_BH_BigGameHunter X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
-LocLongDescription="Damaging an enemy grants +<Ability:IRI_BH_BigGameHunter_CritBonus/> Crit against them. This bonus is cumulative, but it is reset if you damage another enemy."
-LocHelpText="Damaging an enemy grants +<Ability:IRI_BH_BigGameHunter_CritBonus/> Crit against them. This bonus is cumulative, but it is reset if you damage another enemy."
+LocLongDescription="Damaging an enemy grants +<Ability:IRI_BH_BigGameHunter_CritBonus/> Crit Chance against them. This bonus is cumulative, but it is reset if you damage another enemy."
+LocHelpText="Damaging an enemy grants +<Ability:IRI_BH_BigGameHunter_CritBonus/> Crit Chance against them. This bonus is cumulative, but it is reset if you damage another enemy."
 LocPromotionPopupText=""
 LocFlyOverText="Big Game Hunter"
 
