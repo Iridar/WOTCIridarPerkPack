@@ -204,6 +204,8 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 
 	Template.AdditionalAbilities.AddItem('IRI_BH_BurstFire_Passive');
 
+	Template.ActivationSpeech = 'BulletShred'; // Hail of Bullets voiceilne
+
 	return Template;	
 }
 
@@ -279,6 +281,8 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 
 	Template.PrerequisiteAbilities.AddItem('IRI_BH_ShadowTeleport');
 	Template.AdditionalAbilities.AddItem('IRI_BH_NothingPersonal_Passive');
+
+	Template.ActivationSpeech = 'LightningHands';
 
 	return Template;
 }
@@ -546,7 +550,7 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	local VisualizationActionMetadata EmptyTrack;
 	local XComGameStateContext_Ability AbilityContext;
 	local XComGameState_EnvironmentDamage EnvironmentDamage;
-	local X2Action_PlaySoundAndFlyOver CharSpeechAction;
+	//local X2Action_PlaySoundAndFlyOver CharSpeechAction;
 	local X2Action_PlaySoundAndFlyOver Flyover;
 	local X2Action_BountyHunter_ShadowTeleport GrappleAction;
 	local X2Action_BountyHunter_ShadowTeleport_ExitCover ExitCoverAction;
@@ -569,8 +573,8 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 
 	UnitState = XComGameState_Unit(ActionMetadata.StateObject_NewState);
 
-	CharSpeechAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
-	CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'RunAndGun', eColor_Good);
+	//CharSpeechAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
+	//CharSpeechAction.SetSoundAndFlyOverParameters(None, "", 'RunAndGun', eColor_Good);
 
 	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	RevealAreaAction.TargetLocation = AbilityContext.InputContext.TargetLocations[0];
@@ -744,6 +748,9 @@ static function X2AbilityTemplate IRI_BH_Terminate()
 	Template.AddTargetEffect(RunTree);
 
 	// State and Viz
+	//Template.ActivationSpeech = 'Banish';
+	//Template.ActivationSpeech = 'DeadEye'; // Use a voiceline available to regular soldiers. 
+											 // ->This ability plays a Suppressing voiceline automatically somewhere down the line.
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.Hostility = eHostility_Offensive;
 	Template.CinescriptCameraType = "StandardSuppression";
@@ -1498,7 +1505,8 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 	Template.bSkipFireAction = true;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.CustomFireAnim = 'NO_ShadowStart';
-	Template.ActivationSpeech = 'Shadow';
+	//Template.ActivationSpeech = 'Shadow';
+	Template.ActivationSpeech = 'ActivateConcealment'; // Use regular soldier voiceline, since we're not using Reaper character template.
 	
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
 
