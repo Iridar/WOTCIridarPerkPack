@@ -200,7 +200,7 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 
 		// If the unit has Dramatic Entrance, it will not activate while Followthrough is active,
 		// so we activate it manually if we fail to retrigger Followthrough ability.
-		class'X2Effect_BountyHunter_DramaticEntrance'.static.MaybeTriggerDramaticEntrance(UnitState, NewGameState, true);
+		class'X2Effect_BountyHunter_DramaticEntrance'.static.MaybeTriggerExplosiveAction(UnitState, NewGameState, true);
 
 		`GAMERULES.SubmitGameState(NewGameState);
 	}
@@ -222,7 +222,7 @@ static function EventListenerReturn OnAbilityActivated(Object EventData, Object 
 		AbilityState = XComGameState_Ability(NewGameState.ModifyStateObject(AbilityState.Class, AbilityState.ObjectID));
 		AbilityState.iCooldown = iCooldown;
 		
-		class'X2Effect_BountyHunter_DramaticEntrance'.static.MaybeTriggerDramaticEntrance(UnitState, NewGameState);
+		class'X2Effect_BountyHunter_DramaticEntrance'.static.MaybeTriggerExplosiveAction(UnitState, NewGameState);
 
 		`GAMERULES.SubmitGameState(NewGameState);
 	}

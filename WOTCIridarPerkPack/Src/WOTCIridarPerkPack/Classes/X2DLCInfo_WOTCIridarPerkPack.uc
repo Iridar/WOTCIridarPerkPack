@@ -25,7 +25,6 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_Nightfall_Duration":
 	case "IRI_BH_ShadowTeleport_Cooldown":
 	case "IRI_BH_ShadowTeleport_Tile_Radius":
-	case "IRI_BH_Nightmare_CritBonus":
 	case "IRI_BH_Nightmare_AimBonus":
 	case "IRI_BH_DoublePayload_NumBonusCharges":
 	case "IRI_BH_BurstFire_Cooldown":
@@ -44,6 +43,8 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow":
 	case "IRI_BH_Nightfall_CritChanceBonusWhenUnseen":
 	case "IRI_BH_NightRounds_CritBonus":
+	case "IRI_BH_Headhunter_CritBonus":
+	case "IRI_BH_Nightmare_CritBonus":
 		OutString = BHColor(`GetConfigInt(name(InString)) $ "%");
 		return true;
 

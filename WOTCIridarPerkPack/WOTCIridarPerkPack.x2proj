@@ -63,6 +63,9 @@
     <Content Include="Localization\XComGame.int" />
     <Content Include="Localization\WOTCIridarPerkPack.int" />
     <Content Include="Src\extra_globals.uci" />
+    <Content Include="Src\WOTCIridarPerkPack\Classes\AnimNotify_FireOtherWeapon.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>

@@ -14,7 +14,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_Nightfall_Passive());
 
 		// Corporal
-	Templates.AddItem(SetTreePosition(IRI_BH_DramaticEntrance(), 1));
+	Templates.AddItem(SetTreePosition(IRI_BH_ExplosiveAction(), 1));
 	Templates.AddItem(IRI_BH_DarkNight_Passive());
 	Templates.AddItem(IRI_BH_NightWatch());
 
@@ -25,7 +25,7 @@ static function array<X2DataTemplate> CreateTemplates()
 		// Lieutenant
 	Templates.AddItem(IRI_BH_DoublePayload());
 	Templates.AddItem(IRI_BH_NothingPersonal());
-	Templates.AddItem(PurePassive('IRI_BH_NothingPersonal_Passive', "img:///IRIPerkPackUI.UIPerk_NothingPersonal", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_BH_NothingPersonal_Passive());
 	Templates.AddItem(SetTreePosition(IRI_BH_BurstFire(), 3));
 	Templates.AddItem(IRI_BH_BurstFire_Passive());
 
@@ -234,38 +234,47 @@ static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 	return Template;
 }
 
+static function X2AbilityTemplate IRI_BH_NothingPersonal_Passive()
+{
+	local X2AbilityTemplate Template;	
+
+	Template = PurePassive('IRI_BH_NothingPersonal_Passive', "img:///IRIPerkPackUI.UIPerk_NothingPersonal", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/);
+
+	Template.PrerequisiteAbilities.AddItem('IRI_BH_ShadowTeleport');
+	Template.AdditionalAbilities.AddItem('IRI_BH_NothingPersonal');
+
+	return Template;
+}
+
 static function X2AbilityTemplate IRI_BH_NothingPersonal()
 {
-	local X2AbilityTemplate					Template;	
-	local X2AbilityTrigger_EventListener	Trigger;
-	local X2Effect_ApplyWeaponDamage		WeaponDamageEffect;
-	local X2Effect_Knockback				KnockbackEffect;
+	local X2AbilityTemplate							Template;	
+	local X2Effect_ApplyWeaponDamage				WeaponDamageEffect;
+	local X2Effect_Knockback						KnockbackEffect;
+	local X2Condition_UnitEffectsWithAbilitySource	TargetEffectCondition;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_NothingPersonal');
 
 	// Icon
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_NothingPersonal";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';   
-	SetHidden(Template);	    
-
-	// Trigger
-	Template.AbilityTriggers.Length = 0;	
-	Trigger = new class'X2AbilityTrigger_EventListener';
-	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
-	Trigger.ListenerData.EventID = 'IRI_BH_ShadowTeleport';
-	Trigger.ListenerData.Filter = eFilter_Unit;
-	Trigger.ListenerData.EventFn = NothingPersonalTriggerListener;
-	Template.AbilityTriggers.AddItem(Trigger);
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
 	
 	// Costs
-	Template.AbilityCosts.Length = 0;   
+	AddCooldown(Template, `GetConfigInt('IRI_BH_ShadowTeleport_Cooldown'));
+
+	// Target Conditions
+	TargetEffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	TargetEffectCondition.AddRequireEffect('IRI_BH_NothingPersonal_Effect', 'AA_MissingRequiredEffect');
+	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
 	
 	// Effects
 	Template.AbilityTargetEffects.Length = 0;
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamageEffect.DamageTag = 'IRI_BH_NothingPersonal';
 	WeaponDamageEffect.bIgnoreArmor = false;
-	WeaponDamageEffect.bIgnoreBaseDamage = true;
+	WeaponDamageEffect.bIgnoreBaseDamage = false;
+	//WeaponDamageEffect.DamageTypes.AddItem('Psi');
 	Template.AddTargetEffect(WeaponDamageEffect);
 
 	KnockbackEffect = new class'X2Effect_Knockback';
@@ -275,69 +284,9 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	Template.bShowActivation = true;
 
 	SetFireAnim(Template, 'FF_NothingPersonal');
-	//Template.AssociatedPlayTiming = SPT_AfterSequential;
-
-	Template.BuildVisualizationFn = NothingPersonal_BuildVisualization;
-
-	Template.PrerequisiteAbilities.AddItem('IRI_BH_ShadowTeleport');
-	Template.AdditionalAbilities.AddItem('IRI_BH_NothingPersonal_Passive');
-
 	Template.ActivationSpeech = 'LightningHands';
 
 	return Template;
-}
-
-static private function NothingPersonal_BuildVisualization(XComGameState VisualizeGameState)
-{
-	local XComGameStateHistory History;
-	local StateObjectReference MovingUnitRef;	
-	local VisualizationActionMetadata ActionMetadata;
-	local XComGameStateContext_Ability AbilityContext;
-	local X2Action_PlaySoundAndFlyOver Flyover;
-	local XComGameState_Unit UnitState;
-	local XComGameStateVisualizationMgr VisMgr;
-	local array<X2Action> LeafNodes;
-	
-	VisMgr = `XCOMVISUALIZATIONMGR;
-	History = `XCOMHISTORY;
-	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
-	MovingUnitRef = AbilityContext.InputContext.SourceObject;
-
-	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(MovingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
-	ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(MovingUnitRef.ObjectID);
-	ActionMetadata.VisualizeActor = History.GetVisualizer(MovingUnitRef.ObjectID);
-
-	UnitState = XComGameState_Unit(ActionMetadata.StateObject_NewState);
-
-	if (UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive'))
-	{
-		Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
-		Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('IRI_BH_FeelingLucky_Flyover_Added'), '', eColor_Good);
-	}
-
-	TypicalAbility_BuildVisualization(VisualizeGameState);
-
-	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, LeafNodes);
-	Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,, Flyover, LeafNodes));
-	Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('NightDiveActionAvailable'), '', eColor_Good);
-}
-
-static private function EventListenerReturn NothingPersonalTriggerListener(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
-{
-	local XComGameStateContext_Ability	AbilityContext;
-	local XComGameState_Ability			NothingPersonalState;
-
-	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
-	if (AbilityContext == none) 
-		return ELR_NoInterrupt;
-
-	NothingPersonalState = XComGameState_Ability(CallbackData);
-	if (NothingPersonalState == none || AbilityContext.InputContext.MultiTargets.Length == 0 || AbilityContext.InputContext.MultiTargets[0].ObjectID == 0)
-		return ELR_NoInterrupt;
-
-	NothingPersonalState.AbilityTriggerAgainstSingleTarget(AbilityContext.InputContext.MultiTargets[0], false);
-	
-	return ELR_NoInterrupt;
 }
 
 static function X2AbilityTemplate IRI_BH_DoublePayload()
@@ -376,23 +325,23 @@ static function X2AbilityTemplate IRI_BH_DoublePayload()
 
 
 
-static function X2AbilityTemplate IRI_BH_DramaticEntrance()
+static function X2AbilityTemplate IRI_BH_ExplosiveAction()
 {
 	local X2AbilityTemplate							Template;
-	local X2Effect_BountyHunter_DramaticEntrance	DramaticEntrance;
+	local X2Effect_BountyHunter_DramaticEntrance	ExplosiveAction;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_DramaticEntrance');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ExplosiveAction');
 
 	// Icon Setup
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_DramaticEntrance";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_ExplosiveAction";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 
 	SetPassive(Template);
 
-	DramaticEntrance = new class'X2Effect_BountyHunter_DramaticEntrance';
-	DramaticEntrance.BuildPersistentEffect(1, true);
-	DramaticEntrance.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
-	Template.AddTargetEffect(DramaticEntrance);
+	ExplosiveAction = new class'X2Effect_BountyHunter_DramaticEntrance';
+	ExplosiveAction.BuildPersistentEffect(1, true);
+	ExplosiveAction.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
+	Template.AddTargetEffect(ExplosiveAction);
 
 	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DarkNight_Passive');
 	
@@ -405,7 +354,7 @@ static function X2AbilityTemplate IRI_BH_DarkNight_Passive()
 
 	Template = PurePassive('IRI_BH_DarkNight_Passive', "img:///IRIPerkPackUI.UIPerk_DarkNight", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/);
 
-	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DramaticEntrance');
+	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_ExplosiveAction');
 	
 	return Template;
 }
@@ -415,12 +364,12 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	local X2AbilityTemplate							Template;
 	local X2AbilityCooldown							Cooldown;
 	local X2AbilityCost_ActionPoints				ActionPointCost;
-	local X2Effect_AdditionalAbilityDamagePreview	DamagePreview;
+	local X2Effect_Persistent						PersistentEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
 	// Icon Setup
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ShadowTeleport";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_ShadowTeleport";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
@@ -451,10 +400,13 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	// Effects
 	AddNightfallShooterEffects(Template);
 
-	DamagePreview = new class'X2Effect_AdditionalAbilityDamagePreview';
-	DamagePreview.AbilityName = 'IRI_BH_NothingPersonal';
-	DamagePreview.bMatchSourceWeapon = true;
-	Template.AddTargetEffect(DamagePreview);
+	// Enables use of Nothing Personal against this target.
+	// Done as a multi-target effect, because this ability ModifyContextFn moves primary target to multi target for the purposes of visualization
+	PersistentEffect = new class'X2Effect_Persistent';
+	PersistentEffect.EffectName = 'IRI_BH_NothingPersonal_Effect';
+	PersistentEffect.DuplicateResponse = eDupe_Allow;
+	PersistentEffect.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd);
+	Template.AddMultiTargetEffect(PersistentEffect);
 	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -619,10 +571,6 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, AbilityContext));
 	RevealAreaAction.AssociatedObjectID = MovingUnitRef.ObjectID;
 	RevealAreaAction.bDestroyViewer = true;
-
-	// Don't show these flyovers if Nothing Personal is present and we have enough ammo for it.
-	if (UnitState.HasSoldierAbility('IRI_BH_NothingPersonal') && (GetSecondaryWeaponAmmo(UnitState, VisualizeGameState) > 0 || UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive')))
-		return;
 
 	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, LeafNodes);
 	if (UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive'))
@@ -1038,6 +986,7 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter_Alt_Passive()
 static function X2AbilityTemplate IRI_BH_FirePistol()
 {
 	local X2AbilityTemplate Template;	
+	local X2Condition_UnitEffectsWithAbilitySource TargetEffectCondition;
 
 	Template = class'X2Ability_WeaponCommon'.static.Add_PistolStandardShot('IRI_BH_FirePistol');
 
@@ -1046,10 +995,14 @@ static function X2AbilityTemplate IRI_BH_FirePistol()
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_HandCannon";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_PISTOL_SHOT_PRIORITY;
+
+	TargetEffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	TargetEffectCondition.AddExcludeEffect('IRI_BH_NothingPersonal_Effect', 'AA_DuplicateEffectIgnored');
+	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
 	
 	//Template.AdditionalAbilities.AddItem('PistolOverwatchShot');
 	//Template.AdditionalAbilities.AddItem('PistolReturnFire');
-	Template.AdditionalAbilities.AddItem('HotLoadAmmo');
+	///Template.AdditionalAbilities.AddItem('HotLoadAmmo');
 
 	return Template;	
 }
@@ -1452,6 +1405,7 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 	Template.bHideOnClassUnlock = true;
 
 	Headhunter = new class'X2Effect_BountyHunter_Headhunter';
+	Headhunter.iCritBonus = `GetConfigInt('IRI_BH_Headhunter_CritBonus');
 	Headhunter.BuildPersistentEffect(1, true);
 	Headhunter.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(Headhunter);
@@ -1521,6 +1475,29 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 	local X2Effect_AdditionalAnimSets			AnimEffect;
 	local X2Effect_BountyHunter_GrantAmmo		GrantAmmo;
 	local X2Condition_AbilityProperty			AbilityCondition;
+	local float									DetectionMod;
+	local X2Effect_PersistentStatChange			StatChange;
+
+	// LWOTC removes Super Concealment as a mechanic by disabling it on all missions, 
+	// so we can longer rely on it to ensure minimum detection radius.
+	// And the regular concealment is all we have to work with.
+	// Here I apply a detection modifier to make detection radius for bounty hunters very smol.
+	// The default value of the modifier is the same as for the LWOTC Reapers.
+	// Often it's enough to stand right next to enemies and be undetected,
+	// especially if there's any other detection modifier at play.
+	// For the record, I think that's uberdumb, but nothing for me to do about.
+	if (class'Help'.static.IsModActive('LongWarOfTheChosen'))
+	{	
+		DetectionMod = `GetConfigFloat('IRI_BH_Nightfall_LWOTC_DetectionModifier');
+		if (DetectionMod != 0)
+		{
+			StatChange = new class'X2Effect_PersistentStatChange';
+			StatChange.BuildPersistentEffect(1, true, true, false);
+			StatChange.bRemoveWhenTargetConcealmentBroken = true;
+			StatChange.AddPersistentStatChange(eStat_DetectionModifier, DetectionMod);
+			Template.AddShooterEffect(StatChange);
+		}
+	}
 		
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
 	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);

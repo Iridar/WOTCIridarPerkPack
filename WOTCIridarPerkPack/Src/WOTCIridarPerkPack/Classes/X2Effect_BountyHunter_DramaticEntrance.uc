@@ -66,7 +66,7 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 	return false;
 }
 
-static final function MaybeTriggerDramaticEntrance(out XComGameState_Unit NewUnitState, XComGameState NewGameState, optional bool bNeedToModifyUnitState)
+static final function MaybeTriggerExplosiveAction(out XComGameState_Unit NewUnitState, XComGameState NewGameState, optional bool bNeedToModifyUnitState)
 {
 	local XComGameState_Effect		EffectState;
 	local XComGameState_Ability		AbilityState;
@@ -100,5 +100,5 @@ static final function MaybeTriggerDramaticEntrance(out XComGameState_Unit NewUni
 defaultproperties
 {
 	DuplicateResponse = eDupe_Ignore
-	EffectName = "IRI_X2Effect_BountyHunter_DramaticEntrance_Effect"
+	EffectName = "IRI_X2Effect_BountyHunter_ExplosiveAction_Effect"
 }

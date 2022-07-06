@@ -59,13 +59,8 @@ static private function EventListenerReturn OnTacticalHUD_UpdateReaperHUD(Object
 	}
 }
 
-static private function ShadowPassiveEffectAdded(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
-{
-	XComGameState_Unit(kNewTargetState).bHasSuperConcealment = true;
-}
-
 // Responsible for preserving concealment when attacking if the unit has a specific passive ability.
-static private function EventListenerReturn OnRetainConcealmentOnActivation(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+static private function EventListenerReturn OnRetainConcealmentOnActivation(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
 {
 	local XComLWTuple					Tuple;
 	local XComGameStateContext_Ability	AbilityContext;
@@ -87,16 +82,15 @@ static private function EventListenerReturn OnRetainConcealmentOnActivation(Obje
 	if (UnitState == none || AbilityContext.InputContext.SourceObject.ObjectID != UnitState.ObjectID)
 		return ELR_NoInterrupt;
 
-	AbilityState = XComGameState_Ability(GameState.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
+	AbilityState = XComGameState_Ability(NewGameState.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
 	if (AbilityState == none)
 		return ELR_NoInterrupt;
 
 	// If the unit has the passive that makes all attacks not break concealment
 	if (class'BountyHunter'.static.IsAbilityValidForDarkNight(AbilityState) && UnitState.HasSoldierAbility('IRI_BH_DarkNight_Passive'))
 	{
-		// Then don't break concealment and exit.
+		// Then don't break concealment
 		Tuple.Data[0].b = true;
-		return ELR_NoInterrupt;
 	}
 
 	return ELR_NoInterrupt;
@@ -164,6 +158,11 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	}
 	
 	super.OnEffectAdded(ApplyEffectParameters, kNewTargetState, NewGameState, NewEffectState);
+}
+
+static private function ShadowPassiveEffectAdded(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
+{
+	XComGameState_Unit(kNewTargetState).bHasSuperConcealment = true;
 }
 
 static private function ShadowEffectRemoved(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState, bool bCleansed)

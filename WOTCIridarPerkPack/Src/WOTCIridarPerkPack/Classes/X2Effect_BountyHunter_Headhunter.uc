@@ -1,6 +1,7 @@
 class X2Effect_BountyHunter_Headhunter extends X2Effect_Persistent;
 
 var privatewrite name UVPrefix;
+var int iCritBonus;
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
@@ -13,7 +14,6 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 	EffectObj = EffectGameState;
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectGameState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 	
-	EventMgr.RegisterForEvent(EffectObj, 'IRI_X2Effect_BountyHunter_Headhunter_Event', EffectGameState.TriggerAbilityFlyover, ELD_OnStateSubmitted,, UnitState);
 	EventMgr.RegisterForEvent(EffectObj, 'KillMail', OnKillMail, ELD_OnStateSubmitted,, UnitState,, EffectObj);	
 }
 
@@ -65,7 +65,8 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
 	if (AbilityState != none)
 	{
-		`XEVENTMGR.TriggerEvent('IRI_X2Effect_BountyHunter_Headhunter_Event', AbilityState, SourceUnit, NewGameState);
+		NewGameState.ModifyStateObject(AbilityState.Class, AbilityState.ObjectID);
+		XComGameStateContext_ChangeContainer(NewGameState.GetContext()).BuildVisualizationFn = TriggerHeadhunterFlyoverVisualizationFn;
 	}
 	
 	`GAMERULES.SubmitGameState(NewGameState);
@@ -89,9 +90,58 @@ function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit 
 	if (Attacker.GetUnitValue(Name(UVPrefix $ GroupName), UV))
 	{
 		ShotModifier.ModType = eHit_Crit;
-		ShotModifier.Value = UV.fValue;
+		ShotModifier.Value = UV.fValue * iCritBonus;
 		ShotModifier.Reason = self.FriendlyName;
 		ShotModifiers.AddItem(ShotModifier);
+	}
+}
+
+static private function TriggerHeadhunterFlyoverVisualizationFn(XComGameState VisualizeGameState)
+{
+	local XComGameState_Unit UnitState;
+	local X2Action_PlaySoundAndFlyOver SoundAndFlyOver;
+	local VisualizationActionMetadata ActionMetadata;
+	local XComGameStateHistory History;
+	local X2AbilityTemplate AbilityTemplate;
+	local XComGameState_Ability AbilityState;
+	local X2Effect_BountyHunter_Headhunter HeadhunterEffect;
+	local X2Effect Effect;
+	local string Msg;
+
+	History = `XCOMHISTORY;
+	foreach VisualizeGameState.IterateByClassType(class'XComGameState_Unit', UnitState)
+	{
+		foreach VisualizeGameState.IterateByClassType(class'XComGameState_Ability', AbilityState)
+		{
+			break;
+		}
+		if (AbilityState == none)
+		{
+			`RedScreenOnce("Ability state missing from" @ GetFuncName() @ "-jbouscher @gameplay");
+			return;
+		}
+
+		History.GetCurrentAndPreviousGameStatesForObjectID(UnitState.ObjectID, ActionMetadata.StateObject_OldState, ActionMetadata.StateObject_NewState, , VisualizeGameState.HistoryIndex);
+		ActionMetadata.StateObject_NewState = UnitState;
+		ActionMetadata.VisualizeActor = UnitState.GetVisualizer();
+
+		AbilityTemplate = AbilityState.GetMyTemplate();
+		if (AbilityTemplate != none)
+		{
+			foreach AbilityTemplate.AbilityTargetEffects(Effect)
+			{
+				HeadhunterEffect = X2Effect_BountyHunter_Headhunter(Effect);
+				if (HeadhunterEffect == none)
+					continue;
+
+				Msg = AbilityTemplate.LocFlyOverText $ "+" $ HeadhunterEffect.iCritBonus $ "%" $ " " $ class'XLocalizedData'.default.CritLabel;
+
+				SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+				SoundAndFlyOver.SetSoundAndFlyOverParameters(None, Msg, '', eColor_Good, AbilityTemplate.IconImage, `DEFAULTFLYOVERLOOKATTIME, true);
+				break;
+			}
+		}
+		break;
 	}
 }
 
