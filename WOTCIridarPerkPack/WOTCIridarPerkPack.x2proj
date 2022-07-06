@@ -40,6 +40,9 @@
     <Content Include="ContentForCook\IRIBountyHunter.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\IRINamedShotPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\IRINothingPersonalPerk.upk">
       <SubType>Content</SubType>
     </Content>

@@ -3,6 +3,7 @@
         "IRIBountyHunter",
 		"IRIShadowTeleportPerk",
 		"IRINothingPersonalPerk",
+		"IRINamedShotPerk",
 		"IRIPerkPackUI"
     ]
 }

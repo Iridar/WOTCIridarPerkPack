@@ -15,12 +15,5 @@ https://steamcommunity.com/sharedfiles/filedetails/?id=2094355561
 
 TODO: 
 - AtSR config
-- Special animation for Named Bullet and teleport shot
-- custom puck mesh for teleport
-- Check TODO
+- add templar perks
 
-Переделать иконки:
-1. Nightmare, там где луна "страшная" - слегка несерьёзная
-2. Телепорт - выбивается из общего стиля иконок игры
-4. Lights Out - другую иконку?
-5. Поменять иконку Dead of Night, поставить череп вместо ковбоя?

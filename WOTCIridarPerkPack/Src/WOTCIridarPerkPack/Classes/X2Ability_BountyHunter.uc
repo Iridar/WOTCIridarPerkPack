@@ -246,6 +246,8 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal_Passive()
 	return Template;
 }
 
+// This ability is a bit funky. We use perk content with a perk weapon to fire a psionic projectile with special impact FX,
+// and the Fire Other Weapon notify to fire the pistol projectile for pistol's sounds.
 static function X2AbilityTemplate IRI_BH_NothingPersonal()
 {
 	local X2AbilityTemplate							Template;	
@@ -259,6 +261,7 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_NothingPersonal";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';   
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
+	Template.bUseAmmoAsChargesForHUD = true;
 	
 	// Costs
 	AddCooldown(Template, `GetConfigInt('IRI_BH_ShadowTeleport_Cooldown'));
@@ -1049,6 +1052,8 @@ static function X2AbilityTemplate IRI_BH_NamedBullet()
 	Template.BuildVisualizationFn = NamedBullet_BuildVisualization;
 	Template.ModifyNewContextFn = NamedBullet_ModifyContext;
 
+	SetFireAnim(Template, 'FF_NamedShot');
+
 	return Template;	
 }
 
@@ -1168,42 +1173,42 @@ static private function NamedBullet_BuildVisualization(XComGameState VisualizeGa
 
 	// Wait for a second there. This will be our first parallel branch.
 	TimedWaitOne = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, WaitAction));
-	TimedWaitOne.DelayTimeSec = 1.0f;
+	TimedWaitOne.DelayTimeSec = 0.75f;
 
 	// Begin second parallel branch. Gradually slow down the time.
 
-	PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, FireAction.ParentActions));
-	PlaySound.SetSoundAndFlyOverParameters(SoundCue(`CONTENT.RequestGameArchetype("IRIBountyHunter.NamedShotClicks_Cue")), "", '', eColor_Xcom);
+	//PlaySound = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, FireAction.ParentActions));
+	//PlaySound.SetSoundAndFlyOverParameters(SoundCue(`CONTENT.RequestGameArchetype("IRIBountyHunter.NamedShotClicks_Cue")), "", '', eColor_Xcom);
 
 	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, FireAction.ParentActions));
 	TimeDilation.TimeDilation = 0.9f;
 
 	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
-	TimedWaitTwo.DelayTimeSec = 0.1f;
+	TimedWaitTwo.DelayTimeSec = 0.2f;
 
 	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
 	TimeDilation.TimeDilation = 0.8f;
 
 	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
-	TimedWaitTwo.DelayTimeSec = 0.1f;
+	TimedWaitTwo.DelayTimeSec = 0.2f;
 
 	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
 	TimeDilation.TimeDilation = 0.7f;
 
 	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
-	TimedWaitTwo.DelayTimeSec = 0.1f;
+	TimedWaitTwo.DelayTimeSec = 0.2f;
 
 	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
 	TimeDilation.TimeDilation = 0.6f;
 
 	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
-	TimedWaitTwo.DelayTimeSec = 0.1f;
+	TimedWaitTwo.DelayTimeSec = 0.2f;
 
 	TimeDilation = X2Action_SetGlobalTimeDilation(class'X2Action_SetGlobalTimeDilation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWaitTwo));
 	TimeDilation.TimeDilation = 0.5f;
 
 	TimedWaitTwo = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimeDilation));
-	TimedWaitTwo.DelayTimeSec = 0.1f;
+	TimedWaitTwo.DelayTimeSec = 0.2f;
 
 	//	Then restore normal speed.
 	ParentActions.AddItem(TimedWaitOne);
