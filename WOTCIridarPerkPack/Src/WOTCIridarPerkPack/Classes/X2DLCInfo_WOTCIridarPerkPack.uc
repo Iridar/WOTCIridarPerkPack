@@ -1,7 +1,13 @@
 class X2DLCInfo_WOTCIridarPerkPack extends X2DownloadableContentInfo;
 
+var privatewrite config bool bLWOTC;
+
 var private SkeletalMeshSocket ShadowTeleportSocket;
 
+static function OnPreCreateTemplates()
+{
+	default.bLWOTC = class'Help'.static.IsModActive('LongWarOfTheChosen');
+}
 
 static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
 {	// 	`AMLOG(ParseObj.Class.Name @ StrategyParseOb.Class.Name);
@@ -10,6 +16,9 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	switch (InString)
 	{
 
+	case "IRI_BoundWeaponName":
+		OutString = GetBoundWeaponName(ParseObj, StrategyParseOb, GameState);
+		return true;
 	// ======================================================================================================================
 	//												BOUNTY HUNTER TAGS
 	// ----------------------------------------------------------------------------------------------------------------------
@@ -59,6 +68,73 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	}
 
 	return false;
+}
+
+static private function string GetBoundWeaponName(Object ParseObj, Object StrategyParseObj, XComGameState GameState)
+{
+	local X2AbilityTemplate		AbilityTemplate;
+	local X2ItemTemplate		ItemTemplate;
+	local XComGameState_Effect	EffectState;
+	local XComGameState_Ability	AbilityState;
+	local XComGameState_Item	ItemState;
+
+	AbilityTemplate = X2AbilityTemplate(ParseObj);
+	if (StrategyParseObj != none && AbilityTemplate != none)
+	{
+		ItemTemplate = GetItemBoundToAbilityFromUnit(XComGameState_Unit(StrategyParseObj), AbilityTemplate.DataName, GameState);
+	}
+	else
+	{
+		EffectState = XComGameState_Effect(ParseObj);
+		if (EffectState != none)
+		{
+			AbilityState = XComGameState_Ability(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.AbilityStateObjectRef.ObjectID));
+		}
+		else
+		{
+			AbilityState = XComGameState_Ability(ParseObj);
+		}
+
+		if (AbilityState != none)
+		{
+			ItemState = AbilityState.GetSourceWeapon();
+
+			if (ItemState != none)
+				ItemTemplate = ItemState.GetMyTemplate();
+		}
+	}
+
+	if (ItemTemplate != none)
+	{
+		return ItemTemplate.GetItemAbilityDescName();
+	}
+	return AbilityTemplate.LocDefaultPrimaryWeapon;
+}
+
+static private function X2ItemTemplate GetItemBoundToAbilityFromUnit(XComGameState_Unit UnitState, name AbilityName, XComGameState GameState)
+{
+	local SCATProgression		Progression;
+	local XComGameState_Item	ItemState;
+	local EInventorySlot		Slot;
+
+	if (UnitState == none)
+		return none;
+
+	Progression = UnitState.GetSCATProgressionForAbility(AbilityName);
+	if (Progression.iRank == INDEX_NONE || Progression.iBranch == INDEX_NONE)
+		return none;
+
+	Slot = UnitState.AbilityTree[Progression.iRank].Abilities[Progression.iBranch].ApplyToWeaponSlot;
+	if (Slot == eInvSlot_Unknown)
+		return none;
+
+	ItemState = UnitState.GetItemInSlot(Slot, GameState);
+	if (ItemState != none)
+	{
+		return ItemState.GetMyTemplate();
+	}
+
+	return none;
 }
 
 static private function string BHColor(coerce string strInput)
@@ -824,14 +900,6 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 	return;
 }
 /// End Issue #281
-
-/// Start issue #412
-/// Called before any X2DataSet is invoked, allowing to modify default properties
-/// Warning: this is called quite early in startup process and not all game systems are bootstrapped yet (but all DLCs/mods are guranteed to be loaded)
-static function OnPreCreateTemplates()
-{
-}
-/// End issue #412
 
 /// Start Issue #409
 /// <summary>

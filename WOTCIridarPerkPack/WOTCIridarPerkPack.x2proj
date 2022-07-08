@@ -22,6 +22,9 @@
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\BountyHunter\XComAbilityToSlotReassignment.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\BountyHunter\XComAI.ini">
       <SubType>Content</SubType>
     </Content>
@@ -154,6 +157,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_BountyHunter_Followthrough.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_CritMagic.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UnusedCode.txt">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>

@@ -1,14 +1,14 @@
 [IRI_BH_Headhunter X2AbilityTemplate]
 LocFriendlyName="Headhunter"
-LocLongDescription="Killing an enemy with your <Ability:SecondaryWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
-LocHelpText="Killing an enemy with your <Ability:SecondaryWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
+LocLongDescription="Killing an enemy with your <Ability:IRI_BoundWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
+LocHelpText="Killing an enemy with your <Ability:IRI_BoundWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
 LocPromotionPopupText="Current bonuses:<Ability:IRI_TAG_BH_Headhunter_Bonuses/>"
 LocFlyOverText="Headhunter: "
 
 [IRI_BH_FirePistol X2AbilityTemplate]
 LocFriendlyName="Handcannon"
-LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. It is incredibly destructive, but its ammunition is limited and must be used sparingly."
-LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target."
+LocLongDescription="Fire your <Ability:IRI_BoundWeaponName/> at a target. It is incredibly destructive, but its ammunition is limited and must be used sparingly."
+LocHelpText="Fire your <Ability:IRI_BoundWeaponName/> at a target."
 LocFlyOverText=""
 LocPromotionPopupText=""
 
@@ -42,8 +42,8 @@ LocFlyOverText="Dark Night"
 
 [IRI_BH_NightWatch X2AbilityTemplate]
 LocFriendlyName="Night Watch"
-LocLongDescription="Your <Ability:WeaponName/> gains Squadsight, allowing you to attack enemies within squadmates' sight, provided there is line of sight to the target. Night Watch does not suffer critical chance penalties normally associated with Squadsight."
-LocHelpText="Your <Ability:WeaponName/> gains Squadsight, allowing you to attack enemies within squadmates' sight, provided there is line of sight to the target. Night Watch does not suffer critical chance penalties normally associated with Squadsight."
+LocLongDescription="Your <Ability:IRI_BoundWeaponName/> gains Squadsight, allowing you to attack enemies within squadmates' sight, provided there is line of sight to the target. Night Watch does not suffer critical chance penalties normally associated with Squadsight."
+LocHelpText="Your <Ability:IRI_BoundWeaponName/> gains Squadsight, allowing you to attack enemies within squadmates' sight, provided there is line of sight to the target. Night Watch does not suffer critical chance penalties normally associated with Squadsight."
 LocPromotionPopupText="<bullet/> Squadsight attacks benefit from Dead of Night."
 LocFlyOverText="Night Watch"
 
@@ -51,7 +51,7 @@ LocFlyOverText="Night Watch"
 
 [IRI_BH_ShadowTeleport X2AbilityTemplate]
 LocFriendlyName="Night Dive"
-LocLongDescription="Enter Nightfall concealment and fire a special psionic round from your <Ability:SecondaryWeaponName/> that creates a rift in space and teleports you to a flanking position within <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> tiles of the target. Takes away all action points and grants one non-move Action Point. Shares <Ability:IRI_BH_ShadowTeleport_Cooldown/> turn cooldown with Nightfall. <Ability:IRI_BH_ShadowTeleport_Charges/> use(s) per mission."
+LocLongDescription="Enter Nightfall concealment and fire a special psionic round from your <Ability:IRI_BoundWeaponName/> that creates a rift in space and teleports you to a flanking position within <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> tiles of the target. Takes away all action points and grants one non-move Action Point. Shares <Ability:IRI_BH_ShadowTeleport_Cooldown/> turn cooldown with Nightfall. <Ability:IRI_BH_ShadowTeleport_Charges/> use(s) per mission."
 LocHelpText="Enter Nightfall concealment and teleport to a flanking position near the target. Grants one non-move action point. Shares cooldown with Nightfall."
 LocPromotionPopupText="<bullet/> If the target cannot be flanked, you can teleport to any visible tile near it."
 LocFlyOverText="Night Dive"
@@ -60,7 +60,7 @@ LocFlyOverText="Night Dive"
 LocFriendlyName="Nightmare"
 LocLongDescription="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit Chance when attacking uncovered targets that do not see you."
 LocHelpText="Gain +<Ability:IRI_BH_Nightmare_AimBonus/> Aim and +<Ability:IRI_BH_Nightmare_CritBonus/> Crit Chance when attacking uncovered targets that do not see you."
-LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Applies only attacking enemies that are flanked or do not take cover at all."
+LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> Applies only when attacking enemies that are flanked or do not take cover at all."
 LocFlyOverText="Nightmare"
 
 
@@ -73,29 +73,29 @@ LocFlyOverText="Double Payload"
 
 [IRI_BH_NothingPersonal X2AbilityTemplate]
 LocFriendlyName="Nothing Personal"
-LocLongDescription="An amplified <Ability:SecondaryWeaponName/> shot against the enemy targeted by your Night Dive."
-LocHelpText="An amplified <Ability:SecondaryWeaponName/> shot against the enemy targeted by your Night Dive."
+LocLongDescription="An amplified <Ability:IRI_BoundWeaponName/> shot against the enemy targeted by your Night Dive."
+LocHelpText="An amplified <Ability:IRI_BoundWeaponName/> shot against the enemy targeted by your Night Dive."
 LocPromotionPopupText=""
 LocFlyOverText="Nothing Personal"
 
 [IRI_BH_NothingPersonal_Passive X2AbilityTemplate]
 LocFriendlyName="Nothing Personal"
-LocLongDescription="Enemies targeted by Night Dive will take double damage from your next normal <Ability:SecondaryWeaponName/> shot due to residiual psionic energy from the rift coating the bullet."
-LocHelpText="Enemies targeted by Night Dive will take double damage from your next normal <Ability:SecondaryWeaponName/> shot due to residiual psionic energy from the rift coating the bullet."
+LocLongDescription="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residiual psionic energy from the rift coating the bullet."
+LocHelpText="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residiual psionic energy from the rift coating the bullet."
 LocPromotionPopupText="<bullet/> The damage caused by the amplified attack will count as both regular and psionic damage."
 LocFlyOverText="Nothing Personal"
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
-LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
-LocHelpText="Fire a burst from your <Ability:WeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
+LocLongDescription="Fire an automatic burst from your <Ability:IRI_BoundWeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
+LocHelpText="Fire a burst from your <Ability:IRI_BoundWeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
 LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance."
 LocFlyOverText="Overwhelming Burst"
 
 [IRI_BH_BurstFire_Passive X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
-LocLongDescription="Fire an automatic burst from your <Ability:WeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
-LocHelpText="Fire a burst from your <Ability:WeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
+LocLongDescription="Fire an automatic burst from your <Ability:IRI_BoundWeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
+LocHelpText="Fire a burst from your <Ability:IRI_BoundWeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
 LocPromotionPopupText=""
 LocFlyOverText="Overwhelming Burst"
 
@@ -116,8 +116,8 @@ LocFlyOverText="Night Rounds"
 
 [IRI_BH_UnrelentingPressure X2AbilityTemplate]
 LocFriendlyName="Unrelenting Pressure"
-LocLongDescription="Critical hits with your <Ability:WeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
-LocHelpText="Critical hits with your <Ability:WeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
+LocLongDescription="Critical hits with your <Ability:IRI_BoundWeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
+LocHelpText="Critical hits with your <Ability:IRI_BoundWeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
 LocPromotionPopupText="This ability does not trigger off Overwhelming Burst itself."
 LocFlyOverText="Unrelenting Pressure"
 
@@ -138,10 +138,11 @@ LocFlyOverText="Witch Hunt"
 
 [IRI_BH_FeelingLucky_Passive X2AbilityTemplate]
 LocFriendlyName="Feeling Lucky"
-LocLongDescription="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent by the time Nightfall concealment is broken."
-LocHelpText="Whenever you enter Nightfall, your <Ability:SecondaryWeaponName/> will gain +1 Ammo. This ammo is lost if not spent by the time Nightfall concealment is broken."
-LocPromotionPopupText=""
+LocLongDescription="Whenever you enter Nightfall, your <Ability:IRI_BoundWeaponName/> will gain +1 Ammo. This ammo is lost if not spent by the time Nightfall concealment is broken."
+LocHelpText="Whenever you enter Nightfall, your <Ability:IRI_BoundWeaponName/> will gain +1 Ammo. This ammo is lost if not spent by the time Nightfall concealment is broken."
+LocPromotionPopupText="I know what you're thinking. \"Did he fire six shots or only five?\" Well to tell you the truth in all this excitement I kinda lost track myself. But being this is a .44 Magnum, the most powerful handgun in the world and would blow your head clean off, you've gotta ask yourself one question: \"Do I feel lucky?\" Well, do ya, punk?"
 LocFlyOverText="Feeling Lucky"
+
 
 [IRI_BH_BigGameHunter X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
@@ -167,14 +168,14 @@ LocFlyOverText="Lights Out"
 
 [IRI_BH_NamedBullet X2AbilityTemplate]
 LocFriendlyName="Named Bullet"
-LocLongDescription="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it. The bullet ricochets inside the target, applying its damage three times. <Ability:IRI_BH_NamedBullet_Charges/> use(s) per mission."
-LocHelpText="Use your <Ability:SecondaryWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
+LocLongDescription="Use your <Ability:IRI_BoundWeaponName/> to fire a special bullet with the target's name on it. The bullet ricochets inside the target, applying its damage three times. <Ability:IRI_BH_NamedBullet_Charges/> use(s) per mission."
+LocHelpText="Use your <Ability:IRI_BoundWeaponName/> to fire a special bullet with the target's name on it, applying damage three times."
 LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"
 
 [IRI_BH_Terminate X2AbilityTemplate]
 LocFriendlyName="Terminate"
-LocLongDescription="Use your <Ability:WeaponName/> to continuously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run, and attacking it for every action it takes. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
+LocLongDescription="Use your <Ability:IRI_BoundWeaponName/> to continuously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run, and attacking it for every action it takes. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
 LocHelpText="Continously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run and attacking it for every action it takes."
 LocPromotionPopupText="<bullet/> Activating Terminate forces the target to immediately take a defensive move, if it is able.<br/><bullet/> Terminate attacks do not suffer reaction fire penalties and can deal critical damage, and they are pre-emptive when possible.<br/><bullet/> Terminate will end at the start of your next turn, if you get wounded, if you run out of ammo, or if the target leaves your line of sight. Choose your position carefully to maximize the number of attacks."
 LocFlyOverText="Terminate"
@@ -207,36 +208,36 @@ LocFlyOverText="Untraceable"
 
 [IRI_BH_BigGameHunter_Alt X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"
 
 [IRI_BH_BigGameHunter_Alt_Passive X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocPromotionPopupText=""
 LocFlyOverText="Big Game Hunter"
 
 [IRI_BH_ChasingShot X2AbilityTemplate]
 LocFriendlyName="Chase"
-LocLongDescription="Mark a target. After your next move, fire your <Ability:SecondaryWeaponName/> for free against that target."
+LocLongDescription="Mark a target. After your next move, fire your <Ability:IRI_BoundWeaponName/> for free against that target."
 LocHelpText="This target is being chased by a Bounty Hunter."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Chase"
 
 [IRI_BH_ChasingShot_Attack X2AbilityTemplate]
 LocFriendlyName="Chase"
-LocLongDescription="Mark a target. After your next move, fire your <Ability:SecondaryWeaponName/> for free against that target."
+LocLongDescription="Mark a target. After your next move, fire your <Ability:IRI_BoundWeaponName/> for free against that target."
 LocHelpText="This target is being chased by a Bounty Hunter."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Chase"
 
 [IRI_BH_Blindside X2AbilityTemplate]
 LocFriendlyName="Blindside"
-LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. This attack ignores armor and does not cost an action, but can be used only against enemies that do not see you."
-LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target. Ignores armor. Does not cost an action. Can be used only against enemies that do not see you."
+LocLongDescription="Fire your <Ability:IRI_BoundWeaponName/> at a target. This attack ignores armor and does not cost an action, but can be used only against enemies that do not see you."
+LocHelpText="Fire your <Ability:IRI_BoundWeaponName/> at a target. Ignores armor. Does not cost an action. Can be used only against enemies that do not see you."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Blindside"
 
