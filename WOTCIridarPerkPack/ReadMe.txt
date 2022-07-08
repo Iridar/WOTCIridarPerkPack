@@ -14,7 +14,6 @@ Chimera Squad Ability Icons
 https://steamcommunity.com/sharedfiles/filedetails/?id=2094355561
 
 TODO: 
-- add templar perks
 - mod preview image
 - mod desc
 - ability list for workshop
