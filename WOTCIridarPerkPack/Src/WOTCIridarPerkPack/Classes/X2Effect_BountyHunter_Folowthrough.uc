@@ -1,5 +1,7 @@
 class X2Effect_BountyHunter_Folowthrough extends X2Effect_Persistent;
 
+// Unused
+
 // This effect is tracked in two ways.
 // 1. Effect is present. It means Followthrough has not yet successfully retriggered anything.
 // 2. Unit Value is present. It means the next ability activated may be retriggered by Followthrough.

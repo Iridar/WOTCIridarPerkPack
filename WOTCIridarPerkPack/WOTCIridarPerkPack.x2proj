@@ -13,8 +13,10 @@
     <Folder Include="Config\" />
     <Folder Include="Config\Base\" />
     <Folder Include="Config\BountyHunter" />
+    <Folder Include="Config\Templar" />
     <Folder Include="Localization\" />
     <Folder Include="Localization\BountyHunter" />
+    <Folder Include="Localization\Templar" />
     <Folder Include="Src\" />
     <Folder Include="Content\" />
     <Folder Include="ContentForCook\" />
@@ -22,6 +24,9 @@
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\Base\XComGameData.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\BountyHunter\XComAbilityToSlotReassignment.ini">
       <SubType>Content</SubType>
     </Content>
@@ -40,6 +45,21 @@
     <Content Include="Config\BountyHunter\XComTemplateEditor.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\Templar\XComAbilityToSlotReassignment.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\Templar\XComCamera.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\Templar\XComGame.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\Templar\XComGameData_SoldierSkills.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\Templar\XComTemplateEditor.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\IRIBountyHunter.upk">
       <SubType>Content</SubType>
     </Content>
@@ -55,7 +75,16 @@
     <Content Include="ContentForCook\IRIShadowTeleportPerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\IRISoulShot.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\IRISoulShotPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\BountyHunter\XComGame.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\Templar\XComGame.int">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ReadMe.txt" />
@@ -76,6 +105,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_ApplyWeaponDamageToTerrain_NoFlinch.uc">
@@ -145,6 +177,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_RemoveEffects_MatchSource.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_Templar_SoulShot_ArrowHit.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2MeleePathingPawn_BountyHunter_ShadowTeleport.uc">

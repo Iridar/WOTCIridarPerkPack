@@ -3,10 +3,25 @@ class X2DLCInfo_WOTCIridarPerkPack extends X2DownloadableContentInfo;
 var privatewrite config bool bLWOTC;
 
 var private SkeletalMeshSocket ShadowTeleportSocket;
+var private SkeletalMeshSocket SoulShotFireSocket;
+var private SkeletalMeshSocket SoulShotHitSocket;
 
 static function OnPreCreateTemplates()
 {
 	default.bLWOTC = class'Help'.static.IsModActive('LongWarOfTheChosen');
+}
+
+static function string DLCAppendSockets(XComUnitPawn Pawn)
+{
+	local array<SkeletalMeshSocket> NewSockets;
+
+	NewSockets.AddItem(default.ShadowTeleportSocket);
+	NewSockets.AddItem(default.SoulShotHitSocket);
+	NewSockets.AddItem(default.SoulShotFireSocket);
+
+	Pawn.Mesh.AppendSockets(NewSockets, true);
+
+	return "";
 }
 
 static function bool AbilityTagExpandHandler_CH(string InString, out string OutString, Object ParseObj, Object StrategyParseOb, XComGameState GameState)
@@ -61,6 +76,14 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_BurstFire_SquadSightPenaltyModifier":
 		OutString = BHColor(GetPercentValue(name(InString)) $ "%");
 		return true;
+
+	// ======================================================================================================================
+	//												TEMPLAR TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
+	case "IRI_TM_SoulShot_Cooldown":
+		OutString = TMColor(`GetConfigInt(name(InString)));
+		return true;
+		
 
 	// ----------------------------------------------------------------------------------------------------------------------
 	default:
@@ -140,6 +163,11 @@ static private function X2ItemTemplate GetItemBoundToAbilityFromUnit(XComGameSta
 static private function string BHColor(coerce string strInput)
 {
 	return "<font color='#ffd700'>" $ strInput $ "</font>"; // gold
+}
+
+static private function string TMColor(coerce string strInput)
+{
+	return "<font color='#b6b5d4'>" $ strInput $ "</font>"; // light purple
 }
 
 static private function string GetPercentValue(name ConfigName)
@@ -472,22 +500,6 @@ static event OnLoadedSavedGameToTactical()
 }
 //#end issue #647
 
-/// Start Issue #21
-/// <summary>
-/// Called from XComUnitPawn.DLCAppendSockets
-/// Allows DLC/Mods to append sockets to units
-/// </summary>
-static function string DLCAppendSockets(XComUnitPawn Pawn)
-{
-	local array<SkeletalMeshSocket> NewSockets;
-
-	NewSockets.AddItem(default.ShadowTeleportSocket);
-
-	Pawn.Mesh.AppendSockets(NewSockets, true);
-
-	return "";
-}
-/// End Issue #21
 
 static private function SkeletalMeshSocket CreateSocket(const name SocketName, const name BoneName, optional const float X, optional const float Y, optional const float Z, optional const float dRoll, optional const float dPitch, optional const float dYaw, optional float ScaleX = 1.0f, optional float ScaleY = 1.0f, optional float ScaleZ = 1.0f)
 {
@@ -1082,4 +1094,19 @@ defaultproperties
 		BoneName = "RHand"
 	End Object
 	ShadowTeleportSocket = DefaultShadowTeleportSocket;
+
+	Begin Object Class=SkeletalMeshSocket Name=DefaultSoulShotFireSocket
+		SocketName = "IRI_SoulBow_Arrow"
+		BoneName = "RHand"
+		RelativeRotation=(Pitch=-1183, Yaw=-364)
+	End Object
+	SoulShotFireSocket = DefaultSoulShotFireSocket;
+
+	// For playing the "arrow stuck in body" particle effect when hit by the soul bow
+	Begin Object Class=SkeletalMeshSocket Name=DefaultSoulShotHitSocket
+		SocketName = "IRI_SoulBow_Arrow_Hit"
+		BoneName = "Ribcage"
+		RelativeRotation=(Roll=-16384, Yaw=16384)
+	End Object
+	SoulShotHitSocket = DefaultSoulShotHitSocket;
 }

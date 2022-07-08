@@ -1,0 +1,5 @@
+[IRI_TM_SoulShot X2AbilityTemplate]
+LocFriendlyName="Soul Shot"
+LocLongDescription="A powerful ranged attack that scales with Focus and generates Focus on kills."
+LocHelpText="A powerful ranged attack that scales with Focus and generates Focus on kills."
+LocPromotionPopupText="<Bullet/> <Ability:IRI_TM_SoulShot_Cooldown/> turn(s) cooldown."
