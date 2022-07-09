@@ -369,6 +369,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	local X2AbilityCooldown							Cooldown;
 	local X2AbilityCost_ActionPoints				ActionPointCost;
 	local X2Effect_Persistent						PersistentEffect;
+	local X2Condition_AbilityProperty				AbilityProperty;	
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
@@ -410,6 +411,12 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	PersistentEffect.EffectName = 'IRI_BH_NothingPersonal_Effect';
 	PersistentEffect.DuplicateResponse = eDupe_Allow;
 	PersistentEffect.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd);
+
+	// Apply this effect only if the shooter has nothing personal.
+	AbilityProperty = new class'X2Condition_AbilityProperty';
+	AbilityProperty.OwnerHasSoldierAbilities.AddItem('IRI_BH_NothingPersonal');
+	PersistentEffect.TargetConditions.AddItem(AbilityProperty);
+
 	Template.AddMultiTargetEffect(PersistentEffect);
 	
 	// Targeting and Triggering

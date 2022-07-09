@@ -80,14 +80,14 @@ LocFlyOverText="Nothing Personal"
 
 [IRI_BH_NothingPersonal_Passive X2AbilityTemplate]
 LocFriendlyName="Nothing Personal"
-LocLongDescription="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residiual psionic energy from the rift coating the bullet."
-LocHelpText="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residiual psionic energy from the rift coating the bullet."
+LocLongDescription="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residual psionic energy from the rift coating the bullet."
+LocHelpText="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residual psionic energy from the rift coating the bullet."
 LocPromotionPopupText="<bullet/> The damage caused by the amplified attack will count as both regular and psionic damage."
 LocFlyOverText="Nothing Personal"
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
-LocLongDescription="Fire an automatic burst from your <Ability:IRI_BoundWeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
+LocLongDescription="Fire an automatic burst from your <Ability:IRI_BoundWeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>. <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
 LocHelpText="Fire a burst from your <Ability:IRI_BoundWeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
 LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance."
 LocFlyOverText="Overwhelming Burst"

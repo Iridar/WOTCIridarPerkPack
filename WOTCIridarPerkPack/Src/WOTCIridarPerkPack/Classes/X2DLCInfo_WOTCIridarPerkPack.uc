@@ -222,7 +222,15 @@ static private function string GetHeadhunterBonusValues(const XComGameState_Unit
 
 			if (UnitState.GetUnitValue(name(ValuePrefix $ CharTemplate.CharacterGroupName), UV))
 			{
-				ReturnString $= "<br/>- " $ CharTemplate.strCharacterName $ ": " $ int(UV.fValue) $ "%";
+				if (CharTemplate.strCharacterName != "")
+				{
+					ReturnString $= "<br/>- " $ CharTemplate.strCharacterName $ ": " $ int(UV.fValue) $ "%";
+				}
+				else
+				{
+					// Fallback to character group in case there's no localized character name. Not ideal, but shouldn't come into play all that often.
+					ReturnString $= "<br/>- " $ CharTemplate.CharacterGroupName $ ": " $ int(UV.fValue) $ "%";
+				}
 			}
 		}
 	}

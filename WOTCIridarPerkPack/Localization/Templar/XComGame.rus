@@ -1,0 +1,5 @@
+[IRI_TM_SoulShot X2AbilityTemplate]
+LocFriendlyName="Пси-стрела"
+LocLongDescription="Мощная атака на расстоянии, усиливающаяся с уровнем концентрации. Генерирует концентрацию после убийства цели."
+LocHelpText="Мощная атака на расстоянии, усиливающаяся с уровнем концентрации. Генерирует концентрацию после убийства цели."
+LocPromotionPopupText="<Bullet/> Перезарядка: <Ability:IRI_TM_SoulShot_Cooldown/> хода(ов)."

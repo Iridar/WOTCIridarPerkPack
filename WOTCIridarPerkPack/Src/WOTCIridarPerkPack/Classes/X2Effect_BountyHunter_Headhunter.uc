@@ -66,7 +66,7 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	if (AbilityState != none)
 	{
 		NewGameState.ModifyStateObject(AbilityState.Class, AbilityState.ObjectID);
-		XComGameStateContext_ChangeContainer(NewGameState.GetContext()).BuildVisualizationFn = TriggerHeadhunterFlyoverVisualizationFn;
+		XComGameStateContext_ChangeContainer(NewGameState.GetContext()).PostBuildVisualizationFn.AddItem(TriggerHeadhunterFlyoverVisualizationFn);
 	}
 	
 	`GAMERULES.SubmitGameState(NewGameState);
@@ -107,7 +107,10 @@ static private function TriggerHeadhunterFlyoverVisualizationFn(XComGameState Vi
 	local X2Effect_BountyHunter_Headhunter HeadhunterEffect;
 	local X2Effect Effect;
 	local string Msg;
-
+	local XComGameStateVisualizationMgr VisMgr;
+	local array<X2Action> LeafNodes;
+	
+	VisMgr = `XCOMVISUALIZATIONMGR;
 	History = `XCOMHISTORY;
 	foreach VisualizeGameState.IterateByClassType(class'XComGameState_Unit', UnitState)
 	{
@@ -136,7 +139,10 @@ static private function TriggerHeadhunterFlyoverVisualizationFn(XComGameState Vi
 
 				Msg = AbilityTemplate.LocFlyOverText $ "+" $ HeadhunterEffect.iCritBonus $ "%" $ " " $ class'XLocalizedData'.default.CritLabel;
 
-				SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+				// That should make the flyover appear after everything else has been visualized.
+				VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, LeafNodes);
+
+				SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false,, LeafNodes));
 				SoundAndFlyOver.SetSoundAndFlyOverParameters(None, Msg, '', eColor_Good, AbilityTemplate.IconImage, `DEFAULTFLYOVERLOOKATTIME, true);
 				break;
 			}
