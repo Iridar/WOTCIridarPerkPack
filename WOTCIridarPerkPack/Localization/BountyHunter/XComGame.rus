@@ -1,14 +1,14 @@
 [IRI_BH_Headhunter X2AbilityTemplate]
 LocFriendlyName="Опытный убийца"
-LocLongDescription="Убийство врага (оружие: <Ability:SecondaryWeaponName/>) навсегда увеличивает шанс оружия нанести критический удар всем врагам этого же типа на +<Ability:IRI_BH_Headhunter_CritBonus/>. Этот бонус суммируется."
-LocHelpText="Убийство врага (оружие: <Ability:SecondaryWeaponName/>) навсегда увеличивает его шанс оружия нанести критический удар всем врагам этого же типа на +<Ability:IRI_BH_Headhunter_CritBonus/>. Этот бонус суммируется."
+LocLongDescription="Убийство врага (оружие: <Ability:IRI_BoundWeaponName/>) навсегда увеличивает шанс оружия нанести критический удар всем врагам этого же типа на +<Ability:IRI_BH_Headhunter_CritBonus/>. Этот бонус суммируется."
+LocHelpText="Убийство врага (оружие: <Ability:IRI_BoundWeaponName/>) навсегда увеличивает его шанс оружия нанести критический удар всем врагам этого же типа на +<Ability:IRI_BH_Headhunter_CritBonus/>. Этот бонус суммируется."
 LocPromotionPopupText="Текущие бонусы:<Ability:IRI_TAG_BH_Headhunter_Bonuses/>"
 LocFlyOverText="Опытный убийца: "
 
 [IRI_BH_FirePistol X2AbilityTemplate]
 LocFriendlyName="Магнум"
-LocLongDescription="Используйте свой <Ability:SecondaryWeaponName/> для выстрела в цель. Оружие наносит большой урон, но количество патронов к нему ограничено. Используйте их разумно."
-LocHelpText="Используйте свой <Ability:SecondaryWeaponName/> для выстрела в цель."
+LocLongDescription="Используйте свой <Ability:IRI_BoundWeaponName/> для выстрела в цель. Оружие наносит большой урон, но количество патронов к нему ограничено. Используйте их разумно."
+LocHelpText="Используйте свой <Ability:IRI_BoundWeaponName/> для выстрела в цель."
 LocFlyOverText=""
 LocPromotionPopupText=""
 
@@ -42,8 +42,8 @@ LocFlyOverText="Темная Ночь"
 
 [IRI_BH_NightWatch X2AbilityTemplate]
 LocFriendlyName="Ночной Дозор"
-LocLongDescription="Ваше основное оружие (<Ability:WeaponName/>) получает «Общий вид», позволяя атаковать врагов в зоне видимости всего отряда, если между бойцом и целью нет препятствий. Однако «Ночной дозор» не имеет штрафов на критические попадания, обычно накладывающихся «Общим видом»."
-LocHelpText="Ваше основное оружие (<Ability:WeaponName/>) получает «Общий вид», позволяя атаковать врагов в зоне видимости всего отряда, если между бойцом и целью нет препятствий. Однако «Ночной дозор» не имеет штрафов на критические попадания, обычно накладывающихся «Общим видом»."
+LocLongDescription="Ваше основное оружие (<Ability:IRI_BoundWeaponName/>) получает «Общий вид», позволяя атаковать врагов в зоне видимости всего отряда, если между бойцом и целью нет препятствий. Однако «Ночной дозор» не имеет штрафов на критические попадания, обычно накладывающихся «Общим видом»."
+LocHelpText="Ваше основное оружие (<Ability:IRI_BoundWeaponName/>) получает «Общий вид», позволяя атаковать врагов в зоне видимости всего отряда, если между бойцом и целью нет препятствий. Однако «Ночной дозор» не имеет штрафов на критические попадания, обычно накладывающихся «Общим видом»."
 LocPromotionPopupText="<bullet/> Атаки через «Общий вид» получают бонусы «Удара из Тьмы»."
 LocFlyOverText="Ночной Дозор"
 
@@ -72,30 +72,30 @@ LocFlyOverText="Двойная нагрузка"
 
 [IRI_BH_NothingPersonal X2AbilityTemplate]
 LocFriendlyName="Ничего личного"
-LocLongDescription="Усиленный выстрел (оружие: <Ability:SecondaryWeaponName/>) по врагу, выбранного целью способности «Сквозь Ночь»."
-LocHelpText="Усиленный выстрел (оружие: <Ability:SecondaryWeaponName/>) по врагу, выбранного целью способности «Сквозь Ночь»."
+LocLongDescription="Усиленный выстрел (оружие: <Ability:IRI_BoundWeaponName/>) по врагу, выбранного целью способности «Сквозь Ночь»."
+LocHelpText="Усиленный выстрел (оружие: <Ability:IRI_BoundWeaponName/>) по врагу, выбранного целью способности «Сквозь Ночь»."
 LocPromotionPopupText=""
 LocFlyOverText="Ничего личного"
 
 [IRI_BH_NothingPersonal_Passive X2AbilityTemplate]
 LocFriendlyName="Ничего личного"
-LocLongDescription="Враг, выбранный целью способности «Сквозь Ночь», получит двойной урон от атаки (оружие: <Ability:SecondaryWeaponName/>) за счет использования остаточной пси-энергии телепорта."
-LocHelpText="Враг, выбранный целью способности «Сквозь Ночь», получит двойной урон от атаки (оружие: <Ability:SecondaryWeaponName/>) за счет использования остаточной пси-энергии телепорта."
+LocLongDescription="Враг, выбранный целью способности «Сквозь Ночь», получит двойной урон от атаки (оружие: <Ability:IRI_BoundWeaponName/>) за счет использования остаточной пси-энергии телепорта."
+LocHelpText="Враг, выбранный целью способности «Сквозь Ночь», получит двойной урон от атаки (оружие: <Ability:IRI_BoundWeaponName/>) за счет использования остаточной пси-энергии телепорта."
 LocPromotionPopupText="<bullet/> Усиленная атака наносит и обычный, и псионический урон."
 LocFlyOverText="Ничего личного"
 
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Убийственная очередь"
-LocLongDescription="Выстрел очередью (оружие: <Ability:WeaponName/>). Расходует <Ability:IRI_BH_BurstFire_AmmoCost/> ед.боеприпасов, всего возможно <Ability:IRI_BH_BurstFire_NumShots/> попаданий. Штрафы за «Общий вид» увеличены на <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>. Перезарядка <Ability:IRI_BH_BurstFire_Cooldown/> ходов."
-LocHelpText="Выстрел очередью (оружие: <Ability:WeaponName/>). Всего возможно попаданий: <Ability:IRI_BH_BurstFire_NumShots/>."
+LocLongDescription="Выстрел очередью (оружие: <Ability:IRI_BoundWeaponName/>). Расходует <Ability:IRI_BH_BurstFire_AmmoCost/> ед.боеприпасов, всего возможно <Ability:IRI_BH_BurstFire_NumShots/> попаданий. Штрафы за «Общий вид» увеличены на <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>. Перезарядка <Ability:IRI_BH_BurstFire_Cooldown/> ходов."
+LocHelpText="Выстрел очередью (оружие: <Ability:IRI_BoundWeaponName/>). Всего возможно попаданий: <Ability:IRI_BH_BurstFire_NumShots/>."
 LocPromotionPopupText="<bullet/> Шансы на попадание рассчитываются отдельно для каждого выстрела."
 LocFlyOverText="Убийственная очередь"
 
 [IRI_BH_BurstFire_Passive X2AbilityTemplate]
 LocFriendlyName="Убийственная очередь"
-LocLongDescription="Выстрел очередью (оружие: <Ability:WeaponName/>). Расходует <Ability:IRI_BH_BurstFire_AmmoCost/> ед.боеприпасов, всего возможно <Ability:IRI_BH_BurstFire_NumShots/> попаданий. Штрафы за «Общий вид» увеличены на <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
-LocHelpText="Выстрел очередью (оружие: <Ability:WeaponName/>). Всего возможно попаданий: <Ability:IRI_BH_BurstFire_NumShots/>."
+LocLongDescription="Выстрел очередью (оружие: <Ability:IRI_BoundWeaponName/>). Расходует <Ability:IRI_BH_BurstFire_AmmoCost/> ед.боеприпасов, всего возможно <Ability:IRI_BH_BurstFire_NumShots/> попаданий. Штрафы за «Общий вид» увеличены на <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>."
+LocHelpText="Выстрел очередью (оружие: <Ability:IRI_BoundWeaponName/>). Всего возможно попаданий: <Ability:IRI_BH_BurstFire_NumShots/>."
 LocPromotionPopupText=""
 LocFlyOverText="Убийственная очередь"
 
@@ -116,10 +116,12 @@ LocFlyOverText="Патронташ охотника"
 
 [IRI_BH_UnrelentingPressure X2AbilityTemplate]
 LocFriendlyName="Неослабевающее давление"
-LocLongDescription="Критические попадания при стандартных атаках из основного оружия (<Ability:WeaponName/>) снижают перезарядку «Убийственной Очереди» на <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> ход(а)."
-LocHelpText="Критические попадания при стандартных атаках из основного оружия (<Ability:WeaponName/>) снижают перезарядку «Убийственной Очереди» на <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> ход(а)."
+LocLongDescription="Перезарядка «Убийственной Очереди» пассивно уменьшается на <Ability:IRI_BH_UnrelentingPressure_CooldownReductionPassive/> ход(а). Критические попадания при стандартных атаках из основного оружия (<Ability:IRI_BoundWeaponName/>) дополнительно снижают текущую Перезарядку «Убийственной Очереди» на <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> ход(а)."
+LocHelpText="Перезарядка «Убийственной Очереди» пассивно уменьшается на <Ability:IRI_BH_UnrelentingPressure_CooldownReductionPassive/> ход(а). Критические попадания при стандартных атаках из основного оружия (<Ability:IRI_BoundWeaponName/>) дополнительно снижают текущую Перезарядку «Убийственной Очереди» на <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> ход(а)."
 LocPromotionPopupText="Эта способность не работает при стрельбе самой «Убийственной Очередью»."
 LocFlyOverText="Неослабевающее давление"
+
+
 
 
 [IRI_BH_WitchHunt X2AbilityTemplate]
@@ -138,8 +140,8 @@ LocFlyOverText="Охота на ведьм"
 
 [IRI_BH_FeelingLucky_Passive X2AbilityTemplate]
 LocFriendlyName="Кому-то не повезет"
-LocLongDescription="При вхождении в Ночь ваш <Ability:SecondaryWeaponName/> получает +1 патрон. Если вы его не потратите, то он исчезнет, когда Ночь закончится."
-LocHelpText="При вхождении в Ночь ваш <Ability:SecondaryWeaponName/> получает +1 патрон. Если вы его не потратите, то он  исчезнет, когда Ночь закончится."
+LocLongDescription="При вхождении в Ночь ваш <Ability:IRI_BoundWeaponName/> получает +1 патрон. Если вы его не потратите, то он исчезнет, когда Ночь закончится."
+LocHelpText="При вхождении в Ночь ваш <Ability:IRI_BoundWeaponName/> получает +1 патрон. Если вы его не потратите, то он  исчезнет, когда Ночь закончится."
 LocPromotionPopupText="«Я знаю, о чём ты сейчас думаешь. Выстрелил он шесть раз, или только пять? Честно говоря, в этой суматохе я и сам сбился со счёта. Но начнём с того, что это «Магнум» 44-го калибра, самый убойный револьвер на свете, и он может подчистую снести тебе башку. Теперь ты задаёшь себе один вопрос: «Повезёт ли мне?». Ну, повезёт ли, шпана?»"
 LocFlyOverText="Кому-то не повезет"
 
@@ -167,14 +169,14 @@ LocFlyOverText="Туши свет"
 
 [IRI_BH_NamedBullet X2AbilityTemplate]
 LocFriendlyName="Пуля с именем"
-LocLongDescription="Особо мощный выстрел (оружие: <Ability:SecondaryWeaponName/>) пулей с именем цели на ней. Пуля рикошетит внутри цели, нанося урон три раза подряд. <Ability:IRI_BH_NamedBullet_Charges/> заряд(а) на миссию."
-LocHelpText="Особо мощный выстрел (оружие: <Ability:SecondaryWeaponName/>) пулей с именем цели на ней, наносит урон три раза подряд."
+LocLongDescription="Особо мощный выстрел (оружие: <Ability:IRI_BoundWeaponName/>) пулей с именем цели на ней. Пуля рикошетит внутри цели, нанося урон три раза подряд. <Ability:IRI_BH_NamedBullet_Charges/> заряд(а) на миссию."
+LocHelpText="Особо мощный выстрел (оружие: <Ability:IRI_BoundWeaponName/>) пулей с именем цели на ней, наносит урон три раза подряд."
 LocPromotionPopupText=""
 LocFlyOverText="Пуля с именем"
 
 [IRI_BH_Terminate X2AbilityTemplate]
 LocFriendlyName="Кинжальный огонь"
-LocLongDescription="Используйте ваше основное оружие (<Ability:WeaponName/>) для особого вида подавления цели, накладывающего штраф в <Ability:SUPPRESSIONPENALTY/> к меткости, а также заставляющего цель бежать и получать атаку за каждое действие. <Ability:IRI_BH_Terminate_Charges/> заряд(а) на миссию."
+LocLongDescription="Используйте ваше основное оружие (<Ability:IRI_BoundWeaponName/>) для особого вида подавления цели, накладывающего штраф в <Ability:SUPPRESSIONPENALTY/> к меткости, а также заставляющего цель бежать и получать атаку за каждое действие. <Ability:IRI_BH_Terminate_Charges/> заряд(а) на миссию."
 LocHelpText="Особый вид подавления цели, накладывающий штраф в <Ability:SUPPRESSIONPENALTY/> к меткости, а также заставляющий цель бежать и получать атаку за каждое действие."
 LocPromotionPopupText="<bullet/> Активация способности вынуждает цель немедленно сменить позицию.<br/><bullet/> «Кинжальный огонь» - всегда упреждающий (если это возможно), он не получает штрафов на ответные выстрелы и может наносить критический урон.<br/><bullet/> «Кинжальный огонь» прервется либо на старте вашего следующего хода, либо если боец получит ранение, исчерпает боезапас или его цель выйдет из поля зрения. Выбирайте позицию с умом для наибольшего количества атак."
 LocFlyOverText="Кинжальный огонь"
@@ -207,36 +209,36 @@ LocFlyOverText="Невидимка"
 
 [IRI_BH_BigGameHunter_Alt X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocPromotionPopupText=""
 LocFlyOverText="Named Bullet"
 
 [IRI_BH_BigGameHunter_Alt_Passive X2AbilityTemplate]
 LocFriendlyName="Big Game Hunter"
-LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
-LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:WeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocLongDescription="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
+LocHelpText="Whenever your score two critical hits against the same target in a row, automatically attack it with your <Ability:IRI_BoundWeaponName/> for free. Attacking other targets or producing results other than crit resets the counter."
 LocPromotionPopupText=""
 LocFlyOverText="Big Game Hunter"
 
 [IRI_BH_ChasingShot X2AbilityTemplate]
 LocFriendlyName="Chase"
-LocLongDescription="Mark a target. After your next move, fire your <Ability:SecondaryWeaponName/> for free against that target."
+LocLongDescription="Mark a target. After your next move, fire your <Ability:IRI_BoundWeaponName/> for free against that target."
 LocHelpText="This target is being chased by a Bounty Hunter."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Chase"
 
 [IRI_BH_ChasingShot_Attack X2AbilityTemplate]
 LocFriendlyName="Chase"
-LocLongDescription="Mark a target. After your next move, fire your <Ability:SecondaryWeaponName/> for free against that target."
+LocLongDescription="Mark a target. After your next move, fire your <Ability:IRI_BoundWeaponName/> for free against that target."
 LocHelpText="This target is being chased by a Bounty Hunter."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Chase"
 
 [IRI_BH_Blindside X2AbilityTemplate]
 LocFriendlyName="Blindside"
-LocLongDescription="Fire your <Ability:SecondaryWeaponName/> at a target. This attack ignores armor and does not cost an action, but can be used only against enemies that do not see you."
-LocHelpText="Fire your <Ability:SecondaryWeaponName/> at a target. Ignores armor. Does not cost an action. Can be used only against enemies that do not see you."
+LocLongDescription="Fire your <Ability:IRI_BoundWeaponName/> at a target. This attack ignores armor and does not cost an action, but can be used only against enemies that do not see you."
+LocHelpText="Fire your <Ability:IRI_BoundWeaponName/> at a target. Ignores armor. Does not cost an action. Can be used only against enemies that do not see you."
 LocPromotionPopupText="<br/> X turn cooldown."
 LocFlyOverText="Blindside"
 

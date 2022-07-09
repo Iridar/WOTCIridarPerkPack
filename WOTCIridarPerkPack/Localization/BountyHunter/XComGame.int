@@ -116,8 +116,8 @@ LocFlyOverText="Night Rounds"
 
 [IRI_BH_UnrelentingPressure X2AbilityTemplate]
 LocFriendlyName="Unrelenting Pressure"
-LocLongDescription="Critical hits with your <Ability:IRI_BoundWeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
-LocHelpText="Critical hits with your <Ability:IRI_BoundWeaponName/> single target attacks reduce the current cooldown of Overwhelming Burst by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
+LocLongDescription="The cooldown of Overwhelming Burst is passively reduced by <Ability:IRI_BH_UnrelentingPressure_CooldownReductionPassive/> turn(s). Critical hits with your single target <Ability:IRI_BoundWeaponName/> attacks additionally reduce its current cooldown by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
+LocHelpText="The cooldown of Overwhelming Burst is passively reduced by <Ability:IRI_BH_UnrelentingPressure_CooldownReductionPassive/> turn(s). Critical hits with your single target <Ability:IRI_BoundWeaponName/> attacks additionally reduce its current cooldown by <Ability:IRI_BH_UnrelentingPressure_CooldownReduction/> turn(s)."
 LocPromotionPopupText="This ability does not trigger off Overwhelming Burst itself."
 LocFlyOverText="Unrelenting Pressure"
 

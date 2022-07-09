@@ -120,6 +120,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCooldown_ModifiedNumTurns.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>

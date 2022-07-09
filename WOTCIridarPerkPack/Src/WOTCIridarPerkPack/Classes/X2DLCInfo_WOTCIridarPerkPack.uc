@@ -53,6 +53,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_DoublePayload_NumBonusCharges":
 	case "IRI_BH_BurstFire_Cooldown":
 	case "IRI_BH_UnrelentingPressure_CooldownReduction":
+	case "IRI_BH_UnrelentingPressure_CooldownReductionPassive":
 	case "IRI_BH_BlindingFire_DurationTurns":
 	case "IRI_BH_Terminate_Charges":
 	case "IRI_BH_ShadowTeleport_Charges":

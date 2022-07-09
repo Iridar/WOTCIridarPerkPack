@@ -174,10 +174,12 @@ static function X2AbilityTemplate IRI_BH_BombRaider()
 
 static function X2AbilityTemplate IRI_BH_BurstFire()
 {
-	local X2AbilityTemplate					Template;	
-	local X2AbilityCost_Ammo				AmmoCost;
-	local X2AbilityMultiTarget_BurstFire	BurstFireMultiTarget;
-	local int								NumExtraShots;
+	local X2AbilityTemplate						Template;	
+	local X2AbilityCost_Ammo					AmmoCost;
+	local X2AbilityMultiTarget_BurstFire		BurstFireMultiTarget;
+	local int									NumExtraShots;
+	local int									iCooldown;
+	local X2AbilityCooldown_ModifiedNumTurns	AbilityCooldown;
 
 	// No ammo cost, no using while burning or disoriented
 	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_BurstFire', true, false, false);
@@ -189,7 +191,16 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 	AmmoCost.iAmmo = `GetConfigInt('IRI_BH_BurstFire_AmmoCost');
 	Template.AbilityCosts.AddItem(AmmoCost);
 
-	AddCooldown(Template, `GetConfigInt('IRI_BH_BurstFire_Cooldown'));
+	iCooldown = `GetConfigInt('IRI_BH_BurstFire_Cooldown');
+	if (iCooldown > 0)
+	{
+		AbilityCooldown = new class'X2AbilityCooldown_ModifiedNumTurns';
+		AbilityCooldown.iNumTurns = iCooldown;
+		AbilityCooldown.ModifyCooldownAbilities.Add(1);
+		AbilityCooldown.ModifyCooldownAbilities[0].AbilityName = 'IRI_BH_UnrelentingPressure';
+		AbilityCooldown.ModifyCooldownAbilities[0].NumTurns = `GetConfigInt('IRI_BH_UnrelentingPressure_CooldownReductionPassive');
+		Template.AbilityCooldown = AbilityCooldown;
+	}
 
 	NumExtraShots = `GetConfigInt('IRI_BH_BurstFire_NumShots') - 1;
 	if (NumExtraShots > 0)
