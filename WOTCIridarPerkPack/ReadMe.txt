@@ -12,9 +12,7 @@ https://github.com/Iridar/EnhancedModProjectTemplate
 
 
 TODO: 
-- mod desc
-- Terminate breaks on scamper, in general works like shit?
-
+- Rework Terminate
 
 XComTemplateCreator.ini
 ;[WOTCIridarTemplateMaster.X2Item_TemplateCreator]
@@ -70,3 +68,55 @@ Template name: IRI_TM_SoulShot
 This ability needs to be attached to a weapon with an ExtraDamage with the damage tag: "IRI_TM_SoulShot". Animations expect the caster to have primary Shard Gauntlets.
 
 A powerful ranged attack that scales with Focus and generates Focus on kills. 2 turn cooldown.
+
+
+
+
+[WOTC] Iridar's Perk Pack
+
+Этот мод добавляет различные способности, которые могут быть использованы другими модами как способности для бойцов, предметов, или иным образом добавлены персонажам. Сам по себе этот мод не делает вообще ничего.
+
+В будущем, я планирую добавлять большинство моих новых способностей в этот мод, т.к. тогда их удобнее использовать в других модах без необходимости дублировать код.
+
+Способности в этом моде на данный момент поделены на следующие группы:[list]
+[*] [b][url=]Охотник за головами:[/url][/b] 21 способность.
+[*] [b][url=]Храмовник:[/url][/b]: 1 способность.
+[/list]
+Клик на название группы откроет список способностей в этой группе.
+
+[h1]ТРЕБОВАНИЯ[/h1]
+[list][*] [url=https://steamcommunity.com/workshop/filedetails/?id=1134256495][b]X2 WOTC Community Highlander[/b][/url]
+[*] [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2363075446][WOTC] Iridar's Template Master - Core[/url][/b][/list]
+Этот мод можно добавлять во время кампании.
+
+[h1]СОВМЕСТИМОСТЬ[/h1]
+
+Способности в этом моде уже настроены для [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2133397762]Ability To Slot Reassignment[/url][/b] и [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1280477867]Musashis RPG Overhaul[/url][/b]. Make sure to subscribe to [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2569592723][WOTC] Musashi's Mods Fixes[/url][/b] if you use either of these mods.
+
+У этого мода не должно быть никаких конфликтов, он не содержит Mod Class Override, и не вносит изменений в другие способности или предметы.
+
+[h1]КОНФИГУРАЦИЯ[/h1]
+
+Многие аспекты этого мода настраиваются через файлы конфигурации в:
+[code]..\steamapps\workshop\content\268500\2571476425\Config\[/code]
+У каждой группы способностей свои файлы конфигурации в своей папке.
+Некоторые параметры способностей можно настраивать через XComGame.ini в папке конфигурации группы способностей. Такие параметры в игре помечены цветным шрифтом.
+
+[h1]ЗАКЛЮЧЕНИЕ[/h1]
+
+Спасибо [b]Mitzruti[/b] за портирование [b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2094355561]Chimera Squad Ability Icons[/url][/b], некоторые из тех иконок использованы в этом моде.
+Спасибо [b]NeIVIeSiS[/b] за создание некоторых иконок в этом моде.
+Спасибо [b]XCOMrades[/b] за помощь в разработке и финансировании этого мода, и за предоставление русского перевода.
+
+Поддержать автора можно через [b][url=https://sponsr.ru/iridar/]Sponsr[/url][/b]. Становитесь подписчиком - и будем создавать крутые моды вместе.
+
+
+Список способностей Охотника за головами
+
+Список способностей Храмовника
+
+[b]Пси-стрела[/b]
+Внутреннее название: IRI_TM_SoulShot
+Эту способность нужно прикреплять к оружию, в списке дополнительных значений урона (ExtraDamage) которого есть элемент с тэгом "IRI_TM_SoulShot". Анимация способности ожидает, что её будет применять боец с перчатками храмовника в слоте основного оружия.
+
+Мощная атака на расстоянии, усиливающаяся с уровнем концентрации. Генерирует концентрацию после убийства цели. Время восстановления: 2 хода.
