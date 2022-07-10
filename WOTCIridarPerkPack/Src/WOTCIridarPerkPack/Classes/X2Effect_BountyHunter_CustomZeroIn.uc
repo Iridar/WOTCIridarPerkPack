@@ -57,6 +57,8 @@ static private function EventListenerReturn BHCustomZeroInListener(Object EventD
 	if (DmgResult.SourceEffect.SourceStateObjectRef.ObjectID != EffectState.ApplyEffectParameters.SourceStateObjectRef.ObjectID)
 		return ELR_NoInterrupt;
 
+	// If we're here, then a unit was damaged, and we caused it.
+
 	EffectUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 	if (EffectUnit == none)
 		return ELR_NoInterrupt;
@@ -66,13 +68,7 @@ static private function EventListenerReturn BHCustomZeroInListener(Object EventD
 
 	EffectUnit.GetUnitValue('IRI_BH_CustomZeroInTarget', UValue);
 
-	// If the target was not the primary target of this attack, then just wipe the unit values to remove the bonus.
-	if (DmgResult.SourceEffect.TargetStateObjectRef.ObjectID != TargetUnit.ObjectID)
-	{
-		EffectUnit.ClearUnitValue('IRI_BH_CustomZeroInTarget');
-		EffectUnit.ClearUnitValue('IRI_BH_CustomZeroInShots');
-	}
-	else if (UValue.fValue == TargetUnit.ObjectID)
+	if (UValue.fValue == TargetUnit.ObjectID)
 	{
 		// We're targeting the same target. Increment unit value to provide a stronger bonus.
 		UValue.fValue = 0;
@@ -90,7 +86,7 @@ static private function EventListenerReturn BHCustomZeroInListener(Object EventD
 	//	show flyover for boost
 	NewGameState.ModifyStateObject(class'XComGameState_Ability', EffectState.ApplyEffectParameters.AbilityStateObjectRef.ObjectID);		//	for the vis function
 	XComGameStateContext_ChangeContainer(NewGameState.GetContext()).BuildVisualizationFn = EffectState.TriggerAbilityFlyoverVisualizationFn;
-	
+
 	`GAMERULES.SubmitGameState(NewGameState);
 
 	return ELR_NoInterrupt;
