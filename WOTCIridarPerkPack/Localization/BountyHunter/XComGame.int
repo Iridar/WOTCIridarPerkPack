@@ -175,12 +175,19 @@ LocFlyOverText="Named Bullet"
 
 [IRI_BH_Terminate X2AbilityTemplate]
 LocFriendlyName="Terminate"
-LocLongDescription="Use your <Ability:IRI_BoundWeaponName/> to continuously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run, and attacking it for every action it takes. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
-LocHelpText="Continously suppress the target, applying a <Ability:SUPPRESSIONPENALTY/> penalty to Aim, forcing it to run and attacking it for every action it takes."
-LocPromotionPopupText="<bullet/> Activating Terminate forces the target to immediately take a defensive move, if it is able.<br/><bullet/> Terminate attacks do not suffer reaction fire penalties and can deal critical damage, and they are pre-emptive when possible.<br/><bullet/> Terminate will end at the start of your next turn, if you get wounded, if you run out of ammo, or if the target leaves your line of sight. Choose your position carefully to maximize the number of attacks."
+LocLongDescription="Mark an enemy for termination. Your single target attacks against the marked enemy will cause additional <Ability:IRI_BoundWeaponName/> attacks. The mark lasts until the enemy dies. <Ability:IRI_BH_Terminate_Charges/> use(s) per mission."
+LocHelpText="Mark an enemy for termination. Your single target attacks against the marked enemy will cause additional <Ability:IRI_BoundWeaponName/> attacks."
+LocPromotionPopupText="<bullet/> Terminate attacks do not suffer reaction fire penalties and can deal critical damage."
 LocFlyOverText="Terminate"
 
-[IRI_BH_Terminate_Attack X2AbilityTemplate]
+[IRI_BH_Terminate_ExtraShot X2AbilityTemplate]
+LocFriendlyName="Terminate"
+LocLongDescription="Terminate"
+LocHelpText="Terminate"
+LocPromotionPopupText=""
+LocFlyOverText="Terminate"
+
+[IRI_BH_Terminate_ExtraShot_SkipFireAction X2AbilityTemplate]
 LocFriendlyName="Terminate"
 LocLongDescription="Terminate"
 LocHelpText="Terminate"

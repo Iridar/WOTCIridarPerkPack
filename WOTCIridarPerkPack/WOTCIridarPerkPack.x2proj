@@ -47,9 +47,6 @@
     <Content Include="Config\BountyHunter\XComRPG.ini">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Config\BountyHunter\XComTemplateEditor.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\Templar\XComAbilityToSlotReassignment.ini">
       <SubType>Content</SubType>
     </Content>
@@ -129,6 +126,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_ApplyDamageSpacer.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_ApplyWeaponDamageToTerrain_NoFlinch.uc">
       <SubType>Content</SubType>
     </Content>
@@ -136,6 +136,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ShadowTeleport_ExitCover.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_Fire_CustomAnim.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_SetGlobalTimeDilation.uc">
@@ -160,6 +163,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BigGameHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Terminate.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_ModifySquadsightPenalty.uc">

@@ -175,18 +175,26 @@ LocPromotionPopupText=""
 LocFlyOverText="Пуля с именем"
 
 [IRI_BH_Terminate X2AbilityTemplate]
-LocFriendlyName="Кинжальный огонь"
-LocLongDescription="Используйте ваше основное оружие (<Ability:IRI_BoundWeaponName/>) для особого вида подавления цели, накладывающего штраф в <Ability:SUPPRESSIONPENALTY/> к меткости, а также заставляющего цель бежать и получать атаку за каждое действие. <Ability:IRI_BH_Terminate_Charges/> заряд(а) на миссию."
-LocHelpText="Особый вид подавления цели, накладывающий штраф в <Ability:SUPPRESSIONPENALTY/> к меткости, а также заставляющий цель бежать и получать атаку за каждое действие."
-LocPromotionPopupText="<bullet/> Активация способности вынуждает цель немедленно сменить позицию.<br/><bullet/> «Кинжальный огонь» - всегда упреждающий (если это возможно), он не получает штрафов на ответные выстрелы и может наносить критический урон.<br/><bullet/> «Кинжальный огонь» прервется либо на старте вашего следующего хода, либо если боец получит ранение, исчерпает боезапас или его цель выйдет из поля зрения. Выбирайте позицию с умом для наибольшего количества атак."
-LocFlyOverText="Кинжальный огонь"
+LocFriendlyName="Ликвидация"
+LocLongDescription="Отметьте цель для ее последующей ликвидации. Любые одиночные атаки по отмеченной цели вызовут дополнительные атаки (оружие: <Ability:IRI_BoundWeaponName/>). Отметка остается на цели, пока она не умрет. <Ability:IRI_BH_Terminate_Charges/> заряд(а) на миссию."
+LocHelpText="Отметьте цель для ее последующей ликвидации. Любые одиночные атаки по отмеченной цели вызовут дополнительные атаки (оружие: <Ability:IRI_BoundWeaponName/>)."
+LocPromotionPopupText="<bullet/> Атаки ликвидации не имеют штрафов на ответный огонь и могут наносить критический урон."
+LocFlyOverText="Ликвидация"
 
-[IRI_BH_Terminate_Attack X2AbilityTemplate]
-LocFriendlyName="Кинжальный огонь"
-LocLongDescription="Кинжальный огонь"
-LocHelpText="Кинжальный огонь"
+[IRI_BH_Terminate_ExtraShot X2AbilityTemplate]
+LocFriendlyName="Ликвидация"
+LocLongDescription="Ликвидация"
+LocHelpText="Ликвидация"
 LocPromotionPopupText=""
-LocFlyOverText="Кинжальный огонь"
+LocFlyOverText="Ликвидация"
+
+[IRI_BH_Terminate_ExtraShot_SkipFireAction X2AbilityTemplate]
+LocFriendlyName="Ликвидация"
+LocLongDescription="Ликвидация"
+LocHelpText="Ликвидация"
+LocPromotionPopupText=""
+LocFlyOverText="Ликвидация"
+
 
 
 [IRI_BH_Untraceable X2AbilityTemplate]

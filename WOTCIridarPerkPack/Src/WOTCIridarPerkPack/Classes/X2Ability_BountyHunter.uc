@@ -30,6 +30,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_NothingPersonal_Passive());
 	Templates.AddItem(SetTreePosition(IRI_BH_BurstFire(), 3));
 	Templates.AddItem(IRI_BH_BurstFire_Passive());
+	Templates.AddItem(IRI_BH_BurstFire_Anim_Passive());
 
 	// Captain
 	Templates.AddItem(IRI_BH_BombRaider());
@@ -47,8 +48,9 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(PurePassive('IRI_BH_BlindingFire_Passive', "img:///IRIPerkPackUI.UIperk_BlindingFire", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(SetTreePosition(IRI_BH_NamedBullet(), 6));
 	Templates.AddItem(SetTreePosition(IRI_BH_Terminate(), 6));
-	Templates.AddItem(IRI_BH_Terminate_Attack());
-	Templates.AddItem(IRI_BH_Terminate_Resuppress());
+	Templates.AddItem(IRI_BH_Terminate_ExtraShot());
+	Templates.AddItem(IRI_BH_Terminate_ExtraShot_SkipFireAction());
+	
 
 	// GTS
 	Templates.AddItem(IRI_BH_Untraceable());
@@ -70,6 +72,154 @@ static private function SetCrossClass(out X2AbilityTemplate Template)
 	{
 		Template.bCrossClassEligible = true;
 	}
+}
+
+
+
+static function X2AbilityTemplate IRI_BH_Terminate()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_BountyHunter_Terminate	TargetEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Terminate');
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Terminate";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Costs
+	Template.AbilityCosts.AddItem(default.FreeActionCost);
+	AddCharges(Template, `GetConfigInt('IRI_BH_Terminate_Charges'));
+
+	// Target conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityAllowSquadsight);
+
+	TargetEffect = new class'X2Effect_BountyHunter_Terminate';
+	TargetEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
+	TargetEffect.bRemoveWhenTargetDies = true;
+	TargetEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, "img:///IRIPerkPackUI.status_Terminate", Template.AbilitySourceName);
+	Template.AddTargetEffect(TargetEffect);
+
+	// State and Viz
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+
+	// This one is triggered as a followup to abilities that don't come from the vektor,
+	// or unsupported abilities. It visualizes as a bog standard primary weapon attack, like RapidFire2.
+	Template.AdditionalAbilities.AddItem('IRI_BH_Terminate_ExtraShot');
+
+	// This one is triggered when we want the triggering ability to visualize as burst fire, which is done in
+	// X2Effect_Terminate PostBuildVis. 
+	// This attack doesn't have its own visualization, and is simply inserted after the triggering ability's fire action.
+
+	// Having two separate abilities for this is technically bad for performance,
+	// but it's so, sooooo much easier to set up in terms of visualization. Don't you people have powerful CPUs?
+	Template.AdditionalAbilities.AddItem('IRI_BH_Terminate_ExtraShot_SkipFireAction');
+	Template.AdditionalAbilities.AddItem('IRI_BH_BurstFire_Anim_Passive');
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_BH_Terminate_ExtraShot()
+{
+	local X2AbilityTemplate		Template;
+	local X2AbilityCost_Ammo	AmmoCost;
+	local X2Condition_UnitEffectsWithAbilitySource	TargetEffectCondition;
+
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_Terminate_ExtraShot', false, true, true);
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BurstFire";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	// Triggered from X2Effect_BountyHunter_Terminate
+	Template.AbilityTriggers.Length = 0;
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
+
+	TargetEffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	TargetEffectCondition.AddRequireEffect(class'X2Effect_BountyHunter_Terminate'.default.EffectName, 'AA_MissingRequiredEffect');
+	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
+
+	// Costs
+	Template.AbilityCosts.Length = 0;
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	// State and Viz
+	Template.bShowActivation = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildInterruptGameStateFn = none;
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_BH_Terminate_ExtraShot_SkipFireAction()
+{
+	local X2AbilityTemplate		Template;
+	local X2AbilityCost_Ammo	AmmoCost;
+	local X2Condition_UnitEffectsWithAbilitySource	TargetEffectCondition;
+
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_Terminate_ExtraShot_SkipFireAction', false, true, true);
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BurstFire";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	// Triggered from X2Effect_BountyHunter_Terminate
+	Template.AbilityTriggers.Length = 0;
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
+
+	TargetEffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	TargetEffectCondition.AddRequireEffect(class'X2Effect_BountyHunter_Terminate'.default.EffectName, 'AA_MissingRequiredEffect');
+	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
+
+	// Costs
+	Template.AbilityCosts.Length = 0;
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	// State and Viz
+	Template.FrameAbilityCameraType = eCameraFraming_Never; 
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	Template.bSkipExitCoverWhenFiring = true;
+	Template.bUsesFiringCamera = false;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildVisualizationFn = class'Help'.static.FollowUpShot_BuildVisualization;
+	Template.MergeVisualizationFn = class'Help'.static.FollowUpShot_MergeVisualization;
+	Template.BuildInterruptGameStateFn = none;
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_BH_BurstFire_Anim_Passive()
+{
+	local X2AbilityTemplate Template;
+
+	Template = Create_AnimSet_Passive('IRI_BH_BurstFire_Anim_Passive', "IRIBountyHunter.Anims.AS_RoutingVolley");
+	Template.bUniqueSource = true;
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_BH_NightWatch()
@@ -211,12 +361,12 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 	}
 	Template.AddMultiTargetEffect(Template.AbilityTargetEffects[2]); // Just the damage effect.
 
-	// Placebo, actual firing animation is set by Template Master in BountyHunter\XComTemplateEditor.ini
-	SetFireAnim(Template, 'FF_FireSuppress');
+	SetFireAnim(Template, 'FF_IRI_BH_BurstFire');
 
 	Template.AdditionalAbilities.AddItem('IRI_BH_BurstFire_Passive');
+	Template.AdditionalAbilities.AddItem('IRI_BH_BurstFire_Anim_Passive');
 
-	Template.ActivationSpeech = 'BulletShred'; // Hail of Bullets voiceilne
+	Template.ActivationSpeech = 'BulletShred'; // Rupture voiceilne
 
 	return Template;	
 }
@@ -621,283 +771,6 @@ static private function int GetSecondaryWeaponAmmo(const XComGameState_Unit Unit
 	return 0;
 }
 
-// This ability is a bit complicated. Desired function:
-// You Suppress the target and force it to move, immediately triggering an attack against it.
-// The suppression effect should remain on target, allowing further reaction attacks until the target dies, 
-// moves out of LoS, or shooter runs out of ammo.
-// 
-// Here's how this is achieved:
-// IRI_BH_Terminate applies the initial suppression effect and forces the target to run. 
-// It also applies a unit value which will be used later to make sure that later we retrigger suppression only against this particular target.
-// This suppression effect registers for ability activation event, and triggers the IRI_BH_Terminate_Attack,
-// which records the Event Chain Start History Index as a unit value on the target and removes the suppression effect from the target.
-// If the target is not moving, we resuppress it right away by triggering the IRI_BH_Terminate_Resuppress in that same listener.
-// If the target is moving, then we don't do anything.
-// The IRI_BH_Terminate_Resuppress has its own event listener trigger, but it will activate only against a unit that activates an ability
-// whose Event Chain Start History Index is not the one that we already recoreded on the suppressed unit as a unit value.
-// This ensures the event chain fully resolves before we are able to resuppress the target.
-// This convoluted process is required mainly to address various issues that occur when the same suppression effect is used for multiple suppression shots on the same moving target:
-// 1. After the unit moves, the suppressing unit continues suppressing the unit's original location. 
-// This can be addressed by updating the m_SuppressionHistoryIndex on the suppressing unit state.
-// 2. Even if the previous issue is addressed, the suppressing unit will still face the target's original location with their lower body, 
-// turning only arms and upper torso as much as possible to aim at the new location.
-// This can be addressed via custom Build Vis function for the suppression shot which will add X2Action_MoveTurn after the suppression shot goes through.
-// 3. Even if previous issues are addressed, the following suppression cosmetic shots will visually hit the target dead center, producing blood splatter, but not hurting the target,
-// as the shots are just for the show.
-// I couldn't figure out any way to address this other than removing and reapplying the suppression effect from the target after each shot.
-// The ressuppressing needs to be handled by a separate ability and not the suppression shot itself to prevent inception.
-
-static function X2AbilityTemplate IRI_BH_Terminate()
-{
-	local X2AbilityTemplate                 Template;	
-	local X2AbilityCost_Ammo                AmmoCost;
-	local X2AbilityCost_ActionPoints        ActionPointCost;
-	local X2Effect_BountyHunter_RoutingVolley	SuppressionEffect;
-	local X2Effect_AutoRunBehaviorTree		RunTree;
-	local X2Effect_GrantActionPoints		GrantActionPoints;
-	local X2Effect_SetUnitValue				UnitValueEffect;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Terminate');
-
-	// Icon Setup
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Terminate";
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-
-	// Targeting and Triggering
-	Template.AbilityToHitCalc = default.DeadEye;	
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
-	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-	Template.TargetingMethod = class'X2TargetingMethod_OverTheShoulder';
-
-	// Shooter Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AddShooterEffectExclusions();
-
-	// Target Conditions
-	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
-	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityAllowSquadsight);
-
-	// Costs
-	AmmoCost = new class'X2AbilityCost_Ammo';	
-	AmmoCost.iAmmo = 1;
-	Template.AbilityCosts.AddItem(AmmoCost);
-	
-	ActionPointCost = new class'X2AbilityCost_ActionPoints';
-	ActionPointCost.bConsumeAllPoints = true;
-	ActionPointCost.iNumPoints = 1;
-	Template.AbilityCosts.AddItem(ActionPointCost);
-
-	AddCharges(Template, `GetConfigInt('IRI_BH_Terminate_Charges'));
-
-	// Effects
-	UnitValueEffect = new class'X2Effect_SetUnitValue';
-	UnitValueEffect.UnitName = 'IRI_BH_Terminate_UnitValue_SuppressTarget';
-	UnitValueEffect.NewValueToSet = 1.0f;
-	UnitValueEffect.CleanupType = eCleanup_BeginTurn;
-	Template.AddTargetEffect(UnitValueEffect);
-
-	Template.bIsASuppressionEffect = true;
-	SuppressionEffect = new class'X2Effect_BountyHunter_RoutingVolley';
-	SuppressionEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
-	SuppressionEffect.bRemoveWhenTargetDies = true;
-	SuppressionEffect.bRemoveWhenSourceDamaged = true;
-	//SuppressionEffect.bBringRemoveVisualizationForward = true;
-	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage,,,Template.AbilitySourceName);
-	SuppressionEffect.SetSourceDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionSourceEffectDesc, Template.IconImage);
-	Template.AddTargetEffect(SuppressionEffect);
-	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
-
-	GrantActionPoints = new class'X2Effect_GrantActionPoints';
-	GrantActionPoints.NumActionPoints = 1;
-	GrantActionPoints.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
-	Template.AddTargetEffect(GrantActionPoints);
-
-	RunTree = new class'X2Effect_AutoRunBehaviorTree';
-	RunTree.BehaviorTree = 'IRI_PP_FlushRoot';
-	Template.AddTargetEffect(RunTree);
-
-	// State and Viz
-	//Template.ActivationSpeech = 'Banish';
-	//Template.ActivationSpeech = 'DeadEye'; // Use a voiceline available to regular soldiers. 
-											 // ->This ability plays a Suppressing voiceline automatically somewhere down the line.
-	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
-	Template.Hostility = eHostility_Offensive;
-	Template.CinescriptCameraType = "StandardSuppression";
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = class'BountyHunter'.static.SuppressionBuildVisualization;
-	Template.BuildAppliedVisualizationSyncFn = class'BountyHunter'.static.SuppressionBuildVisualizationSync;
-
-	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
-	Template.bFrameEvenWhenUnitIsHidden = true;
-
-	Template.AssociatedPassives.AddItem('HoloTargeting');
-	Template.AdditionalAbilities.AddItem('IRI_BH_Terminate_Attack');
-	Template.AdditionalAbilities.AddItem('IRI_BH_Terminate_Resuppress');
-
-	return Template;	
-}
-
-static function X2AbilityTemplate IRI_BH_Terminate_Attack()
-{
-	local X2AbilityTemplate						Template;	
-	local X2AbilityCost_Ammo					AmmoCost;
-	local X2Effect_RemoveEffects_MatchSource	RemoveSuppression;
-
-	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_BH_Terminate_Attack', true, false, false);
-	SetHidden(Template);
-
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Terminate";
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-
-	Template.AbilityTriggers.Length = 0;
-	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
-
-	RemoveSuppression = new class'X2Effect_RemoveEffects_MatchSource';
-	RemoveSuppression.EffectNamesToRemove.AddItem(class'X2Effect_BountyHunter_RoutingVolley'.default.EffectName);
-	Template.AddTargetEffect(RemoveSuppression);
-	
-	// Need just the ammo cost.
-	Template.AbilityCosts.Length = 0;
-	AmmoCost = new class'X2AbilityCost_Ammo';
-	AmmoCost.iAmmo = 1;
-	Template.AbilityCosts.AddItem(AmmoCost);
-
-	Template.bShowActivation = true;
-
-	//don't want to exit cover, we are already in suppression/alert mode.
-	Template.bSkipExitCoverWhenFiring = true;
-
-	// Placebo, actual firing animation is set by Template Master in BountyHunter\XComTemplateEditor.ini
-	SetFireAnim(Template, 'FF_FireSuppress');
-
-	return Template;	
-}
-
-static function X2AbilityTemplate IRI_BH_Terminate_Resuppress()
-{
-	local X2AbilityTemplate						Template;	
-	local X2Effect_BountyHunter_RoutingVolley	SuppressionEffect;
-	local X2AbilityTrigger_EventListener		Trigger;
-	local X2AbilityCost_Ammo					AmmoCost;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_Terminate_Resuppress');
-
-	// Icon Setup
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Terminate";
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	SetHidden(Template);
-
-	// Targeting and Triggering
-	Template.AbilityToHitCalc = default.DeadEye;	
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
-	Template.TargetingMethod = class'X2TargetingMethod_OverTheShoulder';
-
-	Trigger = new class'X2AbilityTrigger_EventListener';	
-	Trigger.ListenerData.EventID = 'AbilityActivated';
-	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
-	Trigger.ListenerData.Filter = eFilter_None;
-	Trigger.ListenerData.Priority = 40;
-	Trigger.ListenerData.EventFn = TerminateTriggerListener_Resuppress;
-	Template.AbilityTriggers.AddItem(Trigger);
-
-	// Shooter Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AddShooterEffectExclusions();
-
-	// Costs
-	AmmoCost = new class'X2AbilityCost_Ammo';	
-	AmmoCost.iAmmo = 1;
-	AmmoCost.bFreeCost = true; // Check ammo for activation only.
-	Template.AbilityCosts.AddItem(AmmoCost);
-
-	// Target Conditions
-	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
-	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityAllowSquadsight);
-
-	// Effects
-	Template.bIsASuppressionEffect = true;
-	SuppressionEffect = new class'X2Effect_BountyHunter_RoutingVolley';
-	SuppressionEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
-	SuppressionEffect.bRemoveWhenTargetDies = true;
-	SuppressionEffect.bRemoveWhenSourceDamaged = true;
-	SuppressionEffect.bBringRemoveVisualizationForward = true;
-	SuppressionEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionTargetEffectDesc, Template.IconImage,,,Template.AbilitySourceName);
-	SuppressionEffect.SetSourceDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, class'X2Ability_GrenadierAbilitySet'.default.SuppressionSourceEffectDesc, Template.IconImage);
-	Template.AddTargetEffect(SuppressionEffect);
-
-	// State and Viz
-	Template.Hostility = eHostility_Offensive;
-	//Template.CinescriptCameraType = "StandardSuppression";
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = class'BountyHunter'.static.SuppressionBuildVisualization;
-	Template.BuildAppliedVisualizationSyncFn = class'BountyHunter'.static.SuppressionBuildVisualizationSync;
-
-	Template.AssociatedPlayTiming = SPT_AfterSequential;
-	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
-	Template.bFrameEvenWhenUnitIsHidden = true;
-
-	return Template;	
-}
-
-static private function EventListenerReturn TerminateTriggerListener_Resuppress(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
-{
-	local XComGameState_Ability			AbilityState;
-	local XComGameStateContext_Ability	AbilityContext;
-	local XComGameState_Unit			TargetUnit;
-	local XComGameStateHistory			History;
-	local UnitValue						UV;
-
-	// Process only abilities that involve movement.
-	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
-	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt || AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length == 0)
-		return ELR_NoInterrupt;
-
-	AbilityState = XComGameState_Ability(EventData);
-	if (AbilityState == none || !AbilityState.IsAbilityInputTriggered())
-		return ELR_NoInterrupt;
-
-	TargetUnit = XComGameState_Unit(EventSource);
-	if (TargetUnit == none)
-		return ELR_NoInterrupt;
-
-	// Use this value to filter out ability activations from units that we didn't manually suppress previously.
-	if (!TargetUnit.GetUnitValue('IRI_BH_Terminate_UnitValue_SuppressTarget', UV))
-		return ELR_NoInterrupt;
-
-	`AMLOG("Attempting trigger resuppress by ability:" @ AbilityContext.InputContext.AbilityTemplateName);
-
-	History = `XCOMHISTORY;
-	TargetUnit.GetUnitValue('IRI_BH_Terminate_UnitValue', UV);
-	if (UV.fValue != History.GetEventChainStartIndex())
-	{
-		`AMLOG("Terminate has not yet responded to this event chain start, exiting.");
-		return ELR_NoInterrupt;
-	}
-
-	if (AbilityContext.InputContext.MovementPaths[0].MovementTiles[AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length - 1] != TargetUnit.TileLocation)
-	{
-		`AMLOG("Unit is not yet on final tile of movement, exiting");
-		return ELR_NoInterrupt;
-	}
-
-	AbilityState = XComGameState_Ability(CallbackData);
-	if (AbilityState == none)
-		return ELR_NoInterrupt;
-
-	`AMLOG("Attempting resuppress");
-
-	if (AbilityState.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false))
-	{
-		`AMLOG("resuppress succeess");
-	}
-
-	return ELR_NoInterrupt;
-}
 
 
 

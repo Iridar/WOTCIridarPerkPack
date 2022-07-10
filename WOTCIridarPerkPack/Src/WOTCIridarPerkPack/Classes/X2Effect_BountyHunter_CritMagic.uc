@@ -63,7 +63,7 @@ function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGa
 
 	CritChance = CritMagic.GetUncappedCritChance(Template, AbilityState, TargetDamageable);
 
-	`LOG("Uncapped crit chance:" @ CritChance,, 'IRITEST');
+	//`LOG("Uncapped crit chance:" @ CritChance,, 'IRITEST');
 
 	// Take away 100%, since we're interested only in overflow crit chance.
 	CritChance = CritChance - 100;
