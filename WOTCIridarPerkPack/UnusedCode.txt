@@ -1,5 +1,11 @@
 
 
+XComTemplateCreator.ini
+;[WOTCIridarTemplateMaster.X2Item_TemplateCreator]
+
+;+Create_X2ItemTemplate = (C = "X2WeaponTemplate", T = "IRI_BountyPistol_CV")
+
+
 	Templates.AddItem(IRI_BH_ChasingShot());
 	Templates.AddItem(IRI_BH_ChasingShot_Attack());
 	Templates.AddItem(IRI_BH_Blindside());

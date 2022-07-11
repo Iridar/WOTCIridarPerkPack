@@ -8,5 +8,7 @@ IRI_BH_Nightfall_Ended = "Nightfall Ended"
 IRI_BH_FeelingLucky_Flyover_Added = "Feeling Lucky: +1 Ammo"
 IRI_BH_FeelingLucky_Flyover_Removed = "Feeling Lucky: -1 Ammo"
 NightDiveActionAvailable = "Action Available"
+IRI_BH_Terminate_EffectTitle = "Marked for termination"
+IRI_BH_Terminate_EffectText = "This unit is marked for termination."
 
 ;	----------------------------------------------------

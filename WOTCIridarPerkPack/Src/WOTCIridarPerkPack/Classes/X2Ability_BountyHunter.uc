@@ -108,15 +108,17 @@ static function X2AbilityTemplate IRI_BH_Terminate()
 	TargetEffect = new class'X2Effect_BountyHunter_Terminate';
 	TargetEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
 	TargetEffect.bRemoveWhenTargetDies = true;
-	TargetEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, "img:///IRIPerkPackUI.status_Terminate", Template.AbilitySourceName);
+	TargetEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString('IRI_BH_Terminate_EffectTitle'), `GetLocalizedString('IRI_BH_Terminate_EffectText'), Template.IconImage, true, "img:///IRIPerkPackUI.status_Terminate", Template.AbilitySourceName);
 	Template.AddTargetEffect(TargetEffect);
-
+	
 	// State and Viz
 	Template.Hostility = eHostility_Neutral;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.bShowActivation = true;
-	Template.bSkipFireAction = true;
+	Template.ConcealmentRule = eConceal_AlwaysEvenWithObjective;
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = false;
+	SetFireAnim(Template, 'FF_IRI_BH_Terminate');
 
 	// This one is triggered as a followup to abilities that don't come from the vektor,
 	// or unsupported abilities. It visualizes as a bog standard primary weapon attack, like RapidFire2.

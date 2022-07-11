@@ -1,27 +1,3 @@
-X2ModBuildCommon v1.2.1 successfully installed. 
-Edit .scripts\build.ps1 if you want to enable cooking. 
- 
-Enjoy making your mod, and may the odds be ever in your favor. 
- 
- 
-Created with Enhanced Mod Project Template v1.0 
- 
-Get news and updates here: 
-https://github.com/Iridar/EnhancedModProjectTemplate 
-
-
-
-TODO: 
-- Rework Terminate
-
-XComTemplateCreator.ini
-;[WOTCIridarTemplateMaster.X2Item_TemplateCreator]
-
-;+Create_X2ItemTemplate = (C = "X2WeaponTemplate", T = "IRI_BountyPistol_CV")
-
-
-
-
 [WOTC] Iridar's Perk Pack
 
 This mod adds various abilities that can be used by other mods that add soldier classes, items or other ways for soldiers to gain abilities. By itself this mod does absolutely nothing. In the future, I intend to put most of my new abilities into this mod, as it will make it more convenient for different mods to reuse the abilities without duplicating code.

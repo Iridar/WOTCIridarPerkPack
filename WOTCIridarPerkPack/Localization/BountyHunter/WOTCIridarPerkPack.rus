@@ -8,5 +8,7 @@ IRI_BH_Nightfall_Ended = "Ночь: эффект прошел"
 IRI_BH_FeelingLucky_Flyover_Added = "Кому-то не повезет: +1 патрон"
 IRI_BH_FeelingLucky_Flyover_Removed = "Кому-то не повезет: -1 патрон"
 NightDiveActionAvailable = "Доступно действие"
+IRI_BH_Terminate_EffectTitle = "Метка: ликвидация цели"
+IRI_BH_Terminate_EffectText = "Эта цель помечена для ликвидации."
 
 ;	------------------------
