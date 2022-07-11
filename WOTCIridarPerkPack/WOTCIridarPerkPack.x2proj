@@ -113,6 +113,9 @@
     <Content Include="Config\Base\XComEditor.ini" />
     <Content Include="Config\Base\XComEngine.ini" />
     <Content Include="Config\Base\XComGame.ini" />
+    <Content Include="ReadMe_rus.txt">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\extra_globals.uci" />
     <Content Include="Src\WOTCIridarPerkPack\Classes\AnimNotify_FireOtherWeapon.uc">
       <SubType>Content</SubType>

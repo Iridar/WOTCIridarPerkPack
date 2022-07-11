@@ -3,8 +3,11 @@
 //  PURPOSE: Helper class for static functions and script snippet repository.     
 //---------------------------------------------------------------------------------------
 
-class Help extends Object abstract;
+class Help extends Object abstract config(Game);
 
+var config bool bLog;
+
+// `define AMLOG(msg) `LOG(GetFuncName() @ `msg, /* class'WOTCIridarPerkPack_Defaults'.default.VERSION_CFG > class'WOTCIridarPerkPack_MCMScreen'.default.VERSION_CFG ? class'WOTCIridarPerkPack_Defaults'.default.DEBUG_LOGGING : class'WOTCIridarPerkPack_MCMScreen'.default.DEBUG_LOGGING */, 'WOTCIridarPerkPack')
 /*
 
 ### Creating and Submitting a Game State
