@@ -18,6 +18,8 @@ $builder = [BuildProject]::new("WOTCIridarPerkPack", $srcDirectory, $sdkPath, $g
 # Uncomment the next line to enable building against Highlander.
 $builder.IncludeSrc("$srcDirectory\X2WOTCCommunityHighlander\X2WOTCCommunityHighlander\Src")
 
+$builder.SetWorkshopID(2833581072)
+
 switch ($config)
 {
     "debug" {

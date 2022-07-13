@@ -8,11 +8,13 @@ var int GrantCritDamageForCritChanceOverflow;
 
 var private X2Condition_Visibility VisibilityCondition;
 
+// Note: this crit chance modifier will be logged, but disregarded for attacks that normally don't allow crits, such as explosives, even with the effect that allows them to crit.
+// In order for this crit chance modifier to count for them, this specific effect would need to allow crit override.
 function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit Attacker, XComGameState_Unit Target, XComGameState_Ability AbilityState, class<X2AbilityToHitCalc> ToHitType, bool bMelee, bool bFlanking, bool bIndirectFire, out array<ShotModifierInfo> ShotModifiers)
 {
 	local ShotModifierInfo ShotMod;
 
-	//`AMLOG(Attacker.GetFullName() @ Attacker.GetFullName() @ VisibilityCondition.MeetsConditionWithSource(Target, Attacker));
+	`AMLOG("Crit Magic:" @ Attacker.GetFullName() @ Attacker.GetFullName() @ VisibilityCondition.MeetsConditionWithSource(Target, Attacker));
 
 	if (VisibilityCondition.MeetsConditionWithSource(Target, Attacker) != 'AA_Success')
 		return;
@@ -21,27 +23,16 @@ function GetToHitModifiers(XComGameState_Effect EffectState, XComGameState_Unit 
 	ShotMod.Value = BonusCritChance;
 	ShotMod.Reason = FriendlyName;
 
-	ShotModifiers.AddItem(ShotMod);	
-}
+	`AMLOG("Crit Magic increasing crit chance by:" @ ShotMod.Value);
 
-// Need this bit for Bomb Raider / Biggest Booms to work properly.
-function bool ChangeHitResultForAttacker(XComGameState_Unit Attacker, XComGameState_Unit TargetUnit, XComGameState_Ability AbilityState, const EAbilityHitResult CurrentResult, out EAbilityHitResult NewHitResult) 
-{ 
-	if (VisibilityCondition.MeetsConditionWithSource(TargetUnit, Attacker) == 'AA_Success' && 
-		class'XComGameStateContext_Ability'.static.IsHitResultHit(CurrentResult))
-	{
-		NewHitResult = eHit_Crit;
-		return true;
-	}
-	return false;
+	ShotModifiers.AddItem(ShotMod);	
 }
 
 function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData AppliedData, const int CurrentDamage, optional XComGameState NewGameState) 
 {
-	local X2AbilityToHitCalc_StandardAim	StandardAim;
+	local X2AbilityTemplate					Template;
 	local XComGameState_Effect_CritMagic	CritMagic;
 	local int								CritChance;
-	local X2AbilityTemplate					Template;
 
 	if (AppliedData.AbilityResultContext.HitResult != eHit_Crit)
 		return 0;
@@ -50,20 +41,13 @@ function int GetAttackingDamageModifier(XComGameState_Effect EffectState, XComGa
 	if (Template == none || Template.AbilityToHitCalc == none)
 		return 0;
 
-	StandardAim = X2AbilityToHitCalc_StandardAim(Template.AbilityToHitCalc);
-	if (StandardAim != none && StandardAim.bIndirectFire)
-	{
-		// Assume that indirect fire are explosive attacks
-		return class'X2Effect_BiggestBooms'.default.CRIT_CHANCE_BONUS / GrantCritDamageForCritChanceOverflow;
-	}
-
 	CritMagic = XComGameState_Effect_CritMagic(EffectState);
 	if (CritMagic == none)
 		return 0;
 
 	CritChance = CritMagic.GetUncappedCritChance(Template, AbilityState, TargetDamageable);
 
-	//`LOG("Uncapped crit chance:" @ CritChance,, 'IRITEST');
+	`LOG("Uncapped crit chance:" @ CritChance,, 'IRITEST');
 
 	// Take away 100%, since we're interested only in overflow crit chance.
 	CritChance = CritChance - 100;

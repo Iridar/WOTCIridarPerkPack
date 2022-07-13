@@ -13,6 +13,8 @@ final function int GetUncappedCritChance(X2AbilityTemplate Template, XComGameSta
 	local XComGameState_Unit				TargetUnit;
 	local AvailableTarget					AvTarget;
 
+	`AMLOG("Running");
+
 	TargetUnit = XComGameState_Unit(TargetDamageable);
 	if (TargetUnit == none)
 		return 0;
@@ -30,6 +32,7 @@ final function int GetUncappedCritChance(X2AbilityTemplate Template, XComGameSta
 		Template.AbilityToHitCalc.GetShotBreakdown(AbilityState, AvTarget, Breakdown);
 		Template.AbilityToHitCalc.OverrideFinalHitChanceFns.RemoveItem(CritChanceHack);
 
+		`AMLOG("Returning Crit Chance for LWOTC:" @ CritChance);
 		return CritChance;
 	}
 

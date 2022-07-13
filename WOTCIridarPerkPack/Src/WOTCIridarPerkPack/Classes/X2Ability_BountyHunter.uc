@@ -305,8 +305,8 @@ static function X2AbilityTemplate IRI_BH_UnrelentingPressure()
 
 static function X2AbilityTemplate IRI_BH_BombRaider()
 {
-	local X2AbilityTemplate		Template;
-	local X2Effect_BiggestBooms	BiggestBoomsEffect;
+	local X2AbilityTemplate					Template;
+	local X2Effect_BountyHunter_BombRaider	BiggestBoomsEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BombRaider');
 
@@ -316,8 +316,9 @@ static function X2AbilityTemplate IRI_BH_BombRaider()
 
 	SetPassive(Template);
 
-	BiggestBoomsEffect = new class'X2Effect_BiggestBooms';
+	BiggestBoomsEffect = new class'X2Effect_BountyHunter_BombRaider';
 	BiggestBoomsEffect.BuildPersistentEffect(1, true, true, true);
+	BiggestBoomsEffect.BonusCritChanceWhenUnseen = `GetConfigInt('IRI_BH_Nightfall_CritChanceBonusWhenUnseen');
 	BiggestBoomsEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(BiggestBoomsEffect);
 

@@ -171,6 +171,9 @@
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BigGameHunter.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BombRaider.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Terminate.uc">
       <SubType>Content</SubType>
     </Content>
