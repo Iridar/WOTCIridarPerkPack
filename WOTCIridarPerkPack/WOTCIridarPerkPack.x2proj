@@ -22,6 +22,8 @@
     <Folder Include="Src\" />
     <Folder Include="Content\" />
     <Folder Include="ContentForCook\" />
+    <Folder Include="Src\WOTCIridarPerkPack2" />
+    <Folder Include="Src\WOTCIridarPerkPack2\Classes" />
     <Folder Include="Src\WOTCIridarPerkPack\" />
     <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
   </ItemGroup>
@@ -117,7 +119,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\extra_globals.uci" />
-    <Content Include="Src\WOTCIridarPerkPack\Classes\AnimNotify_FireOtherWeapon.uc">
+    <Content Include="Src\WOTCIridarPerkPack2\Classes\AnimNotify_FireOtherWeapon.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPack\Classes\BountyHunter.uc">

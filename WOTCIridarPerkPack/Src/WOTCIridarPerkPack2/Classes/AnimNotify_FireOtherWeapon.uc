@@ -33,3 +33,6 @@ event Notify(Actor Owner, AnimNodeSequence AnimSeqInstigator)
         }
     }
 }
+
+// This class must live in a separate package, because cooked packages cannot contain references to the main unreal script package.
+// Don't ask me why, but this is second time I stepped on these rakes. 
