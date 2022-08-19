@@ -852,6 +852,8 @@ static function X2AbilityTemplate IRI_BH_FirePistol()
 	//Template.AdditionalAbilities.AddItem('PistolReturnFire');
 	///Template.AdditionalAbilities.AddItem('HotLoadAmmo');
 
+	Template.OverrideAbilities.AddItem('PistolStandardShot');
+
 	return Template;	
 }
 
@@ -1262,6 +1264,7 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 	// This ability needs to be attached to some kind of weapon to work.
 	// Bounty hunters apply it to secondary, but we put primary slot in case the perk is used for other purposes.
 	Template.DefaultSourceItemSlot = eInvSlot_PrimaryWeapon;
+	Template.bUniqueSource = true; // Just in case for RPGO
 	
 	return Template;
 }
@@ -1318,6 +1321,8 @@ static function X2AbilityTemplate IRI_BH_Nightfall()
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
 
 	//Template.AdditionalAbilities.AddItem('IRI_BH_Nightfall_Passive');
+
+	Template.bUniqueSource = true;
 	
 	return Template;
 }
@@ -1353,7 +1358,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 	}
 		
 	StealthEffect = new class'X2Effect_BountyHunter_DeadlyShadow';
-	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnEnd);
+	StealthEffect.BuildPersistentEffect(`GetConfigInt('IRI_BH_Nightfall_Duration'), false, true, false, eGameRule_PlayerTurnBegin);
 	StealthEffect.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_Nightfall", true,,Template.AbilitySourceName);
 	Template.AddShooterEffect(StealthEffect);
 
@@ -1361,7 +1366,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 
 	AnimEffect = new class'X2Effect_AdditionalAnimSets';
 	AnimEffect.DuplicateResponse = eDupe_Ignore;
-	AnimEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
+	AnimEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnBegin);
 	AnimEffect.bRemoveWhenTargetConcealmentBroken = true;
 	AnimEffect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
 	AnimEffect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
@@ -1398,6 +1403,8 @@ static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 	CritMagic.BonusCritChance = `GetConfigInt('IRI_BH_Nightfall_CritChanceBonusWhenUnseen');
 	CritMagic.GrantCritDamageForCritChanceOverflow = `GetConfigInt('IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow');
 	Template.AddTargetEffect(CritMagic);
+
+	Template.bUniqueSource = true;
 	
 	return Template;
 }

@@ -80,8 +80,8 @@ LocFlyOverText="Nothing Personal"
 
 [IRI_BH_NothingPersonal_Passive X2AbilityTemplate]
 LocFriendlyName="Nothing Personal"
-LocLongDescription="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residual psionic energy from the rift coating the bullet."
-LocHelpText="Enemies targeted by Night Dive will take double damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residual psionic energy from the rift coating the bullet."
+LocLongDescription="Enemies targeted by Night Dive will take +100% base damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residual psionic energy from the rift coating the bullet."
+LocHelpText="Enemies targeted by Night Divewill take +100% base damage from your next normal <Ability:IRI_BoundWeaponName/> shot due to residual psionic energy from the rift coating the bullet."
 LocPromotionPopupText="<bullet/> The damage caused by the amplified attack will count as both regular and psionic damage."
 LocFlyOverText="Nothing Personal"
 
