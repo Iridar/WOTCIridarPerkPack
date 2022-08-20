@@ -15,3 +15,4 @@
 `define GetConfigArrayInt(VarName) class'ConfigEngine'.static.GetConfigArrayInt(`VarName)
 `define GetConfigArrayFloat(VarName) class'ConfigEngine'.static.GetConfigArrayFloat(`VarName)
 `define GetConfigArrayName(VarName) class'ConfigEngine'.static.GetConfigArrayName(`VarName)
+`define GetConfigDamage(VarName) class'ConfigEngine'.static.GetConfigDamage(`VarName)

@@ -61,6 +61,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_BurstFire_AmmoCost":
 	case "IRI_BH_BurstFire_NumShots":
 	case "IRI_BH_Untraceable_CooldownReduction":
+	case "IRI_BH_HomingMine_Charges":
 		OutString = BHColor(`GetConfigInt(name(InString)));
 		return true;
 
@@ -77,6 +78,14 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_BurstFire_SquadSightPenaltyModifier":
 		OutString = BHColor(GetPercentValue(name(InString)) $ "%");
 		return true;
+
+	case "IRI_BH_HomingMine_Damage":
+		OutString = BHColor(`GetConfigDamage('IRI_BH_HomingMine_Damage').Damage);
+		return true;
+	case "IRI_BH_HomingMine_Shred":
+		OutString = BHColor(`GetConfigDamage('IRI_BH_HomingMine_Damage').Shred);
+		return true;
+	
 
 	// ======================================================================================================================
 	//												TEMPLAR TAGS

@@ -21,6 +21,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_NightWatch());
 
 	// Sergeant
+	Templates.AddItem(SetTreePosition(IRI_BH_HomingMine(), 2)); // Sabotage Charge
+	Templates.AddItem(IRI_BH_HomingMineDetonation());
 	Templates.AddItem(SetTreePosition(IRI_BH_ShadowTeleport(), 2)); // Night Dive
 	Templates.AddItem(IRI_BH_Nightmare());
 
@@ -460,7 +462,6 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 static function X2AbilityTemplate IRI_BH_DoublePayload()
 {
 	local X2AbilityTemplate			Template;
-	local X2Effect_GrantCharges		GrantCharges;
 	local X2Effect_BaseDamageBonus	BaseDamageBonus;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_DoublePayload');
@@ -471,13 +472,8 @@ static function X2AbilityTemplate IRI_BH_DoublePayload()
 
 	SetPassive(Template);
 
-	GrantCharges = new class'X2Effect_GrantCharges';
-	GrantCharges.AbilityName = 'HomingMine';
-	GrantCharges.NumCharges = `GetConfigInt('IRI_BH_DoublePayload_NumBonusCharges');
-	Template.AddTargetEffect(GrantCharges);
-
 	BaseDamageBonus = new class'X2Effect_BaseDamageBonus';
-	BaseDamageBonus.AbilityName = 'HomingMineDetonation';
+	BaseDamageBonus.AbilityName = 'IRI_BH_HomingMineDetonation';
 	BaseDamageBonus.DamageMod = `GetConfigFloat('IRI_BH_DoublePayload_BonusDamage');
 	BaseDamageBonus.bOnlyPrimaryTarget = true;
 	BaseDamageBonus.BuildPersistentEffect(1, true);
@@ -485,7 +481,7 @@ static function X2AbilityTemplate IRI_BH_DoublePayload()
 	BaseDamageBonus.EffectName = 'IRI_BH_DoublePayload_BonusDamageEffect';
 	Template.AddTargetEffect(BaseDamageBonus);
 
-	Template.PrerequisiteAbilities.AddItem('HomingMine');
+	Template.PrerequisiteAbilities.AddItem('IRI_BH_HomingMine');
 	
 	return Template;
 }
@@ -1407,6 +1403,299 @@ static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 	Template.bUniqueSource = true;
 	
 	return Template;
+}
+
+static function X2AbilityTemplate IRI_BH_HomingMine()
+{
+	local X2AbilityTemplate							Template;
+	local X2Effect_BountyHunter_HomingMine			MineEffect;
+	local X2AbilityCost_ActionPoints				ActionPointCost;
+	local X2AbilityCost_Charges						ChargeCost;
+	local X2AbilityCharges							Charges;
+	local X2AbilityMultiTarget_Radius	            RadiusMultiTarget;	//	purely for visualization of the AOE
+	local X2Condition_UnitEffects					EffectCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_HomingMine');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_HomingMine";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_Single';
+	Template.TargetingMethod = class'X2TargetingMethod_HomingMine';
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.bUseWeaponRadius = false;
+	RadiusMultiTarget.fTargetRadius = `GetConfigFloat('IRI_BH_HomingMine_Radius');
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	// Costs
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	ChargeCost = new class'X2AbilityCost_Charges';
+	Template.AbilityCosts.AddItem(ChargeCost);
+
+	Charges = new class'X2AbilityCharges';
+	Charges.InitialCharges = `GetConfigInt('IRI_BH_HomingMine_Charges');
+	Charges.AddBonusCharge('IRI_BH_DoublePayload', `GetConfigInt('IRI_BH_DoublePayload_NumBonusCharges'));
+	Template.AbilityCharges = Charges;
+
+	// Shooter Conditions
+	
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
+	
+	EffectCondition = new class'X2Condition_UnitEffects';
+	EffectCondition.AddExcludeEffect('IRI_BH_HomingMine_Effect', 'AA_UnitHasHomingMine');
+	Template.AbilityTargetConditions.AddItem(EffectCondition);
+
+	MineEffect = new class'X2Effect_BountyHunter_HomingMine';
+	MineEffect.BuildPersistentEffect(1, true, false);
+	MineEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, `GetLocalizedString("IRI_BH_HomingMine_Effect_Desc"), Template.IconImage, true);
+	MineEffect.AbilityToTrigger = 'IRI_BH_HomingMineDetonation';
+	MineEffect.EffectName = 'IRI_BH_HomingMine_Effect';
+	Template.AddTargetEffect(MineEffect);
+
+	Template.bSkipPerkActivationActions = false;
+	Template.bHideWeaponDuringFire = false;
+	
+	Template.bAllowUnderhandAnim = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.ActivationSpeech = 'HomingMine';
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.AdditionalAbilities.AddItem('IRI_BH_HomingMineDetonation');
+	Template.DamagePreviewFn = HomingMine_DamagePreview;
+
+	return Template;
+}
+
+static private function bool HomingMine_DamagePreview(XComGameState_Ability AbilityState, StateObjectReference TargetRef, out WeaponDamageValue MinDamagePreview, out WeaponDamageValue MaxDamagePreview, out int AllowsShield)
+{
+	local XComGameState_Unit SourceUnit;
+
+	MinDamagePreview = `GetConfigDamage('IRI_BH_HomingMine_Damage');
+	
+	SourceUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityState.OwnerStateObject.ObjectID));
+	if (SourceUnit != none && SourceUnit.HasSoldierAbility('IRI_BH_DoublePayload'))
+	{
+		MinDamagePreview.Damage += float(MinDamagePreview.Damage) * `GetConfigFloat('IRI_BH_DoublePayload_BonusDamage');
+	}
+
+	MaxDamagePreview = MinDamagePreview;
+	return true;
+}
+
+static function X2AbilityTemplate IRI_BH_HomingMineDetonation()
+{
+	local X2AbilityTemplate							Template;
+	local X2AbilityToHitCalc_StandardAim			ToHit;
+	local X2AbilityMultiTarget_Radius	            RadiusMultiTarget;
+	local X2Condition_UnitProperty					UnitPropertyCondition;
+	local X2Effect_ApplyWeaponDamage				MineDamage;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_HomingMineDetonation');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_HomingMine";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	
+	// Targeting and Triggering
+	ToHit = new class'X2AbilityToHitCalc_StandardAim';
+	ToHit.bIndirectFire = true;
+	Template.AbilityToHitCalc = ToHit;
+
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_Single';
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.bUseWeaponRadius = false;
+	RadiusMultiTarget.bAddPrimaryTargetAsMultiTarget = true;
+	RadiusMultiTarget.fTargetRadius = `GetConfigFloat('IRI_BH_HomingMine_Radius');
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	// Target Conditions
+	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = true;
+	UnitPropertyCondition.ExcludeFriendlyToSource = false;
+	UnitPropertyCondition.ExcludeHostileToSource = false;
+	UnitPropertyCondition.FailOnNonUnits = false; //The grenade can affect interactive objects, others
+	Template.AbilityMultiTargetConditions.AddItem(UnitPropertyCondition);
+
+	//	special damage effect handles shrapnel vs regular damage
+	MineDamage = new class'X2Effect_ApplyWeaponDamage';
+	MineDamage.EffectDamageValue = `GetConfigDamage('IRI_BH_HomingMine_Damage');
+	MineDamage.EnvironmentalDamageAmount = `GetConfigInt('IRI_BH_HomingMine_EnvDamage');
+	MineDamage.bExplosiveDamage = true;
+	MineDamage.bIgnoreBaseDamage = true;
+	Template.AddMultiTargetEffect(MineDamage);
+
+	Template.bSkipFireAction = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = HomingMineDetonation_BuildVisualization;
+	Template.MergeVisualizationFn = HomingMineDetonation_MergeVisualization;
+	
+	//Template.PostActivationEvents.AddItem('HomingMineDetonated');
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.GrenadeLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+static private function HomingMineDetonation_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateContext_Ability AbilityContext;	
+	local VisualizationActionMetadata VisTrack;
+	local X2Action_PlayEffect EffectAction;
+	local X2Action_SpawnImpactActor ImpactAction;
+	//local X2Action_CameraLookAt LookAtAction;
+	//local X2Action_Delay DelayAction;
+	local X2Action_StartStopSound SoundAction;
+	local XComGameState_Unit ShooterUnit;
+	local Array<X2Action> ParentActions;
+	local X2Action_MarkerNamed JoinAction;
+	local XComGameStateHistory History;
+	local X2Action_WaitForAbilityEffect WaitForFireEvent;
+	local XComGameStateVisualizationMgr VisMgr;
+	local Array<X2Action> NodesToParentToWait;
+	local int ScanAction;
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+	History = `XCOMHISTORY;
+
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());	
+
+	VisTrack.StateObjectRef = AbilityContext.InputContext.SourceObject;
+	VisTrack.VisualizeActor = History.GetVisualizer(VisTrack.StateObjectRef.ObjectID);
+	History.GetCurrentAndPreviousGameStatesForObjectID(VisTrack.StateObjectRef.ObjectID,
+													   VisTrack.StateObject_OldState, VisTrack.StateObject_NewState,
+													   eReturnType_Reference,
+													   VisualizeGameState.HistoryIndex);	
+
+	WaitForFireEvent = X2Action_WaitForAbilityEffect(class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(VisTrack, AbilityContext));
+	//Camera comes first
+// 	LookAtAction = X2Action_CameraLookAt(class'X2Action_CameraLookAt'.static.AddToVisualizationTree(VisTrack, AbilityContext, false, WaitForFireEvent));
+// 	LookAtAction.LookAtLocation = AbilityContext.InputContext.TargetLocations[0];
+// 	LookAtAction.BlockUntilFinished = true;
+// 	LookAtAction.LookAtDuration = 2.0f;
+	
+	ImpactAction = X2Action_SpawnImpactActor( class'X2Action_SpawnImpactActor'.static.AddToVisualizationTree(VisTrack, AbilityContext, false, WaitForFireEvent) );
+	ParentActions.AddItem(ImpactAction);
+
+	ImpactAction.ImpactActorName = class'X2Ability_ReaperAbilitySet'.default.HomingMineImpactArchetype;
+	ImpactAction.ImpactLocation = AbilityContext.InputContext.TargetLocations[0];
+	ImpactAction.ImpactLocation.Z = `XWORLD.GetFloorZForPosition( ImpactAction.ImpactLocation );
+	ImpactAction.ImpactNormal = vect(0, 0, 1);
+
+	//Do the detonation
+	EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(VisTrack, AbilityContext, false, WaitForFireEvent));
+	ParentActions.AddItem(EffectAction);
+
+	ShooterUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(VisTrack.StateObjectRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex));
+	if (ShooterUnit.HasSoldierAbility('Shrapnel'))
+		EffectAction.EffectName = class'X2Ability_ReaperAbilitySet'.default.HomingShrapnelExplosionFX;		
+	else 
+		EffectAction.EffectName = class'X2Ability_ReaperAbilitySet'.default.HomingMineExplosionFX;
+	`CONTENT.RequestGameArchetype(EffectAction.EffectName);
+
+	EffectAction.EffectLocation = AbilityContext.InputContext.TargetLocations[0];
+	EffectAction.EffectRotation = Rotator(vect(0, 0, 1));
+	EffectAction.bWaitForCompletion = false;
+	EffectAction.bWaitForCameraCompletion = false;
+
+	SoundAction = X2Action_StartStopSound(class'X2Action_StartStopSound'.static.AddToVisualizationTree(VisTrack, AbilityContext, false, WaitForFireEvent));
+	ParentActions.AddItem(SoundAction);
+	SoundAction.Sound = new class'SoundCue';
+
+	if (ShooterUnit.HasSoldierAbility('Shrapnel'))
+		SoundAction.Sound.AkEventOverride = AkEvent'SoundX2CharacterFX.Proximity_Mine_Explosion';	//	@TODO - update sound
+	else 
+		SoundAction.Sound.AkEventOverride = AkEvent'SoundX2CharacterFX.Proximity_Mine_Explosion';	//	@TODO - update sound
+
+	SoundAction.bIsPositional = true;
+	SoundAction.vWorldPosition = AbilityContext.InputContext.TargetLocations[0];
+
+	JoinAction = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(VisTrack, AbilityContext, false, None, ParentActions));
+	JoinAction.SetName("Join");
+
+	TypicalAbility_BuildVisualization(VisualizeGameState);
+	
+	// Jwats: Reparent all of the apply weapon damage actions to the wait action since this visualization doesn't have a fire anim
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_ApplyWeaponDamageToUnit', NodesToParentToWait);
+	for( ScanAction = 0; ScanAction < NodesToParentToWait.Length; ++ScanAction )
+	{
+		VisMgr.DisconnectAction(NodesToParentToWait[ScanAction]);
+		VisMgr.ConnectAction(NodesToParentToWait[ScanAction], VisMgr.BuildVisTree, false, WaitForFireEvent);
+		VisMgr.ConnectAction(JoinAction, VisMgr.BuildVisTree, false, NodesToParentToWait[ScanAction]);
+	}
+
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_ApplyWeaponDamageToTerrain', NodesToParentToWait);
+	for( ScanAction = 0; ScanAction < NodesToParentToWait.Length; ++ScanAction )
+	{
+		VisMgr.DisconnectAction(NodesToParentToWait[ScanAction]);
+		VisMgr.ConnectAction(NodesToParentToWait[ScanAction], VisMgr.BuildVisTree, false, WaitForFireEvent);
+		VisMgr.ConnectAction(JoinAction, VisMgr.BuildVisTree, false, NodesToParentToWait[ScanAction]);
+	}	
+
+	//Keep the camera there after things blow up
+// 	DelayAction = X2Action_Delay(class'X2Action_Delay'.static.AddToVisualizationTree(VisTrack, AbilityContext));
+// 	DelayAction.Duration = 0.5;
+}
+
+static private function HomingMineDetonation_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
+{
+	local XComGameStateVisualizationMgr VisMgr;
+	local X2Action_WaitForAbilityEffect WaitForFireEvent;
+	local Array<X2Action> DamageActions;
+	local int ScanAction;
+	local X2Action_ApplyWeaponDamageToUnit TestDamage;
+	local X2Action_ApplyWeaponDamageToUnit PlaceWithAction;
+	local X2Action_MarkerTreeInsertBegin MarkerStart;
+	local XComGameStateContext_Ability Context;
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
+	Context = XComGameStateContext_Ability(MarkerStart.StateChangeContext);
+
+	// Jwats: Find the apply weapon damage to unit that caused us to explode and put our visualization with it
+	WaitForFireEvent = X2Action_WaitForAbilityEffect(VisMgr.GetNodeOfType(BuildTree, class'X2Action_WaitForAbilityEffect'));
+	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_ApplyWeaponDamageToUnit', DamageActions, , Context.InputContext.PrimaryTarget.ObjectID);
+	for( ScanAction = 0; ScanAction < DamageActions.Length; ++ScanAction )
+	{
+		TestDamage = X2Action_ApplyWeaponDamageToUnit(DamageActions[ScanAction]);
+		if( TestDamage.StateChangeContext.AssociatedState.HistoryIndex == Context.DesiredVisualizationBlockIndex )
+		{
+			PlaceWithAction = TestDamage;
+			break;
+		}
+	}
+	
+	if( PlaceWithAction != None )
+	{
+		VisMgr.DisconnectAction(WaitForFireEvent);
+		VisMgr.ConnectAction(WaitForFireEvent, VisualizationTree, false, None, PlaceWithAction.ParentActions);
+	}
+	else
+	{
+		Context.SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
+	}
 }
 
 

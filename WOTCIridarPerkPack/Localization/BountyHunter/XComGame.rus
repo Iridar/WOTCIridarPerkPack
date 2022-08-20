@@ -63,10 +63,23 @@ LocPromotionPopupText="<bullet/> Работает с «Общим видом».<
 LocFlyOverText="Кошмар"
 
 
+[IRI_BH_HomingMine X2AbilityTemplate]
+LocFriendlyName="Бомба-липучка"
+LocLongDescription="Незаметно прикрепите Бомбу-липучку к врагу. Следующая атака против этого врага гарантированно попадёт в цель, детонируя бомбу и нанося <Ability:IRI_BH_HomingMine_Damage/> урона и разрывая <Ability:IRI_BH_HomingMine_Shred/> очка брони. <Ability:IRI_BH_NamedBullet_Charges/> заряд(а) на миссию."
+LocHelpText="Незаметно прикрепите Бомбу-липучку к врагу. Следующая атака против этого врага гарантированно попадёт в цель и сдетонирует бомбу."
+LocPromotionPopupText=""
+LocFlyOverText="Бомба-липучка"
+
+[IRI_BH_HomingMineDetonation X2AbilityTemplate]
+LocFriendlyName="Бомба-липучка"
+LocLongDescription="Незаметно прикрепите Бомбу-липучку к врагу. Следующая атака против этого врага гарантированно попадёт в цель, детонируя бомбу и нанося <Ability:IRI_BH_HomingMine_Damage/> урона и разрывая <Ability:IRI_BH_HomingMine_Shred/> очка брони. <Ability:IRI_BH_NamedBullet_Charges/> заряд(а) на миссию."
+LocHelpText="Незаметно прикрепите Бомбу-липучку к врагу. Следующая атака против этого врага гарантированно попадёт в цель и сдетонирует бомбу."
+LocFlyOverText="Бомба-липучка"
+
 [IRI_BH_DoublePayload X2AbilityTemplate]
 LocFriendlyName="Двойная нагрузка"
-LocLongDescription="Наводящаяся мина дополнительно получает <Ability:IRI_BH_DoublePayload_NumBonusCharges/> заряд(а) и наносит <Ability:IRI_BH_DoublePayload_BonusDamage/> дополнительного урона основной цели."
-LocHelpText="Наводящаяся мина дополнительно получает <Ability:IRI_BH_DoublePayload_NumBonusCharges/> заряд(а) и наносит <Ability:IRI_BH_DoublePayload_BonusDamage/> дополнительного урона основной цели."
+LocLongDescription="Бомба-липучка дополнительно получает <Ability:IRI_BH_DoublePayload_NumBonusCharges/> заряд(а) и наносит <Ability:IRI_BH_DoublePayload_BonusDamage/> дополнительного урона основной цели."
+LocHelpText="Бомба-липучка дополнительно получает <Ability:IRI_BH_DoublePayload_NumBonusCharges/> заряд(а) и наносит <Ability:IRI_BH_DoublePayload_BonusDamage/> дополнительного урона основной цели."
 LocPromotionPopupText=""
 LocFlyOverText="Двойная нагрузка"
 

@@ -64,10 +64,24 @@ LocPromotionPopupText="<bullet/> Applies at Squadsight ranges.<br/><bullet/> App
 LocFlyOverText="Nightmare"
 
 
+[IRI_BH_HomingMine X2AbilityTemplate]
+LocFriendlyName="Sticky Bomb"
+LocLongDescription="Attach a Sticky Bomb onto an enemy (does not alert the enemy). The next attack against that enemy is guaranteed to hit and it will detonate the bomb, dealing <Ability:IRI_BH_HomingMine_Damage/> damage and shredding <Ability:IRI_BH_HomingMine_Shred/> armor. <Ability:IRI_BH_HomingMine_Charges/> use(s) per mission."
+LocHelpText="Attach a Sticky Bomb onto an enemy (does not alert the enemy). The next attack against that enemy is guaranteed to hit and it will detonate the bomb."
+LocPromotionPopupText=""
+LocFlyOverText="Sticky Bomb"
+
+[IRI_BH_HomingMineDetonation X2AbilityTemplate]
+LocFriendlyName="Sticky Bomb"
+LocLongDescription="Attach a Sticky Bomb onto an enemy (does not alert the enemy). The next attack against that enemy is guaranteed to hit and it will detonate the bomb, dealing <Ability:IRI_BH_HomingMine_Damage/> damage and shredding <Ability:IRI_BH_HomingMine_Shred/> armor. <Ability:IRI_BH_HomingMine_Charges/> use(s) per mission."
+LocHelpText="Attach a Sticky Bomb onto an enemy (does not alert the enemy). The next attack against that enemy is guaranteed to hit and it will detonate the bomb."
+LocFlyOverText="Sticky Bomb"
+
+
 [IRI_BH_DoublePayload X2AbilityTemplate]
 LocFriendlyName="Double Payload"
-LocLongDescription="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/> bonus damage to the main target."
-LocHelpText="Homing Mine gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/> bonus damage to the main target."
+LocLongDescription="Sticky Bomb gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/> bonus damage to the main target."
+LocHelpText="Sticky Bomb gains <Ability:IRI_BH_DoublePayload_NumBonusCharges/> additional charge(s) and deals <Ability:IRI_BH_DoublePayload_BonusDamage/> bonus damage to the main target."
 LocPromotionPopupText=""
 LocFlyOverText="Double Payload"
 

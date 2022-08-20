@@ -124,6 +124,10 @@ static final function string GetConfigValue(const name ConfigName)
 	return GetConfig(ConfigName).V;
 }
 
+static final function WeaponDamageValue GetConfigDamage(const name ConfigName)
+{
+	return GetConfig(ConfigName).Damage;
+}
 
 static final function bool GetConfigBool(const name ConfigName)
 {
