@@ -122,8 +122,8 @@ LocFlyOverText="Bomb Raider"
 
 [IRI_BH_NightRounds X2AbilityTemplate]
 LocFriendlyName="Night Rounds"
-LocLongDescription="Gain am Ammo slot and +<Ability:IRI_BH_NightRounds_CritBonus/> Crit Chance against enemies that do not take cover."
-LocHelpText="Gain am Ammo slot and +<Ability:IRI_BH_NightRounds_CritBonus/> Crit Chance against enemies that do not take cover."
+LocLongDescription="Gain an Ammo slot and +<Ability:IRI_BH_NightRounds_CritBonus/> Crit Chance against enemies that do not take cover."
+LocHelpText="Gain an Ammo slot and +<Ability:IRI_BH_NightRounds_CritBonus/> Crit Chance against enemies that do not take cover."
 LocPromotionPopupText=""
 LocFlyOverText="Night Rounds"
 

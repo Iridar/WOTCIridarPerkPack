@@ -1119,6 +1119,7 @@ static function X2AbilityTemplate IRI_BH_BlindingFire()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect_Blind					BlindEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_BlindingFire');
 
@@ -1150,7 +1151,9 @@ static function X2AbilityTemplate IRI_BH_BlindingFire()
 	Template.bAllowAmmoEffects = false;
 	Template.bAllowBonusWeaponEffects = false;
 	Template.bAllowFreeFireWeaponUpgrade = false;
-	Template.AddTargetEffect(class'X2Effect_Blind'.static.CreateBlindEffect(`GetConfigInt('IRI_BH_BlindingFire_DurationTurns'), 0));
+	BlindEffect = class'X2Effect_Blind'.static.CreateBlindEffect(`GetConfigInt('IRI_BH_BlindingFire_DurationTurns'), 0);
+	BlindEffect.WatchRule = eGameRule_PlayerTurnEnd; // So the Watch Rule is about the player who owns the unit, not the player who applied the unit...
+	Template.AddTargetEffect(BlindEffect);
 
 	// State and Vis
 	Template.FrameAbilityCameraType = eCameraFraming_Never; 
