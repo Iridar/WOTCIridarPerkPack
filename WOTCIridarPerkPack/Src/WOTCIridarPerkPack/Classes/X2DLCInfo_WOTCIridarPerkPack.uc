@@ -234,12 +234,12 @@ static private function string GetHeadhunterBonusValues(const XComGameState_Unit
 			{
 				if (CharTemplate.strCharacterName != "")
 				{
-					ReturnString $= "<br/>- " $ CharTemplate.strCharacterName $ ": " $ int(UV.fValue) $ "%";
+					ReturnString $= "<br/>- " $ CharTemplate.strCharacterName $ ": " $ int(UV.fValue * `GetConfigInt('IRI_BH_Headhunter_CritBonus')) $ "%";
 				}
 				else
 				{
 					// Fallback to character group in case there's no localized character name. Not ideal, but shouldn't come into play all that often.
-					ReturnString $= "<br/>- " $ CharTemplate.CharacterGroupName $ ": " $ int(UV.fValue) $ "%";
+					ReturnString $= "<br/>- " $ CharTemplate.CharacterGroupName $ ": " $ int(UV.fValue * `GetConfigInt('IRI_BH_Headhunter_CritBonus')) $ "%";
 				}
 			}
 		}
