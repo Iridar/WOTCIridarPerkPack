@@ -35,8 +35,8 @@ LocFlyOverText="Explosive Action"
 
 [IRI_BH_DarkNight_Passive X2AbilityTemplate]
 LocFriendlyName="Dark Night"
-LocLongDescription="Attacking no longer breaks Nightfall concealment."
-LocHelpText="Attacking no longer breaks Nightfall concealment."
+LocLongDescription="Attacking no longer breaks Nightfall concealment immediately, but concealment is still lost when Nightfall expires."
+LocHelpText="Attacking no longer breaks Nightfall concealment immediately, but concealment is still lost when Nightfall expires"
 LocPromotionPopupText="<bullet/> Dark Night allows multiple attacks to benefit from Dead of Night."
 LocFlyOverText="Dark Night"
 

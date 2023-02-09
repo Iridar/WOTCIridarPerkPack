@@ -92,6 +92,15 @@ static private function EventListenerReturn OnRetainConcealmentOnActivation(Obje
 	{
 		// Then don't break concealment
 		Tuple.Data[0].b = true;
+
+		// But do remove concealment tracking unit values so that concelament is broken when Night Fall ends.
+		UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
+		if (UnitState == none)
+		{
+			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', AbilityContext.InputContext.SourceObject.ObjectID));
+		}
+		UnitState.ClearUnitValue(default.AlreadyConcealedValue);
+		UnitState.ClearUnitValue(default.AlreadySuperConcealedValue);
 	}
 
 	return ELR_NoInterrupt;
