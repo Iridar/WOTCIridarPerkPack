@@ -7,6 +7,10 @@ class X2Effect_BountyHunter_GrantAmmo extends X2Effect_Persistent;
 // signifying that the granted ammo was spent.
 // When the effect is removed from the unit, if the unit value is still there, it means the ammo was not spent, so we take it away ourselves.
 
+// 2023 EDIT: It would be more optimal to look at source item rather than hardcode the Slot, but I don't wanna fix what ain't broke
+// for the sake of two weirdos that wanna use bounty hunter with handcannon in the pistol slot or something,
+// since altering existing code may add bugs and *will* break the Nightfall ability for all existing tactical saves.
+
 var EInventorySlot	Slot;
 var bool			bShowFlyovers;
 var int				iAmmo;
