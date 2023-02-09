@@ -1366,7 +1366,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 	AnimEffect = new class'X2Effect_AdditionalAnimSets';
 	AnimEffect.DuplicateResponse = eDupe_Ignore;
 	AnimEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnBegin);
-	AnimEffect.bRemoveWhenTargetConcealmentBroken = true;
+	//AnimEffect.bRemoveWhenTargetConcealmentBroken = true; // Removed by Nightfall effect.
 	AnimEffect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
 	AnimEffect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
 	Template.AddShooterEffect(AnimEffect);

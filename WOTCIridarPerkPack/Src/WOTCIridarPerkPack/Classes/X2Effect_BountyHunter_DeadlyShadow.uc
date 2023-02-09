@@ -1,6 +1,7 @@
 class X2Effect_BountyHunter_DeadlyShadow extends X2Effect_Shadow;
 
 var private name AlreadyConcealedValue;
+var private name AlreadySuperConcealedValue;
 
 // Technical Challenge: I need Deadly Shadow to have the same detection radius as Shadow, but otherwise behave like regular concealment.
 // This can be achieved by using regular concealment and modifying detection radius via stat modifiers, 
@@ -97,7 +98,7 @@ static private function EventListenerReturn OnRetainConcealmentOnActivation(Obje
 }
 
 // Responsible for bypassing the Reaper roll when activating abilities that normally break concelament.
-static function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState NewGameState, name InEventID, Object CallbackData)
+static private function EventListenerReturn OnAbilityActivated(Object EventData, Object EventSource, XComGameState NewGameState, name InEventID, Object CallbackData)
 {
     local XComGameState_Unit			UnitState;
 	local XComGameStateContext_Ability	AbilityContext;
@@ -151,9 +152,11 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 		{
 			UnitState.SetUnitFloatValue(AlreadyConcealedValue, 1, eCleanup_BeginTactical);
 		}
-		else
+
+		// Record the super concealment status.
+		if (UnitState.IsSuperConcealed())
 		{
-			UnitState.ClearUnitValue(AlreadyConcealedValue);
+			UnitState.SetUnitFloatValue(AlreadySuperConcealedValue, 1, eCleanup_BeginTactical);
 		}
 	}
 	
@@ -169,17 +172,34 @@ static private function ShadowEffectRemoved(X2Effect_Persistent PersistentEffect
 {
 	local XComGameState_Unit	UnitState;
 	local UnitValue				UV;
+	local XComGameState_Effect	AnimEffect;
 
 	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	if (UnitState == none)
 	{
 		UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	}
+	if (UnitState == none)
+		return;
+
+	// Restore the super concealment status.
+	UnitState.bHasSuperConcealment = UnitState.GetUnitValue(default.AlreadySuperConcealedValue, UV);
 
 	// Break concealment when the effect runs out, but only if the unit wasn't already concealed when the effect was applied.
 	if (!UnitState.GetUnitValue(default.AlreadyConcealedValue, UV))
 	{
 		`XEVENTMGR.TriggerEvent('EffectBreakUnitConcealment', UnitState, UnitState, NewGameState);
+	}
+
+	// Cleanse the tracking for cleanliness.
+	UnitState.ClearUnitValue(default.AlreadyConcealedValue);
+	UnitState.ClearUnitValue(default.AlreadySuperConcealedValue);
+
+	// No reaper animations outside of Nightfall.
+	AnimEffect = UnitState.GetUnitAffectedByEffectState('IRI_BH_Nightfall_Anim_Effect');
+	if (AnimEffect != none)
+	{
+		AnimEffect.RemoveEffect(NewGameState, NewGameState, true);
 	}
 }
 
@@ -199,6 +219,7 @@ defaultproperties
 {
 	//bBringRemoveVisualizationForward = true
 	AlreadyConcealedValue = "IRI_BountyHunter_DeadlyShadow_AlreadyConcealed"
+	AlreadySuperConcealedValue = "IRI_BountyHunter_DeadlyShadow_AlreadySupConcealed"
 	bRemoveWhenTargetConcealmentBroken = true
 	EffectAddedFn = ShadowPassiveEffectAdded
 	EffectRemovedFn = ShadowEffectRemoved

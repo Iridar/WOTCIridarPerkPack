@@ -15,12 +15,8 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 	if (UnitState == none)
 		return 'AA_NotAUnit';
 
-	// Allow use when in regular concealment.
-	if (UnitState.IsSuperConcealed())
-		return 'AA_UnitIsConcealed';
-
-	// But not in Deadly Shadow itself.
-	if (UnitState.IsUnitAffectedByEffectName('IRI_BH_Nightfall_Anim_Effect'))
+	// Disallow use if already in Deadly Shadow.
+	if (UnitState.IsUnitAffectedByEffectName(class'X2Effect_BountyHunter_DeadlyShadow'.default.EffectName))
 		return 'AA_UnitIsConcealed';
 
 	// Check flanking only when not concealed already
