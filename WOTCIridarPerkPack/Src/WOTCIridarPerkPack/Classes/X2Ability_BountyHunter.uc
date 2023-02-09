@@ -1094,11 +1094,13 @@ static function X2AbilityTemplate IRI_BH_Untraceable()
 	AbilityCooldown = new class'X2Condition_AbilityCooldown';
 	AbilityCooldown.AddCheckValue('IRI_BH_Nightfall', 1, eCheck_GreaterThan, 1);
 	AbilityCooldown.AddCheckValue('IRI_BH_ShadowTeleport', 1, eCheck_GreaterThan, 1);
+	AbilityCooldown.AddCheckValue('IRI_BH_NothingPersonal', 1, eCheck_GreaterThan, 1);
 	Template.AbilityShooterConditions.AddItem(AbilityCooldown);
 
 	ReduceCooldown = new class'X2Effect_ReduceCooldowns';
 	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_Nightfall');
 	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_ShadowTeleport');
+	ReduceCooldown.AbilitiesToTick.AddItem('IRI_BH_NothingPersonal');
 	ReduceCooldown.Amount = `GetConfigInt('IRI_BH_Untraceable_CooldownReduction');
 	Template.AddTargetEffect(ReduceCooldown);
 
