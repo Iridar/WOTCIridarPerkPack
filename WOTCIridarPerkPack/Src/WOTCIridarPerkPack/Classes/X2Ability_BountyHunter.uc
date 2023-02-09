@@ -530,6 +530,7 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	local X2AbilityCost_ActionPoints				ActionPointCost;
 	local X2Effect_Persistent						PersistentEffect;
 	local X2Condition_AbilityProperty				AbilityProperty;	
+	local X2Condition_UnitEffects					ExcludeEffects;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_ShadowTeleport');
 
@@ -546,6 +547,12 @@ static function X2AbilityTemplate IRI_BH_ShadowTeleport()
 	// Target conditions
 	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+
+	// Can't teleport to levitating units.
+	ExcludeEffects = new class'X2Condition_UnitEffects';
+	ExcludeEffects.AddExcludeEffect('IcarusDropGrabberEffect', 'AA_UnitIsImmune');
+	ExcludeEffects.AddExcludeEffect(class'X2Ability_Archon'.default.BlazingPinionsStage1EffectName, 'AA_UnitIsImmune');
+	Template.AbilityTargetConditions.AddItem(ExcludeEffects);
 	
 	// Costs
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
