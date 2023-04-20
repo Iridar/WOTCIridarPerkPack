@@ -1,0 +1,5 @@
+[IRI_FM_IgnoreCoverDefense X2AbilityTemplate]
+LocFriendlyName="Accuracy By Volume"
+LocLongDescription="When engaging targets in cover, this weapon ignores the Defense bonuses from cover, but deals reduced damage."
+LocHelpText="When engaging targets in cover, this weapon ignores the Defense bonuses from cover, but deals reduced damage."
+LocPromotionPopupText=""

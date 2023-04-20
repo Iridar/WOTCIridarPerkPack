@@ -18,10 +18,13 @@
     <Folder Include="ContentForCook\Templar" />
     <Folder Include="Localization\" />
     <Folder Include="Localization\BountyHunter" />
+    <Folder Include="Localization\Foxcom" />
     <Folder Include="Localization\Templar" />
     <Folder Include="Src\" />
     <Folder Include="Content\" />
     <Folder Include="ContentForCook\" />
+    <Folder Include="Src\WOTCIridarPerkPackFoxcom" />
+    <Folder Include="Src\WOTCIridarPerkPackFoxcom\Classes" />
     <Folder Include="Src\WOTCIridarPerkPackTemplar" />
     <Folder Include="Src\WOTCIridarPerkPackBountyHunter" />
     <Folder Include="Src\WOTCIridarPerkPackBountyHunter\Classes" />
@@ -110,6 +113,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Localization\BountyHunter\XComGame.rus">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\Foxcom\WOTCIridarTemplateMaster.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\Foxcom\XComGame.int">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Localization\Templar\XComGame.int">
@@ -201,6 +210,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\XComGameState_Effect_CritMagic.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackFoxcom\Classes\X2Ability_Foxcom.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackFoxcom\Classes\X2Effect_IgnoreCoverDefense.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSpecialist\Classes\X2Ability_Specialist.uc">

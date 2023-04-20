@@ -1,29 +1,32 @@
-class X2Ability_Specialist extends X2Ability;
+class X2Ability_Foxcom extends X2Ability;
 
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
-	Templates.AddItem(IRI_SP_CoveringFire());
+	Templates.AddItem(IRI_FM_IgnoreCoverDefense());
 
 	return Templates;
 }
 
-static function X2AbilityTemplate IRI_SP_CoveringFire()
+static function X2AbilityTemplate IRI_FM_IgnoreCoverDefense()
 {
 	local X2AbilityTemplate Template;
+	local X2Effect_IgnoreCoverDefense Effect;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SP_CoveringFire');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_FM_IgnoreCoverDefense');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_coverfire";
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_coverfire"; // TODO: Icon
+	Template.AbilitySourceName = 'eAbilitySource_Standard';
 
 	SetPassive(Template);
 
 	// Effects
-
-	Template.AdditionalAbilities.AddItem('CoveringFire');
+	Effect = new class'X2Effect_IgnoreCoverDefense';
+	Effect.BuildPersistentEffect(1, true);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, false,,Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
 	
 	return Template;
 }
