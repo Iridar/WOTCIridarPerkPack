@@ -103,7 +103,7 @@ Breaking concealment by attacking grants one non-move Action Point. Triggers onc
 [i]This is the staple ability for the Raider specialization: ideally, you will combine Nightfall with an explosive to weaken and expose the enemy, and then use the extra action for another attack, causing even more damage.[/i]
 
 [h1]Sergeant: Homing Mine[/h1]
-[quote]Template name: HomingMine[/quote]
+[quote]Template name: IRI_BH_HomingMine[/quote]
 
 Attach a claymore onto an enemy (does not alert the enemy). The Homing mine will explode upon that enemy taking damage. Shots against the mined target are guaranteed to hit.
 
