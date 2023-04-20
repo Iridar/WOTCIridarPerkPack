@@ -22,10 +22,16 @@
     <Folder Include="Src\" />
     <Folder Include="Content\" />
     <Folder Include="ContentForCook\" />
+    <Folder Include="Src\WOTCIridarPerkPackTemplar" />
+    <Folder Include="Src\WOTCIridarPerkPackBountyHunter" />
+    <Folder Include="Src\WOTCIridarPerkPackBountyHunter\Classes" />
+    <Folder Include="Src\WOTCIridarPerkPackSpecialist" />
     <Folder Include="Src\WOTCIridarPerkPack2" />
     <Folder Include="Src\WOTCIridarPerkPack2\Classes" />
-    <Folder Include="Src\WOTCIridarPerkPack\" />
-    <Folder Include="Src\WOTCIridarPerkPack\Classes\" />
+    <Folder Include="Src\WOTCIridarPerkPackSpecialist\Classes" />
+    <Folder Include="Src\WOTCIridarPerkPackTemplar\Classes" />
+    <Folder Include="Src\AWOTCIridarPerkPack\" />
+    <Folder Include="Src\AWOTCIridarPerkPack\Classes\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Config\Base\XComGameData.ini">
@@ -125,118 +131,123 @@
     <Content Include="Src\WOTCIridarPerkPack2\Classes\AnimNotify_FireOtherWeapon.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\BountyHunter.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2AbilityCooldown_ModifiedNumTurns.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Ability_BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_BountyHunter.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Action_BountyHunter_ShadowTeleport.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Ability_Templar.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Action_BountyHunter_ShadowTeleport_ExitCover.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_ApplyDamageSpacer.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Condition_BountyHunter_Stealth.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_ApplyWeaponDamageToTerrain_NoFlinch.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2DLCInfo_WOTCIridarPerkPackBountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ShadowTeleport.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_BigGameHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_BountyHunter_ShadowTeleport_ExitCover.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_BombRaider.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_Fire_CustomAnim.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_CritMagic.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Action_SetGlobalTimeDilation.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_CustomZeroIn.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_AbilityCooldown.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_DeadlyShadow.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Condition_BountyHunter_Stealth.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_DramaticEntrance.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2DLCInfo_WOTCIridarPerkPack.uc" />
-    <Content Include="Src\WOTCIridarPerkPack\Classes\Help.uc" />
-    <Content Include="Src\WOTCIridarPerkPack\Classes\ConfigEngine.uc" />
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_AdditionalAbilityDamagePreview.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_Folowthrough.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_AutoRunBehaviorTree.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_GrantAmmo.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BaseDamageBonus.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_Headhunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BigGameHunter.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_HomingMine.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_BombRaider.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_RoutingVolley.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_HomingMine.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_Terminate.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Terminate.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_UnrelentingPressure.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_ModifySquadsightPenalty.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2MeleePathingPawn_BountyHunter_ShadowTeleport.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_CritMagic.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2TargetingMethod_BountyHunter_ShadowTeleport.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_CustomZeroIn.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\XComGameState_Effect_BountyHunter_BigGameHunter.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_DeadlyShadow.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\XComGameState_Effect_BountyHunter_Followthrough.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_DramaticEntrance.uc">
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\XComGameState_Effect_CritMagic.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_GrantAmmo.uc">
+    <Content Include="Src\WOTCIridarPerkPackSpecialist\Classes\X2Ability_Specialist.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Headhunter.uc">
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_Folowthrough.uc">
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Templar_SoulShot_ArrowHit.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_RoutingVolley.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2AbilityCooldown_ModifiedNumTurns.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_BountyHunter_UnrelentingPressure.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_ApplyDamageSpacer.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_GrantCharges.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_ApplyWeaponDamageToTerrain_NoFlinch.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_RemoveEffects_MatchSource.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_Fire_CustomAnim.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2Effect_Templar_SoulShot_ArrowHit.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_SetGlobalTimeDilation.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2MeleePathingPawn_BountyHunter_ShadowTeleport.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Condition_AbilityCooldown.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\X2TargetingMethod_BountyHunter_ShadowTeleport.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\Help.uc" />
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\ConfigEngine.uc" />
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_AdditionalAbilityDamagePreview.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_BountyHunter_BigGameHunter.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_AutoRunBehaviorTree.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_BountyHunter_Followthrough.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_BaseDamageBonus.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPack\Classes\XComGameState_Effect_CritMagic.uc">
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_ModifySquadsightPenalty.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_GrantCharges.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_RemoveEffects_MatchSource.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="UnusedCode.txt">

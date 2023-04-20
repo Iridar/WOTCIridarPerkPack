@@ -1,4 +1,4 @@
-class X2DLCInfo_WOTCIridarPerkPack extends X2DownloadableContentInfo;
+class X2DLCInfo_WOTCIridarPerkPackBountyHunter extends X2DownloadableContentInfo;
 
 var privatewrite config bool bLWOTC;
 

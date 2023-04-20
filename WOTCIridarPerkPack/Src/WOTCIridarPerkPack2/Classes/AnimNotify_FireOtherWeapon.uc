@@ -1,6 +1,9 @@
-class AnimNotify_FireOtherWeapon extends AnimNotify_Scripted;	//created by Robojumper
-																//this anim notify allows to use Fire Volley anim notify even on a weapon that's not
-																//directly attached to the ability that triggers the animsequence
+class AnimNotify_FireOtherWeapon extends AnimNotify_Scripted;	
+
+//created by Robojumper
+//this anim notify allows to use Fire Volley anim notify even on a weapon that's not
+//directly attached to the ability that triggers the animsequence
+
 var() editinline AnimNotify_FireWeaponVolley WrappedVolley;
 var() editinline EInventorySlot OtherWeaponSlot;
 

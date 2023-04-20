@@ -26,7 +26,7 @@ final function int GetUncappedCritChance(X2AbilityTemplate Template, XComGameSta
 	AvTarget.PrimaryTarget.ObjectID = TargetUnit.ObjectID;
 
 	// Mad scientist laughter
-	if (class'X2DLCInfo_WOTCIridarPerkPack'.default.bLWOTC)
+	if (class'X2DLCInfo_WOTCIridarPerkPackBountyHunter'.default.bLWOTC)
 	{
 		Template.AbilityToHitCalc.OverrideFinalHitChanceFns.InsertItem(0, CritChanceHack);
 		Template.AbilityToHitCalc.GetShotBreakdown(AbilityState, AvTarget, Breakdown);
