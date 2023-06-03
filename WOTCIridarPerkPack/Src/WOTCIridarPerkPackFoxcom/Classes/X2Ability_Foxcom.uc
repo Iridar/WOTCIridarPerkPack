@@ -4,10 +4,115 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
-	Templates.AddItem(IRI_FM_IgnoreCoverDefense());
+	//Templates.AddItem(IRI_FM_OverwatchShot());
+	//Templates.AddItem(IRI_FM_IgnoreCoverDefense());
 
 	return Templates;
 }
+/*
+static function X2AbilityTemplate IRI_FM_OverwatchShot()
+{
+	local X2AbilityTemplate                 Template;	
+	local X2AbilityCost_Ammo                AmmoCost;
+	local X2AbilityCost_ReserveActionPoints ReserveActionPointCost;
+	local X2AbilityToHitCalc_StandardAim    StandardAim;
+	local X2Condition_UnitProperty          ShooterCondition;
+	local X2AbilityTarget_Single            SingleTarget;
+	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect_Knockback				KnockbackEffect;
+	local X2Condition_Visibility			TargetVisibilityCondition;
+	local array<name>                       SkipExclusions;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_FM_OverwatchShot');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Standard';
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_overwatch";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.OVERWATCH_PRIORITY;
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bReactionFire = true;
+	Template.AbilityToHitCalc = StandardAim;
+	Template.AbilityToHitOwnerOnMissCalc = StandardAim;
+	
+	SingleTarget = new class'X2AbilityTarget_Single';
+	SingleTarget.OnlyIncludeTargetsInsideWeaponRange = true;
+	Template.AbilityTargetStyle = SingleTarget;
+
+	//Trigger on movement - interrupt the move
+	Trigger = new class'X2AbilityTrigger_EventListener';
+	Trigger.ListenerData.EventID = 'ObjectMoved';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_None;
+	Trigger.ListenerData.EventFn = class'XComGameState_Ability'.static.TypicalOverwatchListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+	
+
+	// Costs
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;	
+	Template.AbilityCosts.AddItem(AmmoCost);
+	
+	ReserveActionPointCost = new class'X2AbilityCost_ReserveActionPoints';
+	ReserveActionPointCost.iNumPoints = 1;
+	ReserveActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.OverwatchReserveActionPoint);
+	Template.AbilityCosts.AddItem(ReserveActionPointCost);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);	
+	ShooterCondition = new class'X2Condition_UnitProperty';
+	ShooterCondition.ExcludeConcealed = true;
+	Template.AbilityShooterConditions.AddItem(ShooterCondition);
+
+	SkipExclusions.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName);
+	Template.AddShooterEffectExclusions(SkipExclusions);
+	
+	// Target Conditions	
+	TargetVisibilityCondition = new class'X2Condition_Visibility';
+	TargetVisibilityCondition.bRequireGameplayVisible = true;
+	TargetVisibilityCondition.bRequireBasicVisibility = true;
+	TargetVisibilityCondition.bDisablePeeksOnMovement = true; //Don't use peek tiles for over watch shots	
+	Template.AbilityTargetConditions.AddItem(TargetVisibilityCondition);
+
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+
+	Template.AbilityTargetConditions.AddItem(new class'X2Condition_EverVigilant');
+	Template.AbilityTargetConditions.AddItem(OverwatchTargetEffectsCondition());
+
+	
+	// Effects
+	
+	Template.bAllowBonusWeaponEffects = true;
+	Template.bAllowFreeFireWeaponUpgrade = false;	
+	Template.bAllowAmmoEffects = true;
+	
+	
+	//  Put holo target effect first because if the target dies from this shot, it will be too late to notify the effect.
+	Template.AddTargetEffect(class'X2Ability_Chosen'.static.HoloTargetEffect());
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.ShredderDamageEffect());
+	Template.AddTargetEffect(default.WeaponUpgradeMissDamage); // Stock support
+
+	KnockbackEffect = new class'X2Effect_Knockback';
+	KnockbackEffect.KnockbackDistance = 2;
+	Template.AddTargetEffect(KnockbackEffect);
+
+	class'X2StrategyElement_XpackDarkEvents'.static.AddStilettoRoundsEffect(Template);
+
+	// State and Viz
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = OverwatchShot_BuildVisualization;
+	
+	Template.AssociatedPassives.AddItem('HoloTargeting');
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	
+	return Template;	
+}*/
 
 static function X2AbilityTemplate IRI_FM_IgnoreCoverDefense()
 {
