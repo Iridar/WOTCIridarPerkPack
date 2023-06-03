@@ -14,6 +14,7 @@ static function X2AbilityTemplate Create_Ability()
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Condition_UnitProperty          UnitPropertyCondition;
+	local X2Effect_ApplyWeaponDamage		DamageEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_PredatorStrike');
 
@@ -46,10 +47,12 @@ static function X2AbilityTemplate Create_Ability()
 	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
 	
 	// Effects
+	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	Template.AddTargetEffect(DamageEffect);
 	Template.AddTargetEffect(new class'X2Effect_Executed');
 
 	// State and Viz
-	Template.bOverrideMeleeDeath = true;
+	Template.bOverrideMeleeDeath = false;
 	Template.ActionFireClass = class'X2Action_PredatorStrike';
 	Template.Hostility = eHostility_Offensive;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState; // just adds the unconscious status effect
@@ -64,24 +67,46 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	local XComGameStateVisualizationMgr		VisMgr;
 	local XComGameStateContext_Ability		AbilityContext;
 	local X2Action_Death					DeathAction;
+	local X2Action_PlayAnimation			PlayAnimation;
+	local X2Action							ParentAction;
+	local X2Action							ChildAction;
+	local VisualizationActionMetadata		ActionMetadata;
 
 	`AMLOG("Running");
 
 	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
 
-	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
-	if (AbilityContext == none || !AbilityContext.IsResultContextHit())
-		return;
+	//AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	//if (AbilityContext == none || !AbilityContext.IsResultContextHit())
+	//	return;
+	//
+	//VisMgr = `XCOMVISUALIZATIONMGR;
+	//
+	//DeathAction = X2Action_Death(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_Death',, AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	//if (DeathAction == none)
+	//	return;
+	//
+	//`AMLOG("Setting custom death animation");
+	//
+	//DeathAction.CustomDeathAnimationName = 'FF_SkulljackedStop';
+	//DeathAction.vHitDir = vect(0, 0, -1);
 
-	VisMgr = `XCOMVISUALIZATIONMGR;
-
-	DeathAction = X2Action_Death(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_Death',, AbilityContext.InputContext.PrimaryTarget.ObjectID));
-	if (DeathAction == none)
-		return;
-
-	`AMLOG("Setting custom death animation");
-
-	DeathAction.CustomDeathAnimationName = 'FF_SkulljackedStop';
+	//foreach DeathAction.ParentActions(ParentAction)
+	//{
+	//	if (X2Action_PredatorStrike(ParentAction) != none)
+	//	{
+	//		ActionMetadata = ParentAction.Metadata;
+	//
+	//		PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, ParentAction));
+	//		PlayAnimation.Params.AnimName = 'FF_PredatorStrikeStop';
+	//
+	//		foreach DeathAction.ChildActions(ChildAction)
+	//		{
+	//			VisMgr.ConnectAction(ChildAction, VisMgr.BuildVisTree, false, PlayAnimation);
+	//		}
+	//		break;
+	//	}
+	//}
 }
 
 

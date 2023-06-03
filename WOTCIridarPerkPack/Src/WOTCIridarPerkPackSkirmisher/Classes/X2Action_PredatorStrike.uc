@@ -140,6 +140,21 @@ Begin:
 
 	//Run at full speed if we are interrupting
 	VisualizationMgr.SetInterruptionSloMoFactor(Unit, 1.0f);
+
+	// Iridar - just in case
+	//StopAllPreviousRunningActions(TargetGameUnit);
+	//
+	//// Iridar = turn the unit(s) to face each other
+	//TargetGameUnit.IdleStateMachine.ForceHeading(-SourceToTarget);
+	//Unit.IdleStateMachine.ForceHeading(SourceToTarget);
+	//while (Unit.IdleStateMachine.IsEvaluatingStance() || TargetGameUnit.IdleStateMachine.IsEvaluatingStance())
+	//{
+	//	if (!TargetGameUnit.IdleStateMachine.IsEvaluatingStance())
+	//	{
+	//		TargetGameUnit.IdleStateMachine.GoDormant(UnitPawn);
+	//	}
+	//	Sleep(0.0f);
+	//}
 	
 	UnitPawn.EnableRMA(true, true);
 	UnitPawn.EnableRMAInteractPhysics(true);
@@ -178,16 +193,6 @@ Begin:
 	//{
 	//	AnimParams.PlayRate = GetNonCriticalAnimationSpeed();
 	//}
-
-	// turn the unit(s) to face each other
-
-	TargetGameUnit.IdleStateMachine.ForceHeading(-SourceToTarget);
-	Unit.IdleStateMachine.ForceHeading(SourceToTarget);
-	
-	while (Unit.IdleStateMachine.IsEvaluatingStance() || TargetGameUnit.IdleStateMachine.IsEvaluatingStance())
-	{
-		Sleep(0.0f);
-	}
 
 	// Iridar: pick the animations for the shooter and the target
 	if (bWasHit)
@@ -245,7 +250,7 @@ Begin:
 		FinishAnim(AnimSequence);
 		FinishAnim(TargetPlayingSequence);
 
-		NotifyTargetsAbilityApplied();
+		//NotifyTargetsAbilityApplied();
 
 		// Play second half of the animation
 		if (bWasHit)
@@ -269,9 +274,17 @@ Begin:
 				// If not, enable ragdoll and attach the target by the head to the skirmisher's right arm.
 			}
 			
-			//TargetPawn.SetFinalRagdoll(true);
-			//TargetPawn.TearOffMomentum = vect(0, 0, -1);
-			//TargetGameUnit.GotoState('Dead');
+			// Endeaden the target
+			StopAllPreviousRunningActions(TargetGameUnit);
+			TargetGameUnit.SetForceVisibility(eForceVisible);
+			VisualizationMgr.SetInterruptionSloMoFactor(Metadata.VisualizeActor, 1.0f); //Ensure Time Dilation is full speed
+			TargetGameUnit.PreDeathRotation = TargetPawn.Rotation;
+			TargetGameUnit.OnDeath(none, Unit);
+			TargetPawn.SetFinalRagdoll(true);
+			TargetPawn.TearOffMomentum = Normal(TargetPawn.Location - UnitPawn.Location); // vect(0, 0, 0);
+			TargetPawn.PlayDying(none, TargetPawn.GetHeadshotLocation(), 'FF_SkulljackedStop', World.GetPositionFromTileCoordinates(TargetUnitState.TileLocation));
+			TargetGameUnit.GotoState('Dead');
+			TargetPawn.GetAnimTreeController().SetAllowNewAnimations(false); // Turn off new animation playing
 
 			FinishAnim(AnimSequence);
 			//FinishAnim(TargetPlayingSequence);
