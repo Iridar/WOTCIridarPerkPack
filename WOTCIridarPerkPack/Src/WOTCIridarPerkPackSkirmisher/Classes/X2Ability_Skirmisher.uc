@@ -37,6 +37,9 @@ static function X2AbilityTemplate Create_Ability()
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
 
+	// TODO: Add SameZ condition
+	// TODO: Add HP condition
+
 	// Target Conditions
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 	UnitPropertyCondition = new class'X2Condition_UnitProperty';
@@ -46,14 +49,42 @@ static function X2AbilityTemplate Create_Ability()
 	Template.AddTargetEffect(new class'X2Effect_Executed');
 
 	// State and Viz
+	Template.bOverrideMeleeDeath = true;
 	Template.ActionFireClass = class'X2Action_PredatorStrike';
 	Template.Hostility = eHostility_Offensive;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState; // just adds the unconscious status effect
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildVisualizationFn = PredatorStrike_BuildVisualization;
 	Template.bFrameEvenWhenUnitIsHidden = true;
 
 	return Template;
 }
+
+static private function PredatorStrike_BuildVisualization(XComGameState VisualizeGameState)
+{	
+	local XComGameStateVisualizationMgr		VisMgr;
+	local XComGameStateContext_Ability		AbilityContext;
+	local X2Action_Death					DeathAction;
+
+	`AMLOG("Running");
+
+	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
+
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	if (AbilityContext == none || !AbilityContext.IsResultContextHit())
+		return;
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	DeathAction = X2Action_Death(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_Death',, AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (DeathAction == none)
+		return;
+
+	`AMLOG("Setting custom death animation");
+
+	DeathAction.CustomDeathAnimationName = 'FF_SkulljackedStop';
+}
+
+
 
 
 //	========================================

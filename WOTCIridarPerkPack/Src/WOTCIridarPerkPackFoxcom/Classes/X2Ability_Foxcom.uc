@@ -1,14 +1,14 @@
 class X2Ability_Foxcom extends X2Ability;
 
-static function array<X2DataTemplate> CreateTemplates()
-{
-	local array<X2DataTemplate> Templates;
-
-	//Templates.AddItem(IRI_FM_OverwatchShot());
-	//Templates.AddItem(IRI_FM_IgnoreCoverDefense());
-
-	return Templates;
-}
+//static function array<X2DataTemplate> CreateTemplates()
+//{
+//	local array<X2DataTemplate> Templates;
+//
+//	//Templates.AddItem(IRI_FM_OverwatchShot());
+//	//Templates.AddItem(IRI_FM_IgnoreCoverDefense());
+//
+//	return Templates;
+//}
 /*
 static function X2AbilityTemplate IRI_FM_OverwatchShot()
 {
