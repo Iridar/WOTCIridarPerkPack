@@ -15,16 +15,20 @@
     <Folder Include="Config\BountyHunter" />
     <Folder Include="Config\Templar" />
     <Folder Include="ContentForCook\BountyHunter" />
+    <Folder Include="ContentForCook\Skirmisher" />
     <Folder Include="ContentForCook\Templar" />
     <Folder Include="Localization\" />
     <Folder Include="Localization\BountyHunter" />
     <Folder Include="Localization\Foxcom" />
+    <Folder Include="Localization\Skirmisher" />
     <Folder Include="Localization\Templar" />
     <Folder Include="Src\" />
     <Folder Include="Content\" />
     <Folder Include="ContentForCook\" />
+    <Folder Include="Src\WOTCIridarPerkPackSkirmisher" />
     <Folder Include="Src\WOTCIridarPerkPackFoxcom" />
     <Folder Include="Src\WOTCIridarPerkPackFoxcom\Classes" />
+    <Folder Include="Src\WOTCIridarPerkPackSkirmisher\Classes" />
     <Folder Include="Src\WOTCIridarPerkPackTemplar" />
     <Folder Include="Src\WOTCIridarPerkPackBountyHunter" />
     <Folder Include="Src\WOTCIridarPerkPackBountyHunter\Classes" />
@@ -97,6 +101,12 @@
     <Content Include="ContentForCook\IRIPerkPackUI.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Skirmisher\IRIPredatorStrikePerk.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Skirmisher\IRISkirmisher.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRISoulShot.upk">
       <SubType>Content</SubType>
     </Content>
@@ -119,6 +129,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Localization\Foxcom\XComGame.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\Skirmisher\XComGame.int">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Localization\Templar\XComGame.int">
@@ -216,6 +229,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackFoxcom\Classes\X2Effect_IgnoreCoverDefense.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Ability_Skirmisher.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Action_PredatorStrike.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSpecialist\Classes\X2Ability_Specialist.uc">

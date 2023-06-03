@@ -1,0 +1,6 @@
+[IRI_SK_PredatorStrike X2AbilityTemplate]
+LocFriendlyName="Predator Strike"
+LocLongDescription="Killing an enemy with your <Ability:IRI_BoundWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
+LocHelpText="Killing an enemy with your <Ability:IRI_BoundWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
+LocPromotionPopupText="Current bonuses:<Ability:IRI_TAG_BH_Headhunter_Bonuses/>"
+LocFlyOverText="Predator Strike"
