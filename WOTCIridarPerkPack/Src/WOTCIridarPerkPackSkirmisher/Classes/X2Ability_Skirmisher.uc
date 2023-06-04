@@ -14,7 +14,6 @@ static function X2AbilityTemplate Create_Ability()
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Condition_UnitProperty          UnitPropertyCondition;
-	//local X2Effect_ApplyWeaponDamage		DamageEffect;
 	local X2Effect_OverrideDeathAction		OverrideDeathAction;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_PredatorStrike');
@@ -55,8 +54,6 @@ static function X2AbilityTemplate Create_Ability()
 	OverrideDeathAction.EffectName = 'IRI_SK_PredatorStrike_DeathActionEffect';
 	Template.AddTargetEffect(OverrideDeathAction);
 
-	//DamageEffect = new class'X2Effect_ApplyWeaponDamage';
-	//Template.AddTargetEffect(DamageEffect);
 	Template.AddTargetEffect(new class'X2Effect_PredatorStrike');
 
 	// State and Viz
