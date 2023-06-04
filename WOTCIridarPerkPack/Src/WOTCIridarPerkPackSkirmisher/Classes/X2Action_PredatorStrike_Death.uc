@@ -1,9 +1,10 @@
 class X2Action_PredatorStrike_Death extends X2Action_Death;
 
 var private bool				bDoOverride;
-var private AnimNodeSequence	AnimSequence;
-var private CustomAnimParams	AnimParams;
+var private AnimNodeSequence	SecondAnimSequence;
+var private CustomAnimParams	SecondAnimParams;
 var private vector				LocationShift;
+var private float				PlayingTime;
 
 function Init()
 {
@@ -93,17 +94,30 @@ Begin:
 			// Always allow new animations to play.
 			UnitPawn.GetAnimTreeController().SetAllowNewAnimations(true);
 
-			AnimParams.AnimName = 'FF_SkulljackedStart';
-			AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
-			AnimSequence.SetEndTime(4.0f);
-			TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
+			SecondAnimParams.AnimName = 'FF_SkulljackedStart';
+			SecondAnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(SecondAnimParams);
+			SecondAnimSequence.SetEndTime(4.0f);
+			TimeoutSeconds += SecondAnimSequence.GetAnimPlaybackLength();
 
 			LocationShift = UnitPawn.Location;
 
-			FinishAnim(AnimSequence);
+			`AMLOG("Start");
+
+			Sleep(0.5f);
+			//UnitPawn.UnitSpeak('TakingDamage'); //This doesn't work.
+			// And apparently can't work, "I'm hurt" voice is played by specific AkEvents called by specific animations
+
+			// Play the death scream 2 seconds into the animation
+			Sleep(1.5f);
+			UnitPawn.UnitSpeak('DeathScream');
+
+			FinishAnim(SecondAnimSequence);
+			`AMLOG("Finished anim.");
 		}
 
-		Unit.OnDeath(m_kDamageType, XGUnit(DamageDealer));
+		
+		//Unit.OnDeath(m_kDamageType, XGUnit(DamageDealer));
+		OnDeath();
 
 		if (bDoOverride)
 		{
@@ -138,4 +152,55 @@ Begin:
 	}
 
 	CompleteAction();
+}
+
+private function OnDeath()
+{
+	local int i;
+	local XGUnit SurvivingUnit;
+	local XGPlayer PlayerToNotify;	
+	local bool kIsRobotic;
+
+	// Death scream was here
+
+	// Notify all players of the death
+	for (i=0; i < `BATTLE.m_iNumPlayers; ++i)
+	{
+		PlayerToNotify = `BATTLE.m_arrPlayers[i];
+		PlayerToNotify.OnUnitKilled(Unit, XGUnit(DamageDealer));
+	}
+
+	if (Unit.m_bInCover)
+		Unit.HideCoverIcon();
+
+	Unit.SetDiscState(eDS_Hidden); //Hide the unit disc	
+
+	if(!Unit.PRES().USE_UNIT_RING)
+		Unit.m_kDiscMesh.SetHidden(true);
+
+	Unit.m_bStunned = false;
+
+	Unit.m_bIsFlying = false;
+
+	if( !Unit.IsActiveUnit() )
+		Unit.GotoState( 'Dead' );
+
+	if( Unit.m_kForceConstantCombatTarget != none )
+	{
+		Unit.m_kForceConstantCombatTarget.m_kConstantCombatUnitTargetingMe = none;
+	}
+
+	if( Unit.m_kConstantCombatUnitTargetingMe != none )
+	{
+		Unit.m_kConstantCombatUnitTargetingMe.ConstantCombatSuppress(false,none);
+		Unit.m_kConstantCombatUnitTargetingMe = none;
+	}
+
+	//RAM - Constant Combat
+
+	SurvivingUnit = Unit.GetSquad().GetNextGoodMember();
+	kIsRobotic = Unit.IsRobotic();
+
+	if (SurvivingUnit != none && !kIsRobotic && !Unit.IsAlien_CheckByCharType())
+		SurvivingUnit.UnitSpeak( 'SquadMemberDead' );
 }

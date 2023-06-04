@@ -150,14 +150,17 @@ Begin:
 	if (UnitPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
 	{
 		AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
-		AnimSequence.SetEndTime(4.0f);
+		if (bWasHit) AnimSequence.SetEndTime(4.0f);
 		TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
 		FinishAnim(AnimSequence);
 
-		AnimParams.AnimName = 'FF_PredatorStrikeStop';
-		AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
-		TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
-		FinishAnim(AnimSequence);
+		if (bWasHit)
+		{
+			AnimParams.AnimName = 'FF_PredatorStrikeStop';
+			AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
+			TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
+			FinishAnim(AnimSequence);
+		}
 	}
 	else
 	{

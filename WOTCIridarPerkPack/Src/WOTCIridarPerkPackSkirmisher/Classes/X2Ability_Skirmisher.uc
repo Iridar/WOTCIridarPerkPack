@@ -57,10 +57,10 @@ static function X2AbilityTemplate Create_Ability()
 
 	//DamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	//Template.AddTargetEffect(DamageEffect);
-	Template.AddTargetEffect(new class'X2Effect_Executed');
+	Template.AddTargetEffect(new class'X2Effect_PredatorStrike');
 
 	// State and Viz
-	Template.CinescriptCameraType = "Soldier_Skulljack_Stage1";
+	Template.CinescriptCameraType = "IRI_PredatorStrike_Camera";
 	Template.bOverrideMeleeDeath = false;
 	
 	Template.Hostility = eHostility_Offensive;
@@ -83,9 +83,8 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	local XComGameState_Unit			SourceUnit;
 	local XComGameState_Unit			TargetUnit;
 	local X2Action_PlayAnimation		PlayAnimation;
-	local array<X2Action>				TargetFlyoverActions;
-	local X2Action_TimedWait			TimedWait;
 	local X2Action_PlaySoundAndFlyOver	SoundAndFlyOver;
+	local X2Action						DeathAction;
 
 	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
 	
@@ -122,12 +121,12 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	PlayAnimation.Params.AnimName = 'HL_Idle';
 	PlayAnimation.Params.BlendTime = 0.3f;		
 
-	// Insert a delay in front of flyover actions so that "Executed!!!" plays when the target gets hit by the ripjack
-	TimedWait = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, FireAction.ParentActions));
-	TimedWait.DelayTimeSec = 2.4f;
-
-	SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWait));
-	SoundAndFlyOver.SetSoundAndFlyOverParameters(None, class'X2Effect_Executed'.default.UnitExecutedFlyover, '', eColor_Bad);
+	DeathAction = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_PredatorStrike_Death',, TargetUnit.ObjectID);
+	if (DeathAction != none)
+	{
+		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, DeathAction));
+		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, class'X2Effect_Executed'.default.UnitExecutedFlyover, '', eColor_Bad);
+	}
 }
 
 
