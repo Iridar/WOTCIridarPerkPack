@@ -14,7 +14,8 @@ static function X2AbilityTemplate Create_Ability()
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Condition_UnitProperty          UnitPropertyCondition;
-	local X2Effect_ApplyWeaponDamage		DamageEffect;
+	//local X2Effect_ApplyWeaponDamage		DamageEffect;
+	local X2Effect_OverrideDeathAction		OverrideDeathAction;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_PredatorStrike');
 
@@ -47,13 +48,21 @@ static function X2AbilityTemplate Create_Ability()
 	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
 	
 	// Effects
-	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
-	Template.AddTargetEffect(DamageEffect);
+	// Use custom Fire and Death actions to play synced on-kill animations.
+	Template.ActionFireClass = class'X2Action_PredatorStrike';
+	OverrideDeathAction = new class'X2Effect_OverrideDeathAction';
+	OverrideDeathAction.DeathActionClass = class'X2Action_PredatorStrike_Death';
+	OverrideDeathAction.EffectName = 'IRI_SK_PredatorStrike_DeathActionEffect';
+	Template.AddTargetEffect(OverrideDeathAction);
+
+	//DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	//Template.AddTargetEffect(DamageEffect);
 	Template.AddTargetEffect(new class'X2Effect_Executed');
 
 	// State and Viz
+	Template.CinescriptCameraType = "Soldier_Skulljack_Stage1";
 	Template.bOverrideMeleeDeath = false;
-	Template.ActionFireClass = class'X2Action_PredatorStrike';
+	
 	Template.Hostility = eHostility_Offensive;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState; // just adds the unconscious status effect
 	Template.BuildVisualizationFn = PredatorStrike_BuildVisualization;
@@ -64,49 +73,61 @@ static function X2AbilityTemplate Create_Ability()
 
 static private function PredatorStrike_BuildVisualization(XComGameState VisualizeGameState)
 {	
-	local XComGameStateVisualizationMgr		VisMgr;
-	local XComGameStateContext_Ability		AbilityContext;
-	local X2Action_Death					DeathAction;
-	local X2Action_PlayAnimation			PlayAnimation;
-	local X2Action							ParentAction;
-	local X2Action							ChildAction;
-	local VisualizationActionMetadata		ActionMetadata;
-
-	`AMLOG("Running");
+	local XComGameStateVisualizationMgr VisMgr;
+	local X2Action						FireAction;
+	local XComGameStateContext_Ability	AbilityContext;
+	local X2Action_MoveTurn				MoveTurnAction;
+	local VisualizationActionMetadata   ActionMetadata;
+	local VisualizationActionMetadata   EmptyTrack;
+	local XComGameStateHistory			History;
+	local XComGameState_Unit			SourceUnit;
+	local XComGameState_Unit			TargetUnit;
+	local X2Action_PlayAnimation		PlayAnimation;
+	local array<X2Action>				TargetFlyoverActions;
+	local X2Action_TimedWait			TimedWait;
+	local X2Action_PlaySoundAndFlyOver	SoundAndFlyOver;
 
 	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
+	
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	if (AbilityContext.IsResultContextMiss())
+		return;
 
-	//AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
-	//if (AbilityContext == none || !AbilityContext.IsResultContextHit())
-	//	return;
-	//
-	//VisMgr = `XCOMVISUALIZATIONMGR;
-	//
-	//DeathAction = X2Action_Death(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_Death',, AbilityContext.InputContext.PrimaryTarget.ObjectID));
-	//if (DeathAction == none)
-	//	return;
-	//
-	//`AMLOG("Setting custom death animation");
-	//
-	//DeathAction.CustomDeathAnimationName = 'FF_SkulljackedStop';
-	//DeathAction.vHitDir = vect(0, 0, -1);
+	History = `XCOMHISTORY;
+	VisMgr = `XCOMVISUALIZATIONMGR;
 
-	//foreach DeathAction.ParentActions(ParentAction)
-	//{
-	//	if (X2Action_PredatorStrike(ParentAction) != none)
-	//	{
-	//		ActionMetadata = ParentAction.Metadata;
-	//
-	//		PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, ParentAction));
-	//		PlayAnimation.Params.AnimName = 'FF_PredatorStrikeStop';
-	//
-	//		foreach DeathAction.ChildActions(ChildAction)
-	//		{
-	//			VisMgr.ConnectAction(ChildAction, VisMgr.BuildVisTree, false, PlayAnimation);
-	//		}
-	//		break;
-	//	}
-	//}
+	FireAction = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_PredatorStrike',, AbilityContext.InputContext.SourceObject.ObjectID);
+
+	//	Make the shooter rotate towards the target. This doesn't always happen automatically in time.
+	TargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+
+	ActionMetadata = FireAction.Metadata;
+	MoveTurnAction = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, true, FireAction.ParentActions[0]));
+	MoveTurnAction.m_vFacePoint =  `XWORLD.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
+	MoveTurnAction.UpdateAimTarget = true;
+		
+	SourceUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
+
+	ActionMetadata = EmptyTrack;
+	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(TargetUnit.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	ActionMetadata.StateObject_NewState = TargetUnit;
+	ActionMetadata.VisualizeActor = History.GetVisualizer(TargetUnit.ObjectID);
+		
+	MoveTurnAction = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, FireAction.ParentActions[0]));
+	MoveTurnAction.m_vFacePoint =  `XWORLD.GetPositionFromTileCoordinates(SourceUnit.TileLocation);
+	MoveTurnAction.UpdateAimTarget = true;
+
+	//	Make the target play its idle animation to prevent it from turning back to their original facing direction right away.
+	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, MoveTurnAction));
+	PlayAnimation.Params.AnimName = 'HL_Idle';
+	PlayAnimation.Params.BlendTime = 0.3f;		
+
+	// Insert a delay in front of flyover actions so that "Executed!!!" plays when the target gets hit by the ripjack
+	TimedWait = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, FireAction.ParentActions));
+	TimedWait.DelayTimeSec = 2.4f;
+
+	SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, TimedWait));
+	SoundAndFlyOver.SetSoundAndFlyOverParameters(None, class'X2Effect_Executed'.default.UnitExecutedFlyover, '', eColor_Bad);
 }
 
 

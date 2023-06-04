@@ -237,6 +237,12 @@
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Action_PredatorStrike.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Action_PredatorStrike_Death.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_PredatorStrike.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackSpecialist\Classes\X2Ability_Specialist.uc">
       <SubType>Content</SubType>
     </Content>
