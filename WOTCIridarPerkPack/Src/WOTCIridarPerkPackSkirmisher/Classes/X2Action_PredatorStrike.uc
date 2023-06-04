@@ -1,5 +1,8 @@
 class X2Action_PredatorStrike extends X2Action_Fire;
 
+var private vector OriginalLocation;
+var private vector NewLocation;
+
 /*
 FF_PredatorStrikeMissA
 FF_PredatorStrikeStartA
@@ -149,13 +152,28 @@ Begin:
 	//The fire action must complete, make sure that it can be played.
 	if (UnitPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
 	{
+		// Put shooter slightly higher than the attacker for better ripjack alignment
+		if (bWasHit)
+		{
+			OriginalLocation = UnitPawn.Location;
+			NewLocation = OriginalLocation;
+			NewLocation.Z = TargetUnit.GetPawn().Location.Z + 15;
+			UnitPawn.SetLocationNoCollisionCheck(NewLocation);
+		}
+
 		AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
 		if (bWasHit) AnimSequence.SetEndTime(4.0f);
 		TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
 		FinishAnim(AnimSequence);
 
+		
+
 		if (bWasHit)
 		{
+			NewLocation = UnitPawn.Location;
+			NewLocation.Z = OriginalLocation.Z;
+			UnitPawn.SetLocationNoCollisionCheck(NewLocation);
+
 			AnimParams.AnimName = 'FF_PredatorStrikeStop';
 			AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
 			TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();

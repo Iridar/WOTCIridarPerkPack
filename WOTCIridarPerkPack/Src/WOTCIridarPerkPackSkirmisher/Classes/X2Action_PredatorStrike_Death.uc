@@ -3,10 +3,9 @@ class X2Action_PredatorStrike_Death extends X2Action_Death;
 var private bool				bDoOverride;
 var private AnimNodeSequence	SecondAnimSequence;
 var private CustomAnimParams	SecondAnimParams;
-var private vector				ShooterLocation;
 var private vector				LocationShift;
-var private vector				LocationShiftDirection;
-var private float				PlayingTime;
+var private float				DesiredDistance;
+var private float				CurrentDistance;
 
 function Init()
 {
@@ -96,52 +95,33 @@ Begin:
 			// Always allow new animations to play.
 			UnitPawn.GetAnimTreeController().SetAllowNewAnimations(true);
 
+			// Translate the target towards the attacker so they're slightly closer than 1 tile apart
+			// for better ripjack alignment
+			UnitPawn.EnableRMA(true, true);
+			UnitPawn.EnableRMAInteractPhysics(true);
+			UnitPawn.bSkipIK = true;
+
+			`AMLOG("Old distance:" @ VSize(DamageDealer.Location - UnitPawn.Location));
+
+			LocationShift = DamageDealer.Location - UnitPawn.Location;
+			CurrentDistance = Vsize(LocationShift);
+			DesiredDistance = 93.0f;
+
+			LocationShift = LocationShift * (1 - DesiredDistance / CurrentDistance);  // https://pbs.twimg.com/media/CstQrjWUkAAdpWr.jpg
+			UnitPawn.SetLocationNoCollisionCheck(UnitPawn.Location + LocationShift);
+
+			`AMLOG("New distance:" @ VSize(DamageDealer.Location - UnitPawn.Location));
+
 			SecondAnimParams.AnimName = 'FF_SkulljackedStart';
 			SecondAnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(SecondAnimParams);
 			SecondAnimSequence.SetEndTime(4.0f);
 			TimeoutSeconds += SecondAnimSequence.GetAnimPlaybackLength();
 
-			`AMLOG("Initial Z:" @ UnitPawn.Location.Z);
-			
-			ShooterLocation = DamageDealer.Location;
-			ShooterLocation.Z -= 15;
-
-			// Move the target to be on slightly lower Z level than the shooter for better alignment with ripjack blade
-			// This is instant teleport at the start of the animation, ugly, but don't got much choice
-			// And it should be fine since cinescript starts on the ~same frame
-			LocationShift = UnitPawn.Location;
-			LocationShift.Z = ShooterLocation.Z;
-
-			UnitPawn.EnableRMA(true, true);
-			UnitPawn.EnableRMAInteractPhysics(true);
-			UnitPawn.SetCollision(false /* bCollideActors */, false /* bBlockActors */, true /* bIgnoreEncroachers */);
-			UnitPawn.SetLocationNoCollisionCheck(LocationShift);
-
-			`AMLOG("Adjusted Z:" @ UnitPawn.Location.Z);
-
-			Sleep(0.4f);
-
-			LocationShiftDirection = (ShooterLocation - UnitPawn.Location) / 60;
-
-			// Translate the target towards the attacker until they're slightly closer than 1 tile apart
-			// for better ripjack alignment
-			while (VSize(UnitPawn.Location - ShooterLocation) > 93.0f || PlayingTime > 1.5f)
-			{	
-				UnitPawn.SetLocationNoCollisionCheck(UnitPawn.Location + LocationShiftDirection);
-				Sleep(0.01f);
-				PlayingTime += 0.01f;
-
-				`AMLOG("Distance:" @ VSize(UnitPawn.Location - ShooterLocation) @ UnitPawn.Location.Z);
-			}
-
-			`AMLOG("Start");
-
-
 			//UnitPawn.UnitSpeak('TakingDamage'); //This doesn't work.
 			// And apparently can't work, "I'm hurt" voice is played by specific AkEvents called by specific animations
 
 			// Play the death scream 2 seconds into the animation
-			Sleep(1.5f - PlayingTime);
+			Sleep(2.0f);
 			UnitPawn.UnitSpeak('DeathScream');
 
 			FinishAnim(SecondAnimSequence);
