@@ -6,6 +6,7 @@ var private CustomAnimParams	SecondAnimParams;
 var private vector				LocationShift;
 var private float				DesiredDistance;
 var private float				CurrentDistance;
+var private vector				ShooterLocation;
 
 function Init()
 {
@@ -103,14 +104,19 @@ Begin:
 
 			`AMLOG("Old distance:" @ VSize(DamageDealer.Location - UnitPawn.Location));
 
-			LocationShift = DamageDealer.Location - UnitPawn.Location;
+			ShooterLocation = DamageDealer.Location;
+
+			// Actual Z will be equalized in the fire action, but here we need to equalize it to calculate distance properly
+			ShooterLocation.Z = UnitPawn.Location.Z; 
+
+			LocationShift = ShooterLocation - UnitPawn.Location;
 			CurrentDistance = Vsize(LocationShift);
-			DesiredDistance = 93.0f;
+			DesiredDistance = 91.0f;
 
 			LocationShift = LocationShift * (1 - DesiredDistance / CurrentDistance);  // https://pbs.twimg.com/media/CstQrjWUkAAdpWr.jpg
 			UnitPawn.SetLocationNoCollisionCheck(UnitPawn.Location + LocationShift);
 
-			`AMLOG("New distance:" @ VSize(DamageDealer.Location - UnitPawn.Location));
+			`AMLOG("New distance:" @ VSize(ShooterLocation - UnitPawn.Location));
 
 			SecondAnimParams.AnimName = 'FF_SkulljackedStart';
 			SecondAnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(SecondAnimParams);

@@ -56,6 +56,8 @@ static function X2AbilityTemplate Create_Ability()
 
 	Template.AddTargetEffect(new class'X2Effect_PredatorStrike');
 
+	// TODO: Play flinch on miss
+
 	// State and Viz
 	Template.CinescriptCameraType = "IRI_PredatorStrike_Camera";
 	Template.bOverrideMeleeDeath = false;

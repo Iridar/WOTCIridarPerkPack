@@ -4,3 +4,9 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 {
 	// Same as original, just without visualization.
 }
+
+defaultproperties
+{
+	bAppliesDamage = true
+	DamageTypes(0) = "Melee"
+}

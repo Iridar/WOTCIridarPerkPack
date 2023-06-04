@@ -1,7 +1,8 @@
 class X2Action_PredatorStrike extends X2Action_Fire;
 
-var private vector OriginalLocation;
-var private vector NewLocation;
+var private vector FixupOffset;
+var private XComUnitPawn TargetPawn;
+var private vector OriginalTranslation;
 
 /*
 FF_PredatorStrikeMissA
@@ -27,6 +28,13 @@ function Init()
 	{
 		AnimParams.AnimName = 'FF_PredatorStrikeMiss';
 	}
+
+	TargetPawn = TargetUnit.GetPawn();
+	FixupOffset.X = 0;
+	FixupOffset.Y = 0;
+	FixupOffset.Z = Unit.Location.Z - TargetUnit.Location.Z + 3;
+
+	OriginalTranslation = UnitPawn.Mesh.Translation;
 }
 
 
@@ -49,6 +57,12 @@ simulated state Executing
 		}
 
 		UpdateAim(fDeltaT);
+
+		if (bWasHit)
+		{
+			// Put shooter slightly higher than the attacker for better ripjack alignment
+			UnitPawn.Mesh.SetTranslation(OriginalTranslation + FixupOffset);
+		}
 	}
 
 	simulated function UpdateAim(float DT)
@@ -152,32 +166,19 @@ Begin:
 	//The fire action must complete, make sure that it can be played.
 	if (UnitPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
 	{
-		// Put shooter slightly higher than the attacker for better ripjack alignment
-		if (bWasHit)
-		{
-			OriginalLocation = UnitPawn.Location;
-			NewLocation = OriginalLocation;
-			NewLocation.Z = TargetUnit.GetPawn().Location.Z + 15;
-			UnitPawn.SetLocationNoCollisionCheck(NewLocation);
-		}
-
 		AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
 		if (bWasHit) AnimSequence.SetEndTime(4.0f);
 		TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
 		FinishAnim(AnimSequence);
 
-		
-
 		if (bWasHit)
 		{
-			NewLocation = UnitPawn.Location;
-			NewLocation.Z = OriginalLocation.Z;
-			UnitPawn.SetLocationNoCollisionCheck(NewLocation);
-
 			AnimParams.AnimName = 'FF_PredatorStrikeStop';
 			AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
 			TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
 			FinishAnim(AnimSequence);
+
+			UnitPawn.Mesh.SetTranslation(OriginalTranslation);
 		}
 	}
 	else
