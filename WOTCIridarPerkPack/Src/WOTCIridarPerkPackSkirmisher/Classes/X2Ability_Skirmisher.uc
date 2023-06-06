@@ -38,12 +38,15 @@ static function X2AbilityTemplate Create_Ability()
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
 
-	// TODO: Add HP condition
-
 	// Target Conditions
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = true;
+	UnitPropertyCondition.ExcludeRobotic = true;
+	UnitPropertyCondition.ExcludeNonHumanoidAliens = true;
+	UnitPropertyCondition.ExcludeFriendlyToSource = true;
 	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
+	Template.AbilityTargetConditions.AddItem(new class'X2Condition_PredatorStrike');
 	
 	// Effects
 	// Use custom Fire and Death actions to play synced on-kill animations.
@@ -54,8 +57,6 @@ static function X2AbilityTemplate Create_Ability()
 	Template.AddTargetEffect(OverrideDeathAction);
 
 	Template.AddTargetEffect(new class'X2Effect_PredatorStrike');
-
-	// TODO: Play flinch on miss
 
 	// State and Viz
 	Template.CinescriptCameraType = "IRI_PredatorStrike_Camera";
@@ -86,13 +87,13 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	local TTile							TurnTileLocation;
 
 	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
-	
-	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
-	if (AbilityContext.IsResultContextMiss())
-		return;
 
 	History = `XCOMHISTORY;
 	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	if (AbilityContext == none)
+		return;
 
 	TargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
 	if (TargetUnit == none)
@@ -102,9 +103,10 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 		return;
 
 	FireAction = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_PredatorStrike',, AbilityContext.InputContext.SourceObject.ObjectID);
+	if (FireAction == none)
+		return;
 
 	//	Make the shooter rotate towards the target. This doesn't always happen automatically in time.
-	
 	ActionMetadata = FireAction.Metadata;
 	MoveTurnAction = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, true, FireAction.ParentActions[0]));
 	MoveTurnAction.m_vFacePoint =  `XWORLD.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
@@ -127,6 +129,13 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, MoveTurnAction));
 	PlayAnimation.Params.AnimName = 'HL_Idle';
 	PlayAnimation.Params.BlendTime = 0.3f;		
+
+	if (AbilityContext.IsResultContextMiss())
+	{
+		PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, FireAction.ParentActions[0]));
+		PlayAnimation.Params.AnimName = 'FF_SkulljackedMiss';
+		return;
+	}
 
 	DeathAction = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_PredatorStrike_Death',, TargetUnit.ObjectID);
 	if (DeathAction != none)

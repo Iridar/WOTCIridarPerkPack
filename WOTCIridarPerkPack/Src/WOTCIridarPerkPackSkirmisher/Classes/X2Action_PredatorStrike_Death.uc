@@ -17,11 +17,6 @@ function Init()
 		bDoOverride = true;
 		UnitPawn.bUseDesiredEndingAtomOnDeath = false;
 		//bWaitUntilNotified = true;
-		`AMLOG("Target pawn CAN play animation");
-	}
-	else
-	{
-		`AMLOG("Target pawn CANNOT play animation");
 	}
 }
 
@@ -78,7 +73,6 @@ simulated state Executing
 {	
 
 Begin:
-	`AMLOG("Running");
 	StopAllPreviousRunningActions(Unit);
 
 	Unit.SetForceVisibility(eForceVisible);
@@ -90,7 +84,6 @@ Begin:
 
 	if (!UnitPawn.bPlayedDeath)
 	{
-		`AMLOG("Unit played death:" @ UnitPawn.bPlayedDeath);
 		if (bDoOverride)
 		{
 			// Always allow new animations to play.
@@ -101,8 +94,6 @@ Begin:
 			UnitPawn.EnableRMA(true, true);
 			UnitPawn.EnableRMAInteractPhysics(true);
 			UnitPawn.bSkipIK = true;
-
-			`AMLOG("Old distance:" @ VSize(DamageDealer.Location - UnitPawn.Location));
 
 			ShooterLocation = DamageDealer.Location;
 
@@ -115,8 +106,6 @@ Begin:
 
 			LocationShift = LocationShift * (1 - DesiredDistance / CurrentDistance);  // https://pbs.twimg.com/media/CstQrjWUkAAdpWr.jpg
 			UnitPawn.SetLocationNoCollisionCheck(UnitPawn.Location + LocationShift);
-
-			`AMLOG("New distance:" @ VSize(ShooterLocation - UnitPawn.Location));
 
 			SecondAnimParams.AnimName = 'FF_SkulljackedStart';
 			SecondAnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(SecondAnimParams);
@@ -131,12 +120,10 @@ Begin:
 			UnitPawn.UnitSpeak('DeathScream');
 
 			FinishAnim(SecondAnimSequence);
-			`AMLOG("Finished anim.");
 		}
 
-		
 		//Unit.OnDeath(m_kDamageType, XGUnit(DamageDealer));
-		OnDeath();
+		OnDeath(); // Same, just without the death scream.
 
 		if (bDoOverride)
 		{
@@ -146,8 +133,6 @@ Begin:
 		{
 			AnimationName = ComputeAnimationToPlay();
 		}
-
-		`AMLOG("AnimationName:" @ AnimationName);
 
 		UnitPawn.SetFinalRagdoll(true);
 		UnitPawn.TearOffMomentum = vHitDir; //Use archaic Unreal values for great justice	

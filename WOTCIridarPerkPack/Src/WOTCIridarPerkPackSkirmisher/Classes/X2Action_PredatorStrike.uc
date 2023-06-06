@@ -1,10 +1,10 @@
 class X2Action_PredatorStrike extends X2Action_Fire;
 
-var private vector FixupOffset;
-var private XComUnitPawn TargetPawn;
-var private vector OriginalTranslation;
-var private float fPlayingTime;
-var private float OriginalOffset;
+var private vector			FixupOffset;
+var private XComUnitPawn	TargetPawn;
+var private vector			OriginalTranslation;
+var private float			fPlayingTime;
+var private float			OriginalOffset;
 
 /*
 FF_PredatorStrikeMissA
@@ -31,28 +31,27 @@ function Init()
 		AnimParams.AnimName = 'FF_PredatorStrikeMiss';
 	}
 
+	// Iridar: Calculate stuff needed to match the vertical position of the shooter and target
 	TargetPawn = TargetUnit.GetPawn();
-	FixupOffset.X = 0;
-	FixupOffset.Y = 0;
-	FixupOffset.Z = GetVerticalOffset() + 3;
+	FixupOffset.Z = GetVerticalOffset() + 3; // Put shooter slightly higher than the attacker for better ripjack alignment
 
 	OriginalTranslation = UnitPawn.Mesh.Translation;
-
-	// 0.5 sec into stop animation step off begin
-	// 1.2 sec end
 }
 
 private function float GetVerticalOffset()
 {
-	local XComGameState_Unit TargetUnitState;
-	local vector locTargetLocation;
-	local vector locShooterLocation;
-	local XComWorldData locWorld;
-	local int HistoryIndex;
+	local XComGameState_Unit	TargetUnitState;
+	local vector				locTargetLocation;
+	local vector				locShooterLocation;
+	local XComWorldData			locWorld;
+	local int					HistoryIndex;
 
 	locWorld = `XWORLD;
 	HistoryIndex = self.StateChangeContext.AssociatedState.HistoryIndex;
 	TargetUnitState = TargetUnit.GetVisualizedGameState(HistoryIndex);
+	if (TargetUnitState == none)
+		return 0;
+
 	locTargetLocation = locWorld.GetPositionFromTileCoordinates(TargetUnitState.TileLocation);
 	locShooterLocation = locWorld.GetPositionFromTileCoordinates(SourceUnitState.TileLocation);
 	
@@ -80,9 +79,9 @@ simulated state Executing
 
 		UpdateAim(fDeltaT);
 
+		// Iridar: Apply offset to shooter's pawn mesh. Needs to be done here for some reason.
 		if (bWasHit)
 		{
-			// Put shooter slightly higher than the attacker for better ripjack alignment
 			UnitPawn.Mesh.SetTranslation(OriginalTranslation + FixupOffset);
 		}
 	}
@@ -179,20 +178,15 @@ Begin:
 		UnitPawn.GetAnimTreeController().PlayAdditiveDynamicAnim(AdditiveAnimParams);
 	}
 
-	// dkaplan - removed TheLost quick fire animations - 12/5/16
-	//if( ZombieMode() )
-	//{
-	//	AnimParams.PlayRate = GetNonCriticalAnimationSpeed();
-	//}
-
 	//The fire action must complete, make sure that it can be played.
 	if (UnitPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
 	{
+		// Iridar: play the attack or miss animation
 		AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
-		if (bWasHit) AnimSequence.SetEndTime(4.0f);
 		TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
 		FinishAnim(AnimSequence);
 
+		// if we hit, also play the Stop animation
 		if (bWasHit)
 		{
 			AnimParams.AnimName = 'FF_PredatorStrikeStop';
@@ -201,6 +195,9 @@ Begin:
 
 			// Starting from 0.5 sec, for the next 0.35 seconds
 			// scale down the vertical offset from 100% to 0%, emulating an animated stepdown instead of a jump.
+			// This is needed when the target is on higher or lower elevation than the shooter,
+			// and in roughly that spot in the animation the soldier is shuffling their legs, so perfect time
+			// to emulate a step down or up.
 			if (FixupOffset.Z != 0)
 			{
 				Sleep(0.5f);

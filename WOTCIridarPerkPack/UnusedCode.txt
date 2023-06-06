@@ -54,7 +54,7 @@ static function X2AbilityTemplate IRI_BH_ChasingShot()
 	// Effects
 	ChasingShotEffect = new class'X2Effect_Persistent';
 	ChasingShotEffect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
-	ChasingShotEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName); // TODO: Status icon here
+	ChasingShotEffect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,,Template.AbilitySourceName); //  Status icon here
 	ChasingShotEffect.EffectName = 'IRI_BH_ChasingShot_Effect';
 	ChasingShotEffect.DuplicateResponse = eDupe_Allow;
 	Template.AddTargetEffect(ChasingShotEffect);
