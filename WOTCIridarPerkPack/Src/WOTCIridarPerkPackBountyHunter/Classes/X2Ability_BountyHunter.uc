@@ -1498,7 +1498,7 @@ static private function bool HomingMine_DamagePreview(XComGameState_Ability Abil
 {
 	local XComGameState_Unit SourceUnit;
 
-	MinDamagePreview = `GetConfigDamage('IRI_BH_HomingMine_Damage');
+	MinDamagePreview = `GetConfigDamage("IRI_BH_HomingMine_Damage");
 	
 	SourceUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityState.OwnerStateObject.ObjectID));
 	if (SourceUnit != none && SourceUnit.HasSoldierAbility('IRI_BH_DoublePayload'))
@@ -1549,8 +1549,8 @@ static function X2AbilityTemplate IRI_BH_HomingMineDetonation()
 
 	//	special damage effect handles shrapnel vs regular damage
 	MineDamage = new class'X2Effect_ApplyWeaponDamage';
-	MineDamage.EffectDamageValue = `GetConfigDamage('IRI_BH_HomingMine_Damage');
-	MineDamage.EnvironmentalDamageAmount = `GetConfigInt('IRI_BH_HomingMine_EnvDamage');
+	MineDamage.EffectDamageValue = `GetConfigDamage("IRI_BH_HomingMine_Damage");
+	MineDamage.EnvironmentalDamageAmount = `GetConfigInt("IRI_BH_HomingMine_EnvDamage");
 	MineDamage.bExplosiveDamage = true;
 	MineDamage.bIgnoreBaseDamage = true;
 	Template.AddMultiTargetEffect(MineDamage);

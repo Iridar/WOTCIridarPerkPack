@@ -4,24 +4,27 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
-	Templates.AddItem(Create_Ability());
+	Templates.AddItem(IRI_SK_PredatorStrike());
+	Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
 
 	return Templates;
 }
 
-static function X2AbilityTemplate Create_Ability()
+static function X2AbilityTemplate IRI_SK_PredatorStrike()
 {
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Condition_UnitProperty          UnitPropertyCondition;
 	local X2Effect_OverrideDeathAction		OverrideDeathAction;
+	local X2Condition_PredatorStrike		HealthCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_PredatorStrike');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_coupdegrace";
+	Template.IconImage = "img:///IRIPerkPackUI.Shiremct_perk_SkirmisherStrike";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_MAJOR_PRIORITY;
 
 	// Targeting and triggering
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
@@ -33,6 +36,7 @@ static function X2AbilityTemplate Create_Ability()
 	ActionPointCost.iNumPoints = 1;
 	ActionPointCost.bConsumeAllPoints = false;
 	Template.AbilityCosts.AddItem(ActionPointCost);
+	AddCooldown(Template, `GetConfigInt("IRI_SK_PredatorStrike_Cooldown"));
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
@@ -46,7 +50,10 @@ static function X2AbilityTemplate Create_Ability()
 	UnitPropertyCondition.ExcludeNonHumanoidAliens = true;
 	UnitPropertyCondition.ExcludeFriendlyToSource = true;
 	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
-	Template.AbilityTargetConditions.AddItem(new class'X2Condition_PredatorStrike');
+
+	HealthCondition = new class'X2Condition_PredatorStrike';
+	HealthCondition.BelowHealthPercent = `GetConfigFloat("IRI_SK_PredatorStrike_HealthPercent");
+	Template.AbilityTargetConditions.AddItem(HealthCondition);
 	
 	// Effects
 	// Use custom Fire and Death actions to play synced on-kill animations.
@@ -145,8 +152,22 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	}
 }
 
+static private function XComGameState_Unit FindNearestEnemyInFoW(const TTile TileLocation, const ETeam TargetTeam)
+{
+	local XComGameState_Unit	UnitState;
+	local XComGameStateHistory	History;
 
+	History = `XCOMHISTORY;
 
+	foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
+	{
+		if (UnitState.IsDead())
+			continue;
+
+		if (!UnitState.IsInPlay())
+			continue;
+	}
+}
 
 //	========================================
 //				COMMON CODE

@@ -66,6 +66,9 @@
     <Content Include="Config\Skirmisher\XComCamera.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\Skirmisher\XComGame.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Templar\XComAbilityToSlotReassignment.ini">
       <SubType>Content</SubType>
     </Content>
@@ -136,6 +139,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Localization\Skirmisher\XComGame.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\Skirmisher\XComGame.rus">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Localization\Templar\XComGame.int">

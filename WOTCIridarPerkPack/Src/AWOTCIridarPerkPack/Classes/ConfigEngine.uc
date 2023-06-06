@@ -33,7 +33,7 @@ load order will be used).
 Some examples of specifying config values. Default config files is XComGame.ini, but you
 can change it to whatever you want in the class definition above.
 
-[WOTCIridarPerkPack.ConfigEngine]
+[WOTCIridarDynamicDeployment.ConfigEngine]
 
 +Configs = (N = "SomeIntProperty", V = "10")
 
@@ -73,7 +73,7 @@ IntArray = `GetConfigArrayInt('SomeIntArrayProperty');
 struct ConfigStruct
 {
 	// Config property name
-	var name				N; 
+	var string				N; 
 
 	// Properties
 	var string				V;	// Value of the property
@@ -92,7 +92,7 @@ struct ConfigStruct
 };
 var private config array<ConfigStruct> Configs;
 
-static final function ConfigStruct GetConfig(const name ConfigName)
+static final function ConfigStruct GetConfig(const coerce string ConfigName, optional bool bCanBeNull)
 {
 	local ConfigStruct ReturnConfig;
 	local ConfigStruct CycleConfig;
@@ -110,51 +110,47 @@ static final function ConfigStruct GetConfig(const name ConfigName)
 		}
 	}
 
-	if (ReturnConfig == EmptyConfig)
+	if (ReturnConfig == EmptyConfig && !bCanBeNull)
 	{
-		`AMLOG("WARNING :: Failed to find Config with N name:" @ ConfigName);
-		`AMLOG(GetScriptTrace());
+		`redscreen("WARNING :: Failed to find Config with N name:" @ ConfigName);
+		`redscreen(GetScriptTrace());
 	}
 
 	return ReturnConfig;
 }
 
-static final function string GetConfigValue(const name ConfigName)
+static final function string GetConfigValue(const coerce string ConfigName)
 {
 	return GetConfig(ConfigName).V;
 }
 
-static final function WeaponDamageValue GetConfigDamage(const name ConfigName)
-{
-	return GetConfig(ConfigName).Damage;
-}
 
-static final function bool GetConfigBool(const name ConfigName)
+static final function bool GetConfigBool(const coerce string ConfigName)
 {
 	return bool(GetConfigValue(ConfigName));
 }
 
-static final function int GetConfigInt(const name ConfigName)
+static final function int GetConfigInt(const coerce string ConfigName)
 {
 	return int(GetConfigValue(ConfigName));
 }
 
-static final function float GetConfigFloat(const name ConfigName)
+static final function float GetConfigFloat(const coerce string ConfigName)
 {
 	return float(GetConfigValue(ConfigName));
 }
 
-static final function name GetConfigName(const name ConfigName)
+static final function name GetConfigName(const coerce string ConfigName)
 {
 	return name(GetConfigValue(ConfigName));
 }
 
-static final function string GetConfigString(const name ConfigName)
+static final function string GetConfigString(const coerce string ConfigName)
 {
 	return GetConfigValue(ConfigName);
 }
 
-static final function array<int> GetConfigArrayInt(const name ConfigName)
+static final function array<int> GetConfigArrayInt(const coerce string ConfigName)
 {
 	local array<string>	StringArray;
 	local array<int>	ReturnArray;
@@ -169,7 +165,7 @@ static final function array<int> GetConfigArrayInt(const name ConfigName)
 	return ReturnArray;
 }
 
-static final function array<float> GetConfigArrayFloat(const name ConfigName)
+static final function array<float> GetConfigArrayFloat(const coerce string ConfigName)
 {
 	local array<string>	StringArray;
 	local array<float>	ReturnArray;
@@ -184,17 +180,22 @@ static final function array<float> GetConfigArrayFloat(const name ConfigName)
 	return ReturnArray;
 }
 
-static final function array<name> GetConfigArrayName(const name ConfigName)
+static final function array<name> GetConfigArrayName(const coerce string ConfigName, optional bool bCanBeNull)
 {
 	local array<string>	StringArray;
 	local array<name>	ReturnArray;
 	local int			Index;
 
-	StringArray = GetConfig(ConfigName).VA;
+	StringArray = GetConfig(ConfigName, bCanBeNull).VA;
 	for (Index = 0; Index < StringArray.Length; Index++)
 	{
 		ReturnArray.AddItem(name(StringArray[Index]));
 	}
 
 	return ReturnArray;
+}
+
+static final function WeaponDamageValue GetConfigDamage(const coerce string ConfigName)
+{
+    return GetConfig(ConfigName).Damage;
 }

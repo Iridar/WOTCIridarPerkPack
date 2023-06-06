@@ -1,6 +1,6 @@
 [IRI_SK_PredatorStrike X2AbilityTemplate]
 LocFriendlyName="Predator Strike"
-LocLongDescription="Killing an enemy with your <Ability:IRI_BoundWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
-LocHelpText="Killing an enemy with your <Ability:IRI_BoundWeaponName/> permanently increases its critical chance against other enemies of that type by +<Ability:IRI_BH_Headhunter_CritBonus/>. This bonus is cumulative."
-LocPromotionPopupText="Current bonuses:<Ability:IRI_TAG_BH_Headhunter_Bonuses/>"
+LocLongDescription="A melee attack against a weakened adjacent humanoid enemy that immediately executes them and reveals the approximate position of the nearest enemy in the fog of war. Can be used only against humanoid enemies whose HP is lower than <Ability:IRI_SK_PredatorStrike_HealthPercent/> and is also lower than this unit's maximum HP."
+LocHelpText="A melee attack against a weakened adjacent humanoid enemy that immediately executes them and reveals the approximate position of the nearest enemy in the fog of war. Can be used only against humanoid enemies whose HP is lower than <Ability:IRI_SK_PredatorStrike_HealthPercent/> and is also lower than this unit's maximum HP."
+LocPromotionPopupText="<bullet/> This ability bypasses Sustain and other similar effects.<br/><bullet/> <Ability:IRI_SK_PredatorStrike_Cooldown/> turn cooldown."
 LocFlyOverText="Predator Strike"

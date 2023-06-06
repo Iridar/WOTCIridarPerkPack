@@ -62,7 +62,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_BurstFire_NumShots":
 	case "IRI_BH_Untraceable_CooldownReduction":
 	case "IRI_BH_HomingMine_Charges":
-		OutString = BHColor(`GetConfigInt(name(InString)));
+		OutString = BHColor(`GetConfigInt(InString));
 		return true;
 
 	case "IRI_BH_BigGameHunter_CritBonus":
@@ -71,27 +71,37 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_NightRounds_CritBonus":
 	case "IRI_BH_Headhunter_CritBonus":
 	case "IRI_BH_Nightmare_CritBonus":
-		OutString = BHColor(`GetConfigInt(name(InString)) $ "%");
+		OutString = BHColor(`GetConfigInt(InString) $ "%");
 		return true;
 
 	case "IRI_BH_DoublePayload_BonusDamage":
 	case "IRI_BH_BurstFire_SquadSightPenaltyModifier":
-		OutString = BHColor(GetPercentValue(name(InString)) $ "%");
+		OutString = BHColor(GetPercentValue(InString) $ "%");
 		return true;
 
 	case "IRI_BH_HomingMine_Damage":
-		OutString = BHColor(`GetConfigDamage('IRI_BH_HomingMine_Damage').Damage);
+		OutString = BHColor(`GetConfigDamage("IRI_BH_HomingMine_Damage").Damage);
 		return true;
 	case "IRI_BH_HomingMine_Shred":
-		OutString = BHColor(`GetConfigDamage('IRI_BH_HomingMine_Damage').Shred);
+		OutString = BHColor(`GetConfigDamage("IRI_BH_HomingMine_Damage").Shred);
 		return true;
-	
 
+	// ======================================================================================================================
+	//												SKIRMISHER TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
+
+	case "IRI_SK_PredatorStrike_HealthPercent":
+		OutString = SKColor(GetPercentValue(InString) $ "%");
+		return true;
+	case "IRI_SK_PredatorStrike_Cooldown":
+		OutString = SKColor(`GetConfigInt(InString));
+		return true;
+		
 	// ======================================================================================================================
 	//												TEMPLAR TAGS
 	// ----------------------------------------------------------------------------------------------------------------------
 	case "IRI_TM_SoulShot_Cooldown":
-		OutString = TMColor(`GetConfigInt(name(InString)));
+		OutString = TMColor(`GetConfigInt(InString));
 		return true;
 		
 
@@ -180,7 +190,12 @@ static private function string TMColor(coerce string strInput)
 	return "<font color='#b6b5d4'>" $ strInput $ "</font>"; // light purple
 }
 
-static private function string GetPercentValue(name ConfigName)
+static private function string SKColor(coerce string strInput)
+{
+	return "<font color='#e50000'>" $ strInput $ "</font>"; // deep red
+}
+
+static private function string GetPercentValue(string ConfigName)
 {
 	local int PercentValue;
 

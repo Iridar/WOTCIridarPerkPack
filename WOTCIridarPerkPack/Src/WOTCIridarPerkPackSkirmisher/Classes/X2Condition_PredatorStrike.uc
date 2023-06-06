@@ -1,5 +1,7 @@
 class X2Condition_PredatorStrike extends X2Condition;
 
+var float BelowHealthPercent;
+
 event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGameState_BaseObject kSource) 
 { 
 	local XComGameState_Unit	SourceUnit;
@@ -16,7 +18,7 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 		TargetCurrentHP = TargetUnit.GetCurrentStat(eStat_HP);
 		TargetMaxHP = TargetUnit.GetMaxStat(eStat_HP);
 		ShooterMaxHP = SourceUnit.GetMaxStat(eStat_HP);
-		if (TargetCurrentHP < ShooterMaxHP && TargetCurrentHP / TargetMaxHP <= 0.5f)
+		if (TargetCurrentHP < ShooterMaxHP && TargetCurrentHP / TargetMaxHP < BelowHealthPercent)
 		{
 			return 'AA_Success'; 
 		}
