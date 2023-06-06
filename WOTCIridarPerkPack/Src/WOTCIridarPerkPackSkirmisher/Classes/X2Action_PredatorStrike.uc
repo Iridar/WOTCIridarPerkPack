@@ -3,6 +3,8 @@ class X2Action_PredatorStrike extends X2Action_Fire;
 var private vector FixupOffset;
 var private XComUnitPawn TargetPawn;
 var private vector OriginalTranslation;
+var private float fPlayingTime;
+var private float OriginalOffset;
 
 /*
 FF_PredatorStrikeMissA
@@ -35,6 +37,9 @@ function Init()
 	FixupOffset.Z = GetVerticalOffset() + 3;
 
 	OriginalTranslation = UnitPawn.Mesh.Translation;
+
+	// 0.5 sec into stop animation step off begin
+	// 1.2 sec end
 }
 
 private function float GetVerticalOffset()
@@ -193,6 +198,20 @@ Begin:
 			AnimParams.AnimName = 'FF_PredatorStrikeStop';
 			AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
 			TimeoutSeconds += AnimSequence.GetAnimPlaybackLength();
+
+			// Starting from 0.5 sec, for the next 0.35 seconds
+			// scale down the vertical offset from 100% to 0%, emulating an animated stepdown instead of a jump.
+			if (FixupOffset.Z != 0)
+			{
+				Sleep(0.5f);
+				OriginalOffset = FixupOffset.Z;
+				while(fPlayingTime < 0.35f)
+				{	
+					FixupOffset.Z = OriginalOffset * (1 - fPlayingTime / 0.35f);
+					fPlayingTime += 0.01f;
+					Sleep(0.01f);
+				}
+			}
 			FinishAnim(AnimSequence);
 
 			UnitPawn.Mesh.SetTranslation(OriginalTranslation);

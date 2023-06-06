@@ -38,7 +38,6 @@ static function X2AbilityTemplate Create_Ability()
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
 
-	// TODO: Add SameZ condition
 	// TODO: Add HP condition
 
 	// Target Conditions
