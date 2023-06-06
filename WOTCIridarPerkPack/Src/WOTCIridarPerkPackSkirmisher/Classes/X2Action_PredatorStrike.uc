@@ -32,9 +32,26 @@ function Init()
 	TargetPawn = TargetUnit.GetPawn();
 	FixupOffset.X = 0;
 	FixupOffset.Y = 0;
-	FixupOffset.Z = Unit.Location.Z - TargetUnit.Location.Z + 3;
+	FixupOffset.Z = GetVerticalOffset() + 3;
 
 	OriginalTranslation = UnitPawn.Mesh.Translation;
+}
+
+private function float GetVerticalOffset()
+{
+	local XComGameState_Unit TargetUnitState;
+	local vector locTargetLocation;
+	local vector locShooterLocation;
+	local XComWorldData locWorld;
+	local int HistoryIndex;
+
+	locWorld = `XWORLD;
+	HistoryIndex = self.StateChangeContext.AssociatedState.HistoryIndex;
+	TargetUnitState = TargetUnit.GetVisualizedGameState(HistoryIndex);
+	locTargetLocation = locWorld.GetPositionFromTileCoordinates(TargetUnitState.TileLocation);
+	locShooterLocation = locWorld.GetPositionFromTileCoordinates(SourceUnitState.TileLocation);
+	
+	return locTargetLocation.Z - locShooterLocation.Z;
 }
 
 

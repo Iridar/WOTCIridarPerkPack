@@ -84,6 +84,7 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	local X2Action_PlayAnimation		PlayAnimation;
 	local X2Action_PlaySoundAndFlyOver	SoundAndFlyOver;
 	local X2Action						DeathAction;
+	local TTile							TurnTileLocation;
 
 	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
 	
@@ -94,25 +95,33 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	History = `XCOMHISTORY;
 	VisMgr = `XCOMVISUALIZATIONMGR;
 
+	TargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit == none)
+		return;
+	SourceUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
+	if (SourceUnit == none)
+		return;
+
 	FireAction = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_PredatorStrike',, AbilityContext.InputContext.SourceObject.ObjectID);
 
 	//	Make the shooter rotate towards the target. This doesn't always happen automatically in time.
-	TargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
-
+	
 	ActionMetadata = FireAction.Metadata;
 	MoveTurnAction = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, true, FireAction.ParentActions[0]));
 	MoveTurnAction.m_vFacePoint =  `XWORLD.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
 	MoveTurnAction.UpdateAimTarget = true;
-		
-	SourceUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
 
 	ActionMetadata = EmptyTrack;
 	ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(TargetUnit.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
 	ActionMetadata.StateObject_NewState = TargetUnit;
 	ActionMetadata.VisualizeActor = History.GetVisualizer(TargetUnit.ObjectID);
 		
+	// Make target rotate towards the shooter, but on the same Z as the target, for better animation alignment.
+	TurnTileLocation = SourceUnit.TileLocation;
+	TurnTileLocation.Z = TargetUnit.TileLocation.Z;
+
 	MoveTurnAction = X2Action_MoveTurn(class'X2Action_MoveTurn'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, FireAction.ParentActions[0]));
-	MoveTurnAction.m_vFacePoint =  `XWORLD.GetPositionFromTileCoordinates(SourceUnit.TileLocation);
+	MoveTurnAction.m_vFacePoint =  `XWORLD.GetPositionFromTileCoordinates(TurnTileLocation);
 	MoveTurnAction.UpdateAimTarget = true;
 
 	//	Make the target play its idle animation to prevent it from turning back to their original facing direction right away.
