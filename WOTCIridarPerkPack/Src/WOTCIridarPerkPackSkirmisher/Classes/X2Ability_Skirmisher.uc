@@ -5,7 +5,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	Templates.AddItem(IRI_SK_PredatorStrike());
-	Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
+	//Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
 
 	return Templates;
 }
@@ -166,6 +166,9 @@ static private function XComGameState_Unit FindNearestEnemyInFoW(const TTile Til
 
 		if (!UnitState.IsInPlay())
 			continue;
+		
+		// Placeholder
+		return UnitState;
 	}
 }
 

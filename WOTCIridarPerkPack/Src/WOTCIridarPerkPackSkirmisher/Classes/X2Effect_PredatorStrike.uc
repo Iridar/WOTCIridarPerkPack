@@ -1,5 +1,7 @@
 class X2Effect_PredatorStrike extends X2Effect_ApplyWeaponDamage;
 
+// Effect simplified to just execute the enemy, without visualization, which is handled elsewhere.
+
 simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState, XComGameState_Effect NewEffectState)
 {
 	local int TotalToKill; 
@@ -15,21 +17,44 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 
 	SourceUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 	if (SourceUnit == none)
-		SourceUnit = XComGameState_Unit(History.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
+		SourceUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 
 	// Trigger the event that will activate the Reveal Enemy ability. Do it here to so it triggers only if the ability has hit.
 	`XEVENTMGR.TriggerEvent('IRI_SK_PredatorStrike_Activated', TargetUnit, SourceUnit, NewGameState);
 }
 
+// Visualize only misses and only against units that can't play the skulljack animation.
 simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)
 {
-	// Don't need any vis from this effect.
+	local XGUnit TargetUnit;
+	local XComUnitPawn TargetPawn;
+
+	TargetUnit = XGUnit(ActionMetadata.VisualizeActor);
+	if (TargetUnit == none)
+	{
+		super.AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, EffectApplyResult);
+		return;
+	}
+	TargetPawn = TargetUnit.GetPawn();
+	if (TargetPawn == none)
+	{
+		super.AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, EffectApplyResult);
+		return;
+	}
+	if (!TargetPawn.GetAnimTreeController().CanPlayAnimation('FF_SkulljackedStart') && EffectApplyResult != 'AA_Success')
+	{
+		super.AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, EffectApplyResult);
+	}
+}
+
+// Don't need damage preview for this ability.
+simulated function GetDamagePreview(StateObjectReference TargetRef, XComGameState_Ability AbilityState, bool bAsPrimaryTarget, out WeaponDamageValue MinDamagePreview, out WeaponDamageValue MaxDamagePreview, out int AllowsShield)
+{
 }
 
 defaultproperties
 {
 	bBypassSustainEffects = true
 	bIgnoreBaseDamage = true
-	//bAppliesDamage = true
 	DamageTypes(0) = "Melee"
 }

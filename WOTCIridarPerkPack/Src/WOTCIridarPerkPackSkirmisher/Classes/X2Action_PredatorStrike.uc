@@ -5,6 +5,7 @@ var private XComUnitPawn	TargetPawn;
 var private vector			OriginalTranslation;
 var private float			fPlayingTime;
 var private float			OriginalOffset;
+var private bool			bDoOverride;
 
 /*
 FF_PredatorStrikeMissA
@@ -22,20 +23,25 @@ function Init()
 {
 	super.Init();
 
-	if (bWasHit)
-	{
-		AnimParams.AnimName = 'FF_PredatorStrikeStart';
-	}
-	else
-	{
-		AnimParams.AnimName = 'FF_PredatorStrikeMiss';
-	}
-
-	// Iridar: Calculate stuff needed to match the vertical position of the shooter and target
 	TargetPawn = TargetUnit.GetPawn();
-	FixupOffset.Z = GetVerticalOffset() + 3; // Put shooter slightly higher than the attacker for better ripjack alignment
+	
+	if (TargetPawn.GetAnimTreeController().CanPlayAnimation('FF_SkulljackedStart'))
+	{
+		bDoOverride = true;
 
-	OriginalTranslation = UnitPawn.Mesh.Translation;
+		// Iridar: Calculate stuff needed to match the vertical position of the shooter and target
+		FixupOffset.Z = GetVerticalOffset() + 3; // Put shooter slightly higher than the attacker for better ripjack alignment
+		OriginalTranslation = UnitPawn.Mesh.Translation;
+
+		if (bWasHit)
+		{
+			AnimParams.AnimName = 'FF_PredatorStrikeStart';
+		}
+		else
+		{
+			AnimParams.AnimName = 'FF_PredatorStrikeMiss';
+		}
+	}
 }
 
 private function float GetVerticalOffset()
@@ -80,7 +86,7 @@ simulated state Executing
 		UpdateAim(fDeltaT);
 
 		// Iridar: Apply offset to shooter's pawn mesh. Needs to be done here for some reason.
-		if (bWasHit)
+		if (bDoOverride && bWasHit)
 		{
 			UnitPawn.Mesh.SetTranslation(OriginalTranslation + FixupOffset);
 		}
@@ -187,7 +193,7 @@ Begin:
 		FinishAnim(AnimSequence);
 
 		// if we hit, also play the Stop animation
-		if (bWasHit)
+		if (bDoOverride && bWasHit)
 		{
 			AnimParams.AnimName = 'FF_PredatorStrikeStop';
 			AnimSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
