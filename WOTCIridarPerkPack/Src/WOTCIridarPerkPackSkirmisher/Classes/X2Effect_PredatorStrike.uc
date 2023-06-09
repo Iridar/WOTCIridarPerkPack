@@ -19,8 +19,14 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	if (SourceUnit == none)
 		SourceUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 
+	`AMLOG("Running");
+
 	// Trigger the event that will activate the Reveal Enemy ability. Do it here to so it triggers only if the ability has hit.
-	`XEVENTMGR.TriggerEvent('IRI_SK_PredatorStrike_Activated', TargetUnit, SourceUnit, NewGameState);
+	if (TargetUnit.GetTeam() == eTeam_Alien && TargetUnit.GetMyTemplate().bIsAdvent)
+	{	
+		`AMLOG("Triggering event");
+		`XEVENTMGR.TriggerEvent('IRI_SK_PredatorStrike_Activated', TargetUnit, SourceUnit, NewGameState);
+	}
 }
 
 // Visualize only misses and only against units that can't play the skulljack animation.

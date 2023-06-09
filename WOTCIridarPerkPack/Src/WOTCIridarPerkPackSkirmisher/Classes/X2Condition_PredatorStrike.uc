@@ -8,7 +8,7 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 	local XComGameState_Unit	TargetUnit;
 	local float TargetCurrentHP;
 	local float TargetMaxHP;
-	local float ShooterMaxHP;
+	//local float ShooterMaxHP;
 	
 	SourceUnit = XComGameState_Unit(kSource);
 	TargetUnit = XComGameState_Unit(kTarget);
@@ -17,8 +17,8 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 	{
 		TargetCurrentHP = TargetUnit.GetCurrentStat(eStat_HP);
 		TargetMaxHP = TargetUnit.GetMaxStat(eStat_HP);
-		ShooterMaxHP = SourceUnit.GetMaxStat(eStat_HP);
-		if (TargetCurrentHP < ShooterMaxHP && TargetCurrentHP / TargetMaxHP < BelowHealthPercent)
+		//ShooterMaxHP = SourceUnit.GetMaxStat(eStat_HP);
+		if (/*TargetCurrentHP < ShooterMaxHP && */TargetCurrentHP / TargetMaxHP < BelowHealthPercent)
 		{
 			return 'AA_Success'; 
 		}

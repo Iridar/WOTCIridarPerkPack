@@ -5,12 +5,12 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	Templates.AddItem(IRI_SK_PredatorStrike());
-	//Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
+	Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
 
 	return Templates;
 }
 
-static function X2AbilityTemplate IRI_SK_PredatorStrike()
+static private function X2AbilityTemplate IRI_SK_PredatorStrike()
 {
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
@@ -70,9 +70,11 @@ static function X2AbilityTemplate IRI_SK_PredatorStrike()
 	Template.bOverrideMeleeDeath = false;
 	
 	Template.Hostility = eHostility_Offensive;
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState; // just adds the unconscious status effect
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = PredatorStrike_BuildVisualization;
 	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	Template.AdditionalAbilities.AddItem('IRI_SK_PredatorStrike_RevealNearestEnemy');
 
 	return Template;
 }
@@ -152,23 +154,142 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 	}
 }
 
-static private function XComGameState_Unit FindNearestEnemyInFoW(const TTile TileLocation, const ETeam TargetTeam)
+static private function X2AbilityTemplate IRI_SK_PredatorStrike_RevealNearestEnemy()
+{
+	local X2AbilityTemplate                 Template;
+	local X2Effect_TargetDefinition			Effect;
+	local X2Effect_Flyover					Flyover;
+	local X2AbilityTrigger_EventListener	AbilityTrigger;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_PredatorStrike_RevealNearestEnemy');
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.Shiremct_perk_SkirmisherStrike";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetHidden(Template);
+
+	// Targeting and triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	AbilityTrigger = new class'X2AbilityTrigger_EventListener';
+	AbilityTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	AbilityTrigger.ListenerData.EventID = 'IRI_SK_PredatorStrike_Activated';
+	AbilityTrigger.ListenerData.Filter = eFilter_Unit;
+	AbilityTrigger.ListenerData.EventFn = RevealNearestEnemy_Trigger;
+	Template.AbilityTriggers.AddItem(AbilityTrigger);
+	
+	// Effects
+	Effect = new class'X2Effect_TargetDefinition';
+	Effect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
+	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+	Template.AddTargetEffect(new class'X2Effect_Flyover');
+
+	// TODO: Pan camera
+
+	// State and Viz
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;
+}
+
+static private function EventListenerReturn RevealNearestEnemy_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Ability			AbilityState;
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameState_Unit			SourceUnit;
+	local XComGameState_Unit			TargetUnit;
+
+	`AMLOG("Running");
+
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+	if (AbilityState == none || AbilityContext.IsResultContextMiss())
+		return ELR_NoInterrupt;
+
+	SourceUnit = XComGameState_Unit(EventSource);
+	if (SourceUnit == none)
+		return ELR_NoInterrupt;
+
+	`AMLOG("Looking for enemies");
+
+	TargetUnit = FindNearestAdventUnit(SourceUnit);
+	if (TargetUnit == none)
+		return ELR_NoInterrupt;
+
+	if (AbilityState.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false))
+	{
+		`AMLOG("Revealing enemy:" @ TargetUnit.GetFullName());
+	}
+	else
+	{	
+		`AMLOG("Could not Revealing enemy:" @ TargetUnit.GetFullName());
+	}
+
+	return ELR_NoInterrupt;
+}
+
+// Look for the ADVENT unit on the Alien team closest to the given Unit.
+// Look for those not on red alert first, if none found, fall back to a unit not visible to XCOM.
+static private function XComGameState_Unit FindNearestAdventUnit(const XComGameState_Unit SourceUnit)
 {
 	local XComGameState_Unit	UnitState;
+	local XComGameState_Unit	ClosestUnit;
 	local XComGameStateHistory	History;
+	local int					ShortestTileDistance;
+	local int					TileDistance;
 
 	History = `XCOMHISTORY;
 
+	ShortestTileDistance = const.MaxInt;
+
 	foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 	{
+		`AMLOG("Looking at:" @ UnitState.GetFullName());
+
 		if (UnitState.IsDead())
 			continue;
 
+		`AMLOG("Alive");
+
 		if (!UnitState.IsInPlay())
 			continue;
-		
-		// Placeholder
-		return UnitState;
+
+		`AMLOG("In Play");
+
+		if (UnitState.GetTeam() != eTeam_Alien)
+			continue;
+
+		`AMLOG("On alien team");
+
+		if (!UnitState.GetMyTemplate().bIsAdvent)
+			continue;
+
+		if (class'X2TacticalVisibilityHelpers'.static.CanXComSquadSeeTarget(UnitState.ObjectID))
+			continue;
+
+		TileDistance = SourceUnit.TileDistanceBetween(UnitState);
+
+		`AMLOG("Not visible. Tile Distance:" @ TileDistance);
+
+		if (TileDistance < ShortestTileDistance)
+		{
+			ShortestTileDistance = TileDistance;
+			ClosestUnit = UnitState;
+
+			`AMLOG("This is now closest unit:" @ TileDistance);
+		}
+
+		return ClosestUnit;
 	}
 }
 
