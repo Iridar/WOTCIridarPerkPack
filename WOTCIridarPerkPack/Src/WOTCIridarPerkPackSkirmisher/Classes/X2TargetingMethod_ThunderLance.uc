@@ -120,6 +120,7 @@ function Update(float DeltaTime)
 // Iridar: Fake the path graphics here.
 private function UpdateGrenadePath()
 {
+	// TODO: Use something other than cursor here
 	UpdateGrenadePathTarget(Cursor.GetCursorFeetLocation());
 }
 
@@ -127,7 +128,7 @@ private function UpdateGrenadePathTarget(const vector PathEndLocation)
 {
 	local vector	PathStartLocation;
 	local float		iKeyframes;
-	local float		PathLength;
+//	local float		PathLength;
 	local float		i;
 
 	PathStartLocation = FiringUnit.Location;
@@ -198,3 +199,12 @@ function int GetOptimalZForTile(const vector VectorLocation)
 		}
 	}
 }
+
+/*
+defaultproperties
+{
+	SnapToTile = true;
+	ProjectileTimingStyle="Timing_Grenade"
+	OrdnanceTypeName="Ordnance_Grenade"
+}
+*/

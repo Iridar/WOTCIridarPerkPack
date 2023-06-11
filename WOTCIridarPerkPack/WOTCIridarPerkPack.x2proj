@@ -169,6 +169,12 @@
     <Content Include="Src\WOTCIridarPerkPack2\Classes\AnimNotify_FireOtherWeapon.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack2\Classes\AnimNotify_TriggerHitReaction.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPack2\Classes\X2UnifiedProjectile_ThunderLance.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\BountyHunter.uc">
       <SubType>Content</SubType>
     </Content>
@@ -248,6 +254,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Ability_Skirmisher.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Action_Fire_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Action_PredatorStrike.uc">

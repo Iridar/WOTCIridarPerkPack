@@ -97,6 +97,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.AddShooterEffect(ProximityMineEffect);
 
 	// Viz and State
+	Template.ActionFireClass = class'X2Action_Fire_ThunderLance';
 	Template.CustomFireAnim = 'HL_ThunderLance';
 	Template.ActivationSpeech = 'ThrowGrenade';
 
@@ -108,6 +109,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.ModifyNewContextFn = ThunderLance_ModifyActivatedAbilityContext;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
@@ -116,6 +118,33 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 
 	return Template;
 }
+
+// If targeted tile has any units, smuggle the first one as the primary target of the ability
+// so that the TriggerHitReact notify in the firing animation has a target to work with
+static private function ThunderLance_ModifyActivatedAbilityContext(XComGameStateContext Context)
+{
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComWorldData					World;
+	local TTile							TileLocation;
+	local vector						TargetLocation;
+	local array<StateObjectReference>	TargetsOnTile;
+
+	World = `XWORLD;
+	
+	AbilityContext = XComGameStateContext_Ability(Context);
+
+	TargetLocation = AbilityContext.InputContext.TargetLocations[0];
+
+	World.GetFloorTileForPosition(TargetLocation, TileLocation);
+
+	TargetsOnTile = World.GetUnitsOnTile(TileLocation);
+
+	if (TargetsOnTile.Length > 0)
+	{
+		AbilityContext.InputContext.PrimaryTarget = TargetsOnTile[0];
+	}
+}
+
 
 static private function X2AbilityTemplate IRI_SK_PredatorStrike()
 {
