@@ -3,6 +3,9 @@ class X2UnifiedProjectile_ThunderLance extends X2UnifiedProjectile;
 const ProjectileImpactDelay = 2.0f;
 
 var private float PlayingTimeAfterShouldEnd;
+var private bool  bProcessingImpactDelay;
+var private float totalplaytime;
+var private bool  bDelayProcessed;
 
 state Executing
 {
@@ -22,6 +25,22 @@ state Executing
 		local bool bAllProjectilesDone;
 		local bool bShouldEnd, bShouldUpdate, bProjectileEffectsComplete, bStruckTarget;
 		local float timeDifferenceForRecoil;
+
+		`AMLOG(totalplaytime);
+		totalplaytime += fDeltaT;
+
+		if (!bDelayProcessed && bProcessingImpactDelay)
+		{
+			PlayingTimeAfterShouldEnd += fDeltaT;
+			if (PlayingTimeAfterShouldEnd < ProjectileImpactDelay)
+			{
+				`AMLOG(`ShowVar(PlayingTimeAfterShouldEnd));
+				return;
+			}
+			bProcessingImpactDelay = false;
+			bDelayProcessed = true;
+			`AMLOG("=== FINISHED PROCESSING DELAY ===");
+		}
 
 		bAllProjectilesDone = true; //Set to false if any projectiles are 1. still to be created 2. being created 3. still in flight w. effects
 
@@ -56,13 +75,11 @@ state Executing
 				bShouldEnd = (WorldInfo.TimeSeconds > Projectiles[Index].EndTime) && !Projectiles[Index].bWaitingToDie;
 				bShouldEnd = bShouldEnd || bStruckTarget;
 
-				if (bShouldEnd)
+				if (!bDelayProcessed && bShouldEnd)
 				{
-					PlayingTimeAfterShouldEnd += fDeltaT;
-					if (PlayingTimeAfterShouldEnd < ProjectileImpactDelay)
-					{
-						bShouldEnd = false;
-					}
+					`AMLOG("=== BEGIN PROCESSING DELAY ===");
+					bProcessingImpactDelay = true;
+					return;
 				}
 
 				bShouldUpdate = Projectiles[Index].ProjectileElement.bAttachToSource || Projectiles[Index].ProjectileElement.bAttachToTarget ||

@@ -208,3 +208,9 @@ defaultproperties
 	OrdnanceTypeName="Ordnance_Grenade"
 }
 */
+defaultproperties
+{
+	//SnapToTile = true;
+	ProjectileTimingStyle=""
+	OrdnanceTypeName=""
+}
