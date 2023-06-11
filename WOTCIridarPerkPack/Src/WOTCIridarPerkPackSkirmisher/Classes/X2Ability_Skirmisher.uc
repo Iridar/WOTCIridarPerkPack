@@ -157,8 +157,7 @@ static private function PredatorStrike_BuildVisualization(XComGameState Visualiz
 static private function X2AbilityTemplate IRI_SK_PredatorStrike_RevealNearestEnemy()
 {
 	local X2AbilityTemplate                 Template;
-	local X2Effect_TargetDefinition			Effect;
-	local X2Effect_Flyover					Flyover;
+	local X2Effect_PredatorStrikeReveal		Effect;
 	local X2AbilityTrigger_EventListener	AbilityTrigger;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_PredatorStrike_RevealNearestEnemy');
@@ -180,18 +179,16 @@ static private function X2AbilityTemplate IRI_SK_PredatorStrike_RevealNearestEne
 	Template.AbilityTriggers.AddItem(AbilityTrigger);
 	
 	// Effects
-	Effect = new class'X2Effect_TargetDefinition';
+	Effect = new class'X2Effect_PredatorStrikeReveal';
 	Effect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
 	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
-	Template.AddTargetEffect(new class'X2Effect_Flyover');
-
-	// TODO: Pan camera
 
 	// State and Viz
 	Template.bShowActivation = false;
 	Template.bSkipFireAction = true;
 	Template.Hostility = eHostility_Neutral;
+	//Template.AssociatedPlayTiming = SPT_AfterSequential;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.bFrameEvenWhenUnitIsHidden = true;
