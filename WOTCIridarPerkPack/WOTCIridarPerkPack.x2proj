@@ -265,10 +265,10 @@
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_PredatorStrikeReveal.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2GrapplePuck_ThunderLance.uc">
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2TargetingMethod_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2TargetingMethod_ThunderLance.uc">
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\XComPrecomputedPath_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSpecialist\Classes\X2Ability_Specialist.uc">

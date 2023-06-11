@@ -1,6 +1,7 @@
 class X2TargetingMethod_ThunderLance extends X2TargetingMethod_RocketLauncher;
 
 var private XGWeapon WeaponVisualizer;
+var private XComPrecomputedPath_ThunderLance CustomPath;
 
 function Init(AvailableAction InAction, int NewTargetIndex)
 {
@@ -28,12 +29,16 @@ function Init(AvailableAction InAction, int NewTargetIndex)
 
 	XComWeapon(WeaponVisualizer.m_kEntity).bPreviewAim = true;
 
-	GrenadePath = `PRECOMPUTEDPATH;	
+	// Updating grenade path in Update() is not often enough, 
+	// so have to do it in an Actor, which can do it every Tick()
+	CustomPath = `BATTLE.spawn(class'XComPrecomputedPath_ThunderLance');
+	CustomPath.UpdateGrenadePathFn = UpdateGrenadePath;
+
 	PathData.InitialPathTime = 0.1f;
 	PathData.MaxPathTime = 0.1f;
 	PathData.MaxNumberOfBounces = 0;
-	GrenadePath.ActivatePath(WeaponVisualizer.GetEntity(), FiringUnit.GetTeam(), PathData);
-	//GrenadePath.m_bBlasterBomb = true;
+	CustomPath.ActivatePath(WeaponVisualizer.GetEntity(), FiringUnit.GetTeam(), PathData);
+	//CustomPath.m_bBlasterBomb = true;
 }
 
 function Update(float DeltaTime)
@@ -109,10 +114,13 @@ function Update(float DeltaTime)
 	}
 
 	// This updates CachedTargetLocation
-	super.UpdateTargetLocation(DeltaTime);
+	super.UpdateTargetLocation(DeltaTime);	
+}
 
-	// Iridar: Fake the path graphics here.
-	UpdateGrenadePathTarget(CachedTargetLocation);
+// Iridar: Fake the path graphics here.
+private function UpdateGrenadePath()
+{
+	UpdateGrenadePathTarget(Cursor.GetCursorFeetLocation());
 }
 
 private function UpdateGrenadePathTarget(const vector PathEndLocation)
@@ -125,21 +133,21 @@ private function UpdateGrenadePathTarget(const vector PathEndLocation)
 	PathStartLocation = FiringUnit.Location;
 	//PathStartLocation.Z += class'XComWorldData'.const.WORLD_FloorHeight;
 
-	iKeyframes = GrenadePath.iNumKeyframes;
+	iKeyframes = CustomPath.iNumKeyframes;
 
-	GrenadePath.bUseOverrideSourceLocation = true;
-	GrenadePath.OverrideSourceLocation = PathStartLocation;
+	CustomPath.bUseOverrideSourceLocation = true;
+	CustomPath.OverrideSourceLocation = PathStartLocation;
 
-	GrenadePath.bUseOverrideTargetLocation = true;
-	GrenadePath.OverrideTargetLocation = PathEndLocation;
+	CustomPath.bUseOverrideTargetLocation = true;
+	CustomPath.OverrideTargetLocation = PathEndLocation;
 
 	for (i = 1; i < iKeyframes; i = i + 1)
 	{
-		GrenadePath.akKeyframes[i].vLoc = PathStartLocation + (PathEndLocation - PathStartLocation) * i / iKeyframes;
+		CustomPath.akKeyframes[i].vLoc = PathStartLocation + (PathEndLocation - PathStartLocation) * i / iKeyframes;
 	}
 
-	PathLength = GrenadePath.akKeyframes[GrenadePath.iNumKeyframes - 1].fTime - GrenadePath.akKeyframes[0].fTime;
-	GrenadePath.kRenderablePath.UpdatePathRenderData(GrenadePath.kSplineInfo, PathLength, none, `CAMERASTACK.GetCameraLocationAndOrientation().Location);
+	//PathLength = GrenadePath.akKeyframes[GrenadePath.iNumKeyframes - 1].fTime - GrenadePath.akKeyframes[0].fTime;
+	//GrenadePath.kRenderablePath.UpdatePathRenderData(GrenadePath.kSplineInfo, PathLength, none, `CAMERASTACK.GetCameraLocationAndOrientation().Location);
 }
 
 
@@ -151,9 +159,11 @@ function Canceled()
 	// unlock the 3d cursor
 	Cursor.m_fMaxChainedDistance = -1;
 
-	GrenadePath.ClearPathGraphics();
+	CustomPath.ClearPathGraphics();
 	//GrenadePath.m_bBlasterBomb = false;
 	XComWeapon(WeaponVisualizer.m_kEntity).bPreviewAim = false;
+
+	CustomPath.Destroy();
 }
 
 // Easier targeting
@@ -187,10 +197,4 @@ function int GetOptimalZForTile(const vector VectorLocation)
 			return World.GetFloorZForPosition(VectorLocation);
 		}
 	}
-}
-
-defaultproperties
-{
-	ProjectileTimingStyle="Timing_BlasterLauncher"
-	OrdnanceTypeName="Ordnance_BlasterLauncher"
 }
