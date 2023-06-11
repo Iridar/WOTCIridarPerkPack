@@ -7,7 +7,114 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_SK_PredatorStrike());
 	Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
 
+	Templates.AddItem(IRI_SK_ThunderLance());
+
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_SK_ThunderLance()
+{
+	local X2AbilityTemplate                 Template;
+	local X2AbilityCost_Ammo                AmmoCost;
+	local X2AbilityCost_ActionPoints        ActionPointCost;
+	local X2AbilityToHitCalc_StandardAim    StandardAim;
+	local X2AbilityTarget_Cursor            CursorTarget;
+	local X2AbilityMultiTarget_Radius       RadiusMultiTarget;
+	local X2Condition_UnitProperty          UnitPropertyCondition;
+	local X2Condition_AbilitySourceWeapon   GrenadeCondition, ProximityMineCondition;
+	local X2Effect_ProximityMine            ProximityMineEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_ThunderLance');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
+	Template.HideErrors.AddItem('AA_CannotAfford_AmmoCost');
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_grenade_launcher";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_GRENADE_PRIORITY;
+	Template.bUseAmmoAsChargesForHUD = true;
+	Template.bDisplayInUITooltip = false;
+	Template.bDisplayInUITacticalText = false;
+	
+	// Targeting and Triggering
+	Template.TargetingMethod = class'X2TargetingMethod_Grenade';
+
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bIndirectFire = true;
+	StandardAim.bAllowCrit = false;
+	Template.AbilityToHitCalc = StandardAim;
+
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	
+	CursorTarget = new class'X2AbilityTarget_Cursor';
+	//CursorTarget.bRestrictToWeaponRange = true;
+	//CursorTarget.IncreaseWeaponRange = 4;
+	Template.AbilityTargetStyle = CursorTarget;
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.bUseWeaponRadius = true;
+	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = true;
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	// Costs
+	AmmoCost = new class'X2AbilityCost_Ammo';	
+	AmmoCost.iAmmo = 1;
+	AmmoCost.UseLoadedAmmo = true;
+	Template.AbilityCosts.AddItem(AmmoCost);
+	
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bConsumeAllPoints = true;
+	ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('Salvo');
+	ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('TotalCombat');
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Shooder Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = false;
+	UnitPropertyCondition.ExcludeFriendlyToSource = false;
+	UnitPropertyCondition.ExcludeHostileToSource = false;
+	Template.AbilityMultiTargetConditions.AddItem(UnitPropertyCondition);
+
+	GrenadeCondition = new class'X2Condition_AbilitySourceWeapon';
+	GrenadeCondition.CheckGrenadeFriendlyFire = true;
+	Template.AbilityMultiTargetConditions.AddItem(GrenadeCondition);
+
+	// Effects
+	Template.bRecordValidTiles = true;
+	Template.bUseLaunchedGrenadeEffects = true;
+	Template.bHideAmmoWeaponDuringFire = true; // hide the grenade
+
+	ProximityMineEffect = new class'X2Effect_ProximityMine';
+	ProximityMineEffect.BuildPersistentEffect(1, true, false, false);
+	ProximityMineCondition = new class'X2Condition_AbilitySourceWeapon';
+	ProximityMineCondition.MatchGrenadeType = 'ProximityMine';
+	ProximityMineEffect.TargetConditions.AddItem(ProximityMineCondition);
+	Template.AddShooterEffect(ProximityMineEffect);
+
+	// Viz and State
+	Template.CustomFireAnim = 'HL_ThunderLance';
+	Template.ActivationSpeech = 'ThrowGrenade';
+
+	Template.DamagePreviewFn = class'X2Ability_Grenades'.static.GrenadeDamagePreview;
+
+	//Template.CinescriptCameraType = "Grenadier_GrenadeLauncher";
+
+	Template.Hostility = eHostility_Offensive;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.GrenadeLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;
 }
 
 static private function X2AbilityTemplate IRI_SK_PredatorStrike()

@@ -114,6 +114,9 @@
     <Content Include="ContentForCook\Skirmisher\IRISkirmisher.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Skirmisher\IRIThunderLancePerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRISoulShot.upk">
       <SubType>Content</SubType>
     </Content>
