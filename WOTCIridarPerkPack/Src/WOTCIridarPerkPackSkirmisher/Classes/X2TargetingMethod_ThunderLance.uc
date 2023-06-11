@@ -38,9 +38,9 @@ function Init(AvailableAction InAction, int NewTargetIndex)
 	PathData.MaxPathTime = 0.1f;
 	PathData.MaxNumberOfBounces = 0;
 	CustomPath.ActivatePath(WeaponVisualizer.GetEntity(), FiringUnit.GetTeam(), PathData);
-	//CustomPath.m_bBlasterBomb = true;
 }
 
+// Improved Rocket Targeting baked in.
 function Update(float DeltaTime)
 {
 	local XComWorldData World;
@@ -113,26 +113,22 @@ function Update(float DeltaTime)
 		DrawAOETiles(Tiles);
 	}
 
-	// This updates CachedTargetLocation
 	super.UpdateTargetLocation(DeltaTime);	
 }
 
 // Iridar: Fake the path graphics here.
 private function UpdateGrenadePath()
 {
-	// TODO: Use something other than cursor here
-	UpdateGrenadePathTarget(Cursor.GetCursorFeetLocation());
+	UpdateGrenadePathTarget(NewTargetLocation);
 }
 
 private function UpdateGrenadePathTarget(const vector PathEndLocation)
 {
 	local vector	PathStartLocation;
 	local float		iKeyframes;
-//	local float		PathLength;
 	local float		i;
 
 	PathStartLocation = FiringUnit.Location;
-	//PathStartLocation.Z += class'XComWorldData'.const.WORLD_FloorHeight;
 
 	iKeyframes = CustomPath.iNumKeyframes;
 
@@ -146,9 +142,6 @@ private function UpdateGrenadePathTarget(const vector PathEndLocation)
 	{
 		CustomPath.akKeyframes[i].vLoc = PathStartLocation + (PathEndLocation - PathStartLocation) * i / iKeyframes;
 	}
-
-	//PathLength = GrenadePath.akKeyframes[GrenadePath.iNumKeyframes - 1].fTime - GrenadePath.akKeyframes[0].fTime;
-	//GrenadePath.kRenderablePath.UpdatePathRenderData(GrenadePath.kSplineInfo, PathLength, none, `CAMERASTACK.GetCameraLocationAndOrientation().Location);
 }
 
 
@@ -161,7 +154,6 @@ function Canceled()
 	Cursor.m_fMaxChainedDistance = -1;
 
 	CustomPath.ClearPathGraphics();
-	//GrenadePath.m_bBlasterBomb = false;
 	XComWeapon(WeaponVisualizer.m_kEntity).bPreviewAim = false;
 
 	CustomPath.Destroy();
@@ -200,14 +192,6 @@ function int GetOptimalZForTile(const vector VectorLocation)
 	}
 }
 
-/*
-defaultproperties
-{
-	SnapToTile = true;
-	ProjectileTimingStyle="Timing_Grenade"
-	OrdnanceTypeName="Ordnance_Grenade"
-}
-*/
 defaultproperties
 {
 	//SnapToTile = true;

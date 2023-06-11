@@ -11,7 +11,9 @@ FireProjectileInstance Running 0
 var private int		LocIndex;
 var private float	LocfDeltaT;
 var private bool	LocbShowImpactEffects;
-var private bool bLogged;
+//var private bool bLogged;
+
+const ImpactDelay = 2.0f; // # Impact Delay # 
 
 function DoMainImpact(int Index, float fDeltaT, bool bShowImpactEffects) // Not this one.
 {
@@ -21,7 +23,7 @@ function DoMainImpact(int Index, float fDeltaT, bool bShowImpactEffects) // Not 
 
 	//`AMLOG("RUNNING:" @ LocIndex @ LocfDeltaT @ LocbShowImpactEffects);
 
-	SetTimer(2.0f, false, nameof(DoMainImpactDelayed));
+	SetTimer(ImpactDelay, false, nameof(DoMainImpactDelayed)); // # Impact Delay # 
 }
 private function DoMainImpactDelayed()
 {
@@ -30,6 +32,7 @@ private function DoMainImpactDelayed()
 	super.DoMainImpact(LocIndex, LocfDeltaT, LocbShowImpactEffects);
 }
 
+/*
 function SetupVolley()
 {
 	`AMLOG("Running");
@@ -218,7 +221,7 @@ state Executing
 	}
 
 Begin:
-}
+}*/
 /*
 const ProjectileImpactDelay = 2.0f;
 

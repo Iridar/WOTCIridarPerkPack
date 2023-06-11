@@ -53,7 +53,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 
 	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
 	RadiusMultiTarget.bUseWeaponRadius = true;
-	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = true;
+	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = true; // TODO: This flag causes grenade explosion to not play sometimes?
 	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
 
 	// Costs

@@ -1,6 +1,14 @@
 class XComPrecomputedPath_ThunderLance extends XComPrecomputedPath;
 
-//var bool bOverrideEndTime;
+// This custom path has two functions.
+
+// 1. For the Targeting Method, it uses the UpdateGrenadePathFn delegate
+// to allow the targeting method to alter the trajectory of the path
+// every time it ticks, which is more often than targeting method's Update().
+
+// 2. For the Fire Action, it overrides the MoveAlongPath() function,
+// which basically makes the projectile teleport to the end location instantly,
+// and then wait for the amount of time specified in the Fire Action.
 
 var delegate<UpdateGrenadePath> UpdateGrenadePathFn;
 delegate UpdateGrenadePath();
@@ -35,32 +43,11 @@ simulated event Tick(float DeltaTime)
 		bSplineDirty = FALSE;
 	}
 }
-/*
-simulated function float GetEndTime()
-{
-	if (bOverrideEndTime)
-	{
-		return 2.0f;
-	}
-	return super.GetEndTime();
-}*/
+
 simulated function bool MoveAlongPath(float fTime, Actor pActor)
 {
-	local XKeyframe KF;
-
-	KF = ExtractInterpolatedKeyframe(fTime);
-
-	`AMLOG(fTime);
-
 	pActor.SetLocation(akKeyframes[iNumKeyframes-1].vLoc);
 	pActor.SetRotation(akKeyframes[iNumKeyframes-1].rRot);
 
-	if (fTime >= akKeyframes[iNumKeyframes-1].fTime)
-	{
-		return true;
-	}
-	else 
-	{
-		return false;
-	}
+	return fTime >= akKeyframes[iNumKeyframes-1].fTime;
 }
