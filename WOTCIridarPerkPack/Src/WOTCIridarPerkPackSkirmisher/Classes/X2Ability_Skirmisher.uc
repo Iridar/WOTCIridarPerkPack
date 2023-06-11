@@ -37,7 +37,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.bDisplayInUITacticalText = false;
 	
 	// Targeting and Triggering
-	Template.TargetingMethod = class'X2TargetingMethod_Grenade';
+	Template.TargetingMethod = class'X2TargetingMethod_ThunderLance';
 
 	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
 	StandardAim.bIndirectFire = true;
