@@ -16,6 +16,7 @@ event Notify(Actor Owner, AnimNodeSequence AnimSeqInstigator)
 	local XComGameStateVisualizationMgr VisualizationManager;
 	local CustomAnimParams AnimParams;
 	local XGUnit TargetUnit;
+	local XComGameState_Unit TargetUnitState;
 	local array<name> RandomSequences;
 
 	RandomSequences.AddItem('HL_HurtFront');
@@ -33,46 +34,52 @@ event Notify(Actor Owner, AnimNodeSequence AnimSeqInstigator)
 			FireAction = X2Action_Fire(VisualizationManager.GetCurrentActionForVisualizer(OwnerUnit));
 			if (FireAction != none)
 			{
-				TargetUnit = XGUnit(`XCOMHISTORY.GetGameStateForObjectID(FireAction.PrimaryTargetID).GetVisualizer());
-				TargetPawn = TargetUnit.GetPawn();
-				//`LOG("AnimNotify_TriggerHitReaction Target" @ TargetUnit @ TargetPawn @ FireAction, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
-				if (TargetPawn != none)
+				TargetUnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(FireAction.PrimaryTargetID));
+				if (TargetUnitState != none)
 				{
+					TargetUnit = XGUnit(TargetUnitState.GetVisualizer());
+					if (TargetUnit != none)
+					{
+						TargetPawn = TargetUnit.GetPawn();
+						//`LOG("AnimNotify_TriggerHitReaction Target" @ TargetUnit @ TargetPawn @ FireAction, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
+						if (TargetPawn != none)
+						{
+							if (RandomReactionAnimSequence)
+							{
+								AnimParams.AnimName = RandomSequences[`SYNC_RAND_STATIC(3)];
+							}
+							else
+							{
+								AnimParams.AnimName = ReactionAnimSequence;
+							}
+
+							//if (!TargetPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
+							//{
+							//	AnimParams.AnimName = default.ReactionAnimSequence;
+							//}
+
+							//TargetPawn.GetAnimTreeController().SetAllowNewAnimations(true);
+							if (TargetPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
+							{
+								TargetPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
+							}
+							if (BloodAmount > 0)
+							{
+								TargetPawn.PlayHitEffects(
+									BloodAmount,
+									OwnerUnit,
+									TargetPawn.GetHeadshotLocation(),
+									DamageTypeName,
+									Normal(TargetPawn.GetHeadshotLocation()) * 500.0f,
+									false,
+									HitResult
+								);
+							}
+
+							//`LOG("AnimNotify_TriggerHitReaction triggered" @ AnimParams.AnimName @ DamageTypeName @ HitResult @ BloodAmount, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 					
-					if (RandomReactionAnimSequence)
-					{
-						AnimParams.AnimName = RandomSequences[`SYNC_RAND_STATIC(3)];
+						}
 					}
-					else
-					{
-						AnimParams.AnimName = ReactionAnimSequence;
-					}
-
-					//if (!TargetPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
-					//{
-					//	AnimParams.AnimName = default.ReactionAnimSequence;
-					//}
-
-					//TargetPawn.GetAnimTreeController().SetAllowNewAnimations(true);
-					if (TargetPawn.GetAnimTreeController().CanPlayAnimation(AnimParams.AnimName))
-					{
-						TargetPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
-					}
-					if (BloodAmount > 0)
-					{
-						TargetPawn.PlayHitEffects(
-							BloodAmount,
-							OwnerUnit,
-							TargetPawn.GetHeadshotLocation(),
-							DamageTypeName,
-							Normal(TargetPawn.GetHeadshotLocation()) * 500.0f,
-							false,
-							HitResult
-						);
-					}
-
-					//`LOG("AnimNotify_TriggerHitReaction triggered" @ AnimParams.AnimName @ DamageTypeName @ HitResult @ BloodAmount, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
-					
 				}
 			}
 		}

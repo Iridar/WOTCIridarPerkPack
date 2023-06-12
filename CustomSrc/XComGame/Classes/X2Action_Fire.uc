@@ -21,8 +21,8 @@ var public array<Vector>			allHitLocations;
 var public Vector					ProjectileHitLocation;
 var protected Vector				AimAtLocation;
 var protected XComGameStateHistory  History;
-var privatewrite int                PrimaryTargetID;
-var privatewrite bool               bNotifyMultiTargetsAtOnce;
+var protectedwrite int                PrimaryTargetID;
+var protectedwrite bool               bNotifyMultiTargetsAtOnce;
 var /* private */ AnimNodeSequence		AnimSequence;
 
 var /* private */ XComPresentationLayer	PresentationLayer;
