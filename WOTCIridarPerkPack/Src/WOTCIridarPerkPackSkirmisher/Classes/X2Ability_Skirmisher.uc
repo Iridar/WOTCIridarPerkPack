@@ -52,8 +52,8 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.AbilityTargetStyle = CursorTarget;
 
 	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
-	RadiusMultiTarget.bUseWeaponRadius = true;
-	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = true; // TODO: This flag causes grenade explosion to not play sometimes?
+	RadiusMultiTarget.bUseWeaponRadius = true;  
+	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = true;
 	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
 
 	// Costs
@@ -87,7 +87,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	// Effects
 	Template.bRecordValidTiles = true;
 	Template.bUseLaunchedGrenadeEffects = true;
-	Template.bHideAmmoWeaponDuringFire = true; // hide the grenade
+	Template.bHideAmmoWeaponDuringFire = false; // TODO: This flag causes grenade explosion to not play sometimes?
 
 	ProximityMineEffect = new class'X2Effect_ProximityMine';
 	ProximityMineEffect.BuildPersistentEffect(1, true, false, false);
