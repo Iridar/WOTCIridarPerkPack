@@ -16,7 +16,7 @@ var protected bool					bUseAnimToSetNotifyTimer;
 var protected X2VisualizerInterface	PrimaryTarget;
 var protected bool					bPrimaryTargetIsPlayerControlled;
 var protected XGUnit				TargetUnit;
-var protected Vector                TargetLocation;
+var protectedwrite Vector                TargetLocation;
 var public array<Vector>			allHitLocations;
 var public Vector					ProjectileHitLocation;
 var protected Vector				AimAtLocation;

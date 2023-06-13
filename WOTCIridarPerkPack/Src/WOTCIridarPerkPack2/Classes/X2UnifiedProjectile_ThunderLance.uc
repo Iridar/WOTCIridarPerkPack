@@ -30,6 +30,7 @@ private function DoMainImpactDelayed()
 	//`AMLOG("PLAY IMPACT:" @ LocIndex @ LocfDeltaT @ LocbShowImpactEffects);
 
 	super.DoMainImpact(LocIndex, LocfDeltaT, LocbShowImpactEffects);
+	`XEVENTMGR.TriggerEvent('IRI_ThunderLanceImpactEvent');
 }
 
 /*

@@ -4,7 +4,7 @@ class X2Action_Fire_ThunderLance extends X2Action_Fire;
 //var private Vector locHitLocation;
 //var private bool bProcessingDelay;
 
-var private XComPrecomputedPath_ThunderLance CustomPath;
+var privatewrite XComPrecomputedPath_ThunderLance CustomPath;
 
 const ImpactDelay = 2.0f; // # Impact Delay # 
 
@@ -92,7 +92,6 @@ function CompleteAction()
 
 function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 {	
-	local Object EventObj;
 	local int i;
 
 	if (NewProjectile != none)
@@ -101,8 +100,8 @@ function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 		`AMLOG("Adding new volley:" @ NewProjectile.Class.Name @ "with this many projectile elements:" @ NewProjectile.Projectiles.Length);
 		
 
-		//if (X2UnifiedProjectile_ThunderLance(NewProjectile) == none)
-		//{
+		if (X2UnifiedProjectile_ThunderLance(NewProjectile) == none)
+		{
 			//NewProjectile.AbilityContextTargetLocation = TargetLocation;
 
 			for (i = 0; i < NewProjectile.Projectiles.Length; i++)
@@ -112,54 +111,18 @@ function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 
 				`AMLOG("Projectile element exists:" @ NewProjectile.Projectiles[i].ProjectileElement != none);
 
-				EventObj = self;
-				`XEVENTMGR.RegisterForEvent(EventObj, 'OnProjectileFireSound', OnProjectileFired, ELD_Immediate,, NewProjectile.Projectiles[i].ProjectileElement,, NewProjectile.Projectiles[i].ProjectileElement);
 				
+				class'X2ThunderLanceEventHolder'.static.RegisterProjectile(self, NewProjectile.Projectiles[i].ProjectileElement);
 			}
-		//}
+		}
 	}
 	super.AddProjectileVolley(NewProjectile);
 }
 
-private function EventListenerReturn OnProjectileFired(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
-{	
-	local X2UnifiedProjectile		 Projectile;
-	local X2UnifiedProjectileElement ProjectileElement;
-	local int i;
-
-	ProjectileElement = X2UnifiedProjectileElement(CallbackData);
-	if (ProjectileElement == none)
-		return ELR_NoInterrupt;
-
-	`AMLOG("Running for projectile:" @ PathName(ProjectileElement));
 
 
-	foreach ProjectileVolleys(Projectile)
-	{
-		for (i = 0; i < Projectile.Projectiles.Length; i++)
-		{
-			if (Projectile.Projectiles[i].ProjectileElement != ProjectileElement)
-				continue;
 
-			`AMLOG("Found projectile element."); 
-
-			UpdateGrenadePath();
-
-			Projectile.Projectiles[i].EndTime = Projectile.Projectiles[i].StartTime + ImpactDelay; // So that the explosion is delayed by the exact amount
-			Projectile.Projectiles[i].GrenadePath = CustomPath; // So that X2UnifiedProjectile::StructTarget() always returns false
-			Projectile.Projectiles[i].InitialTargetLocation = TargetLocation; // So that grenade explosion visually happens on the target
-			//Projectile.Projectiles[i].InitialTargetDistance = VSize(TargetLocation - Projectile.Projectiles[i].InitialSourceLocation);
-			//Projectile.Projectiles[i].InitialTravelDirection = TargetLocation - Projectile.Projectiles[i].InitialSourceLocation;
-			//Projectile.Projectiles[i].InitialTargetNormal = -Projectile.Projectiles[i].InitialTravelDirection;
-
-		}
-	}
-
-	return ELR_NoInterrupt;
-}
-
-
-private function UpdateGrenadePath()
+final function UpdateGrenadePath()
 {
 	local float		iKeyframes;
 	local vector	PathEndLocation;
