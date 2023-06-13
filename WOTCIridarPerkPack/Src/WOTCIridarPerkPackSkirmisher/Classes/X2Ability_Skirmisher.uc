@@ -110,7 +110,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
-	//Template.ModifyNewContextFn = ThunderLance_ModifyActivatedAbilityContext;
+	Template.ModifyNewContextFn = ThunderLance_ModifyActivatedAbilityContext;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;

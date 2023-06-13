@@ -191,13 +191,13 @@ function int GetOptimalZForTile(const vector VectorLocation)
 		}
 	}
 }
-
+/*
 function GetProjectileTouchEvents(StateObjectReference PrimaryTarget, const array<Vector> TargetLocations, out array<ProjectileTouchEvent> TouchEvents, out vector TouchStart, out vector TouchEnd)
 {
 	TouchEvents = CustomPath.TouchEvents;
 	TouchStart = CustomPath.akKeyframes[0].vLoc;
 	TouchEnd = CustomPath.GetEndPosition( );
-}
+}*/
 
 defaultproperties
 {

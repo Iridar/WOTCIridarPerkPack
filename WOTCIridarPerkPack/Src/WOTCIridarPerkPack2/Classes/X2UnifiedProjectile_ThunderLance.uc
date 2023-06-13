@@ -15,7 +15,7 @@ var private bool	LocbShowImpactEffects;
 
 const ImpactDelay = 2.0f; // # Impact Delay # 
 
-function DoMainImpact(int Index, float fDeltaT, bool bShowImpactEffects) // Not this one.
+function DoMainImpact(int Index, float fDeltaT, bool bShowImpactEffects)
 {
 	LocIndex = Index;
 	LocfDeltaT = fDeltaT;

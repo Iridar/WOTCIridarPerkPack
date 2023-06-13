@@ -1,55 +1,41 @@
 class X2Action_Fire_ThunderLance extends X2Action_Fire;
 
-var private bool locbMainImpactNotify;
-var private Vector locHitLocation;
-var private bool bProcessingDelay;
+//var private bool locbMainImpactNotify;
+//var private Vector locHitLocation;
+//var private bool bProcessingDelay;
 
 var private XComPrecomputedPath_ThunderLance CustomPath;
 
-const ImpactDelay = 1.95f; // # Impact Delay # 
+const ImpactDelay = 2.0f; // # Impact Delay # 
 
 function Init()
 {
-	local XComGameState_Ability AbilityState;	
-	local XGUnit FiringUnit;
-	local XComGameState_Item WeaponItem;
-//	local X2WeaponTemplate WeaponTemplate;
-	local XComWeapon Entity, WeaponEntity;
-	local XComGameState_Item Item;
-	local XGWeapon AmmoWeapon;
+	//local XComGameState_Ability AbilityState;	
+	//local XGUnit FiringUnit;
+	//local XComGameState_Item WeaponItem;
+//	//local X2WeaponTemplate WeaponTemplate;
+	////local XComWeapon Entity, WeaponEntity;
+	//local XComGameState_Item Item;
+	//local XGWeapon AmmoWeapon;
 
 	super.Init();
 
-	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
-	FiringUnit = XGUnit(History.GetVisualizer(AbilityState.OwnerStateObject.ObjectID));
+	//AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
+	//FiringUnit = XGUnit(History.GetVisualizer(AbilityState.OwnerStateObject.ObjectID));
 		
-	WeaponItem = AbilityState.GetSourceWeapon();
-	if (WeaponItem != none)
-	{
-		WeaponVisualizer = XGWeapon(WeaponItem.GetVisualizer());
-		WeaponEntity = WeaponVisualizer.GetEntity();
-	}
-	else if (FiringUnit.CurrentPerkAction != none)
-	{
-		WeaponEntity = FiringUnit.CurrentPerkAction.GetPerkWeapon();
-	}
+	//WeaponItem = AbilityState.GetSourceWeapon();
+	//if (WeaponItem != none)
+	//{
+	//	WeaponVisualizer = XGWeapon(WeaponItem.GetVisualizer());
+	//	WeaponEntity = WeaponVisualizer.GetEntity();
+	//}
+	//if (FiringUnit.CurrentPerkAction != none)
+	//{
+	//	WeaponEntity = FiringUnit.CurrentPerkAction.GetPerkWeapon();
+	//}
 
-	// grenade tosses hide the weapon
-	if( AbilityTemplate.bHideWeaponDuringFire)
-	{
-		WeaponEntity.Mesh.SetHidden( false );						// unhide the grenade that was hidden after the last one fired
-	}
-	else if( AbilityTemplate.bHideAmmoWeaponDuringFire)
-	{
-		Item = XComGameState_Item( History.GetGameStateForObjectID( AbilityState.SourceAmmo.ObjectID ) );
-		AmmoWeapon = XGWeapon( Item.GetVisualizer( ) );
-		Entity = XComWeapon( AmmoWeapon.m_kEntity );
-		Entity.Mesh.SetHidden( true );
-	}
-
-	
 	UpdatePrimaryTargetLocation();
-	bUseKillAnim = false;
+	//bUseKillAnim = false;
 	InitCustomPath();
 }
 
@@ -96,16 +82,17 @@ private function InitCustomPath()
 	CustomPath.SetHidden(true);
 }
 
-
+/*
 function CompleteAction()
 {
-	CustomPath.Destroy();
+	//CustomPath.Destroy();
 
 	super.CompleteAction();
-}
+}*/
 
 function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 {	
+	local Object EventObj;
 	local int i;
 
 	if (NewProjectile != none)
@@ -114,24 +101,63 @@ function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 		`AMLOG("Adding new volley:" @ NewProjectile.Class.Name @ "with this many projectile elements:" @ NewProjectile.Projectiles.Length);
 		
 
-		if (X2UnifiedProjectile_ThunderLance(NewProjectile) == none)
-		{
-			UpdateGrenadePath();
-			NewProjectile.AbilityContextTargetLocation = TargetLocation;
-			//NewProjectile.OrdnanceType = 'ThunderLance';
+		//if (X2UnifiedProjectile_ThunderLance(NewProjectile) == none)
+		//{
+			//NewProjectile.AbilityContextTargetLocation = TargetLocation;
 
 			for (i = 0; i < NewProjectile.Projectiles.Length; i++)
 			{
 				
-				NewProjectile.Projectiles[i].GrenadePath = CustomPath;
+				//NewProjectile.Projectiles[i].GrenadePath = CustomPath;
 
 				`AMLOG("Projectile element exists:" @ NewProjectile.Projectiles[i].ProjectileElement != none);
+
+				EventObj = self;
+				`XEVENTMGR.RegisterForEvent(EventObj, 'OnProjectileFireSound', OnProjectileFired, ELD_Immediate,, NewProjectile.Projectiles[i].ProjectileElement,, NewProjectile.Projectiles[i].ProjectileElement);
 				
 			}
-		}
+		//}
 	}
 	super.AddProjectileVolley(NewProjectile);
 }
+
+private function EventListenerReturn OnProjectileFired(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+{	
+	local X2UnifiedProjectile		 Projectile;
+	local X2UnifiedProjectileElement ProjectileElement;
+	local int i;
+
+	ProjectileElement = X2UnifiedProjectileElement(CallbackData);
+	if (ProjectileElement == none)
+		return ELR_NoInterrupt;
+
+	`AMLOG("Running for projectile:" @ PathName(ProjectileElement));
+
+
+	foreach ProjectileVolleys(Projectile)
+	{
+		for (i = 0; i < Projectile.Projectiles.Length; i++)
+		{
+			if (Projectile.Projectiles[i].ProjectileElement != ProjectileElement)
+				continue;
+
+			`AMLOG("Found projectile element."); 
+
+			UpdateGrenadePath();
+
+			Projectile.Projectiles[i].EndTime = Projectile.Projectiles[i].StartTime + ImpactDelay; // So that the explosion is delayed by the exact amount
+			Projectile.Projectiles[i].GrenadePath = CustomPath; // So that X2UnifiedProjectile::StructTarget() always returns false
+			Projectile.Projectiles[i].InitialTargetLocation = TargetLocation; // So that grenade explosion visually happens on the target
+			//Projectile.Projectiles[i].InitialTargetDistance = VSize(TargetLocation - Projectile.Projectiles[i].InitialSourceLocation);
+			//Projectile.Projectiles[i].InitialTravelDirection = TargetLocation - Projectile.Projectiles[i].InitialSourceLocation;
+			//Projectile.Projectiles[i].InitialTargetNormal = -Projectile.Projectiles[i].InitialTravelDirection;
+
+		}
+	}
+
+	return ELR_NoInterrupt;
+}
+
 
 private function UpdateGrenadePath()
 {
