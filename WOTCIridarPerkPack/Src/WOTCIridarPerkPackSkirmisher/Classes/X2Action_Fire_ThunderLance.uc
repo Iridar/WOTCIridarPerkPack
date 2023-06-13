@@ -1,72 +1,12 @@
 class X2Action_Fire_ThunderLance extends X2Action_Fire;
 
-//var private bool locbMainImpactNotify;
-//var private Vector locHitLocation;
-//var private bool bProcessingDelay;
-
 var privatewrite XComPrecomputedPath_ThunderLance CustomPath;
-
-const ImpactDelay = 2.0f; // # Impact Delay # 
 
 function Init()
 {
-	//local XComGameState_Ability AbilityState;	
-	//local XGUnit FiringUnit;
-	//local XComGameState_Item WeaponItem;
-//	//local X2WeaponTemplate WeaponTemplate;
-	////local XComWeapon Entity, WeaponEntity;
-	//local XComGameState_Item Item;
-	//local XGWeapon AmmoWeapon;
-
 	super.Init();
 
-	//AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
-	//FiringUnit = XGUnit(History.GetVisualizer(AbilityState.OwnerStateObject.ObjectID));
-		
-	//WeaponItem = AbilityState.GetSourceWeapon();
-	//if (WeaponItem != none)
-	//{
-	//	WeaponVisualizer = XGWeapon(WeaponItem.GetVisualizer());
-	//	WeaponEntity = WeaponVisualizer.GetEntity();
-	//}
-	//if (FiringUnit.CurrentPerkAction != none)
-	//{
-	//	WeaponEntity = FiringUnit.CurrentPerkAction.GetPerkWeapon();
-	//}
-
-	UpdatePrimaryTargetLocation();
-	//bUseKillAnim = false;
 	InitCustomPath();
-}
-
-private function UpdatePrimaryTargetLocation()
-{
-	local XComWorldData					World;
-	local TTile							TileLocation;
-	local array<StateObjectReference>	TargetsOnTile;
-	local XComGameState_Unit			PrimaryTargetState;
-	local XGUnit						PrimaryTargetGameUnit;
-
-	World = `XWORLD;
-
-	World.GetFloorTileForPosition(TargetLocation, TileLocation);
-
-	TargetsOnTile = World.GetUnitsOnTile(TileLocation);
-
-	if (TargetsOnTile.Length > 0)
-	{
-		PrimaryTargetState = XComGameState_Unit(History.GetGameStateForObjectID(TargetsOnTile[0].ObjectID));
-		if (PrimaryTargetState != none)
-		{
-			PrimaryTargetGameUnit = XGUnit(PrimaryTargetState.GetVisualizer());
-			if (PrimaryTargetGameUnit != none)
-			{
-				TargetLocation = TargetUnit.GetShootAtLocation(AbilityContext.ResultContext.HitResult, AbilityContext.InputContext.SourceObject);
-			}
-		}		
-	}
-
-	UnitPawn.TargetLoc = TargetLocation;
 }
 
 private function InitCustomPath()
@@ -82,36 +22,23 @@ private function InitCustomPath()
 	CustomPath.SetHidden(true);
 }
 
-/*
-function CompleteAction()
-{
-	//CustomPath.Destroy();
-
-	super.CompleteAction();
-}*/
-
+// This runs from XGUnitPawnNativeBase whenever a unit fires a projectile.
+// We use it as an insertion point to register the fired projectile for events,
+// so that we can tweak its parameters once it's fired.
 function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 {	
 	local int i;
 
 	if (NewProjectile != none)
 	{
-
-		`AMLOG("Adding new volley:" @ NewProjectile.Class.Name @ "with this many projectile elements:" @ NewProjectile.Projectiles.Length);
-		
-
+		// Skip the grapple projectile fired by the "launch" ability itself, we don't need to mess with it.
 		if (X2UnifiedProjectile_ThunderLance(NewProjectile) == none)
 		{
-			//NewProjectile.AbilityContextTargetLocation = TargetLocation;
-
 			for (i = 0; i < NewProjectile.Projectiles.Length; i++)
 			{
-				
-				//NewProjectile.Projectiles[i].GrenadePath = CustomPath;
-
-				`AMLOG("Projectile element exists:" @ NewProjectile.Projectiles[i].ProjectileElement != none);
-
-				
+				// Register each projectile element for events. Have to do it in a holder object, because apparently
+				// only one listener for the same event name can exist on one object.
+				// so if the projectile has multiple projectile elements we'd be in a mess.
 				class'X2ThunderLanceEventHolder'.static.RegisterProjectile(self, NewProjectile.Projectiles[i].ProjectileElement);
 			}
 		}
@@ -119,21 +46,14 @@ function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 	super.AddProjectileVolley(NewProjectile);
 }
 
-
-
-
+// A grenade path is just needed to bypass some logic in X2UnifiedProjectile, it doesn't actually do anything.
 final function UpdateGrenadePath()
 {
 	local float		iKeyframes;
 	local vector	PathEndLocation;
 	local float		i;
-	local TTile PathEndTile;
 	
 	PathEndLocation = TargetLocation;
-
-	PathEndTile = `XWORLD.GetTileCoordinatesFromPosition(PathEndLocation);
-
-	`AMLOG("Setting path end tile:" @ PathEndTile.X @ PathEndTile.Y @ PathEndTile.Z);
 
 	CustomPath.bUseOverrideTargetLocation = true;
 	CustomPath.OverrideTargetLocation = PathEndLocation;
@@ -145,9 +65,7 @@ final function UpdateGrenadePath()
 
 	for (i = 1; i < iKeyframes; i = i + 1)
 	{
-		CustomPath.akKeyframes[i].vLoc = PathEndLocation + vect(2, 2, 2) * i / iKeyframes;
-		CustomPath.akKeyframes[i].fTime = ImpactDelay + 0.05f * i / iKeyframes; 
+		CustomPath.akKeyframes[i].vLoc = PathEndLocation;
+		CustomPath.akKeyframes[i].fTime = 10; // Doesn't matter what to put here, the detonation will happen by event.
 	}
-
-	CustomPath.akKeyframes[iKeyframes - 1].vLoc = PathEndLocation;
 }
