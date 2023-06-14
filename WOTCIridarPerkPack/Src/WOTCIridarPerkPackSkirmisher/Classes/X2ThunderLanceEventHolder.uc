@@ -44,6 +44,8 @@ private function EventListenerReturn OnProjectileFired(Object EventData, Object 
 			if (Projectile.Projectiles[i].ProjectileElement != ProjectileElement)
 				continue;
 
+			`AMLOG("Responding to projectile fired!");
+
 			FireAction.UpdateGrenadePath();
 
 			// TODO: This is the place that determines fallback detonation time
@@ -72,6 +74,8 @@ private function EventListenerReturn OnMainProjectileImpact(Object EventData, Ob
 		{
 			if (Projectile.Projectiles[i].ProjectileElement != ProjectileElement)
 				continue;
+
+			`AMLOG("Responding to projectile impact!");
 
 			// That should make the projectile explode next tick.
 			Projectile.Projectiles[i].EndTime = WorldInfo.TimeSeconds;

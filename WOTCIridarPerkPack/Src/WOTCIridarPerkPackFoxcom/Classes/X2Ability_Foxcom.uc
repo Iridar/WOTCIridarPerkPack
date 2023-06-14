@@ -122,7 +122,7 @@ static function X2AbilityTemplate IRI_FM_IgnoreCoverDefense()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_FM_IgnoreCoverDefense');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_coverfire"; // TODO: Icon
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_coverfire";
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
 
 	SetPassive(Template);

@@ -13,7 +13,7 @@ simulated function float GetCursorRangeMeters(XComGameState_Ability AbilityState
 		{
 			RangeInTiles = SourceWeapon.GetItemRange(AbilityState);
 
-			RangeInTiles += `GetConfigInt("ThunderLance_RangeIncrase_Tiles");
+			RangeInTiles += `GetConfigInt("IRI_SK_ThunderLance_RangeIncrase_Tiles");
 
 			if( RangeInTiles == 0 )
 			{

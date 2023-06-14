@@ -96,6 +96,13 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_SK_PredatorStrike_Cooldown":
 		OutString = SKColor(`GetConfigInt(InString));
 		return true;
+
+	case "IRI_SK_ThunderLance_DamageBonusPercent":
+		OutString = SKColor(GetPercentValue(InString) $ "%");
+		return true;
+	case "IRI_SK_ThunderLance_RangeIncrase_Tiles":
+		OutString = SKColor(`GetConfigInt(InString));
+		return true;
 		
 	// ======================================================================================================================
 	//												TEMPLAR TAGS
@@ -333,6 +340,8 @@ static event OnExitPostMissionSequence()
 /// </summary>
 static event OnPostTemplatesCreated()
 {
+	Skirmisher_ThunderLance_PatchOverrideicons();
+	
 	//local X2SoldierClassTemplateManager	ClassMgr;
 	//local X2SoldierClassTemplate		ClassTemplate;
 	//
@@ -344,7 +353,7 @@ static event OnPostTemplatesCreated()
 	//}
 	//
 	/*
-    local X2AbilityTemplateManager	AbilityTemplateManager;
+	local X2AbilityTemplateManager	AbilityTemplateManager;
     local X2AbilityTemplate			Template;
     local array<X2DataTemplate>		DataTemplates;
     local X2DataTemplate			DataTemplate;
@@ -365,17 +374,35 @@ static event OnPostTemplatesCreated()
         }
     }
 	
+	*/
+}
+
+static private function Skirmisher_ThunderLance_PatchOverrideicons()
+{
+	local X2ItemTemplateManager		ItemMgr;
+	local X2WeaponTemplate			WeaponTemplate;
+	local array<X2WeaponTemplate>	WeaponTemplates;
+	local X2GrenadeTemplate			GrenadeTemplate;
+	local AbilityIconOverride		IconOverride;
 
 	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
-	ItemMgr.FindDataTemplateAllDifficulties('TemplateName', DataTemplates);
+	WeaponTemplates = ItemMgr.GetAllWeaponTemplates();
 
-	foreach DataTemplates(DataTemplate)
-	{
-		Template = X2WeaponTemplate(DataTemplate);
-
-		// Do stuff with the Template
+	foreach WeaponTemplates(WeaponTemplate)
+	{	
+		GrenadeTemplate = X2GrenadeTemplate(WeaponTemplate);
+		if (GrenadeTemplate == none)
+			continue;
+		
+		foreach GrenadeTemplate.AbilityIconOverrides(IconOverride)
+		{
+			if (IconOverride.AbilityName == 'LaunchGrenade')
+			{
+				GrenadeTemplate.AddAbilityIconOverride('IRI_SK_ThunderLance', IconOverride.OverrideIcon);
+				break;
+			}
+		}
 	}
-	*/
 }
 
 /*

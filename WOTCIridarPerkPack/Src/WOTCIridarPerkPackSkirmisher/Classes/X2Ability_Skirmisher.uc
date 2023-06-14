@@ -8,6 +8,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
 
 	Templates.AddItem(IRI_SK_ThunderLance());
+	Templates.AddItem(IRI_SK_ThunderLance_Passive());
 
 	return Templates;
 }
@@ -49,13 +50,14 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
 	Template.HideErrors.AddItem('AA_CannotAfford_AmmoCost');
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_grenade_launcher";
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_grenade_launcher"; // TODO: Icon
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_GRENADE_PRIORITY;
 	Template.bUseAmmoAsChargesForHUD = true;
 	Template.bDisplayInUITooltip = false;
 	Template.bDisplayInUITacticalText = false;
 
-	// TODO: localization, icon overrides, figure out why long range is bugged
+	// TODO: figure out why long range is bugged - grapple projectile dies before it gets a chance to DoMainImpact?
+	// TODO: Highlight Direct Impact target in targeting method
 	
 	// Targeting and Triggering
 	Template.TargetingMethod = class'X2TargetingMethod_ThunderLance';
@@ -138,6 +140,8 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.GrenadeLostSpawnIncreasePerUse;
 	Template.bFrameEvenWhenUnitIsHidden = true;
 
+	Template.AdditionalAbilities.AddItem('IRI_SK_ThunderLance_Passive');
+
 	return Template;
 }
 
@@ -166,7 +170,28 @@ static private function ThunderLance_ModifyActivatedAbilityContext(XComGameState
 		AbilityContext.InputContext.PrimaryTarget = TargetsOnTile[0];
 	}
 }
+static private function X2AbilityTemplate IRI_SK_ThunderLance_Passive()
+{
+	local X2AbilityTemplate Template;
+	local X2Effect_ThunderLance	Effect;
 
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_ThunderLance_Passive');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_grenade_launcher"; // TODO: Icon
+
+	SetPassive(Template);
+	SetHidden(Template);
+	Template.bUniqueSource = true;
+
+	Effect = new class'X2Effect_ThunderLance';
+	Effect.BuildPersistentEffect(1, true);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	return Template;
+}
 
 static private function X2AbilityTemplate IRI_SK_PredatorStrike()
 {
@@ -361,8 +386,6 @@ static private function EventListenerReturn RevealNearestEnemy_Trigger(Object Ev
 	local XComGameState_Unit			SourceUnit;
 	local XComGameState_Unit			TargetUnit;
 
-	`AMLOG("Running");
-
 	AbilityState = XComGameState_Ability(CallbackData);
 	if (AbilityState == none)
 		return ELR_NoInterrupt;
@@ -375,20 +398,11 @@ static private function EventListenerReturn RevealNearestEnemy_Trigger(Object Ev
 	if (SourceUnit == none)
 		return ELR_NoInterrupt;
 
-	`AMLOG("Looking for enemies");
-
 	TargetUnit = FindNearestAdventUnit(SourceUnit);
 	if (TargetUnit == none)
 		return ELR_NoInterrupt;
 
-	if (AbilityState.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false))
-	{
-		`AMLOG("Revealing enemy:" @ TargetUnit.GetFullName());
-	}
-	else
-	{	
-		`AMLOG("Could not Revealing enemy:" @ TargetUnit.GetFullName());
-	}
+	AbilityState.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
 
 	return ELR_NoInterrupt;
 }
@@ -409,22 +423,14 @@ static private function XComGameState_Unit FindNearestAdventUnit(const XComGameS
 
 	foreach History.IterateByClassType(class'XComGameState_Unit', UnitState)
 	{
-		`AMLOG("Looking at:" @ UnitState.GetFullName());
-
 		if (UnitState.IsDead())
 			continue;
-
-		`AMLOG("Alive");
 
 		if (!UnitState.IsInPlay())
 			continue;
 
-		`AMLOG("In Play");
-
 		if (UnitState.GetTeam() != eTeam_Alien)
 			continue;
-
-		`AMLOG("On alien team");
 
 		if (!UnitState.GetMyTemplate().bIsAdvent)
 			continue;
@@ -434,14 +440,10 @@ static private function XComGameState_Unit FindNearestAdventUnit(const XComGameS
 
 		TileDistance = SourceUnit.TileDistanceBetween(UnitState);
 
-		`AMLOG("Not visible. Tile Distance:" @ TileDistance);
-
 		if (TileDistance < ShortestTileDistance)
 		{
 			ShortestTileDistance = TileDistance;
 			ClosestUnit = UnitState;
-
-			`AMLOG("This is now closest unit:" @ TileDistance);
 		}
 
 		return ClosestUnit;

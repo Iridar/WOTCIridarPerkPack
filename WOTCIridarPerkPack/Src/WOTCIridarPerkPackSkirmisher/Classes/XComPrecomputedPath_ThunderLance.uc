@@ -60,6 +60,8 @@ simulated function bool MoveAlongPath(float fTime, Actor pActor)
 			pActor.SetLocation(MainProjectile.Projectiles[0].TargetAttachActor.Location);
 			pActor.SetRotation(MainProjectile.Projectiles[0].TargetAttachActor.Rotation);
 
+			`AMLOG("Moving projectile.." @ MainProjectile.Projectiles[0].TargetAttachActor.Location);
+
 			return fTime >= akKeyframes[iNumKeyframes-1].fTime;
 		}
 	}
