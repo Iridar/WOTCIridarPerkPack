@@ -46,7 +46,8 @@ private function EventListenerReturn OnProjectileFired(Object EventData, Object 
 
 			FireAction.UpdateGrenadePath();
 
-			Projectile.Projectiles[i].EndTime = Projectile.Projectiles[i].StartTime + 10;	// Delay the explosion by whatever amount, actual detonation will via event triggered by the main grapple projectile.
+			// TODO: This is the place that determines fallback detonation time
+			Projectile.Projectiles[i].EndTime = Projectile.Projectiles[i].StartTime + 4;	// Delay the explosion by whatever amount, actual detonation will via event triggered by the main grapple projectile.
 			Projectile.Projectiles[i].GrenadePath = FireAction.CustomPath;					// So that X2UnifiedProjectile::StruckTarget() always returns false
 			Projectile.Projectiles[i].InitialTargetLocation = FireAction.TargetLocation;	// So that grenade explosion visually happens on the target
 		}

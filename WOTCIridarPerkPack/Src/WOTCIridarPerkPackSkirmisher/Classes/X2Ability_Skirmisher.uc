@@ -54,6 +54,8 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.bUseAmmoAsChargesForHUD = true;
 	Template.bDisplayInUITooltip = false;
 	Template.bDisplayInUITacticalText = false;
+
+	// TODO: localization, icon overrides, figure out why long range is bugged
 	
 	// Targeting and Triggering
 	Template.TargetingMethod = class'X2TargetingMethod_ThunderLance';
@@ -65,9 +67,9 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 	
-	CursorTarget = new class'X2AbilityTarget_Cursor';
-	//CursorTarget.bRestrictToWeaponRange = true;
-	//CursorTarget.IncreaseWeaponRange = 4;
+	CursorTarget = new class'X2AbilityTarget_ThunderLance';
+	CursorTarget.bRestrictToWeaponRange = true;
+	CursorTarget.IncreaseWeaponRange = 4;
 	Template.AbilityTargetStyle = CursorTarget;
 
 	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
@@ -76,7 +78,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
 
 	// Costs
-	AmmoCost = new class'X2AbilityCost_Ammo';	
+	AmmoCost = new class'X2AbilityCost_Ammo_ThunderLance';	
 	AmmoCost.iAmmo = 1;
 	AmmoCost.UseLoadedAmmo = true;
 	Template.AbilityCosts.AddItem(AmmoCost);
@@ -106,7 +108,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	// Effects
 	Template.bRecordValidTiles = true;
 	Template.bUseLaunchedGrenadeEffects = true;
-	Template.bHideAmmoWeaponDuringFire = false; // TODO: This flag causes grenade explosion to not play sometimes?
+	Template.bHideAmmoWeaponDuringFire = true;
 
 	ProximityMineEffect = new class'X2Effect_ProximityMine';
 	ProximityMineEffect.BuildPersistentEffect(1, true, false, false);

@@ -67,6 +67,6 @@ final function UpdateGrenadePath()
 	for (i = 1; i < iKeyframes; i = i + 1)
 	{
 		CustomPath.akKeyframes[i].vLoc = PathEndLocation;
-		CustomPath.akKeyframes[i].fTime = 10; // Doesn't matter what to put here, the detonation will happen by event.
+		CustomPath.akKeyframes[i].fTime = 4; // Doesn't matter what to put here, the detonation will happen by event.
 	}
 }

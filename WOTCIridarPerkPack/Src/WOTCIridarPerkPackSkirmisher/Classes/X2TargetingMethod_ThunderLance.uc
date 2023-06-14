@@ -191,17 +191,10 @@ function int GetOptimalZForTile(const vector VectorLocation)
 		}
 	}
 }
-/*
-function GetProjectileTouchEvents(StateObjectReference PrimaryTarget, const array<Vector> TargetLocations, out array<ProjectileTouchEvent> TouchEvents, out vector TouchStart, out vector TouchEnd)
-{
-	TouchEvents = CustomPath.TouchEvents;
-	TouchStart = CustomPath.akKeyframes[0].vLoc;
-	TouchEnd = CustomPath.GetEndPosition( );
-}*/
 
 defaultproperties
 {
-	//SnapToTile = true;
+	SnapToTile = true; // Doesn't seem to do anything
 	ProjectileTimingStyle=""
 	OrdnanceTypeName="" // Can't set anything here, or else X2UnifiedProjectile::FireProjectileInstance()
 		// will override the custom path with `PRECOMPUTEDPATH.

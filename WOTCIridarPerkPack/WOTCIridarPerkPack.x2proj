@@ -253,6 +253,12 @@
     <Content Include="Src\WOTCIridarPerkPackFoxcom\Classes\X2Effect_IgnoreCoverDefense.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2AbilityCost_Ammo_ThunderLance.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2AbilityTarget_ThunderLance.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Ability_Skirmisher.uc">
       <SubType>Content</SubType>
     </Content>

@@ -57,17 +57,12 @@ simulated function bool MoveAlongPath(float fTime, Actor pActor)
 		MainProjectile = X2UnifiedProjectile_ThunderLance(Projectile);
 		if (MainProjectile != none)
 		{
-			
 			pActor.SetLocation(MainProjectile.Projectiles[0].TargetAttachActor.Location);
 			pActor.SetRotation(MainProjectile.Projectiles[0].TargetAttachActor.Rotation);
-
-			`AMLOG("Setting to grapple projectile location");
 
 			return fTime >= akKeyframes[iNumKeyframes-1].fTime;
 		}
 	}
-
-	`AMLOG("Setting to target location");
 
 	// Just teleport the projectile to the end if we can't find the main projectile, which shouldn't be happening really.
 	pActor.SetLocation(akKeyframes[iNumKeyframes-1].vLoc);
