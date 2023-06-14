@@ -13,6 +13,8 @@ class XComPrecomputedPath_ThunderLance extends XComPrecomputedPath;
 var delegate<UpdateGrenadePath> UpdateGrenadePathFn;
 delegate UpdateGrenadePath();
 
+var X2Action_Fire_ThunderLance FireAction;
+
 simulated event Tick(float DeltaTime)
 {	
 	local float PathLength;

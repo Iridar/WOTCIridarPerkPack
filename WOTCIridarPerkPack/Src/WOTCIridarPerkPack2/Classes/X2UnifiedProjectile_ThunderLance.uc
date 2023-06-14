@@ -29,3 +29,10 @@ private function DoMainImpactDelayed()
 
 	`XEVENTMGR.TriggerEvent('IRI_ThunderLanceImpactEvent');
 }
+
+function UpdateProjectileDistances(int Index, float fDeltaT)
+{
+	super.UpdateProjectileDistances(Index, fDeltaT);
+
+	`XEVENTMGR.TriggerEvent('IRI_ThunderLanceUpdateEvent');
+}

@@ -12,6 +12,15 @@ static function array<X2DataTemplate> CreateTemplates()
 	return Templates;
 }
 
+/*
+Another Iridar-tier complicated ability. This is essentially a copy of LaunchGrenade, with the following changes:
+
+1. Instead of using a grenade launcher weapon, we're using a PerkContent with a PerkWeapon, 
+based on the Whiplash perk. The only difference from Whiplash weapon is that ours uses a custom Projectile,
+the X2UnifiedProjectile_ThunderLance, which has a delay on its main impact, accomplished via simple Timer.
+
+2. Custom TargetingMethod, based on Rocket Launcher's, but with a custom XComPrecomputedPath_ThunderLance.
+*/
 static private function X2AbilityTemplate IRI_SK_ThunderLance()
 {
 	local X2AbilityTemplate                 Template;
