@@ -168,7 +168,6 @@ function int GetOptimalZForTile(const vector VectorLocation)
 	local XComWorldData					World;
 	local TTile							TileLocation;
 	local array<StateObjectReference>	TargetsOnTile;
-	local array<Actor>					ActorsOnTile;
 	local XGUnit						GameUnitOnTile;
 	local XComGameState_Unit			UnitOnTile;
 
@@ -222,22 +221,22 @@ static private function XComGameState_Unit GetLivingUnitFromHistory(array<StateO
 {
 	local XComGameStateHistory	History;
 	local StateObjectReference	UnitRef;
-	local XComGameState_Unit	UnitState;
+	local XComGameState_Unit	TileUnitState;
 
 	History = `XCOMHISTORY;
 	foreach TargetsOnTile(UnitRef)
 	{
-		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(UnitRef.ObjectID));
-		if (UnitState == none)
+		TileUnitState = XComGameState_Unit(History.GetGameStateForObjectID(UnitRef.ObjectID));
+		if (TileUnitState == none)
 			continue;
 
-		if (UnitState.IsDead())
+		if (TileUnitState.IsDead())
 			continue;
 
-		if (UnitState.GetMyTemplate().bIsCosmetic)
+		if (TileUnitState.GetMyTemplate().bIsCosmetic)
 			continue;
 
-		return UnitState;
+		return TileUnitState;
 	}
 	return none;
 }
