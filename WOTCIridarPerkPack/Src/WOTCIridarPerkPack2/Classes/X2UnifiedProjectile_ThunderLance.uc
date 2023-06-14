@@ -21,18 +21,20 @@ function DoMainImpact(int Index, float fDeltaT, bool bShowImpactEffects)
 	LocbShowImpactEffects = bShowImpactEffects;
 
 	SetTimer(ImpactDelay, false, nameof(DoMainImpactDelayed));
+	SetTimer(1.0f, false, nameof(PlayGrenadePullSound));
+
+	Projectiles[0].TargetAttachActor.PlayAkEvent(AkEvent(`CONTENT.RequestGameArchetype("XPACK_SoundCharacterFX.Skirmisher_Whiplash_Impact")), , , , Projectiles[0].InitialTargetLocation);
+}
+
+private function PlayGrenadePullSound()
+{
+	Projectiles[0].TargetAttachActor.PlayAkEvent(AkEvent(`CONTENT.RequestGameArchetype("SoundX2CharacterFX.Granade_Pull")), , , , Projectiles[0].InitialTargetLocation);
 }
 
 private function DoMainImpactDelayed()
 {
 	super.DoMainImpact(LocIndex, LocfDeltaT, LocbShowImpactEffects);
 
+	// This will detonate the grenade projectiles.
 	`XEVENTMGR.TriggerEvent('IRI_ThunderLanceImpactEvent');
-}
-
-function UpdateProjectileDistances(int Index, float fDeltaT)
-{
-	super.UpdateProjectileDistances(Index, fDeltaT);
-
-	`XEVENTMGR.TriggerEvent('IRI_ThunderLanceUpdateEvent');
 }

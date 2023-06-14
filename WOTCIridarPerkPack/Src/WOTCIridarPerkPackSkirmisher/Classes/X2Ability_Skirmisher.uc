@@ -19,7 +19,17 @@ Another Iridar-tier complicated ability. This is essentially a copy of LaunchGre
 based on the Whiplash perk. The only difference from Whiplash weapon is that ours uses a custom Projectile,
 the X2UnifiedProjectile_ThunderLance, which has a delay on its main impact, accomplished via simple Timer.
 
-2. Custom TargetingMethod, based on Rocket Launcher's, but with a custom XComPrecomputedPath_ThunderLance.
+I haven't found the exact logic responsible for this, but it seems if an ability uses loaded ammo,
+the ammo's (grenade in this case) projectile is fired in addition to the weapon's projectile.
+
+So what we'd normally have is the grapple projectile being fired first, and then then grenade projectile.
+
+2. Custom Targeting Method, based on Rocket Launcher's, but with a custom XComPrecomputedPath_ThunderLance.
+The custom path just simulates the targeting line we normally get when grapple targeting.
+
+Also includes mine/RM's rocket targeting improvements.
+
+3. Custom Fire Action, which does a lot of complicated stuff, see that for more comments.
 */
 static private function X2AbilityTemplate IRI_SK_ThunderLance()
 {

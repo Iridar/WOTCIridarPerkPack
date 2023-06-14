@@ -20,6 +20,7 @@ private function InitCustomPath()
 	CustomPath.SetupPath(WeaponVisualizer.GetEntity(), Unit.GetTeam(), PathData);
 	CustomPath.SetWeaponAndTargetLocation(WeaponVisualizer.GetEntity(), Unit.GetTeam(), TargetLocation, PathData);
 	CustomPath.SetHidden(true);
+	CustomPath.FireAction = self;
 }
 
 // This runs from XGUnitPawnNativeBase whenever a unit fires a projectile.
