@@ -186,7 +186,7 @@ function int GetOptimalZForTile(const vector VectorLocation)
 			if (GameUnitOnTile != none)
 			{
 				TacticalHUD.m_kTargetReticle.SetTarget(GameUnitOnTile);
-				TacticalHUD.m_kTargetReticle.SetMode(eUIReticle_Advent);
+				TacticalHUD.m_kTargetReticle.SetMode(eUIReticle_Overshoulder);
 				TacticalHUD.m_kTargetReticle.SetVisible(true);
 			}
 		}

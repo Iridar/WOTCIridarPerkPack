@@ -14,13 +14,13 @@ LocFlyOverText="Predator Strike: Reveal"
 [IRI_SK_ThunderLance X2AbilityTemplate]
 LocFriendlyName="Thunder Lance"
 LocHelpText="Launch a grenade with your grappling hook."
-LocLongDescription="Unlock the ability to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> extra base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
+LocLongDescription="Unlock the ability to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
 LocPromotionPopupText=""
 
 [IRI_SK_ThunderLance_Passive X2AbilityTemplate]
 LocFriendlyName="Thunder Lance"
-LocHelpText="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> extra base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
-LocLongDescription="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> extra base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
+LocHelpText="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
+LocLongDescription="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
 
 
 

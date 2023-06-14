@@ -1636,9 +1636,9 @@ static private function HomingMineDetonation_BuildVisualization(XComGameState Vi
 	SoundAction.Sound = new class'SoundCue';
 
 	if (ShooterUnit.HasSoldierAbility('Shrapnel'))
-		SoundAction.Sound.AkEventOverride = AkEvent'SoundX2CharacterFX.Proximity_Mine_Explosion';	//	@TODO - update sound
+		SoundAction.Sound.AkEventOverride = AkEvent'SoundX2CharacterFX.Proximity_Mine_Explosion';	
 	else 
-		SoundAction.Sound.AkEventOverride = AkEvent'SoundX2CharacterFX.Proximity_Mine_Explosion';	//	@TODO - update sound
+		SoundAction.Sound.AkEventOverride = AkEvent'SoundX2CharacterFX.Proximity_Mine_Explosion';	
 
 	SoundAction.bIsPositional = true;
 	SoundAction.vWorldPosition = AbilityContext.InputContext.TargetLocations[0];

@@ -50,15 +50,12 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
 	Template.HideErrors.AddItem('AA_CannotAfford_AmmoCost');
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_grenade_launcher"; // TODO: Icon
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_GRENADE_PRIORITY;
 	Template.bUseAmmoAsChargesForHUD = true;
 	Template.bDisplayInUITooltip = false;
 	Template.bDisplayInUITacticalText = false;
 
-	// TODO: figure out why long range is bugged - grapple projectile dies before it gets a chance to DoMainImpact?
-	// TODO: Highlight Direct Impact target in targeting method
-	
 	// Targeting and Triggering
 	Template.TargetingMethod = class'X2TargetingMethod_ThunderLance';
 
@@ -179,7 +176,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance_Passive()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_grenade_launcher"; // TODO: Icon
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
 
 	SetPassive(Template);
 	SetHidden(Template);

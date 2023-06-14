@@ -12,6 +12,8 @@ var private float	LocfDeltaT;
 var private bool	LocbShowImpactEffects;
 
 var private float	LocfDeltaT_EndProjectile;
+var private bool	bMainImpactProcessed;
+var private float	fPlayingTime;
 
 const ImpactDelay = 2.0f; // # Impact Delay # 
 
@@ -43,6 +45,8 @@ private function DoMainImpactDelayed()
 	`XEVENTMGR.TriggerEvent('IRI_ThunderLanceImpactEvent');
 
 	`AMLOG("DETONATION!");
+
+	bMainImpactProcessed = true;
 }
 
 state Executing
@@ -65,6 +69,8 @@ state Executing
 		local bool bShouldEnd, bShouldUpdate, bProjectileEffectsComplete, bStruckTarget;
 		local float timeDifferenceForRecoil;
 		local float originalfDeltaT;
+
+		fPlayingTime += fDeltaT;
 		originalfDeltaT = fDeltaT;
 		bAllProjectilesDone = true; //Set to false if any projectiles are 1. still to be created 2. being created 3. still in flight w. effects
 
@@ -182,7 +188,8 @@ state Executing
 			}
 		}
 
-		if( bSetupVolley && bAllProjectilesDone )
+		// Don't allow to self destruct until the main impact has been processed or we timed out for whatever reason
+		if( bSetupVolley && bAllProjectilesDone && (bMainImpactProcessed || fPlayingTime > 10.0f))
 		{		
 			for( Index = 0; Index < Projectiles.Length; ++Index )
 			{
