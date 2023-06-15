@@ -274,6 +274,9 @@
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Condition_PredatorStrike.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_KineticArmor.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_PredatorStrike.uc">
       <SubType>Content</SubType>
     </Content>

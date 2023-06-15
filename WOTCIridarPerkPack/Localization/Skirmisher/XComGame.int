@@ -22,6 +22,16 @@ LocFriendlyName="Thunder Lance"
 LocHelpText="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
 LocLongDescription="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
 
+[IRI_SK_KineticArmor X2AbilityTemplate]
+LocFriendlyName="Kinetic Armor"
+LocHelpText="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
+LocLongDescription="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
+LocPromotionPopupText=""
+LocFlyOverText="Kinetic Armor"
 
-
-
+[IRI_SK_KineticArmor_Passive X2AbilityTemplate]
+LocFriendlyName="Kinetic Armor"
+LocHelpText="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
+LocLongDescription="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
+LocPromotionPopupText=""
+LocFlyOverText="Kinetic Armor"

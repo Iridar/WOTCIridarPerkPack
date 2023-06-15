@@ -10,8 +10,96 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_SK_ThunderLance());
 	Templates.AddItem(IRI_SK_ThunderLance_Passive());
 
+	Templates.AddItem(IRI_SK_KineticArmor());
+	Templates.AddItem(PurePassive('IRI_SK_KineticArmor_Passive', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
 	return Templates;
 }
+
+static private function X2AbilityTemplate IRI_SK_KineticArmor()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_KineticArmor				Effect;
+	local X2AbilityTrigger_EventListener	AbilityTrigger;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template,	'IRI_SK_KineticArmor');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance"; // TODO: Icon
+	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_NeverShow;
+	Template.bDisplayInUITacticalText = true;
+	Template.bDisplayInUITooltip = true;
+	Template.bDontDisplayInAbilitySummary = false;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	//Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+
+	AbilityTrigger = new class'X2AbilityTrigger_EventListener';
+	AbilityTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	AbilityTrigger.ListenerData.EventID = 'AbilityActivated';
+	AbilityTrigger.ListenerData.Filter = eFilter_None;
+	AbilityTrigger.ListenerData.Priority = 20;
+	AbilityTrigger.ListenerData.EventFn = KineticArmor_Trigger;
+	Template.AbilityTriggers.AddItem(AbilityTrigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+
+	// Costs
+	AddCooldown(Template, `GetConfigInt("IRI_SK_KineticArmor_Cooldown"));
+
+	// Effect
+	Effect = new class'X2Effect_KineticArmor';
+	Effect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	// State and Viz
+	Template.Hostility = eHostility_Neutral;
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.AdditionalAbilities.AddItem('IRI_SK_KineticArmor_Passive');
+
+	return Template;
+}
+
+static private function EventListenerReturn KineticArmor_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameStateContext_Ability	AbilityContext;
+	local X2AbilityTemplate				AbilityTemplate;
+	local XComGameState_Ability			AbilityState;
+	local XComGameState_Ability			KineticArmorAbility;
+
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt || !AbilityContext.IsResultContextMiss())
+		return ELR_NoInterrupt;
+
+	AbilityState = XComGameState_Ability(EventData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+
+	AbilityTemplate = AbilityState.GetMyTemplate();
+	if (AbilityTemplate == none || AbilityTemplate.Hostility != eHostility_Offensive)
+		return ELR_NoInterrupt;
+
+	KineticArmorAbility = XComGameState_Ability(CallbackData);
+	if (KineticArmorAbility == none)
+		return ELR_NoInterrupt;
+
+	if (AbilityContext.InputContext.PrimaryTarget.ObjectID != KineticArmorAbility.OwnerStateObject.ObjectID)
+		return ELR_NoInterrupt;
+
+	KineticArmorAbility.AbilityTriggerAgainstSingleTarget(KineticArmorAbility.OwnerStateObject, false, GameState.HistoryIndex);
+
+	return ELR_NoInterrupt;
+}
+
 
 /*
 Another Iridar-tier complicated ability. This is essentially a copy of LaunchGrenade, with the following changes:
