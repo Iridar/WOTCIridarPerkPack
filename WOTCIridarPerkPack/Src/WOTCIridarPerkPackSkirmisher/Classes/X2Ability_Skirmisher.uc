@@ -184,7 +184,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance_Passive()
 
 	Effect = new class'X2Effect_ThunderLance';
 	Effect.BuildPersistentEffect(1, true);
-	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,, Template.AbilitySourceName);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
 	return Template;
@@ -361,7 +361,7 @@ static private function X2AbilityTemplate IRI_SK_PredatorStrike_RevealNearestEne
 	// Effects
 	Effect = new class'X2Effect_PredatorStrikeReveal';
 	Effect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
-	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true,, Template.AbilitySourceName);
+	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
 	// State and Viz
