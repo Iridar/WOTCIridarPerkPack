@@ -11,9 +11,34 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_SK_ThunderLance_Passive());
 
 	Templates.AddItem(IRI_SK_KineticArmor());
-	Templates.AddItem(PurePassive('IRI_SK_KineticArmor_Passive', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(PurePassive('IRI_SK_KineticArmor_Passive', "img:///UILibrary_XPACK_Common.UIPerk_bond_brotherskeeper", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
+	Templates.AddItem(IRI_SK_Waylay());
 
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_SK_Waylay()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_Waylay		WaylayEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_Waylay');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ambush";
+
+	SetPassive(Template);
+	SetHidden(Template);
+	Template.bUniqueSource = true;
+
+	WaylayEffect = new class'X2Effect_Waylay';
+	WaylayEffect.BuildPersistentEffect(1, true, false);
+	WaylayEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(WaylayEffect);
+
+	return Template;
 }
 
 static private function X2AbilityTemplate IRI_SK_KineticArmor()
@@ -26,7 +51,7 @@ static private function X2AbilityTemplate IRI_SK_KineticArmor()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance"; // TODO: Icon
+	Template.IconImage = "img:///UILibrary_XPACK_Common.UIPerk_bond_brotherskeeper";
 	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_NeverShow;
 	Template.bDisplayInUITacticalText = true;
 	Template.bDisplayInUITooltip = true;

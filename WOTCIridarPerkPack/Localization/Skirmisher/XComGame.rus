@@ -21,3 +21,10 @@ LocPromotionPopupText=""
 LocFriendlyName="Громовое копье"
 LocHelpText="Вы можете запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
 LocLongDescription="Вы можете запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
+
+[IRI_SK_Waylay X2AbilityTemplate]
+LocFriendlyName="Перехват"
+LocHelpText="\"Наблюдение\" предоставляет дополнительный выстрел и не снимается при получении урона."
+LocLongDescription="\"Наблюдение\" предоставляет дополнительный выстрел и не снимается при получении урона."
+LocPromotionPopupText="<Bullet/> Устройте засаду и спугните врагов соратником - так вы сможете основательно проредить ряды противника \"Перехватом\"."
+LocFlyOverText="Перехват"

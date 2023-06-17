@@ -35,3 +35,11 @@ LocHelpText="Absorb missed enemy attacks to generate Shield HP equal to the dama
 LocLongDescription="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
 LocPromotionPopupText=""
 LocFlyOverText="Kinetic Armor"
+
+[IRI_SK_Waylay X2AbilityTemplate]
+LocFriendlyName="Waylay"
+LocHelpText="Overwatch gains an additional shot and is not removed by damage."
+LocLongDescription="Overwatch gains an additional shot and is not removed by damage."
+LocPromotionPopupText="<Bullet/> Trigger an ambush with a squadmate to devastate the enemy with Waylay."
+LocFlyOverText="Waylay"
+

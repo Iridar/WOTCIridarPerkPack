@@ -286,6 +286,9 @@
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_Waylay.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2TargetingMethod_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>

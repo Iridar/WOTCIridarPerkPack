@@ -8,7 +8,6 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	local XComGameStateHistory			History;
 	local WeaponDamageValue				MinDamage;
 	local WeaponDamageValue				MaxDamage;
-	local WeaponDamageValue				TotalDamage;
 	local StatChange					NewStatChange;
 	local int							AllowShield;
 
