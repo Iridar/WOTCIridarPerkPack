@@ -13,6 +13,17 @@ function float GetPreDefaultAttackingDamageModifier_CH(XComGameState_Effect Effe
 	return 0.0f;
 }
 
+function int GetExtraArmorPiercing(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters) 
+{
+	if (ApplyEffectParameters.AbilityInputContext.AbilityTemplateName == 'IRI_SK_ThunderLance' &&
+			ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID == ApplyEffectParameters.TargetStateObjectRef.ObjectID)
+	{
+		return 999; 
+	}
+	return 0; 
+}
+
+
 defaultproperties
 {
 	DuplicateResponse = eDupe_Ignore

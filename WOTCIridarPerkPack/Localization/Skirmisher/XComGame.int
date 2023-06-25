@@ -14,26 +14,26 @@ LocFlyOverText="Predator Strike: Reveal"
 [IRI_SK_ThunderLance X2AbilityTemplate]
 LocFriendlyName="Thunder Lance"
 LocHelpText="Launch a grenade with your grappling hook."
-LocLongDescription="Unlock the ability to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
-LocPromotionPopupText=""
+LocLongDescription="Unlock the ability to launch grenades with your grappling hook, extending their range by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to enemies they impact directly and bypass their armor."
+LocPromotionPopupText="If a grenade will deliver a direct impact on an enemy, they will be marked with a crosshair icon."
 
 [IRI_SK_ThunderLance_Passive X2AbilityTemplate]
 LocFriendlyName="Thunder Lance"
-LocHelpText="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
-LocLongDescription="You are able to launch grenades with your grappling hook. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to units they impact directly and their range is extended by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles."
+LocHelpText="You are able to launch grenades with your grappling hook, extending their range by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to enemies they impact directly and bypass their armor."
+LocLongDescription="You are able to launch grenades with your grappling hook, extending their range by <Ability:IRI_SK_ThunderLance_RangeIncrase_Tiles/> tiles. Launched grenades deal <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> additional base damage to enemies they impact directly and bypass their armor."
 
 [IRI_SK_KineticArmor X2AbilityTemplate]
 LocFriendlyName="Kinetic Armor"
 LocHelpText="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
 LocLongDescription="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
-LocPromotionPopupText=""
+LocPromotionPopupText="Hunker Down and use cover to increase the chances of enemies missing."
 LocFlyOverText="Kinetic Armor"
 
 [IRI_SK_KineticArmor_Passive X2AbilityTemplate]
 LocFriendlyName="Kinetic Armor"
 LocHelpText="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
 LocLongDescription="Absorb missed enemy attacks to generate Shield HP equal to the damage avoided. The shield lasts until the end of your turn. This effect can trigger once per turn."
-LocPromotionPopupText=""
+LocPromotionPopupText="Hunker Down and use cover to increase the chances of enemies missing."
 LocFlyOverText="Kinetic Armor"
 
 [IRI_SK_Waylay X2AbilityTemplate]
