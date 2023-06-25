@@ -109,6 +109,8 @@ function Update(float DeltaTime)
 			NewTargetLocation = World.GetPositionFromTileCoordinates(BlockedTile);
 		}
 
+		MarkDirectImpactTarget(NewTargetLocation);
+
 		GetTargetedActors(NewTargetLocation, CurrentlyMarkedTargets, Tiles);
 		CheckForFriendlyUnit(CurrentlyMarkedTargets);	
 		MarkTargetedActors(CurrentlyMarkedTargets, (!AbilityIsOffensive) ? FiringUnit.GetTeam() : eTeam_None );
@@ -162,8 +164,7 @@ function Canceled()
 	CustomPath.Destroy();
 }
 
-// Easier targeting
-function int GetOptimalZForTile(const vector VectorLocation)
+private function MarkDirectImpactTarget(const vector VectorLocation)
 {
 	local XComWorldData					World;
 	local TTile							TileLocation;
@@ -195,6 +196,19 @@ function int GetOptimalZForTile(const vector VectorLocation)
 		TacticalHUD.m_kTargetReticle.SetTarget();
 		TacticalHUD.m_kTargetReticle.SetVisible(false);
 	}
+}
+
+// Easier targeting
+private function int GetOptimalZForTile(const vector VectorLocation)
+{
+	local XComWorldData					World;
+	local TTile							TileLocation;
+	local array<StateObjectReference>	TargetsOnTile;
+
+	World = `XWORLD;
+
+	TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
+	TargetsOnTile = World.GetUnitsOnTile(TileLocation);
 
 	//	If there's a unit on the tile, or the tile contains a high cover object
 	if (TargetsOnTile.Length > 0 || World.IsLocationHighCover(VectorLocation))
