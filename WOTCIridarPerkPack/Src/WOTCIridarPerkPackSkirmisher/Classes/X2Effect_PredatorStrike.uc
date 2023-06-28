@@ -11,6 +11,8 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	TargetUnit = XComGameState_Unit(kNewTargetState);
 	if (TargetUnit == none)
 		return;
+
+	//`AMLOG("Running 2");
 	
 	TotalToKill = TargetUnit.GetCurrentStat(eStat_HP) + TargetUnit.GetCurrentStat(eStat_ShieldHP);
 	TargetUnit.TakeEffectDamage(self, TotalToKill, 0, 0, ApplyEffectParameters, NewGameState, false, false, true, DamageTypes);
@@ -19,12 +21,12 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	if (SourceUnit == none)
 		SourceUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 
-	`AMLOG("Running");
+	//`AMLOG("Running");
 
 	// Trigger the event that will activate the Reveal Enemy ability. Do it here to so it triggers only if the ability has hit.
 	if (TargetUnit.GetTeam() == eTeam_Alien && TargetUnit.GetMyTemplate().bIsAdvent)
 	{	
-		`AMLOG("Triggering event");
+		//`AMLOG("Triggering event");
 		`XEVENTMGR.TriggerEvent('IRI_SK_PredatorStrike_Activated', TargetUnit, SourceUnit, NewGameState);
 	}
 }
