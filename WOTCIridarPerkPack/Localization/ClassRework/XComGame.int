@@ -1,0 +1,20 @@
+[IRI_RN_ZephyrStrike X2AbilityTemplate]
+LocFriendlyName="Zephyr Strike"
+LocLongDescription="Slash all enemies in the target area."
+LocHelpText="Slash all enemies in the target area."
+LocPromotionPopupText=""
+LocFlyOverText="Zephyr Strike"
+
+[IRI_RN_TacticalAdvance X2AbilityTemplate]
+LocFriendlyName="Tactical Advance"
+LocLongDescription="Slash all enemies in the target area."
+LocHelpText="Slash all enemies in the target area."
+LocPromotionPopupText=""
+LocFlyOverText="Tactical Advance"
+
+[IRI_RN_TacticalAdvance_Passive X2AbilityTemplate]
+LocFriendlyName="Tactical Advance"
+LocLongDescription="Slash all enemies in the target area."
+LocHelpText="Slash all enemies in the target area."
+
+

@@ -341,6 +341,7 @@ static event OnExitPostMissionSequence()
 static event OnPostTemplatesCreated()
 {
 	Skirmisher_ThunderLance_PatchOverrideicons();
+	Ranger_TacticalAdvance_PatchAbilityCosts();
 	
 	//local X2SoldierClassTemplateManager	ClassMgr;
 	//local X2SoldierClassTemplate		ClassTemplate;
@@ -376,6 +377,58 @@ static event OnPostTemplatesCreated()
 	
 	*/
 }
+
+static private function Ranger_TacticalAdvance_PatchAbilityCosts()
+{
+	local array<X2AbilityTemplate>		AbilityTemplates;
+	local X2AbilityTemplate				AbilityTemplate;
+	local X2AbilityTemplateManager		AbilityMgr;
+	local array<name>					TemplateNames;
+	local name							TemplateName;
+	local X2DataTemplate				DataTemplate;
+	local X2AbilityTrigger				Trigger;
+	local bool							bInputTriggered;
+	local X2AbilityCost					Cost;
+	local X2AbilityCost_ActionPoints	ActionPointCost;
+
+	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+	AbilityMgr.GetTemplateNames(TemplateNames);
+	foreach TemplateNames(TemplateName)
+	{
+		AbilityMgr.FindAbilityTemplateAllDifficulties(TemplateName, AbilityTemplates);
+		foreach AbilityTemplates(AbilityTemplate)
+		{
+			if (AbilityTemplate.Hostility != eHostility_Offensive)
+				continue;
+
+			bInputTriggered = false;
+			foreach AbilityTemplate.AbilityTriggers(Trigger)
+			{
+				if (Trigger.IsA('X2AbilityTrigger_PlayerInput'))
+				{
+					bInputTriggered = true;
+					break;
+				}
+			}
+			if (!bInputTriggered)
+				continue;
+
+			if (!AbilityTemplate.TargetEffectsDealDamage(none, none))
+				continue;
+
+			foreach AbilityTemplate.AbilityCosts(Cost)
+			{
+				ActionPointCost = X2AbilityCost_ActionPoints(Cost);
+				if (ActionPointCost != none)
+				{
+					ActionPointCost.DoNotConsumeAllEffects.AddItem('IRI_RN_X2Effect_TacticalAdvance_Effect');
+				}
+			}
+		}
+	}
+}
+
+
 
 static private function Skirmisher_ThunderLance_PatchOverrideicons()
 {
