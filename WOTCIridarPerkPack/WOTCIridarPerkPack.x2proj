@@ -117,10 +117,10 @@
     <Content Include="ContentForCook\Skirmisher\IRIThunderLancePerk.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="ContentForCook\Templar\IRISoulShot.upk">
+    <Content Include="ContentForCook\Templar\IRISoulShot2.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="ContentForCook\Templar\IRISoulShotPerk.upk">
+    <Content Include="ContentForCook\Templar\IRISoulShotPerk2.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Localization\BountyHunter\WOTCIridarPerkPack.int">
