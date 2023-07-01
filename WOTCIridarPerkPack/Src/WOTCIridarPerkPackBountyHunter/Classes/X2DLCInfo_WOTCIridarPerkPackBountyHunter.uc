@@ -385,7 +385,6 @@ static private function Ranger_TacticalAdvance_PatchAbilityCosts()
 	local X2AbilityTemplateManager		AbilityMgr;
 	local array<name>					TemplateNames;
 	local name							TemplateName;
-	local X2DataTemplate				DataTemplate;
 	local X2AbilityTrigger				Trigger;
 	local bool							bInputTriggered;
 	local X2AbilityCost					Cost;

@@ -122,6 +122,9 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 	MultiTargetRadius = new class'X2AbilityMultiTarget_Radius';
 	MultiTargetRadius.fTargetRadius = `TILESTOMETERS(3);
 	MultiTargetRadius.bExcludeSelfAsTargetIfWithinRadius = true;
+	MultiTargetRadius.bUseWeaponRadius = false;
+	MultiTargetRadius.bIgnoreBlockingCover = true;
+	MultiTargetRadius.NumTargetsRequired = 1; //At least someone must be in range
 	Template.AbilityMultiTargetStyle = MultiTargetRadius;
 
 	// Shootder conditions
@@ -141,12 +144,12 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 	Template.AbilityConfirmSound = "TacticalUI_SwordConfirm";
 	Template.BuildNewGameStateFn = TypicalMoveEndAbility_BuildGameState;
 	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildVisualizationFn = ZephyrStrike_BuildVisualization;
 
 	
-	
-	//Template.CinescriptCameraType = "Templar_IonicStorm";
-	//Template.ActivationSpeech = 'IonicStorm';
+	Template.ActivationSpeech = 'Reaper';
+	Template.CinescriptCameraType = "Ranger_Reaper";
+
 	//Template.CustomFireAnim = 'HL_IonicStorm';
 	//Template.CustomFireKillAnim = 'HL_IonicStorm';
 	//Template.DamagePreviewFn = IonicStormDamagePreview;
@@ -156,6 +159,236 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.MeleeLostSpawnIncreasePerUse;
 
 	return Template;
+}
+
+// Copypasted from Chimera Squad ability Crowd Control
+static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateHistory			History;
+	local XComGameStateVisualizationMgr VisualizationMgr;
+	local XComGameStateContext_Ability  Context;
+	local X2AbilityTemplate             AbilityTemplate;
+	local StateObjectReference          InteractingUnitRef;
+	local XComGameState_Unit			MultiTargetUnit, HellionUnitNewState;
+	local X2VisualizerInterface			TargetVisualizerInterface;
+	local EffectResults					MultiTargetResult;
+	local X2Effect                      TargetEffect;
+	local name                          ResultName, ApplyResult;
+	local bool                          TargetGotAnyEffects;
+	local X2Camera_Cinescript           CinescriptCamera;
+	local string                        PreviousCinescriptCameraType;
+	local Actor							TargetVisualizer;
+	local int							EffectIndex, MultiTargetIndex;
+	local TTile							TargetTile, BestTile;
+	local array<TTile>					MeleeTiles;
+	//local bool							bFinisherAnimation, bAlternateAnimation;
+
+	local VisualizationActionMetadata   EmptyMetadata;
+	local VisualizationActionMetadata   SourceMetadata;
+	local VisualizationActionMetadata	TargetMetadata;
+
+	local X2Action_PlayAnimation		BeginAnimAction;
+	local X2Action_PlayAnimation		SettleAnimAction;
+	local X2Action_PlaySoundAndFlyOver	SoundAndFlyover;
+	local X2Action_ForceUnitVisiblity_CS	UnitVisibilityAction;
+	local X2Action_ExitCover			ExitCoverAction;
+	local X2Action_EnterCover			EnterCoverAction;
+	local X2Action_StartCinescriptCamera CinescriptStartAction;
+	local X2Action_EndCinescriptCamera   CinescriptEndAction;
+	local X2Action_Fire_Faceoff_CS			 FireFaceoffAction;
+	local X2Action_ApplyWeaponDamageToUnit ApplyWeaponDamageAction;	
+	local X2Action_MarkerNamed			JoinActions;
+	local array<X2Action>				FoundActions;
+
+	History = `XCOMHISTORY;
+	VisualizationMgr = `XCOMVISUALIZATIONMGR;
+
+	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	AbilityTemplate = class'XComGameState_Ability'.static.GetMyTemplateManager().FindAbilityTemplate(Context.InputContext.AbilityTemplateName);
+
+	//Configure the visualization track for the shooter
+	InteractingUnitRef = Context.InputContext.SourceObject;
+	SourceMetadata = EmptyMetadata;
+	SourceMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	SourceMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
+	SourceMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
+	HellionUnitNewState = XComGameState_Unit(SourceMetadata.StateObject_NewState);
+
+	if (Context.InputContext.MovementPaths.Length > 0)
+	{
+		ExitCoverAction = X2Action_ExitCover(class'X2Action_ExitCover'.static.AddToVisualizationTree(SourceMetadata, Context));
+		ExitCoverAction.bSkipExitCoverVisualization = AbilityTemplate.bSkipExitCoverWhenFiring;
+
+		class'X2VisualizerHelpers'.static.ParsePath(Context, SourceMetadata, AbilityTemplate.bSkipMoveStop);
+	}
+
+	// Add a Camera Action to the Shooter's Metadata.  Minor hack: To create a CinescriptCamera the AbilityTemplate 
+	// must have a camera type.  So manually set one here, use it, then restore.
+	//PreviousCinescriptCameraType = AbilityTemplate.CinescriptCameraType;
+	//AbilityTemplate.CinescriptCameraType = "Hellion_CrowdControl";
+	CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
+	CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	CinescriptStartAction.CinescriptCamera = CinescriptCamera;
+	//AbilityTemplate.CinescriptCameraType = PreviousCinescriptCameraType;
+
+	// Exit Cover
+	ExitCoverAction = X2Action_ExitCover(class'X2Action_ExitCover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	ExitCoverAction.bSkipExitCoverVisualization = true;
+	
+	//PlayAnimation, start of crowd control
+	BeginAnimAction = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	BeginAnimAction.Params.AnimName = 'FF_CrowdControlStart';
+	BeginAnimAction.Params.PlayRate = BeginAnimAction.GetNonCriticalAnimationSpeed();
+
+	//Shooter Effects
+	for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityShooterEffects.Length; ++EffectIndex)
+	{
+		AbilityTemplate.AbilityShooterEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, SourceMetadata, Context.FindShooterEffectApplyResult(AbilityTemplate.AbilityShooterEffects[EffectIndex]));
+	}
+
+	//Shooter Flyover
+	if (AbilityTemplate.ActivationSpeech != '')
+	{
+		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, "", AbilityTemplate.ActivationSpeech, eColor_Good);
+	}
+
+	//PerkStart, Wait to start until the soldier tells us to
+	class'X2Action_AbilityPerkStart'.static.AddToVisualizationTree(SourceMetadata, Context, false, BeginAnimAction);
+
+	//Handle each multi-target	
+	for (MultiTargetIndex = 0; MultiTargetIndex < Context.InputContext.MultiTargets.Length; ++MultiTargetIndex)
+	{
+		MultiTargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(Context.InputContext.MultiTargets[MultiTargetIndex].ObjectID));
+		if (MultiTargetUnit == None)
+			continue;
+
+		MultiTargetResult = Context.ResultContext.MultiTargetEffectResults[MultiTargetIndex];
+
+		//Hellion cant attack itself
+		if (MultiTargetUnit.ObjectID == InteractingUnitRef.ObjectID)
+			continue;
+
+		//Don't visit targets which got no effect
+		TargetGotAnyEffects = false;
+		foreach MultiTargetResult.ApplyResults(ResultName)
+		{
+			if (ResultName == 'AA_Success')
+			{
+				TargetGotAnyEffects = true;
+				break;
+			}
+		}
+		if (!TargetGotAnyEffects)
+			continue;
+
+		//bFinisherAnimation = (MultiTargetIndex == Context.InputContext.MultiTargets.Length - 1);
+		//bAlternateAnimation = ((MultiTargetIndex % 2) != 0);
+
+		// Target Information
+		TargetVisualizer = History.GetVisualizer(MultiTargetUnit.ObjectID);
+		TargetMetadata = EmptyMetadata;
+		TargetMetadata.StateObject_OldState = History.GetGameStateForObjectID(MultiTargetUnit.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+		TargetMetadata.StateObject_NewState = MultiTargetUnit;
+		TargetMetadata.VisualizeActor = TargetVisualizer;
+
+		//Find BestTile to stand on for punch
+		TargetTile = MultiTargetUnit.TileLocation;		
+		class'Helpers'.static.FindAvailableNeighborTile(TargetTile, BestTile);
+		class'Helpers'.static.FindTilesForMeleeAttack(MultiTargetUnit, MeleeTiles);
+		if (MeleeTiles.Length > 0)
+		{
+			BestTile = MeleeTiles[0];
+		}
+
+		//Teleport to and face target
+		UnitVisibilityAction = X2Action_ForceUnitVisiblity_CS(class'X2Action_ForceUnitVisiblity_CS'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		UnitVisibilityAction.bMatchToCustomTile = true;
+		UnitVisibilityAction.bMatchFacingToCustom = true;
+		UnitVisibilityAction.CustomTileLocation = BestTile;
+		UnitVisibilityAction.CustomTileFacingTile = TargetTile;
+
+		// Add an action to pop the previous CinescriptCamera off the camera stack.
+		CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		CinescriptEndAction.CinescriptCamera = CinescriptCamera;
+		CinescriptEndAction.bForceEndImmediately = true;
+
+		// Add an action to push a new CinescriptCamera onto the camera stack.
+		//AbilityTemplate.CinescriptCameraType = (bFinisherAnimation) ? "Hellion_CrowdControlFinisher" : (bAlternateAnimation) ? "Hellion_CrowdControl2" : "Hellion_CrowdControl1";
+		CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
+		CinescriptCamera.TargetObjectIdOverride = MultiTargetUnit.ObjectID;
+		CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		CinescriptStartAction.CinescriptCamera = CinescriptCamera;
+		//AbilityTemplate.CinescriptCameraType = PreviousCinescriptCameraType;
+
+		// Add a custom Fire action to the shooter Metadata.		
+		FireFaceoffAction = X2Action_Fire_Faceoff_CS(class'X2Action_Fire_Faceoff_CS'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		FireFaceoffAction.SetFireParameters(Context.IsResultContextMultiHit(MultiTargetIndex), MultiTargetUnit.ObjectID, false);
+		FireFaceoffAction.vTargetLocation = TargetVisualizer.Location;
+		//FireFaceoffAction.CustomFireAnimOverride = (bFinisherAnimation) ? 'FF_CrowdControlFinisher' : (bAlternateAnimation) ? 'FF_CrowdControl2' : 'FF_CrowdControl1';
+		FireFaceoffAction.FireAnimBlendTime = 0.0f;
+		FireFaceoffAction.bEnableRMATranslation = false;
+
+		//Target Effects
+		for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityMultiTargetEffects.Length; ++EffectIndex)
+		{
+			TargetEffect = AbilityTemplate.AbilityMultiTargetEffects[EffectIndex];
+			ApplyResult = Context.FindMultiTargetEffectApplyResult(TargetEffect, MultiTargetIndex);
+
+			// Target effect visualization
+			AbilityTemplate.AbilityMultiTargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, TargetMetadata, ApplyResult);
+
+			// Source effect visualization
+			AbilityTemplate.AbilityMultiTargetEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceMetadata, ApplyResult);
+		}
+
+		TargetVisualizerInterface = X2VisualizerInterface(TargetVisualizer);
+		if (TargetVisualizerInterface != none)
+		{
+			//Allow the visualizer to do any custom processing based on the new game state. For example, units will create a death action when they reach 0 HP.
+			TargetVisualizerInterface.BuildAbilityEffectsVisualization(VisualizeGameState, TargetMetadata);
+		}
+
+		ApplyWeaponDamageAction = X2Action_ApplyWeaponDamageToUnit(VisualizationMgr.GetNodeOfType(VisualizationMgr.BuildVisTree, class'X2Action_ApplyWeaponDamageToUnit', TargetVisualizer));
+		if (ApplyWeaponDamageAction != None)
+		{
+			VisualizationMgr.DisconnectAction(ApplyWeaponDamageAction);
+			VisualizationMgr.ConnectAction(ApplyWeaponDamageAction, VisualizationMgr.BuildVisTree, false, FireFaceoffAction);
+		}
+	}
+	
+	//Teleport to our Starting Location
+	UnitVisibilityAction = X2Action_ForceUnitVisiblity_CS(class'X2Action_ForceUnitVisiblity_CS'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	UnitVisibilityAction.bMatchToCustomTile = true;
+	UnitVisibilityAction.CustomTileLocation = HellionUnitNewState.TileLocation;
+	UnitVisibilityAction.bMatchFacingToCustom = true;
+	UnitVisibilityAction.CustomTileFacingTile = TargetTile; // Face the last target
+
+	//PlayAnimation, end of crowd control
+	SettleAnimAction = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	SettleAnimAction.Params.AnimName = 'FF_CrowdControlEnd';
+	SettleAnimAction.Params.PlayRate = BeginAnimAction.GetNonCriticalAnimationSpeed();
+	SettleAnimAction.Params.BlendTime = 0.0f;
+	
+	// Perk End
+	class'X2Action_AbilityPerkEnd'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded);
+
+	//Enter Cover (but skip animation)
+	EnterCoverAction = X2Action_EnterCover(class'X2Action_EnterCover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	EnterCoverAction.bSkipEnterCover = true;
+
+	// Add an action to pop the last CinescriptCamera off the camera stack.
+	CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	CinescriptEndAction.CinescriptCamera = CinescriptCamera;
+
+	// Join
+	VisualizationMgr.GetAllLeafNodes(VisualizationMgr.BuildVisTree, FoundActions);
+
+	if (VisualizationMgr.BuildVisTree.ChildActions.Length > 0)
+	{
+		JoinActions = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SourceMetadata, Context, false, none, FoundActions));
+		JoinActions.SetName("Join");
+	}
 }
 
 

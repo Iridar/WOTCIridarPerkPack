@@ -257,6 +257,12 @@
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Ability_ClassRework.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Action_Fire_Faceoff_CS.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Action_ForceUnitVisiblity_CS.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Effect_TacticalAdvance.uc">
       <SubType>Content</SubType>
     </Content>
