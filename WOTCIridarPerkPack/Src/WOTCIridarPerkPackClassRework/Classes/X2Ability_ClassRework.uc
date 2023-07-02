@@ -148,10 +148,10 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 
 	
 	Template.ActivationSpeech = 'Reaper';
-	Template.CinescriptCameraType = "Ranger_Reaper";
+	//Template.CinescriptCameraType = "IRI_RN_ZephyrStrike_Camera";
 
-	//Template.CustomFireAnim = 'HL_IonicStorm';
-	//Template.CustomFireKillAnim = 'HL_IonicStorm';
+	Template.CustomFireAnim = 'FF_ZephyrStrike';
+	Template.CustomFireKillAnim = 'FF_ZephyrStrike';
 	//Template.DamagePreviewFn = IonicStormDamagePreview;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
@@ -176,35 +176,37 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 	local name                          ResultName, ApplyResult;
 	local bool                          TargetGotAnyEffects;
 	local X2Camera_Cinescript           CinescriptCamera;
-	local string                        PreviousCinescriptCameraType;
 	local Actor							TargetVisualizer;
 	local int							EffectIndex, MultiTargetIndex;
 	local TTile							TargetTile, BestTile;
 	local array<TTile>					MeleeTiles;
 	//local bool							bFinisherAnimation, bAlternateAnimation;
 
-	local VisualizationActionMetadata   EmptyMetadata;
-	local VisualizationActionMetadata   SourceMetadata;
-	local VisualizationActionMetadata	TargetMetadata;
+	local VisualizationActionMetadata		EmptyMetadata;
+	local VisualizationActionMetadata		SourceMetadata;
+	local VisualizationActionMetadata		TargetMetadata;
 
-	local X2Action_PlayAnimation		BeginAnimAction;
-	local X2Action_PlayAnimation		SettleAnimAction;
-	local X2Action_PlaySoundAndFlyOver	SoundAndFlyover;
+	local X2Action_PlayAnimation			BeginAnimAction;
+	local X2Action_PlayAnimation			SettleAnimAction;
+	local X2Action_PlaySoundAndFlyOver		SoundAndFlyover;
 	local X2Action_ForceUnitVisiblity_CS	UnitVisibilityAction;
-	local X2Action_ExitCover			ExitCoverAction;
-	local X2Action_EnterCover			EnterCoverAction;
-	local X2Action_StartCinescriptCamera CinescriptStartAction;
-	local X2Action_EndCinescriptCamera   CinescriptEndAction;
-	local X2Action_Fire_Faceoff_CS			 FireFaceoffAction;
-	local X2Action_ApplyWeaponDamageToUnit ApplyWeaponDamageAction;	
-	local X2Action_MarkerNamed			JoinActions;
-	local array<X2Action>				FoundActions;
+	local X2Action_ExitCover				ExitCoverAction;
+	local X2Action_EnterCover				EnterCoverAction;
+	local X2Action_StartCinescriptCamera	CinescriptStartAction;
+	local X2Action_EndCinescriptCamera		CinescriptEndAction;
+	local X2Action_Fire_Faceoff_CS			FireFaceoffAction;
+	local X2Action_ApplyWeaponDamageToUnit	ApplyWeaponDamageAction;	
+	local X2Action_MarkerNamed				JoinActions;
+	local array<X2Action>					FoundActions;
+	local array<name>						HitAnimationOverrides;
+	local array<name>						MissAnimationOverrides;
 
 	History = `XCOMHISTORY;
 	VisualizationMgr = `XCOMVISUALIZATIONMGR;
 
 	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
 	AbilityTemplate = class'XComGameState_Ability'.static.GetMyTemplateManager().FindAbilityTemplate(Context.InputContext.AbilityTemplateName);
+	AbilityTemplate.CinescriptCameraType = "IRI_RN_ZephyrStrike_Camera"; // Iridar:Hack, but Firaxis does it, and we set it back afterwards anyway.
 
 	//Configure the visualization track for the shooter
 	InteractingUnitRef = Context.InputContext.SourceObject;
@@ -226,9 +228,9 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 	// must have a camera type.  So manually set one here, use it, then restore.
 	//PreviousCinescriptCameraType = AbilityTemplate.CinescriptCameraType;
 	//AbilityTemplate.CinescriptCameraType = "Hellion_CrowdControl";
-	CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
-	CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
-	CinescriptStartAction.CinescriptCamera = CinescriptCamera;
+	//CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
+	//CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	//CinescriptStartAction.CinescriptCamera = CinescriptCamera;
 	//AbilityTemplate.CinescriptCameraType = PreviousCinescriptCameraType;
 
 	// Exit Cover
@@ -328,7 +330,8 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 		//FireFaceoffAction.CustomFireAnimOverride = (bFinisherAnimation) ? 'FF_CrowdControlFinisher' : (bAlternateAnimation) ? 'FF_CrowdControl2' : 'FF_CrowdControl1';
 		FireFaceoffAction.FireAnimBlendTime = 0.0f;
 		FireFaceoffAction.bEnableRMATranslation = false;
-
+	//FireFaceoffAction.AnimationOverride = ZephyrStrike_GetAnimationOverride(HitAnimationOverrides, MissAnimationOverrides, Context.IsResultContextMultiHit(MultiTargetIndex));
+		
 		//Target Effects
 		for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityMultiTargetEffects.Length; ++EffectIndex)
 		{
@@ -366,7 +369,8 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 
 	//PlayAnimation, end of crowd control
 	SettleAnimAction = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
-	SettleAnimAction.Params.AnimName = 'FF_CrowdControlEnd';
+	SettleAnimAction.Params.AnimName = 'FF_MeleeKill';
+	SettleAnimAction.Params.StartOffsetTime = 1.3f;
 	SettleAnimAction.Params.PlayRate = BeginAnimAction.GetNonCriticalAnimationSpeed();
 	SettleAnimAction.Params.BlendTime = 0.0f;
 	
@@ -389,6 +393,47 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 		JoinActions = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SourceMetadata, Context, false, none, FoundActions));
 		JoinActions.SetName("Join");
 	}
+
+	AbilityTemplate.CinescriptCameraType = "";
+}
+
+static private function name ZephyrStrike_GetAnimationOverride(out array<name> HitAnimationOverrides, out array<name> MissAnimationOverrides, const bool bWasHit)
+{
+	local name OverrideAnimation;
+
+	if (bWasHit)
+	{
+		if (HitAnimationOverrides.Length == 0)
+		{
+			HitAnimationOverrides.AddItem('FF_Melee');
+			HitAnimationOverrides.AddItem('MV_Melee');
+			//HitAnimationOverrides.AddItem('MV_RunTurn90LeftMelee');
+			//HitAnimationOverrides.AddItem('MV_RunTurn90RightMelee');
+		}
+
+		OverrideAnimation = HitAnimationOverrides[Rand(HitAnimationOverrides.Length)];
+
+		HitAnimationOverrides.RemoveItem(OverrideAnimation);
+
+		return OverrideAnimation;
+	}
+	else
+	{
+		if (MissAnimationOverrides.Length == 0)
+		{
+			MissAnimationOverrides.AddItem('MV_MeleeMiss');
+			MissAnimationOverrides.AddItem('FF_MeleeMiss');
+			//MissAnimationOverrides.AddItem('MV_RunTurn90LeftMeleeMiss');
+			//MissAnimationOverrides.AddItem('MV_RunTurn90RightMeleeMiss');
+		}
+
+		OverrideAnimation = MissAnimationOverrides[Rand(MissAnimationOverrides.Length)];
+
+		MissAnimationOverrides.RemoveItem(OverrideAnimation);
+
+		return OverrideAnimation;
+	}
+	return '';
 }
 
 

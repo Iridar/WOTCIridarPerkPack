@@ -13,9 +13,11 @@
     <Folder Include="Config\" />
     <Folder Include="Config\Base\" />
     <Folder Include="Config\BountyHunter" />
+    <Folder Include="Config\ClassRework" />
     <Folder Include="Config\Skirmisher" />
     <Folder Include="Config\Templar" />
     <Folder Include="ContentForCook\BountyHunter" />
+    <Folder Include="ContentForCook\ClassRework" />
     <Folder Include="ContentForCook\Skirmisher" />
     <Folder Include="ContentForCook\Templar" />
     <Folder Include="Localization\" />
@@ -64,6 +66,9 @@
     <Content Include="Config\BountyHunter\XComRPG.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\ClassRework\XComCamera.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Skirmisher\XComCamera.ini">
       <SubType>Content</SubType>
     </Content>
@@ -104,6 +109,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\BountyHunter\IRITerminatePerk.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\ClassRework\IRIZephyrStrikePerk.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\IRIPerkPackUI.upk">

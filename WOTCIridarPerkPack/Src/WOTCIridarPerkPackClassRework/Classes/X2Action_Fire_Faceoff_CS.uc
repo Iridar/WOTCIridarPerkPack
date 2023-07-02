@@ -6,6 +6,9 @@ var public float FireAnimBlendTime;
 var bool bEnableRMATranslation;
 var transient vector vTargetLocation;
 
+var private AnimNodeSequence FireSeq;
+var name AnimationOverride;
+
 simulated state Executing
 {
 	// This overrides (and is based on) the parent version, but is simpler.
@@ -13,7 +16,7 @@ simulated state Executing
 	{
 		local Vector NewTargetLoc;
 
-		if(!bNotifiedTargets && !bHaltAimUpdates )
+		if (!bNotifiedTargets && !bHaltAimUpdates )
 		{
 			if((PrimaryTarget != none))
 			{
@@ -65,7 +68,18 @@ Begin:
 	SnapUnitPawnToTargetDirIfNeeded();
 
 	AnimParams.BlendTime = FireAnimBlendTime;
-	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams));
+
+	AnimParams.AnimName = AnimationOverride;
+
+	// Iridar: 
+	// Skip first part of the fire animation where the soldier pulls out their sword
+	AnimParams.StartOffsetTime = 0.5f;
+	FireSeq = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
+
+	// Iridar: skip ending part of the fire animation where the soldier puts their sword back.
+	FireSeq.SetEndTime(1.3f);
+
+	FinishAnim(FireSeq);
 
 	//Failure case handling! We failed to notify our targets that damage was done. Notify them now.
 	SetTargetUnitDiscState();
