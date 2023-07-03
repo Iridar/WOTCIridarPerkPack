@@ -149,9 +149,7 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 	
 	Template.ActivationSpeech = 'Reaper';
 	//Template.CinescriptCameraType = "IRI_RN_ZephyrStrike_Camera";
-
-	Template.CustomFireAnim = 'FF_ZephyrStrike';
-	Template.CustomFireKillAnim = 'FF_ZephyrStrike';
+	//SetFireAnim(Template, 'FF_ZephyrStrike');
 	//Template.DamagePreviewFn = IonicStormDamagePreview;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
@@ -330,7 +328,7 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 		//FireFaceoffAction.CustomFireAnimOverride = (bFinisherAnimation) ? 'FF_CrowdControlFinisher' : (bAlternateAnimation) ? 'FF_CrowdControl2' : 'FF_CrowdControl1';
 		FireFaceoffAction.FireAnimBlendTime = 0.0f;
 		FireFaceoffAction.bEnableRMATranslation = false;
-	//FireFaceoffAction.AnimationOverride = ZephyrStrike_GetAnimationOverride(HitAnimationOverrides, MissAnimationOverrides, Context.IsResultContextMultiHit(MultiTargetIndex));
+		FireFaceoffAction.AnimationOverride = ZephyrStrike_GetAnimationOverride(HitAnimationOverrides, MissAnimationOverrides, Context.IsResultContextMultiHit(MultiTargetIndex));
 		
 		//Target Effects
 		for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityMultiTargetEffects.Length; ++EffectIndex)
@@ -405,6 +403,8 @@ static private function name ZephyrStrike_GetAnimationOverride(out array<name> H
 	{
 		if (HitAnimationOverrides.Length == 0)
 		{
+			HitAnimationOverrides.AddItem('FF_ZephyrStrikeA');
+			HitAnimationOverrides.AddItem('FF_ZephyrStrikeB');
 			HitAnimationOverrides.AddItem('FF_Melee');
 			HitAnimationOverrides.AddItem('MV_Melee');
 			//HitAnimationOverrides.AddItem('MV_RunTurn90LeftMelee');
@@ -421,8 +421,10 @@ static private function name ZephyrStrike_GetAnimationOverride(out array<name> H
 	{
 		if (MissAnimationOverrides.Length == 0)
 		{
-			MissAnimationOverrides.AddItem('MV_MeleeMiss');
-			MissAnimationOverrides.AddItem('FF_MeleeMiss');
+			HitAnimationOverrides.AddItem('FF_ZephyrStrikeMissA');
+			HitAnimationOverrides.AddItem('FF_ZephyrStrikeMissB');
+			HitAnimationOverrides.AddItem('FF_MeleeMiss');
+			HitAnimationOverrides.AddItem('MV_MeleeMiss');
 			//MissAnimationOverrides.AddItem('MV_RunTurn90LeftMeleeMiss');
 			//MissAnimationOverrides.AddItem('MV_RunTurn90RightMeleeMiss');
 		}

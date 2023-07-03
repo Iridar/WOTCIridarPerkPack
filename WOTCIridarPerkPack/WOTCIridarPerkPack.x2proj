@@ -114,6 +114,9 @@
     <Content Include="ContentForCook\ClassRework\IRIZephyrStrikePerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\ClassRework\IRIZephyrStrikePerkOnly.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\IRIPerkPackUI.upk">
       <SubType>Content</SubType>
     </Content>

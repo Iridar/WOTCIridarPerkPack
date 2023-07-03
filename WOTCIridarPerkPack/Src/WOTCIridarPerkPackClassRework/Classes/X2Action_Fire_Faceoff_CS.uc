@@ -69,8 +69,13 @@ Begin:
 
 	AnimParams.BlendTime = FireAnimBlendTime;
 
-	AnimParams.AnimName = AnimationOverride;
+	if (AnimationOverride != '')
+	{
+		AnimParams.AnimName = AnimationOverride;
 
+		
+	}
+	`AMLOG("AnimParams.AnimName:" @ AnimParams.AnimName);
 	// Iridar: 
 	// Skip first part of the fire animation where the soldier pulls out their sword
 	AnimParams.StartOffsetTime = 0.5f;
