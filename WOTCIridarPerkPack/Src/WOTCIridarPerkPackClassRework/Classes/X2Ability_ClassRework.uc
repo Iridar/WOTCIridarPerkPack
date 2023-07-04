@@ -196,8 +196,7 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 	local X2Action_ApplyWeaponDamageToUnit	ApplyWeaponDamageAction;	
 	local X2Action_MarkerNamed				JoinActions;
 	local array<X2Action>					FoundActions;
-	local array<name>						HitAnimationOverrides;
-	local array<name>						MissAnimationOverrides;
+	local array<name>						AnimationOverrides;
 
 	History = `XCOMHISTORY;
 	VisualizationMgr = `XCOMVISUALIZATIONMGR;
@@ -224,12 +223,9 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 
 	// Add a Camera Action to the Shooter's Metadata.  Minor hack: To create a CinescriptCamera the AbilityTemplate 
 	// must have a camera type.  So manually set one here, use it, then restore.
-	//PreviousCinescriptCameraType = AbilityTemplate.CinescriptCameraType;
-	//AbilityTemplate.CinescriptCameraType = "Hellion_CrowdControl";
-	//CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
-	//CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
-	//CinescriptStartAction.CinescriptCamera = CinescriptCamera;
-	//AbilityTemplate.CinescriptCameraType = PreviousCinescriptCameraType;
+	CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
+	CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	CinescriptStartAction.CinescriptCamera = CinescriptCamera;
 
 	// Exit Cover
 	ExitCoverAction = X2Action_ExitCover(class'X2Action_ExitCover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
@@ -237,7 +233,7 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 	
 	//PlayAnimation, start of crowd control
 	BeginAnimAction = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
-	BeginAnimAction.Params.AnimName = 'FF_CrowdControlStart';
+	BeginAnimAction.Params.AnimName = 'FF_ZephyrStrikeStart';
 	BeginAnimAction.Params.PlayRate = BeginAnimAction.GetNonCriticalAnimationSpeed();
 
 	//Shooter Effects
@@ -252,6 +248,12 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
 		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, "", AbilityTemplate.ActivationSpeech, eColor_Good);
 	}
+
+	// Add an action to pop the last CinescriptCamera off the camera stack.
+	CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	CinescriptEndAction.CinescriptCamera = CinescriptCamera;
+
+	AbilityTemplate.CinescriptCameraType = "IRI_RN_ZephyrStrike_Camera_Target";
 
 	//PerkStart, Wait to start until the soldier tells us to
 	class'X2Action_AbilityPerkStart'.static.AddToVisualizationTree(SourceMetadata, Context, false, BeginAnimAction);
@@ -309,26 +311,23 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 		UnitVisibilityAction.CustomTileFacingTile = TargetTile;
 
 		// Add an action to pop the previous CinescriptCamera off the camera stack.
-		CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
-		CinescriptEndAction.CinescriptCamera = CinescriptCamera;
-		CinescriptEndAction.bForceEndImmediately = true;
+		//CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		//CinescriptEndAction.CinescriptCamera = CinescriptCamera;
+		//CinescriptEndAction.bForceEndImmediately = true;
 
 		// Add an action to push a new CinescriptCamera onto the camera stack.
-		//AbilityTemplate.CinescriptCameraType = (bFinisherAnimation) ? "Hellion_CrowdControlFinisher" : (bAlternateAnimation) ? "Hellion_CrowdControl2" : "Hellion_CrowdControl1";
 		CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
 		CinescriptCamera.TargetObjectIdOverride = MultiTargetUnit.ObjectID;
 		CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
 		CinescriptStartAction.CinescriptCamera = CinescriptCamera;
-		//AbilityTemplate.CinescriptCameraType = PreviousCinescriptCameraType;
 
 		// Add a custom Fire action to the shooter Metadata.		
 		FireFaceoffAction = X2Action_Fire_Faceoff_CS(class'X2Action_Fire_Faceoff_CS'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
 		FireFaceoffAction.SetFireParameters(Context.IsResultContextMultiHit(MultiTargetIndex), MultiTargetUnit.ObjectID, false);
 		FireFaceoffAction.vTargetLocation = TargetVisualizer.Location;
-		//FireFaceoffAction.CustomFireAnimOverride = (bFinisherAnimation) ? 'FF_CrowdControlFinisher' : (bAlternateAnimation) ? 'FF_CrowdControl2' : 'FF_CrowdControl1';
 		FireFaceoffAction.FireAnimBlendTime = 0.0f;
 		FireFaceoffAction.bEnableRMATranslation = false;
-		FireFaceoffAction.AnimationOverride = ZephyrStrike_GetAnimationOverride(HitAnimationOverrides, MissAnimationOverrides, Context.IsResultContextMultiHit(MultiTargetIndex));
+		FireFaceoffAction.AnimationOverride = ZephyrStrike_GetAnimationOverride(AnimationOverrides);
 		
 		//Target Effects
 		for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityMultiTargetEffects.Length; ++EffectIndex)
@@ -356,6 +355,10 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 			VisualizationMgr.DisconnectAction(ApplyWeaponDamageAction);
 			VisualizationMgr.ConnectAction(ApplyWeaponDamageAction, VisualizationMgr.BuildVisTree, false, FireFaceoffAction);
 		}
+
+		// Add an action to pop the last CinescriptCamera off the camera stack.
+		CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		CinescriptEndAction.CinescriptCamera = CinescriptCamera;
 	}
 	
 	//Teleport to our Starting Location
@@ -367,8 +370,8 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 
 	//PlayAnimation, end of crowd control
 	SettleAnimAction = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
-	SettleAnimAction.Params.AnimName = 'FF_MeleeKill';
-	SettleAnimAction.Params.StartOffsetTime = 1.3f;
+	SettleAnimAction.Params.AnimName = 'FF_ZephyrStrikeFinish';
+	//SettleAnimAction.Params.StartOffsetTime = 1.3f;
 	SettleAnimAction.Params.PlayRate = BeginAnimAction.GetNonCriticalAnimationSpeed();
 	SettleAnimAction.Params.BlendTime = 0.0f;
 	
@@ -378,10 +381,6 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 	//Enter Cover (but skip animation)
 	EnterCoverAction = X2Action_EnterCover(class'X2Action_EnterCover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
 	EnterCoverAction.bSkipEnterCover = true;
-
-	// Add an action to pop the last CinescriptCamera off the camera stack.
-	CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
-	CinescriptEndAction.CinescriptCamera = CinescriptCamera;
 
 	// Join
 	VisualizationMgr.GetAllLeafNodes(VisualizationMgr.BuildVisTree, FoundActions);
@@ -395,47 +394,26 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 	AbilityTemplate.CinescriptCameraType = "";
 }
 
-static private function name ZephyrStrike_GetAnimationOverride(out array<name> HitAnimationOverrides, out array<name> MissAnimationOverrides, const bool bWasHit)
+static private function name ZephyrStrike_GetAnimationOverride(out array<name> AnimationOverrides)
 {
 	local name OverrideAnimation;
 
-	if (bWasHit)
+	if (AnimationOverrides.Length == 0)
 	{
-		if (HitAnimationOverrides.Length == 0)
-		{
-			HitAnimationOverrides.AddItem('FF_ZephyrStrikeA');
-			HitAnimationOverrides.AddItem('FF_ZephyrStrikeB');
-			HitAnimationOverrides.AddItem('FF_Melee');
-			HitAnimationOverrides.AddItem('MV_Melee');
-			//HitAnimationOverrides.AddItem('MV_RunTurn90LeftMelee');
-			//HitAnimationOverrides.AddItem('MV_RunTurn90RightMelee');
-		}
-
-		OverrideAnimation = HitAnimationOverrides[Rand(HitAnimationOverrides.Length)];
-
-		HitAnimationOverrides.RemoveItem(OverrideAnimation);
-
-		return OverrideAnimation;
+		//AnimationOverrides.AddItem('FF_ZephyrStrikeA'); // Same stab as B, but without a step-in.
+		AnimationOverrides.AddItem('FF_ZephyrStrikeB');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeC');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeD');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeE');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeF');
+		//AnimationOverrides.AddItem('FF_ZephyrStrikeG'); // Rising part of the Cross Strike doesn't look too good
 	}
-	else
-	{
-		if (MissAnimationOverrides.Length == 0)
-		{
-			HitAnimationOverrides.AddItem('FF_ZephyrStrikeMissA');
-			HitAnimationOverrides.AddItem('FF_ZephyrStrikeMissB');
-			HitAnimationOverrides.AddItem('FF_MeleeMiss');
-			HitAnimationOverrides.AddItem('MV_MeleeMiss');
-			//MissAnimationOverrides.AddItem('MV_RunTurn90LeftMeleeMiss');
-			//MissAnimationOverrides.AddItem('MV_RunTurn90RightMeleeMiss');
-		}
 
-		OverrideAnimation = MissAnimationOverrides[Rand(MissAnimationOverrides.Length)];
+	OverrideAnimation = AnimationOverrides[Rand(AnimationOverrides.Length)];
 
-		MissAnimationOverrides.RemoveItem(OverrideAnimation);
+	AnimationOverrides.RemoveItem(OverrideAnimation);
 
-		return OverrideAnimation;
-	}
-	return '';
+	return OverrideAnimation;
 }
 
 

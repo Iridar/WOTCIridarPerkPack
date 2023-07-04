@@ -6,7 +6,6 @@ var public float FireAnimBlendTime;
 var bool bEnableRMATranslation;
 var transient vector vTargetLocation;
 
-var private AnimNodeSequence FireSeq;
 var name AnimationOverride;
 
 simulated state Executing
@@ -72,19 +71,8 @@ Begin:
 	if (AnimationOverride != '')
 	{
 		AnimParams.AnimName = AnimationOverride;
-
-		
 	}
-	`AMLOG("AnimParams.AnimName:" @ AnimParams.AnimName);
-	// Iridar: 
-	// Skip first part of the fire animation where the soldier pulls out their sword
-	AnimParams.StartOffsetTime = 0.5f;
-	FireSeq = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
-
-	// Iridar: skip ending part of the fire animation where the soldier puts their sword back.
-	FireSeq.SetEndTime(1.3f);
-
-	FinishAnim(FireSeq);
+	FinishAnim(UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams));
 
 	//Failure case handling! We failed to notify our targets that damage was done. Notify them now.
 	SetTargetUnitDiscState();
