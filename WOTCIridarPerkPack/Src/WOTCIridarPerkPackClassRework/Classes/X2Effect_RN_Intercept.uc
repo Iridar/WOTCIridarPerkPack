@@ -2,44 +2,11 @@ class X2Effect_RN_Intercept extends X2Effect_Persistent;
 
 var name TriggerEventName;			//	Name of the event that will activate Interception. Not sure it makes sense to have it as anything other than 'AbilityActivated'.
 var bool bMoveAfterAttack;			//	Whether the soldier should return to their original tile after Interception.
-var int	 iGrantAP;					//	How many AP should be granted before every Interception. Determines the interception distance, mostly.
 var bool bAllowInterrupt;			//	Whether Interception is allowed to happen during the interrupt stage.
 var bool bAllowNonInterrupt;		//	[...] during non-Interrupt stage.
 var bool bAllowNonInterrupt_IfNonInterruptible;	// [...] during non-Interrupt stage, but only for abilities that don't have a BuildInterruptGameStateFn
 var bool bInterceptMovementOnly;	//	Whether the soldier is allowed to Intercept only enemy movement.
 var bool bAllowCoveringFire;		//	If bInterceptMovementOnly, allow to Intercept all kinds of ability activations, if the soldier has the covering fire ability.
-var bool bAllowGuardian;			//	Whether the Intercepting unit can attempt another Interception if they have the Guardian ability.
-var name UseActionPoint;			//	Name of the Overwatch Action Point used by Intercept.
-
-//	Mimic X2Effect_ReserveOverwatchPoints, but grant a different overwatch action point type.
-simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState, XComGameState_Effect NewEffectState)
-{
-	local XComGameState_Unit TargetUnitState;
-	local int i, Points;
-
-	TargetUnitState = XComGameState_Unit(kNewTargetState);
-	if (TargetUnitState != none)
-	{
-		Points = GetNumPoints(TargetUnitState);
-
-		TargetUnitState.ActionPoints.Length = 0;
-
-		for (i = 0; i < Points; i++)
-		{
-			TargetUnitState.ReserveActionPoints.AddItem(default.UseActionPoint);
-		}
-	}
-}
-
-final protected function int GetNumPoints(XComGameState_Unit UnitState)
-{
-	if (UnitState.HasSoldierAbility('SkirmisherAmbush'))
-	{
-		return 2; // Waylay interaction - reworked it grants 2 points.
-	}
-	
-	return 1;
-}
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
@@ -55,7 +22,7 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 	EventMgr.RegisterForEvent(EffectObj, TriggerEventName, Intercept_Listener, ELD_OnStateSubmitted,, ,, EffectObj);	
 }
 
-static final function EventListenerReturn Intercept_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+static private function EventListenerReturn Intercept_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
 {
 	local XComGameState_Unit			TargetUnit, ChainStartTarget, UnitState;
 	local XComGameStateContext_Ability	AbilityContext;
@@ -67,15 +34,13 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 	local XComGameState					NewGameState;
 	local GameRulesCache_Unit			UnitCache;
 	local StateObjectReference			AbilityRef;
-	local bool							bUnitWasSuperConcealed;
 	local bool							bMoveActivated;
 	local XComGameState_Ability			AbilityState;
-	local XComGameState_Ability			GuardianAbilityState;
 	local X2AbilityTemplate				AbilityTemplate;
 	local XGUnit						Visualizer;
 	local array<TTile>					Path;
 	local TTile							ReturnTile;
-	local array<Vector>					ReturnLocations;
+	local bool							bTargetMoving;
 	local int i, j, z;
 
 	//	========================================================================
@@ -85,6 +50,17 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 	InterceptEffect = X2Effect_RN_Intercept(EffectState.GetX2Effect()); //	Grab the Intercept Effect so we can freely check its properties in this static function.
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
 	if (AbilityContext == none || InterceptEffect == none || EffectState == none) return ELR_NoInterrupt;
+
+	//	Exit listener if it was activated by the unit who applied this effect.
+	if (AbilityContext.InputContext.SourceObject == EffectState.ApplyEffectParameters.SourceStateObjectRef)
+		return ELR_NoInterrupt;
+
+	//	Exit if the ability the target unit is using to move is typically ignored by Overwatch (e.g. Teleport)
+	if (class'X2Ability_DefaultAbilitySet'.default.OverwatchIgnoreAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) != INDEX_NONE)
+	{
+		`LOG("X2Effect_RN_Intercept: Intercept_Listener: ability is ignored by overwatch, exiting: " @ AbilityContext.InputContext.AbilityTemplateName, class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
+		return ELR_NoInterrupt;
+	}
 
 	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityContext.InputContext.AbilityTemplateName);
 	if (AbilityTemplate == none || IsReactionFireAbility(AbilityTemplate))
@@ -120,15 +96,17 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 			else return ELR_NoInterrupt;	//	We don't allow non-interruptible abilities to proceed during non-interrupt stage.
 		}
 	}
-	
-	//	Exit listener if it was activated by the unit who applied this effect.
-	if (AbilityContext.InputContext.SourceObject == EffectState.ApplyEffectParameters.SourceStateObjectRef) return ELR_NoInterrupt;
 
+	// Don't Intercept while concealed
 	History = `XCOMHISTORY;
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(EffectState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
+	if (UnitState == none || UnitState.IsConcealed()) 
+		return ELR_NoInterrupt;
+
+	bTargetMoving = IsTargetUnitMoving(AbilityContext.InputContext.SourceObject.ObjectID, AbilityContext.InputContext.MovementPaths);
 
 	//	Exit Listener if we only want to intercept movement abilities and this ability doesn't contain movement
-	if (InterceptEffect.bInterceptMovementOnly && AbilityContext.InputContext.MovementPaths.Length == 0) 
+	if (InterceptEffect.bInterceptMovementOnly && !bTargetMoving) 
 	{
 		//	Unless we allow Covering Fire, and the soldier has that ability.
 		if (!InterceptEffect.bAllowCoveringFire || !UnitState.HasSoldierAbility('CoveringFire', true))
@@ -142,32 +120,23 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 		}
 	}
 	
-	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
+	TargetUnit = XComGameState_Unit(GameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
 	
 	`LOG("X2Effect_RN_Intercept: Intercept_Listener: activated for" @ UnitState.GetFullName() @ "against unit:" @ TargetUnit.GetFullName() @ "using ability: " @ AbilityContext.InputContext.AbilityTemplateName @ "we interrupt:" @ GameState.GetContext().InterruptionStatus == eInterruptionStatus_Interrupt @ "History Index:" @ History.GetCurrentHistoryIndex() @ "with event:" @ InterceptEffect.TriggerEventName @ "DesiredVisualizationBlockIndex:" @ AbilityContext.DesiredVisualizationBlockIndex, class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
 	
-	//	Exit listener if the moving unit is not an enemy or if the source unit is concealed.
-	if (!UnitState.IsEnemyUnit(TargetUnit) || TargetUnit.IsDead() || UnitState.IsConcealed())
+	//	Exit listener if the moving unit is not an enemy
+	if (TargetUnit == none || !UnitState.IsEnemyUnit(TargetUnit) || TargetUnit.IsDead())
 	{
 		`LOG("X2Effect_RN_Intercept: Intercept_Listener: exiting listener because the TargetUnit is not an enemy:" @ !UnitState.IsEnemyUnit(TargetUnit) @ "Target Unit is dead:" @ TargetUnit.IsDead() @ "or Intercepting unit is concealed, which we don't allow:" @ UnitState.IsConcealed(), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
 		return ELR_NoInterrupt;
 	}
 
-	//	If the enemy is using an ability that involves movement and has the Intercepting unit as the primary target, it's probably a running melee attack, and that unit is gonna approach us anyway. 
-	//	In that case, we dely the interception until the enemy is very close to us.  We solve two birds with this:
-	//	1. Avoid moving the soldier if the enemy would be approaching them anyway, reducing the chance of the soldier getting themselves into trouble, like triggering Overwatch fire and revealing pods.
-	//	2. This is pretty much necessary for sensible visualization if we don't perform a return move action, because then the enemy would still continue running to the tile that was formerly occupied by the unit 
-	//	before they performed the Interception.
-	if (AbilityContext.InputContext.MovementPaths.Length != 0 && AbilityContext.InputContext.PrimaryTarget.ObjectID == UnitState.ObjectID)
+	if (bTargetMoving)
 	{
-		if (AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length != 0)
+		if (!OnClosestTileInPath(UnitState.TileLocation, TargetUnit.TileLocation, AbilityContext.InputContext.SourceObject.ObjectID, AbilityContext.InputContext.MovementPaths))
 		{
-			if (TargetUnit.TileLocation != AbilityContext.InputContext.MovementPaths[0].MovementTiles[AbilityContext.InputContext.MovementPaths[0].MovementTiles.Length - 1]) 
-			{
-				`LOG("X2Effect_RN_Intercept: Intercept_Listener: TargetUnit is performing a running melee attack against the intercepting unit, current distance is:" @ UnitState.TileDistanceBetween(TargetUnit), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
-				return ELR_NoInterrupt;
-			}
-			else `LOG("X2Effect_RN_Intercept: Intercept_Listener: TargetUnit is performing a running melee attack against the intercepting unit and is now on their last tile of movement.", class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
+			`LOG("X2Effect_RN_Intercept: Intercept_Listener: TargetUnit is not on closest tile, current distance is:" @ UnitState.TileDistanceBetween(TargetUnit), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
+			return ELR_NoInterrupt;
 		}
 	}
 
@@ -177,16 +146,6 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 	{
 		`LOG("X2Effect_RN_Intercept: Intercept_Listener: ERROR, no Intercept Abiltiy",, 'IRI_RIDER_INTERCEPT');
 		return ELR_NoInterrupt;
-	}
-
-	//	Exit if the ability the target unit is using to move is typically ignored by Overwatch (e.g. Teleport)
-	if (AbilityContext != none)
-	{
-		if (class'X2Ability_DefaultAbilitySet'.default.OverwatchIgnoreAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) != INDEX_NONE)
-		{
-			`LOG("X2Effect_RN_Intercept: Intercept_Listener: ability is ignored by overwatch, exiting: " @ AbilityContext.InputContext.AbilityTemplateName, class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
-			return ELR_NoInterrupt;
-		}
 	}
 
 	// Exit if the moving unit is under any effects that allow to bypass Overwatch.
@@ -205,7 +164,7 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 	}
 
 	//	Proceed only if the soldier has a Reserve AP
-	if (UnitState.ReserveActionPoints.Find(default.UseActionPoint) == INDEX_NONE)
+	if (UnitState.ReserveActionPoints.Find('iri_intercept_ap') == INDEX_NONE)
 	{
 		`LOG("X2Effect_RN_Intercept: Intercept_Listener: Source unit has no Overwatch Reserve AP, exiting.", class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
 		return ELR_NoInterrupt;
@@ -225,10 +184,7 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
 	//	First remove any AP they have so that they don't get too many AP due to subsequent Interceptions or Windcaller's Passive.
 	UnitState.ActionPoints.Length = 0;
-	for (i = 0; i < InterceptEffect.iGrantAP; i++)
-	{
-		UnitState.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.StandardActionPoint);
-	}
+	UnitState.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.StandardActionPoint);
 	//	Submit the GameState so our changes to AP "take effect"
 	`GAMERULES.SubmitGameState(NewGameState);
 
@@ -239,12 +195,17 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 
 	for (i = 0; i < UnitCache.AvailableActions.Length; ++i)	//then in all actions available to them
 	{
+		`AMLOG("Looking at ability:" @ XComGameState_Ability(History.GetGameStateForObjectID(UnitCache.AvailableActions[i].AbilityObjectRef.ObjectID)).GetMyTemplateName());
+
 		if (UnitCache.AvailableActions[i].AbilityObjectRef.ObjectID == AbilityRef.ObjectID)	//we find our Interception Attack ability
 		{
+			`AMLOG("Found Intercept Attack, code:" @ UnitCache.AvailableActions[i].AvailableCode);
 			if (UnitCache.AvailableActions[i].AvailableCode == 'AA_Success')	// check that it can be activated (i.e. unit is not stunned or something)
 			{
 				for (j = 0; j < UnitCache.AvailableActions[i].AvailableTargets.Length; j++)	//	Search for the target that was moving just now.
 				{
+					`AMLOG("Looking at target:" @ XComGameState_Unit(History.GetGameStateForObjectID(UnitCache.AvailableActions[i].AvailableTargets[j].PrimaryTarget.ObjectID)).GetFullName());
+				
 					if (UnitCache.AvailableActions[i].AvailableTargets[j].PrimaryTarget.ObjectID == TargetUnit.ObjectID)
 					{
 						`LOG("X2Effect_RN_Intercept: Intercept_Listener: found interecept ability that can be activated against this target." @ "History Index: " @ History.GetCurrentHistoryIndex(), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
@@ -256,21 +217,21 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 						AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityRef.ObjectID));
 						if (AbilityState.CanActivateAbilityForObserverEvent(TargetUnit, UnitState) == 'AA_Success')
 						{
-							NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Rider Intercept: Apply Cost");
-							UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
-
-							//	######### Apply Reserve AP cost #########
-							for (z = 0; z < UnitState.ReserveActionPoints.Length; z++)
-							{
-								if (UnitState.ReserveActionPoints[z] == default.UseActionPoint)
-								{
-									`LOG("X2Effect_RN_Intercept: Intercept_Listener: removing one Reserve AP." @ "History Index: " @ History.GetCurrentHistoryIndex(), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
-									UnitState.ReserveActionPoints.Remove(z, 1);
-									break;
-								}
-							}
-							
-							`GAMERULES.SubmitGameState(NewGameState);
+							//NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Rider Intercept: Apply Cost");
+							//UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
+							//
+							////	######### Apply Reserve AP cost #########
+							//for (z = 0; z < UnitState.ReserveActionPoints.Length; z++)
+							//{
+							//	if (UnitState.ReserveActionPoints[z] == 'iri_intercept_ap')
+							//	{
+							//		`LOG("X2Effect_RN_Intercept: Intercept_Listener: removing one Reserve AP." @ "History Index: " @ History.GetCurrentHistoryIndex(), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
+							//		UnitState.ReserveActionPoints.Remove(z, 1);
+							//		break;
+							//	}
+							//}
+							//
+							//`GAMERULES.SubmitGameState(NewGameState);
 
 							`LOG("X2Effect_RN_Intercept: Intercept_Listener: Activating Intercept ability" @ "History Index: " @ History.GetCurrentHistoryIndex(), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
 							//class'XComGameStateContext_Ability'.static.ActivateAbility(UnitCache.AvailableActions[i], j,,,,, GameState.HistoryIndex,, SPT_BeforeParallel);
@@ -291,10 +252,7 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 							//	First remove any AP they have so that they don't get too many AP due to subsequent Interceptions or Windcaller's Passive.
 							//	Grant an extra Move AP in case the soldier somehow travels longer distance during Interception.
 							UnitState.ActionPoints.Length = 0;
-							for (i = 0; i < InterceptEffect.iGrantAP + 1; i++)
-							{
-								UnitState.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.MoveActionPoint);
-							}
+							UnitState.ActionPoints.AddItem(class'X2CharacterTemplateManager'.default.MoveActionPoint);
 							`GAMERULES.SubmitGameState(NewGameState);
 
 							//	Build a path to the original tile.
@@ -344,36 +302,6 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 							}
 							else `LOG("X2Effect_RN_Intercept: Intercept_Listener: WARNING, could not activate Return Move.", class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
 						}
-
-						UnitState = XComGameState_Unit(History.GetGameStateForObjectID(UnitState.ObjectID));
-						if (UnitState.ActionPoints.Length > 0)
-						{
-							`LOG("X2Effect_RN_Intercept: Intercept_Listener: removing AP", class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
-
-							NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Rider Intercept: Remove AP");
-							UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
-
-							//	Remove any left over AP from the Return Move.
-							UnitState.ActionPoints.Length = 0;							
-
-							//	Roll for Guardian, if applicable
-							if (InterceptEffect.bAllowGuardian)
-							{
-								//	Check history to find out if the Intercept Attack we just used has hit
-								AbilityRef = UnitState.FindAbility('Sentinel');
-								if (AbilityRef.ObjectID != 0)
-								{
-									if (`SYNC_RAND_STATIC(100) < class'X2Ability_SpecialistAbilitySet'.default.GUARDIAN_PROC && DidLatestInterceptionHit('IRI_RN_Intercept_Attack', UnitState.ObjectID, TargetUnit.ObjectID))
-									{
-										UnitState.ReserveActionPoints.AddItem(default.UseActionPoint);
-										GuardianAbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityRef.ObjectID));
-										`XEVENTMGR.TriggerEvent('GuardianTriggered', GuardianAbilityState, UnitState, NewGameState);
-									}
-								}					
-							}
-
-							`GAMERULES.SubmitGameState(NewGameState);
-						}
 						
 						//	Exit listener
 						`LOG("X2Effect_RN_Intercept: Intercept_Listener: everything processed, exiting listener" @ "History Index: " @ History.GetCurrentHistoryIndex(), class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
@@ -388,7 +316,78 @@ static final function EventListenerReturn Intercept_Listener(Object EventData, O
 	return ELR_NoInterrupt;
 }
 
-static final function bool IsReactionFireAbility(const X2AbilityTemplate Template)
+static private function bool IsTargetUnitMoving(const int ObjectID, const array<PathingInputData> MovementPaths)
+{
+	local PathingInputData MovementPath;
+	local int i;
+
+	`AMLOG("Running for objectID:" @ ObjectID @ "num movement paths:" @ MovementPaths.Length);
+	
+	foreach MovementPaths(MovementPath, i)
+	{
+		`AMLOG("Path number i:" @ i @ MovementPath.MovingUnitRef.ObjectID @ MovementPath.MovementTiles.Length);
+		if (MovementPath.MovingUnitRef.ObjectID == ObjectID && MovementPath.MovementTiles.Length > 0)
+		{
+			`AMLOG("Target is moving");
+			return true;
+		}
+	}
+	`AMLOG("Target is NOT moving");
+	return false;
+}
+
+static private function bool OnClosestTileInPath(const TTile InterceptorTileLocation, const TTile TargetTileLocation, const int TargetObjectID, const array<PathingInputData> MovementPaths)
+{
+	local PathingInputData	MovementPath;
+	local TTile				MovementTile;
+	local int				ShortestDistance;
+	local int				CurrentDistance;
+	local int				CalcDistance;
+	
+	foreach MovementPaths(MovementPath)
+	{
+		if (MovementPath.MovingUnitRef.ObjectID == TargetObjectID && MovementPath.MovementTiles.Length > 0)
+		{
+			ShortestDistance = const.MaxInt;
+
+			foreach MovementPath.MovementTiles(MovementTile)
+			{
+				CalcDistance = TileDistanceBetweenTiles(InterceptorTileLocation, MovementTile);
+				if (CalcDistance < ShortestDistance)
+				{	
+					ShortestDistance = CalcDistance;
+				}
+			}
+
+			CurrentDistance = TileDistanceBetweenTiles(InterceptorTileLocation, TargetTileLocation);
+
+			return CurrentDistance <= ShortestDistance;
+		}
+	}
+	return false;
+}
+
+static private function int TileDistanceBetweenTiles(const TTile TileA, const TTile TileB)
+{
+	local XComWorldData WorldData;
+	local vector UnitLoc;
+	local vector TargetLoc;
+	local float Dist;
+	local int Tiles;
+
+	if (TileA == TileB)
+		return 0;
+
+	WorldData = `XWORLD;
+	UnitLoc = WorldData.GetPositionFromTileCoordinates(TileA);
+	TargetLoc = WorldData.GetPositionFromTileCoordinates(TileB);
+	Dist = VSize(UnitLoc - TargetLoc);
+	Tiles = Dist / WorldData.WORLD_StepSize;
+
+	return Tiles;
+}
+
+static private function bool IsReactionFireAbility(const X2AbilityTemplate Template)
 {	
 	local X2AbilityTrigger Trigger;
 	local X2AbilityTrigger_EventListener EventListenerTrigger;
@@ -435,7 +434,6 @@ static final function Intercept_PostBuildVisualization(XComGameState VisualizeGa
 	local array<X2Action>					FindActions;
 	local XComGameStateContext_Ability		AbilityContext;
 	local X2Action_PlaySoundAndFlyOver		SoundAndFlyOver;
-	local XComGameState_Unit				UnitState;
 
 	`LOG("X2Effect_RN_Intercept: Intercept_PostBuildVisualization: running.", class'Help'.default.bLog, 'IRI_RIDER_INTERCEPT');
 
@@ -458,8 +456,6 @@ static final function Intercept_PostBuildVisualization(XComGameState VisualizeGa
 	}
 	//	Insert Interception Flyover
 
-	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
-	
 	//	Remove soldier's speech for the standard move performed after interception
 	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_PlaySoundAndFlyOver', FindActions,, AbilityContext.InputContext.SourceObject.ObjectID);
 	foreach FindActions(FindAction)
@@ -489,10 +485,8 @@ static final function PrintActionRecursive(X2Action Action, int iLayer)
 
 defaultproperties
 {
-	iGrantAP = 1
 	DuplicateResponse = eDupe_Ignore
-	EffectName = "IRI_Rider_Intercept_Effect"
+	EffectName = "IRI_RN_Intercept_Effect"
 	TriggerEventName = "UnitMoveFinished"
 	bMoveAfterAttack = true
-	UseActionPoint = "intercept"
 }

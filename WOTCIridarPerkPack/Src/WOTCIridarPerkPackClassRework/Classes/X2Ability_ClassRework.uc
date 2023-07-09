@@ -23,6 +23,7 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 	local X2Condition_UnitProperty      ConcealedCondition;
 	local X2Effect_SetUnitValue         UnitValueEffect;
 	local array<name>                   SkipExclusions;
+	local X2Effect_ReserveOverwatchPoints	ReserveOverwatchPoints;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RN_Intercept');
 
@@ -44,7 +45,7 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 	//	Ability Cost
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.iNumPoints = 1;
-	ActionPointCost.bConsumeAllPoints = true;
+	ActionPointCost.bFreeCost = true; // Reserve AP effect will take away all action points anyway
 	Template.AbilityCosts.AddItem(ActionPointCost);
 
 	//	Shooter Conditions
@@ -60,14 +61,16 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 	Template.AddShooterEffectExclusions(SkipExclusions);
 
 	//	Ability Effects
+	ReserveOverwatchPoints = new class'X2Effect_ReserveOverwatchPoints';
+	ReserveOverwatchPoints.ReserveType = 'iri_intercept_ap';
+	Template.AddShooterEffect(ReserveOverwatchPoints);
+
 	InterceptEffect = new class'X2Effect_RN_Intercept';
 	InterceptEffect.TriggerEventName = 'AbilityActivated';
 	InterceptEffect.bAllowCoveringFire = true;
-	InterceptEffect.bAllowGuardian = true;
 	InterceptEffect.bInterceptMovementOnly = true;
 	InterceptEffect.bAllowInterrupt = true;
 	InterceptEffect.bAllowNonInterrupt_IfNonInterruptible = true; // First place to check if there are ANY issues with this ability.
-	InterceptEffect.iGrantAP = 1;
 	InterceptEffect.bMoveAfterAttack = true;
 	InterceptEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
 	InterceptEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
@@ -208,6 +211,7 @@ static private function X2AbilityTemplate IRI_RN_Intercept_Attack()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityToHitCalc_StandardMelee  StandardMelee;
+	local X2AbilityCost_ReserveActionPoints	ReserveAPCost;
 	
 	Template = class'X2Ability_RangerAbilitySet'.static.AddSwordSliceAbility('IRI_RN_Intercept_Attack');
 	ResetMeleeShooterConditions(Template);
@@ -218,6 +222,12 @@ static private function X2AbilityTemplate IRI_RN_Intercept_Attack()
 	
 	Template.IconImage = "img:///IRIBrawler.UI.UIPerk_Intercept";
 	SetHidden(Template);
+
+	//Template.AbilityCosts.Length = 0;
+	ReserveAPCost = new class'X2AbilityCost_ReserveActionPoints';
+	ReserveAPCost.iNumPoints = 1;
+	ReserveAPCost.AllowedTypes.AddItem('iri_intercept_ap');
+	Template.AbilityCosts.AddItem(ReserveAPCost);
 
 	//	Suffers reaction fire penalties.
 	//	ToHicCalc will automatically remove the penalty if we Intercept while concealed.
