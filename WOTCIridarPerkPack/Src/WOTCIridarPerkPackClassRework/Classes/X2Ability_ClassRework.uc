@@ -7,10 +7,276 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_RN_ZephyrStrike());
 	Templates.AddItem(IRI_RN_TacticalAdvance());
 	Templates.AddItem(PurePassive('IRI_RN_TacticalAdvance_Passive', "img:///UILibrary_XPACK_Common.UIPerk_bond_brotherskeeper", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-
-
+	Templates.AddItem(IRI_RN_Intercept());
+	Templates.AddItem(IRI_RN_Intercept_Return());
+	Templates.AddItem(IRI_RN_Intercept_Attack());
+	
 	return Templates;
 }
+
+static private function X2AbilityTemplate IRI_RN_Intercept()
+{
+	local X2AbilityTemplate				Template;
+	local X2Effect_RN_Intercept			InterceptEffect;
+	local X2AbilityCost_ActionPoints    ActionPointCost;
+	local X2Condition_UnitEffects       SuppressedCondition;
+	local X2Condition_UnitProperty      ConcealedCondition;
+	local X2Effect_SetUnitValue         UnitValueEffect;
+	local array<name>                   SkipExclusions;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RN_Intercept');
+
+	// Icon Properties
+	Template.AbilitySourceName = 'eAbilitySource_Standard';
+	Template.IconImage = "img:///IRIBrawler.UI.UIPerk_Intercept";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY + 5;	//	After Sword Slice but before Corporal abilities.
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	//Template.DefaultKeyBinding = class'UIUtilities_Input'.const.FXS_KEY_Y;
+	//Template.bNoConfirmationWithHotKey = true;
+	
+	//	Targeting and Triggering
+	Template.TargetingMethod = class'X2TargetingMethod_RN_Intercept';
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.DisplayTargetHitChance = false;
+	Template.AbilityTargetStyle = default.SelfTarget;	
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	//	Ability Cost
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bConsumeAllPoints = true;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	//	Shooter Conditions
+	//	Cannot be used while Suppressed, just like regular Overwatch.
+	SuppressedCondition = new class'X2Condition_UnitEffects';
+	SuppressedCondition.AddExcludeEffect(class'X2Effect_Suppression'.default.EffectName, 'AA_UnitIsSuppressed');
+	SuppressedCondition.AddExcludeEffect(class'X2Effect_SkirmisherInterrupt'.default.EffectName, 'AA_AbilityUnavailable');
+	Template.AbilityShooterConditions.AddItem(SuppressedCondition);
+
+	//	Can be used while disoriented, just like regular overwatch.
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	SkipExclusions.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName);
+	Template.AddShooterEffectExclusions(SkipExclusions);
+
+	//	Ability Effects
+	InterceptEffect = new class'X2Effect_RN_Intercept';
+	InterceptEffect.TriggerEventName = 'AbilityActivated';
+	InterceptEffect.bAllowCoveringFire = true;
+	InterceptEffect.bAllowGuardian = true;
+	InterceptEffect.bInterceptMovementOnly = true;
+	InterceptEffect.bAllowInterrupt = true;
+	InterceptEffect.bAllowNonInterrupt_IfNonInterruptible = true; // First place to check if there are ANY issues with this ability.
+	InterceptEffect.iGrantAP = 1;
+	InterceptEffect.bMoveAfterAttack = true;
+	InterceptEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
+	InterceptEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddShooterEffect(InterceptEffect);
+
+	//	If the Intercepting unit is concealed, mark it as such.
+	ConcealedCondition = new class'X2Condition_UnitProperty';
+	ConcealedCondition.ExcludeFriendlyToSource = false;
+	ConcealedCondition.IsConcealed = true;
+	UnitValueEffect = new class'X2Effect_SetUnitValue';
+	UnitValueEffect.UnitName = class'X2Ability_DefaultAbilitySet'.default.ConcealedOverwatchTurn;
+	UnitValueEffect.CleanupType = eCleanup_BeginTurn;
+	UnitValueEffect.NewValueToSet = 1;
+	UnitValueEffect.TargetConditions.AddItem(ConcealedCondition);
+	Template.AddTargetEffect(UnitValueEffect);
+
+	//	Game State and Viz	
+	Template.AbilityConfirmSound = "Unreal2DSounds_OverWatch";
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = true;
+	Template.ActivationSpeech = 'Overwatch';
+	Template.Hostility = eHostility_Defensive;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = class'X2Ability_DefaultAbilitySet'.static.OverwatchAbility_BuildVisualization;
+
+	Template.AdditionalAbilities.AddItem('IRI_RN_Intercept_Return');
+	Template.AdditionalAbilities.AddItem('IRI_RN_Intercept_Attack');
+
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentNormalLoss;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.NormalLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+
+static private function X2AbilityTemplate IRI_RN_Intercept_Return()
+{
+	local X2AbilityTemplate                 Template;
+	local X2AbilityCost_ActionPoints        ActionPointCost;
+	local X2Condition_UnitProperty          UnitPropertyCondition;
+	local X2Condition_UnitValue				IsNotImmobilized;
+	local X2Condition_UnitStatCheck         UnitStatCheckCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RN_Intercept_Return');
+
+	//	Icon
+	SetHidden(Template);
+	Template.AbilitySourceName = 'eAbilitySource_Standard';
+	
+	//	Shooter Conditions
+	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = true;
+	UnitPropertyCondition.ExcludeCosmetic = false; //Cosmetic units are allowed movement
+	Template.AbilityShooterConditions.AddItem(UnitPropertyCondition);
+
+	IsNotImmobilized = new class'X2Condition_UnitValue';
+	IsNotImmobilized.AddCheckValue(class'X2Ability_DefaultAbilitySet'.default.ImmobilizedValueName, 0);
+	Template.AbilityShooterConditions.AddItem(IsNotImmobilized);
+
+	// Unit might not be mobilized but have zero mobility
+	UnitStatCheckCondition = new class'X2Condition_UnitStatCheck';
+	UnitStatCheckCondition.AddCheckStat(eStat_Mobility, 0, eCheck_GreaterThan);
+	Template.AbilityShooterConditions.AddItem(UnitStatCheckCondition);
+
+	//	Cost
+	
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.bMoveCost = true;
+	ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MoveActionPoint);
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	//	Targeting and Triggering
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_Path';
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');	//	Triggered from X2Effect_InterceptAbility
+
+	Template.Hostility = eHostility_Movement;
+	Template.FrameAbilityCameraType = eCameraFraming_Never;
+	Template.BuildNewGameStateFn = class'X2Ability_DefaultAbilitySet'.static.MoveAbility_BuildGameState;
+	Template.BuildVisualizationFn = class'X2Ability_DefaultAbilitySet'.static.MoveAbility_BuildVisualization;
+	Template.MergeVisualizationFn = Intercept_MoveReturn_MergeVisualization;
+	Template.BuildInterruptGameStateFn = class'X2Ability_DefaultAbilitySet'.static.MoveAbility_BuildInterruptGameState;
+
+	//	We set SPT when triggering this ability.
+	Template.AssociatedPlayTiming = SPT_AfterSequential;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentMoveLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.MoveChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.MoveLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+static private function Intercept_MoveReturn_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
+{
+	local XComGameStateVisualizationMgr		VisMgr;
+	local X2Action							EnterCover;
+	local X2Action							InterruptEnd;
+	local X2Action							MarkerStart, MarkerEnd;
+	local array<X2Action>					FindActions;
+	local XComGameStateContext_Ability		InterceptContext;
+	
+	// ## Init
+	VisMgr = `XCOMVISUALIZATIONMGR;	
+	InterceptContext = XComGameStateContext_Ability(BuildTree.StateChangeContext);
+	
+	//	Get all the actions we'll need. 
+	
+	//InterruptEnd = VisMgr.GetNodeOfType(VisualizationTree, class'X2Action_MarkerTreeInsertEnd');
+
+	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerInterruptEnd', FindActions,, InterceptContext.InputContext.PrimaryTarget.ObjectID);
+
+	`LOG("Looking for Interrupt End Action with index closest to:" @ InterceptContext.DesiredVisualizationBlockIndex,, 'IRI_RIDER_VIZ');
+
+	InterruptEnd = FindActionWithClosestHistoryIndex(FindActions, InterceptContext.DesiredVisualizationBlockIndex);
+
+	EnterCover  = VisMgr.GetNodeOfType(VisualizationTree, class'X2Action_EnterCover',, InterceptContext.InputContext.SourceObject.ObjectID);
+	MarkerStart = VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin');
+	MarkerEnd = VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertEnd');
+
+	//	Fallback
+	if (InterruptEnd == none || EnterCover == none || MarkerStart == none || MarkerEnd == none)
+	{
+		`LOG("Intercept_MoveReturn_MergeVisualization: ERROR! Merge failed!" @ InterruptEnd == none @ EnterCover == none @ MarkerStart == none @ MarkerEnd == none,, 'IRI_RIDER_VIZ');
+		XComGameStateContext_Ability(BuildTree.StateChangeContext).SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
+		return;
+	}
+
+	//	Insert the whole Interception visualization between the Interrupt Action pair
+	VisMgr.ConnectAction(MarkerStart, VisualizationTree, false, EnterCover);
+	VisMgr.ConnectAction(InterruptEnd, VisualizationTree, false, MarkerEnd);
+
+	`LOG("Intercept_MoveReturn_MergeVisualization: Merge complete.", class'Help'.default.bLog, 'IRI_RIDER_VIZ');
+}
+
+
+static private function X2AbilityTemplate IRI_RN_Intercept_Attack()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityToHitCalc_StandardMelee  StandardMelee;
+	
+	Template = class'X2Ability_RangerAbilitySet'.static.AddSwordSliceAbility('IRI_RN_Intercept_Attack');
+	ResetMeleeShooterConditions(Template);
+
+	//	Remove the end-of-move trigger to fix the bug where it would override Sword Slice's sometimes.
+	Template.AbilityTriggers.Length = 0;
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
+	
+	Template.IconImage = "img:///IRIBrawler.UI.UIPerk_Intercept";
+	SetHidden(Template);
+
+	//	Suffers reaction fire penalties.
+	//	ToHicCalc will automatically remove the penalty if we Intercept while concealed.
+	StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
+	StandardMelee.bReactionFire = true;
+	Template.AbilityToHitCalc = StandardMelee;
+
+	//	Remove cinematic camera, it looks super bad when target is moving.
+	Template.CinescriptCameraType = "";
+
+	Template.bUniqueSource = true;
+
+	//	Must be interruptible, otherwise will deal damage even if the intercepting unit is killed by enemy reaction fire.
+	//Template.BuildInterruptGameStateFn = none;
+
+	return Template;
+}
+
+static private function ResetMeleeShooterConditions(out X2AbilityTemplate Template)
+{
+	local array<name> SkipExclusions;
+
+	//	 X2Ability_RangerAbilitySet::AddSwordSliceAbility() generates ability that cannot be used while Disoriented, which is a problem for a melee-only class.
+	Template.AbilityShooterConditions.Length = 0;
+
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+
+	SkipExclusions.AddItem(class'X2AbilityTemplateManager'.default.DisorientedName);
+	SkipExclusions.AddItem(class'X2StatusEffects'.default.BurningName);
+	Template.AddShooterEffectExclusions(SkipExclusions);
+}
+
+static private function X2Action FindActionWithClosestHistoryIndex(const array<X2Action> FindActions, const int DesiredHistoryIndex)
+{
+	local X2Action FindAction;
+	local X2Action BestAction;
+	local int	   HistoryIndexDelta;
+
+	if (FindActions.Length == 1)
+		return FindActions[0];
+
+	foreach FindActions(FindAction)
+	{
+		if (FindAction.StateChangeContext.AssociatedState.HistoryIndex == DesiredHistoryIndex)
+		{
+			return FindAction;
+		}
+
+		if (DesiredHistoryIndex - FindAction.StateChangeContext.AssociatedState.HistoryIndex < HistoryIndexDelta)
+		{	
+			HistoryIndexDelta = DesiredHistoryIndex - FindAction.StateChangeContext.AssociatedState.HistoryIndex;
+			BestAction = FindAction;
+
+			//	No break on purpose! We want the cycle to sift through all Fire Actions in the tree.
+		}
+	}
+	return BestAction;
+}
+
 
 static function X2AbilityTemplate IRI_RN_TacticalAdvance()
 {

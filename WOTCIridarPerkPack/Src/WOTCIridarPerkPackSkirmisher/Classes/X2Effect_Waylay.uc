@@ -26,7 +26,7 @@ function bool PostAbilityCostPaid(XComGameState_Effect EffectState, XComGameStat
 	local UnitValue				UV;
 	local bool					bShowFlyover;
 
-	if (AbilityContext.InputContext.AbilityTemplateName == 'OverwatchShot')
+	if (AbilityContext.InputContext.AbilityTemplateName == 'OverwatchShot' || AbilityContext.InputContext.AbilityTemplateName == 'IRI_RN_Intercept_Attack')
 	{
 		if (SourceUnit.GetUnitValue(UnitValueName, UV))
 			return false;
