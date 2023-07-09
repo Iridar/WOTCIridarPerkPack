@@ -76,6 +76,8 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 	InterceptEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
 	Template.AddShooterEffect(InterceptEffect);
 
+	// TODO: Icons, rus descr, direct attack to closest reachable tile, avoid env. hazards, check if attack tile can be traced back to the original location
+
 	//	If the Intercepting unit is concealed, mark it as such.
 	ConcealedCondition = new class'X2Condition_UnitProperty';
 	ConcealedCondition.ExcludeFriendlyToSource = false;
@@ -137,7 +139,6 @@ static private function X2AbilityTemplate IRI_RN_Intercept_Return()
 	Template.AbilityShooterConditions.AddItem(UnitStatCheckCondition);
 
 	//	Cost
-	
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.bMoveCost = true;
 	ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MoveActionPoint);

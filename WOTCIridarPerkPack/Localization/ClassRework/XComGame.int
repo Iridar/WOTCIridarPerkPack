@@ -19,17 +19,17 @@ LocHelpText="Slash all enemies in the target area."
 
 [IRI_RN_Intercept X2AbilityTemplate]
 LocFriendlyName="Intercept"
-LocLongDescription="Melee attack the first enemy that moves within your line of sight and <Ability:INTERCEPT_ACTION_POINT_DISTANCE/> AP move distance with a penalty to aim."
-LocHelpText="Melee attack the first enemy that moves within your line of sight and <Ability:INTERCEPT_ACTION_POINT_DISTANCE/> AP move distance with a penalty to aim."
+LocLongDescription="Melee attack the first enemy that moves within your line of sight and 1 AP move distance with a penalty to aim."
+LocHelpText="Melee attack the first enemy that moves within your line of sight and 1 AP move distance with a penalty to aim."
 LocFriendlyNameWhenConcealed="Intercept (Concealed)"
-LocLongDescriptionWhenConcealed="Melee attack the first enemy that moves within your line of sight and <Ability:INTERCEPT_ACTION_POINT_DISTANCE/> AP move distance but only if revealed."
+LocLongDescriptionWhenConcealed="Melee attack the first enemy that moves within your line of sight and 1 AP move distance but only if revealed."
 LocPromotionPopupText="<Bullet/> Intercept must be used carefully, as the intercepting soldier can attract unwanted attention from other enemies.<br/><Bullet/> Intercept is not triggered by attacks, only movement, unless the soldier has <font color='#0bff9b'>Covering Fire</font>. However, even with Covering Fire, Intercept cannot react to other reaction attacks.<br/><Bullet/> Targets immune to Overwatch and other reaction fire cannot be Intercepted. <br/><Bullet/> Interception attack suffers reaction fire penalties and normally cannot deal critical damage, unless activated while Concealed. <br/><Bullet/> Intercept is allowed to break concealment in order to attack the moving enemy: <Ability:INTERCEPT_ALLOW_TO_BREAK_CONCEALMENT/><br/><Bullet/> After Interception, the soldier will return to their original position: <Ability:INTERCEPT_RETURN_TO_ORIGINAL_TILE/><br/><Bullet/> The return move is not 100% guaranteed.<br/><Bullet/> Intercept can benefit from <font color='#0bff9b'>Guardian</font>."
 LocFlyOverText="Intercept"
 
 [IRI_RN_Intercept_Attack X2AbilityTemplate]
 LocFriendlyName="Intercept"
-LocLongDescription="Melee attack the first enemy that moves within your line of sight and <Ability:INTERCEPT_ACTION_POINT_DISTANCE/> AP move distance with a penalty to aim."
-LocHelpText="Melee attack the first enemy that moves within your line of sight and <Ability:INTERCEPT_ACTION_POINT_DISTANCE/> AP move distance with a penalty to aim."
+LocLongDescription="Melee attack the first enemy that moves within your line of sight and 1 AP move distance with a penalty to aim."
+LocHelpText="Melee attack the first enemy that moves within your line of sight and 1 AP move distance with a penalty to aim."
 LocFriendlyNameWhenConcealed="Intercept (Concealed)"
-LocLongDescriptionWhenConcealed="Melee attack the first enemy that moves within your line of sight and <Ability:INTERCEPT_ACTION_POINT_DISTANCE/> AP move distance but only if revealed."
+LocLongDescriptionWhenConcealed="Melee attack the first enemy that moves within your line of sight and 1 AP move distance but only if revealed."
 LocFlyOverText="Intercept"
