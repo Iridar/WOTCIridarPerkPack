@@ -309,6 +309,7 @@ static private function ZephyrStrike_BuildVisualization(XComGameState VisualizeG
 		UnitVisibilityAction.bMatchFacingToCustom = true;
 		UnitVisibilityAction.CustomTileLocation = BestTile;
 		UnitVisibilityAction.CustomTileFacingTile = TargetTile;
+		UnitVisibilityAction.TargetActor = TargetMetadata.VisualizeActor;
 
 		// Add an action to pop the previous CinescriptCamera off the camera stack.
 		//CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));

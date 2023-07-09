@@ -10,17 +10,19 @@ var() TTile CustomTileLocation;		// Location to move the unit
 var() TTile CustomTileFacingTile;	// Target tile to face
 var() vector CustomTileFacingVector;	// Vector to align with for custom facing
 
+var Actor TargetActor; // Iridar
+
 var private vector UpdatedLocation;
 
 //------------------------------------------------------------------------------------------------
 
-function Init()
+private function MatchLocationAndRotation()
 {
 	local XComGameState_Unit UnitState;
 	local XComWorldData World;
 	local vector DesiredFacingVector;
-
-	super.Init();
+	local XComUnitPawn TargetPawn;;
+	local array<name> BoneNames;
 
 	if( bMatchToGameStateLoc )
 	{
@@ -44,6 +46,22 @@ function Init()
 
 		if (bMatchFacingToCustom)
 		{
+			// Iridar: aim more precisely at each target, since we're not hitting them from the front every time.
+			if (XGUnit(TargetActor) != none)
+			{
+				TargetPawn = XGUnit(TargetActor).GetPawn();
+				if (TargetPawn != none)
+				{
+					TargetPawn.Mesh.GetBoneNames(BoneNames);
+					if (BoneNames.Find('Pelvis') != INDEX_NONE)
+					{
+						CustomTileFacingVector = TargetPawn.Mesh.GetBoneLocation('Pelvis');
+						CustomTileFacingVector -= UpdatedLocation;
+					}
+				}
+			}
+
+
 			if (VSizeSq(CustomTileFacingVector) > 0)
 			{
 				DesiredFacingVector = CustomTileFacingVector;
@@ -63,6 +81,7 @@ function Init()
 simulated state Executing
 {
 Begin:
+	MatchLocationAndRotation();
 	Unit.SetForceVisibility(ForcedVisible);
 	Unit.GetPawn().UpdatePawnVisibility();
 	CompleteAction();
