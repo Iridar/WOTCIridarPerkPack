@@ -38,6 +38,7 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 	local array<TTile>					Path;
 	local TTile							ReturnTile;
 	local bool							bTargetMoving;
+	local TTile							ClosestAttackTile;
 	local int i, j, z;
 
 	//	========================================================================
@@ -173,6 +174,10 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 			}
 		}
 	}
+
+	Visualizer = XGUnit(UnitState.GetVisualizer());
+	if (Visualizer == none)
+		return ELR_NoInterrupt;
 	
 	//			Initial Checks End
 	//	========================================================================
@@ -223,7 +228,10 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 							`AMLOG("CONTINUE :: Activating Intercept ability" @ "History Index: " @ History.GetCurrentHistoryIndex());
 
 							//	######### Perform the Intercept Attack action. #########
-							class'XComGameStateContext_Ability'.static.ActivateAbility(UnitCache.AvailableActions[i], j, /*TargetLocations*/, /*TargetingMethod*/, /*PathTiles*/, /*WaypointTiles*/, GameState.HistoryIndex,, /*SPT_*/);
+							ClosestAttackTile = GetClosestAttackTile(UnitState, TargetUnit, Visualizer.m_kReachableTilesCache);
+							Visualizer.m_kReachableTilesCache.BuildPathToTile(ClosestAttackTile, Path);
+
+							class'XComGameStateContext_Ability'.static.ActivateAbility(UnitCache.AvailableActions[i], j, /*TargetLocations*/, /*TargetingMethod*/, Path /*PathTiles*/, /*WaypointTiles*/, GameState.HistoryIndex,, /*SPT_*/);
 						}
 						else `AMLOG("WARNING :: Could NOT activate the Intercept Attack. History Index: " @ History.GetCurrentHistoryIndex());
 					
@@ -239,7 +247,6 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 							`GAMERULES.SubmitGameState(NewGameState);
 
 							//	Build a path to the original tile.
-							Visualizer = XGUnit(UnitState.GetVisualizer());
 							if (Visualizer.m_kReachableTilesCache.BuildPathToTile(ReturnTile, Path))
 							{
 								//	Get the reference to the Return Move ability. 
@@ -299,6 +306,92 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 	return ELR_NoInterrupt;
 }
 
+static private function TTile GetClosestAttackTile(XComGameState_Unit UnitState, XComGameState_Unit TargetUnit, X2ReachableTilesCache ActiveCache)
+{
+	local array<TTile>               TargetTiles; // Array of tiles occupied by the target; these tiles can be attacked by melee.
+	local TTile                      TargetTile;
+	local array<TTile>               AdjacentTiles;	// Array of tiles adjacent to Target Tiles; the attacking unit can move to these tiles to attack.
+	local TTile                      AdjacentTile;
+	local array<TTile>				 PossibleTiles;
+	
+	GatherTilesOccupiedByUnit(TargetUnit, TargetTiles);
+
+	// Collect non-duplicate tiles around every Target Tile to see which tiles we can attack from.
+	GatherTilesAdjacentToTiles(TargetTiles, AdjacentTiles);
+
+	foreach TargetTiles(TargetTile)
+	{
+		foreach AdjacentTiles(AdjacentTile)
+		{
+			if (class'Helpers'.static.FindTileInList(AdjacentTile, PossibleTiles) != INDEX_NONE)
+				continue;		
+				
+			if (class'X2AbilityTarget_MovingMelee'.static.IsValidAttackTile(UnitState, AdjacentTile, TargetTile, ActiveCache))
+			{	
+				PossibleTiles.AddItem(AdjacentTile);
+			}
+		}
+	}
+	return GetClosestTile(UnitState.TileLocation, PossibleTiles);
+}
+
+static private function GatherTilesOccupiedByUnit(const XComGameState_Unit TargetUnit, out array<TTile> OccupiedTiles)
+{	
+	local XComWorldData      WorldData;
+	local array<TilePosPair> TilePosPairs;
+	local TilePosPair        TilePair;
+	local Box                VisibilityExtents;
+
+	TargetUnit.GetVisibilityExtents(VisibilityExtents);
+	
+	WorldData = `XWORLD;
+	WorldData.CollectTilesInBox(TilePosPairs, VisibilityExtents.Min, VisibilityExtents.Max);
+
+	foreach TilePosPairs(TilePair)
+	{
+		OccupiedTiles.AddItem(TilePair.Tile);
+	}
+}
+
+static private function GatherTilesAdjacentToTiles(out array<TTile> TargetTiles, out array<TTile> AdjacentTiles)
+{	
+	local XComWorldData      WorldData;
+	local array<TilePosPair> TilePosPairs;
+	local TilePosPair        TilePair;
+	local TTile              TargetTile;
+	local vector             Minimum;
+	local vector             Maximum;
+	
+	WorldData = `XWORLD;
+
+	// Collect a 3x3 box of tiles around every target tile, excluding duplicates.
+	// Melee attacks can happen diagonally upwards or downwards too,
+	// so collecting tiles on the same Z level would not be enough.
+	foreach TargetTiles(TargetTile)
+	{
+		Minimum = WorldData.GetPositionFromTileCoordinates(TargetTile);
+		Maximum = Minimum;
+
+		Minimum.X -= WorldData.WORLD_StepSize;
+		Minimum.Y -= WorldData.WORLD_StepSize;
+		Minimum.Z -= WorldData.WORLD_FloorHeight;
+
+		Maximum.X += WorldData.WORLD_StepSize;
+		Maximum.Y += WorldData.WORLD_StepSize;
+		Maximum.Z += WorldData.WORLD_FloorHeight;
+
+		WorldData.CollectTilesInBox(TilePosPairs, Minimum, Maximum);
+
+		foreach TilePosPairs(TilePair)
+		{
+			if (class'Helpers'.static.FindTileInList(TilePair.Tile, AdjacentTiles) != INDEX_NONE)
+				continue;
+
+			AdjacentTiles.AddItem(TilePair.Tile);
+		}
+	}
+}
+
 static private function bool IsTargetUnitMoving(const int ObjectID, const array<PathingInputData> MovementPaths)
 {
 	local PathingInputData MovementPath;
@@ -317,6 +410,28 @@ static private function bool IsTargetUnitMoving(const int ObjectID, const array<
 	}
 	`AMLOG("Target is NOT moving");
 	return false;
+}
+
+static private function TTile GetClosestTile(const TTile SourceTile, const array<TTile> TileArray)
+{
+	local TTile	 ClosestTile;
+	local TTile	 TestTile;
+	local int	 ClosestDistance;
+	local int	 TestDistance;
+
+	ClosestDistance = const.MaxInt;
+
+	foreach TileArray(TestTile)
+	{
+		TestDistance = TileDistanceBetweenTiles(SourceTile, TestTile);
+		if (TestDistance < ClosestDistance)
+		{
+			ClosestDistance = TestDistance;
+			ClosestTile = TestTile;
+		}
+	}
+
+	return ClosestTile;
 }
 
 static private function bool OnClosestTileInPath(const TTile InterceptorTileLocation, const TTile TargetTileLocation, const int TargetObjectID, const array<PathingInputData> MovementPaths)
