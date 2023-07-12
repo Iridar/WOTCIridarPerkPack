@@ -6,7 +6,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_RN_ZephyrStrike());
 	Templates.AddItem(IRI_RN_TacticalAdvance());
-	Templates.AddItem(PurePassive('IRI_RN_TacticalAdvance_Passive', "img:///UILibrary_XPACK_Common.UIPerk_bond_brotherskeeper", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(PurePassive('IRI_RN_TacticalAdvance_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(IRI_RN_Intercept());
 	Templates.AddItem(IRI_RN_Intercept_Return());
 	Templates.AddItem(IRI_RN_Intercept_Attack());
@@ -29,7 +29,7 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 
 	// Icon Properties
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
-	Template.IconImage = "img:///IRIBrawler.UI.UIPerk_Intercept";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_RN_Intercept";
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY + 5;	//	After Sword Slice but before Corporal abilities.
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	//Template.DefaultKeyBinding = class'UIUtilities_Input'.const.FXS_KEY_Y;
@@ -75,8 +75,6 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 	InterceptEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
 	InterceptEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
 	Template.AddShooterEffect(InterceptEffect);
-
-	// TODO: Icons, rus descr, avoid env. hazards, check if attack tile can be traced back to the original location
 
 	//	If the Intercepting unit is concealed, mark it as such.
 	ConcealedCondition = new class'X2Condition_UnitProperty';
@@ -221,7 +219,7 @@ static private function X2AbilityTemplate IRI_RN_Intercept_Attack()
 	Template.AbilityTriggers.Length = 0;
 	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
 	
-	Template.IconImage = "img:///IRIBrawler.UI.UIPerk_Intercept";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_RN_Intercept";
 	SetHidden(Template);
 
 	//Template.AbilityCosts.Length = 0;
@@ -301,7 +299,7 @@ static function X2AbilityTemplate IRI_RN_TacticalAdvance()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.Hostility = eHostility_Neutral;
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_IonicStorm";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_TacticalAdvance";
 	
 	SetHidden(Template);
 
@@ -318,12 +316,12 @@ static function X2AbilityTemplate IRI_RN_TacticalAdvance()
 	
 	Effect = new class'X2Effect_TacticalAdvance';
 	Effect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnEnd);
-	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
 	Template.AdditionalAbilities.AddItem('IRI_RN_TacticalAdvance_Passive');
 
-	Template.bShowActivation = false;
+	Template.bShowActivation = true;
 	Template.bSkipFireAction = true;
 	Template.Hostility = eHostility_Neutral;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
@@ -381,13 +379,15 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.Hostility = eHostility_Offensive;
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_IonicStorm";
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ceramicblade";
 	
 	// Costs
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.iNumPoints = 1;
 	ActionPointCost.bConsumeAllPoints = true;
 	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	AddCooldown(Template, `GetConfigInt("IRI_RN_ZephyrStrike_Cooldown"));
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = new class'X2AbilityToHitCalc_StandardMelee';
@@ -397,7 +397,7 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
 	MultiTargetRadius = new class'X2AbilityMultiTarget_Radius';
-	MultiTargetRadius.fTargetRadius = `TILESTOMETERS(3);
+	MultiTargetRadius.fTargetRadius = `TILESTOMETERS(`GetConfigFloat("IRI_RN_ZephyrStrike_Radius_Tiles"));
 	MultiTargetRadius.bExcludeSelfAsTargetIfWithinRadius = true;
 	MultiTargetRadius.bUseWeaponRadius = false;
 	MultiTargetRadius.bIgnoreBlockingCover = true;
@@ -423,11 +423,7 @@ static function X2AbilityTemplate IRI_RN_ZephyrStrike()
 	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;
 	Template.BuildVisualizationFn = ZephyrStrike_BuildVisualization;
 
-	
 	Template.ActivationSpeech = 'Reaper';
-	//Template.CinescriptCameraType = "IRI_RN_ZephyrStrike_Camera";
-	//SetFireAnim(Template, 'FF_ZephyrStrike');
-	//Template.DamagePreviewFn = IonicStormDamagePreview;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;

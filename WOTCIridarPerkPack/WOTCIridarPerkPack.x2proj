@@ -69,6 +69,9 @@
     <Content Include="Config\ClassRework\XComCamera.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\ClassRework\XComGame.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Skirmisher\XComCamera.ini">
       <SubType>Content</SubType>
     </Content>

@@ -110,7 +110,17 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_TM_SoulShot_Cooldown":
 		OutString = TMColor(`GetConfigInt(InString));
 		return true;
-		
+
+	// ======================================================================================================================
+	//												RANGER TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
+	case "IRI_RN_ZephyrStrike_Cooldown":
+		OutString = string(`GetConfigInt(InString));
+		return true;
+
+	case "IRI_RN_ZephyrStrike_Radius_Tiles":
+		OutString = TruncateFloat(`GetConfigFloat(InString));
+		return true;		
 
 	// ----------------------------------------------------------------------------------------------------------------------
 	default:
@@ -118,6 +128,42 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	}
 
 	return false;
+}
+
+static private function string TruncateFloat(float value)
+{
+	local string FloatString, TempString;
+	local int i;
+	local float TempFloat, TestFloat;
+
+	TempFloat = value;
+	for (i=0; i < 2; i++)
+	{
+		TempFloat *= 10.0;
+	}
+	TempFloat = Round(TempFloat);
+	for (i=0; i < 2; i++)
+	{
+		TempFloat /= 10.0;
+	}
+
+	TempString = string(TempFloat);
+	for (i = InStr(TempString, ".") + 1; i < Len(TempString) ; i++)
+	{
+		FloatString = Left(TempString, i);
+		TestFloat = float(FloatString);
+		if (TempFloat ~= TestFloat)
+		{
+			break;
+		}
+	}
+
+	if (Right(FloatString, 1) == ".")
+	{
+		FloatString $= "0";
+	}
+
+	return FloatString;
 }
 
 static private function string GetBoundWeaponName(Object ParseObj, Object StrategyParseObj, XComGameState GameState)
