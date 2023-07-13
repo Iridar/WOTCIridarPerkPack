@@ -55,6 +55,8 @@ static function X2AbilityTemplate IRI_SH_Standoff()
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
+	Template.TargetingMethod = class'AWOTCIridarPerkPack.X2TargetingMethod_TopDown_NoCameraLock';
+
 	MultiTarget = new class'X2AbilityMultiTarget_Radius';
 	MultiTarget.bUseWeaponBlockingCoverFlag = false;
 	MultiTarget.bIgnoreBlockingCover = true;
@@ -137,8 +139,6 @@ static function X2AbilityTemplate IRI_SH_Standoff_Shot()
 	SingleTarget = new class'X2AbilityTarget_Single';
 	SingleTarget.OnlyIncludeTargetsInsideWeaponRange = true;
 	Template.AbilityTargetStyle = SingleTarget;
-
-	Template.TargetingMethod = class'X2TargetingMethod_TopDown_NoCameraLock';
 
 	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
 	StandardAim.bReactionFire = true;

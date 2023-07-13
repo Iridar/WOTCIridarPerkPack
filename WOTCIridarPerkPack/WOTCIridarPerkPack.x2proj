@@ -186,6 +186,9 @@
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_Flyover.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2TargetingMethod_TopDown_NoCameraLock.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\extra_globals.uci" />
     <Content Include="Src\WOTCIridarPerkPack2\Classes\AnimNotify_FireOtherWeapon.uc">
       <SubType>Content</SubType>
