@@ -57,3 +57,16 @@ LocHelpText="If you hunkered down or did not move, gain a bonus to aim and crit 
 LocPromotionPopupText="<Bullet/> The Steady Hands bonus does not stack over multiple turns.<br/><Bullet/> Steady Hands doubles down on the need to find a high sniper's nest with good sightlines.<br/>"
 LocFlyOverText="Steady Hands"
 
+[IRI_SH_Standoff X2AbilityTemplate]
+LocFriendlyName="Standoff"
+LocLongDescription="Take a reaction shot with your <Ability:IRI_BoundWeaponName/> against any enemy that moves or attacks within a <Ability:IRI_SH_Standoff_Radius_Tiles/> tile radius."
+LocHelpText="Take a reaction shot with your <Ability:IRI_BoundWeaponName/> against any enemy that moves or attacks within a <Ability:IRI_SH_Standoff_Radius_Tiles/> tile radius."
+LocFlyOverText="Standoff"
+LocPromotionPopupText="<Bullet/> There is no limit to the amount of Standoff shots a <Ability:ClassName/> can take.<br/><Bullet/><Ability:SelfCooldown/> turn cooldown.<br/>"
+LocFriendlyNameWhenConcealed="Standoff (Concealed)"
+
+[IRI_SH_Standoff_Shot X2AbilityTemplate]
+LocFriendlyName="Standoff"
+LocLongDescription="Take a reaction shot with your <Ability:IRI_BoundWeaponName/> against any enemy that moves or attacks within a <Ability:IRI_SH_Standoff_Radius_Tiles/> tile radius."
+LocHelpText="Take a reaction shot with your <Ability:IRI_BoundWeaponName/> against any enemy that moves or attacks within a <Ability:IRI_SH_Standoff_Radius_Tiles/> tile radius."
+LocFlyOverText="Standoff"

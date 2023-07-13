@@ -122,6 +122,14 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		OutString = TruncateFloat(`GetConfigFloat(InString));
 		return true;		
 
+	// ======================================================================================================================
+	//												RANGER TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
+	case "IRI_SH_Standoff_Radius_Tiles":
+		OutString = TruncateFloat(`GetConfigFloat(InString));
+		return true;	
+		
+
 	// ----------------------------------------------------------------------------------------------------------------------
 	default:
 		break;

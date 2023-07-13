@@ -1,0 +1,1 @@
+class X2TargetingMethod_TopDown_NoCameraLock extends X2TargetingMethod_TopDown;

@@ -7,6 +7,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	// Sharpshooter
 	Templates.AddItem(IRI_SH_SteadyHands());
 	Templates.AddItem(PurePassive('IRI_SH_SteadyHands_Passive', "img:///UILibrary_PerkIcons.UIPerk_steadyhands", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_SH_Standoff());
+	Templates.AddItem(IRI_SH_Standoff_Shot());
 	
 
 	// Ranger
@@ -23,6 +25,211 @@ static function array<X2DataTemplate> CreateTemplates()
 // ========================================================
 //							SHARPSHOOTER
 // --------------------------------------------------------
+
+
+
+static function X2AbilityTemplate IRI_SH_Standoff()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityCooldown					Cooldown;
+	local X2AbilityCost_Ammo				AmmoCost;
+	local X2AbilityCost_ActionPoints		ActionPointCost;
+	local X2AbilityTarget_Cursor			CursorTarget;
+	local X2AbilityMultiTarget_Radius		MultiTarget;
+	local X2Effect_ReserveActionPoints		ReservePointsEffect;
+	local X2Condition_UnitEffects           SuppressedCondition;
+	local X2Effect_Persistent				KillZoneEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SH_Standoff');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_AlwaysShow;
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_killzone";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_MAJOR_PRIORITY;
+	Template.bDisplayInUITooltip = false;
+	Template.bDisplayInUITacticalText = false;
+
+	// Targetind and Triggering
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	MultiTarget = new class'X2AbilityMultiTarget_Radius';
+	MultiTarget.bUseWeaponBlockingCoverFlag = false;
+	MultiTarget.bIgnoreBlockingCover = true;
+	MultiTarget.fTargetRadius = `TILESTOMETERS(`GetConfigFloat("IRI_SH_Standoff_Radius_Tiles"));
+	Template.AbilityMultiTargetStyle = MultiTarget;
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	SuppressedCondition = new class'X2Condition_UnitEffects';
+	SuppressedCondition.AddExcludeEffect(class'X2Effect_Suppression'.default.EffectName, 'AA_UnitIsSuppressed');
+	SuppressedCondition.AddExcludeEffect(class'X2Effect_SkirmisherInterrupt'.default.EffectName, 'AA_AbilityUnavailable');
+	Template.AbilityShooterConditions.AddItem(SuppressedCondition);
+
+	// Costs
+
+	// Ammo cost - just in case.
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	AmmoCost.bFreeCost = true;
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	AddCooldown(Template, `GetConfigInt("IRI_SH_Standoff_Cooldown"));
+
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.bAddWeaponTypicalCost = true;
+	ActionPointCost.bConsumeAllPoints = true;   //  this will guarantee the unit has at least 1 action point
+	ActionPointCost.bFreeCost = true;           //  ReserveActionPoints effect will take all action points away
+	ActionPointCost.DoNotConsumeAllEffects.Length = 0;
+	ActionPointCost.DoNotConsumeAllSoldierAbilities.Length = 0;
+	ActionPointCost.AllowedTypes.RemoveItem(class'X2CharacterTemplateManager'.default.SkirmisherInterruptActionPoint);
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Effects
+	ReservePointsEffect = new class'X2Effect_ReserveActionPoints';
+	ReservePointsEffect.ReserveType = 'IRI_SH_Standoff';
+	Template.AddShooterEffect(ReservePointsEffect);
+	
+	// State and Viz
+	Template.Hostility = eHostility_Defensive;
+	Template.AbilityConfirmSound = "Unreal2DSounds_OverWatch";
+	Template.ActivationSpeech = 'KillZone';
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	
+	Template.bSkipFireAction = true;
+	Template.bShowActivation = true;
+	
+	Template.AdditionalAbilities.AddItem('IRI_SH_Standoff_Shot');
+	
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
+	
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_SH_Standoff_Shot()
+{
+	local X2AbilityTemplate                 Template;
+	local X2AbilityCost_Ammo				AmmoCost;
+	local X2AbilityCost_ReserveActionPoints ReserveActionPointCost;
+	local X2AbilityToHitCalc_StandardAim    StandardAim;
+	local X2Condition_AbilityProperty       AbilityCondition;
+	local X2AbilityTarget_Single            SingleTarget;
+	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect_Persistent               KillZoneEffect;
+	local X2Condition_UnitEffectsWithAbilitySource  KillZoneCondition;
+	local X2Condition_Visibility            TargetVisibilityCondition;
+	local X2Condition_UnitProperty          ShooterCondition;
+	local X2Condition_UnitProperty			TargetCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SH_Standoff_Shot');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_overwatch";
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	SingleTarget = new class'X2AbilityTarget_Single';
+	SingleTarget.OnlyIncludeTargetsInsideWeaponRange = true;
+	Template.AbilityTargetStyle = SingleTarget;
+
+	Template.TargetingMethod = class'X2TargetingMethod_TopDown_NoCameraLock';
+
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bReactionFire = true;
+	Template.AbilityToHitCalc = StandardAim;
+
+	//Trigger on movement - interrupt the move
+	Trigger = new class'X2AbilityTrigger_EventListener';
+	Trigger.ListenerData.EventID = 'ObjectMoved';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_None;
+	Trigger.ListenerData.EventFn = class'XComGameState_Ability'.static.TypicalOverwatchListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+	//  trigger on an attack
+	Trigger = new class'X2AbilityTrigger_EventListener';
+	Trigger.ListenerData.EventID = 'AbilityActivated';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_None;
+	Trigger.ListenerData.EventFn = class'XComGameState_Ability'.static.TypicalAttackListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	ShooterCondition = new class'X2Condition_UnitProperty';
+	ShooterCondition.ExcludeConcealed = true;
+	Template.AbilityShooterConditions.AddItem(ShooterCondition);
+	Template.AddShooterEffectExclusions();
+
+	// Costs
+
+	AmmoCost = new class'X2AbilityCost_Ammo';
+	AmmoCost.iAmmo = 1;
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	ReserveActionPointCost = new class'X2AbilityCost_ReserveActionPoints';
+	ReserveActionPointCost.iNumPoints = 1;
+	ReserveActionPointCost.bFreeCost = true;
+	ReserveActionPointCost.AllowedTypes.AddItem('IRI_SH_Standoff');
+	Template.AbilityCosts.AddItem(ReserveActionPointCost);
+
+	// Target Conditions
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeAlive = false;
+	TargetCondition.ExcludeDead = true;
+	TargetCondition.ExcludeFriendlyToSource = true;
+	TargetCondition.ExcludeHostileToSource = false;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
+	TargetCondition.FailOnNonUnits = true;
+	TargetCondition.RequireWithinRange = true;
+	TargetCondition.WithinRange = `TILESTOUNITS(`GetConfigFloat("IRI_SH_Standoff_Radius_Tiles"));
+	Template.AbilityTargetConditions.AddItem(TargetCondition);
+
+	TargetVisibilityCondition = new class'X2Condition_Visibility';
+	TargetVisibilityCondition.bRequireGameplayVisible = true;
+	TargetVisibilityCondition.bDisablePeeksOnMovement = false;
+	TargetVisibilityCondition.bAllowSquadsight = false;
+	Template.AbilityTargetConditions.AddItem(TargetVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(class'X2Ability_DefaultAbilitySet'.static.OverwatchTargetEffectsCondition());
+
+	//  Do not shoot targets that were already hit by this unit this turn with this ability
+	KillZoneCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	KillZoneCondition.AddExcludeEffect('IRI_SH_Standoff_Shot_Effect', 'AA_UnitIsImmune');
+	Template.AbilityTargetConditions.AddItem(KillZoneCondition);
+
+	// Target Effects
+	
+	//  Mark the target as shot by this unit so it cannot be shot again this turn
+	KillZoneEffect = new class'X2Effect_Persistent';
+	KillZoneEffect.EffectName = 'IRI_SH_Standoff_Shot_Effect';
+	KillZoneEffect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnBegin);
+	KillZoneEffect.SetupEffectOnShotContextResult(true, true);      //  mark them regardless of whether the shot hit or missed
+	Template.AddTargetEffect(KillZoneEffect);
+
+	//  Put holo target effect first because if the target dies from this shot, it will be too late to notify the effect.
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.ShredderDamageEffect());
+	Template.bAllowAmmoEffects = true;
+	Template.bAllowBonusWeaponEffects = true;
+
+	// State and Viz
+	Template.Hostility = eHostility_Offensive;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	return Template;
+}
 
 static function X2AbilityTemplate IRI_SH_SteadyHands()
 {
