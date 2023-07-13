@@ -1,0 +1,13 @@
+[IRI_SH_SteadyHands X2AbilityTemplate]
+LocFriendlyName="Верный прицел"
+LocLongDescription="Если вы использовали \"Глухую оборону\" либо не двигались на прошлом ходу, то получаете +<Ability:STEADYHANDSAIMBONUS/> к меткости и +<Ability:STEADYHANDSCRITBONUS/> к вероятности критического ранения."
+LocHelpText="Если вы использовали \"Глухую оборону\" либо не двигались, то получаете бонус к точности и критическому ранению."
+LocFlyOverText="Верный прицел"
+LocPromotionPopupText="<Bullet/> Бонус от \"Верного прицела\" за несколько ходов не складывается.<br/><Bullet/> Для этой способности особенно необходима высокая стрелковая позиция с хорошим обзором.<br/>"
+
+[IRI_SH_SteadyHands_Passive X2AbilityTemplate]
+LocFriendlyName="Верный прицел"
+LocLongDescription="Если вы использовали \"Глухую оборону\" либо не двигались на прошлом ходу, то получаете +<Ability:STEADYHANDSAIMBONUS/> к меткости и +<Ability:STEADYHANDSCRITBONUS/> к вероятности критического ранения."
+LocHelpText="Если вы использовали \"Глухую оборону\" либо не двигались, то получаете бонус к точности и критическому ранению."
+LocFlyOverText="Верный прицел"
+LocPromotionPopupText="<Bullet/> Бонус от \"Верного прицела\" за несколько ходов не складывается.<br/><Bullet/> Для этой способности особенно необходима высокая стрелковая позиция с хорошим обзором.<br/>"

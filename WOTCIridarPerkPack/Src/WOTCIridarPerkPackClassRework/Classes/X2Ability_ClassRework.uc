@@ -4,6 +4,12 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
+	// Sharpshooter
+	Templates.AddItem(IRI_SH_SteadyHands());
+	Templates.AddItem(PurePassive('IRI_SH_SteadyHands_Passive', "img:///UILibrary_PerkIcons.UIPerk_steadyhands", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	
+
+	// Ranger
 	Templates.AddItem(IRI_RN_ZephyrStrike());
 	Templates.AddItem(IRI_RN_TacticalAdvance());
 	Templates.AddItem(PurePassive('IRI_RN_TacticalAdvance_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
@@ -13,6 +19,97 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 	return Templates;
 }
+
+// ========================================================
+//							SHARPSHOOTER
+// --------------------------------------------------------
+
+static function X2AbilityTemplate IRI_SH_SteadyHands()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_TacticalAdvance			Effect;
+	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect_PersistentStatChange		StatChangeEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SH_SteadyHands');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.Hostility = eHostility_Neutral;
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_steadyhands";
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+
+	// Trigger when using Hunker Down
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'AbilityActivated';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Unit;
+	Trigger.ListenerData.Priority = 50;
+	Trigger.ListenerData.EventFn = OnHunkerDown_TriggerEventListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+
+	// Trigger at the end of turn if we didn't move last turn
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'PlayerTurnEnded';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Player;
+	Trigger.ListenerData.Priority = 50;
+	Trigger.ListenerData.EventFn = SteadyHands_TriggerEventListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+	
+	// Shooter Conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingShooterProperty);
+
+	// Effects
+	StatChangeEffect = new class'X2Effect_PersistentStatChange';
+	StatChangeEffect.EffectName = 'SteadyHandsStatBoost';
+	StatChangeEffect.BuildPersistentEffect(2, false, true, false, eGameRule_PlayerTurnBegin);
+	StatChangeEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, true);
+	StatChangeEffect.AddPersistentStatChange(eStat_Offense, class'X2Ability_SharpshooterAbilitySet'.default.STEADYHANDS_AIM_BONUS);
+	StatChangeEffect.AddPersistentStatChange(eStat_CritChance, class'X2Ability_SharpshooterAbilitySet'.default.STEADYHANDS_CRIT_BONUS);
+	Template.AddTargetEffect(StatChangeEffect);
+
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.AdditionalAbilities.AddItem('IRI_SH_SteadyHands_Passive');
+
+	return Template;
+}
+
+static private function EventListenerReturn SteadyHands_TriggerEventListener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Unit	UnitState;
+    local XComGameState_Ability	AbilityState;
+	local UnitValue				UV;
+
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityState.OwnerStateObject.ObjectID));
+	if (UnitState == none)
+		return ELR_NoInterrupt;
+
+	UnitState.GetUnitValue('MovesThisTurn', UV);
+
+	if (UV.fValue == 0)
+	{
+		AbilityState.AbilityTriggerAgainstSingleTarget(UnitState.GetReference(), false);
+	}
+	return ELR_NoInterrupt;
+}
+
+// ========================================================
+//							RANGER
+// --------------------------------------------------------
 
 static private function X2AbilityTemplate IRI_RN_Intercept()
 {
@@ -297,7 +394,6 @@ static function X2AbilityTemplate IRI_RN_TacticalAdvance()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.Hostility = eHostility_Neutral;
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_TacticalAdvance";
 	
@@ -311,7 +407,7 @@ static function X2AbilityTemplate IRI_RN_TacticalAdvance()
 	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
 	Trigger.ListenerData.Filter = eFilter_Unit;
 	Trigger.ListenerData.Priority = 50;
-	Trigger.ListenerData.EventFn = TacticalAdvance_TriggerEventListener;
+	Trigger.ListenerData.EventFn = OnHunkerDown_TriggerEventListener;
 	Template.AbilityTriggers.AddItem(Trigger);
 	
 	Effect = new class'X2Effect_TacticalAdvance';
@@ -330,7 +426,7 @@ static function X2AbilityTemplate IRI_RN_TacticalAdvance()
 	return Template;
 }
 
-static private function EventListenerReturn TacticalAdvance_TriggerEventListener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+static private function EventListenerReturn OnHunkerDown_TriggerEventListener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
 {
 	local XComGameState_Unit	UnitState;
 	local XComGameState_Unit	NewUnitState;
