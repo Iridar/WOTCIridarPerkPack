@@ -9,6 +9,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(PurePassive('IRI_SH_SteadyHands_Passive', "img:///UILibrary_PerkIcons.UIPerk_steadyhands", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(IRI_SH_Standoff());
 	Templates.AddItem(IRI_SH_Standoff_Shot());
+	Templates.AddItem(IRI_SH_ScootAndShoot());
 	
 
 	// Ranger
@@ -27,6 +28,81 @@ static function array<X2DataTemplate> CreateTemplates()
 // --------------------------------------------------------
 
 
+static function X2AbilityTemplate IRI_SH_ScootAndShoot()
+{
+	local X2AbilityTemplate							Template;
+	local X2AbilityCooldown							Cooldown;
+	local X2AbilityCost_ActionPoints				ActionPointCost;
+	local X2Effect_Knockback						KnockbackEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SH_ScootAndShoot');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_quickdraw";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = new class'X2AbilityToHitCalc_StandardAim';
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	//Template.AbilityTargetStyle = new class'X2AbilityTarget_MovingMelee';
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	//Template.TargetingMethod = class'X2TargetingMethod_MeleePath';
+	Template.TargetingMethod = class'AWOTCIridarPerkPack.X2TargetingMethod_MeleePath_WeaponRange';	
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target conditions
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
+	
+	// Costs
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.bConsumeAllPoints = false;
+	ActionPointCost.bMoveCost = true;
+	ActionPointCost.iNumPoints = 1;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	AddCooldown(Template, `GetConfigInt("IRI_SH_ScootAndShoot_Cooldown"));
+	
+	// Effects
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.ShredderDamageEffect());
+	Template.bAllowAmmoEffects = true;
+	Template.bAllowBonusWeaponEffects = true;
+	Template.bAllowFreeFireWeaponUpgrade = true;
+
+	KnockbackEffect = new class'X2Effect_Knockback';
+	KnockbackEffect.KnockbackDistance = 2;
+	Template.AddTargetEffect(KnockbackEffect);
+
+	Template.bAllowAmmoEffects = true;
+	Template.bAllowBonusWeaponEffects = true;
+	Template.bAllowFreeFireWeaponUpgrade = true;   
+
+	// State and Viz
+	Template.Hostility = eHostility_Neutral;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.bSkipMoveStop = false;
+	Template.bSkipExitCoverWhenFiring = false;
+	Template.bUsesFiringCamera = true;
+	Template.CinescriptCameraType = "StandardGunFiring";
+	Template.BuildNewGameStateFn = TypicalMoveEndAbility_BuildGameState;
+	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	Template.AdditionalAbilities.AddItem('Quickdraw');
+
+	return Template;
+}
 
 static function X2AbilityTemplate IRI_SH_Standoff()
 {
@@ -216,6 +292,7 @@ static function X2AbilityTemplate IRI_SH_Standoff_Shot()
 	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.ShredderDamageEffect());
 	Template.bAllowAmmoEffects = true;
 	Template.bAllowBonusWeaponEffects = true;
+	Template.bAllowFreeFireWeaponUpgrade = true;
 
 	// State and Viz
 	Template.Hostility = eHostility_Offensive;
@@ -234,7 +311,6 @@ static function X2AbilityTemplate IRI_SH_Standoff_Shot()
 static function X2AbilityTemplate IRI_SH_SteadyHands()
 {
 	local X2AbilityTemplate					Template;
-	local X2Effect_TacticalAdvance			Effect;
 	local X2AbilityTrigger_EventListener	Trigger;
 	local X2Effect_PersistentStatChange		StatChangeEffect;
 

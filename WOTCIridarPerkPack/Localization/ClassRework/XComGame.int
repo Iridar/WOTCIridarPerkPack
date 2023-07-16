@@ -70,3 +70,10 @@ LocFriendlyName="Standoff"
 LocLongDescription="Take a reaction shot with your <Ability:IRI_BoundWeaponName/> against any enemy that moves or attacks within a <Ability:IRI_SH_Standoff_Radius_Tiles/> tile radius."
 LocHelpText="Take a reaction shot with your <Ability:IRI_BoundWeaponName/> against any enemy that moves or attacks within a <Ability:IRI_SH_Standoff_Radius_Tiles/> tile radius."
 LocFlyOverText="Standoff"
+
+[IRI_SH_ScootAndShoot X2AbilityTemplate]
+LocFriendlyName="Scoot and Shoot"
+LocLongDescription="Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn."
+LocHelpText="Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn."
+LocFlyOverText=Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn.
+LocPromotionPopupText=""

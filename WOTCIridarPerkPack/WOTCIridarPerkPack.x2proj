@@ -72,6 +72,9 @@
     <Content Include="Config\ClassRework\XComGame.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\ClassRework\XComGameCore.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Skirmisher\XComCamera.ini">
       <SubType>Content</SubType>
     </Content>
@@ -184,6 +187,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_Flyover.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2MeleePathingPawn_WeaponRange.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2TargetingMethod_MeleePath_WeaponRange.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2TargetingMethod_TopDown_NoCameraLock.uc">
