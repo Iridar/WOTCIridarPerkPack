@@ -56,7 +56,7 @@ static function X2AbilityTemplate IRI_SH_ScootAndShoot()
 	Template.AddShooterEffectExclusions();
 
 	// Target conditions
-	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty); // Units only.
 	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 	
 	// Costs

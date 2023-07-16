@@ -1,12 +1,19 @@
 class X2MeleePathingPawn_WeaponRange extends X2MeleePathingPawn;
 
-var int AroundTargetTileDistance;
+var private XGUnit			Visualizer;
+var private XComWorldData	World;
+var private float			SightRangeUnits;
+
+function Init(XComGameState_Unit InUnitState, XComGameState_Ability InAbilityState, X2TargetingMethod_MeleePath InTargetingMethod)
+{
+	super.Init(InUnitState, InAbilityState, InTargetingMethod);
+
+	Visualizer = XGUnit(UnitState.GetVisualizer());
+	World = `XWORLD;
+	SightRangeUnits = `METERSTOUNITS(UnitState.GetCurrentStat(eStat_SightRadius));
+}
 
 // TODO: This needs to get the reachable tile cache, then filter out tiles from where the enemy cannot be seen.
-
-// Override some of the original functions / create new ones to allow selecting any tile around the unit within the specified distance,
-// not just tiles directly adjacent to the target.
-
 simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 {
 	local X2AbilityTemplate AbilityTemplate;
@@ -20,7 +27,7 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 	InvalidTile.Z = -1;
 	//</workshop>
 
-	if (Target == none)
+	if(Target == none)
 	{
 		`Redscreen("X2MeleePathingPawn::UpdateMeleeTarget: Target is none!");
 		return;
@@ -31,11 +38,26 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 
 	PossibleTiles.Length = 0;
 
-	if (SelectAttackTile(UnitState, Target, AbilityTemplate, PossibleTiles))
+	// Iridar: use a custom function for this.
+	if(SelectAttackTile(UnitState, Target, AbilityTemplate, PossibleTiles))
 	{
+		// Start Issue #1084
+		// The native `class'X2AbilityTarget_MovingMelee'.static.SelectAttackTile` function
+		// gives only one possible attack tile for adjacent targets, so we use our own
+		// script logic to add more possible attack tiles for adjacent targets.
+		// If there's only one possible melee attack tile and the unit is standing on it,
+		// then the target is directly adjacent.
+		if (UnitState.UnitSize == 1 && PossibleTiles.Length == 1 && UnitState.TileLocation == PossibleTiles[0])
+		{
+			UpdatePossibleTilesForAdjacentTarget(Target);
+		}
+		// End Issue #1084
+
 		// build a path to the default (best) tile
 		//<workshop> Francois' Smooth Cursor AMS 2016/04/07
-		RebuildPathingInformation(PossibleTiles[0], TargetVisualizer, AbilityTemplate, InvalidTile);	
+		//WAS:
+		//RebuildPathingInformation(PossibleTiles[0], TargetVisualizer, AbilityTemplate);	
+		RebuildPathingInformation(PossibleTiles[0], TargetVisualizer, AbilityTemplate, InvalidTile);
 		//</workshop>
 
 		// and update the tiles to reflect the new target options
@@ -56,20 +78,9 @@ simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 	}
 	//<workshop> TACTICAL_CURSOR_PROTOTYPING AMS 2015/12/07
 	//INS:
-	//DoUpdatePuckVisuals_BH(PossibleTiles[0], Target.GetVisualizer(), AbilityTemplate);
 	DoUpdatePuckVisuals(PossibleTiles[0], Target.GetVisualizer(), AbilityTemplate);
 	//</workshop>
 }
-
-// Finds the melee tiles available to the unit, if any are available to the source unit. If IdealTile is specified,
-// it will select the closest valid attack tile to the ideal (and will simply return the ideal if it is valid). If no array us provided for
-// SortedPossibleTiles, will simply return true or false based on whether or not a tile is available
-//simulated static native function bool SelectAttackTile(XComGameState_Unit UnitState, 
-//														   XComGameState_BaseObject TargetState, 
-//														   X2AbilityTemplate MeleeAbilityTemplate,
-//														   optional out array<TTile> SortedPossibleTiles, // index 0 is the best option.
-//														   optional out TTile IdealTile, // If this tile is available, will just return it
-//														   optional bool Unsorted = false) const; // if unsorted is true, just returns the list of possible tiles
 
 private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState, 
 														   XComGameState_BaseObject TargetState, 
@@ -78,126 +89,40 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 														   optional out TTile IdealTile, // If this tile is available, will just return it
 														   optional bool Unsorted = false)
 {
-	local array<TTile>               TargetTiles; // Array of tiles occupied by the target; these tiles can be attacked by melee.
-	local TTile                      TargetTile;
-	local array<TTile>               AdjacentTiles;	// Array of tiles adjacent to Target Tiles; the attacking unit can move to these tiles to attack.
-	local array<TTile>               AllAdjacentTiles;
-	local array<TTile>               DirectlyAdjacentTiles;
-	local TTile                      AdjacentTile;
-	local XComGameState_Unit         TargetUnit;
-	local bool						 bCheckForFlanks;
-
-	local X2GameRulesetVisibilityManager	VisibilityMgr;
-	local GameRulesCache_VisibilityInfo		VisibilityInfo;
-	local XComWorldData						World;
-	local float								SightRadiusUnitsSq;
+	local array<TTile>							ReachableTiles;
+	local TTile									ReachableTile;
+	local array<GameRulesCache_VisibilityInfo>	AllVisibleToSource;
+	local GameRulesCache_VisibilityInfo			OneVisibleToSource;
+	local X2GameRulesetVisibilityManager		VisibilityMgr;
+	local array<X2Condition>					Conditions;
+	local XComGameState_Unit					TargetUnit;
 
 	TargetUnit = XComGameState_Unit(TargetState);
 	if (TargetUnit == none)
 		return false;
+		
+	VisibilityMgr = `TACTICALRULES.VisibilityMgr;
+	Visualizer.m_kReachableTilesCache.GetAllPathableTiles(ReachableTiles);
 
-	// Only gather flanking tiles if the target can take cover.
-	if (TargetUnit.CanTakeCover())
+	//`AMLOG("Got this many reachable tiles:" @ ReachableTiles.Length);
+	Conditions.AddItem(class'X2TacticalVisibilityHelpers'.default.GameplayVisibilityCondition);
+
+	foreach ReachableTiles(ReachableTile)
 	{
-		bCheckForFlanks = true;
-		VisibilityMgr = `TACTICALRULES.VisibilityMgr;
-	}
+		AllVisibleToSource.Length = 0;
+		VisibilityMgr.GetAllVisibleUnitsToSource_Remote(UnitState.ObjectID, ReachableTile, AllVisibleToSource,, Conditions, TargetUnit.GetTeam());
 
-	GatherTilesOccupiedByUnit_BH(TargetUnit, TargetTiles);
+		//`AMLOG("Testing tile:" @ ReachableTile.X @ ReachableTile.Y @ ReachableTile.Z @ "num visible enemies:" @ AllVisibleToSource.Length);
 
-	// Collect non-duplicate tiles around every Target Tile to see which tiles we can attack from.
-	GatherTilesAdjacentToTiles_BH(TargetTiles, AllAdjacentTiles, AroundTargetTileDistance);
-
-	// Remove from that array tiles that are directly adjacent to the unit, cuz teleporting there would break concealment.
-	GatherTilesAdjacentToTiles_BH(TargetTiles, DirectlyAdjacentTiles, 1.5f);
-	class'Helpers'.static.RemoveTileSubset(AdjacentTiles, AllAdjacentTiles, DirectlyAdjacentTiles);
-
-	SightRadiusUnitsSq = `METERSTOUNITS(ChasingUnitState.GetVisibilityRadius());
-	SightRadiusUnitsSq = SightRadiusUnitsSq * SightRadiusUnitsSq;
-
-	World = `XWORLD;
-	foreach TargetTiles(TargetTile)
-	{
-		foreach AdjacentTiles(AdjacentTile)
+		foreach AllVisibleToSource(OneVisibleToSource)
 		{
-			if (class'Helpers'.static.FindTileInList(AdjacentTile, SortedPossibleTiles) != INDEX_NONE)
-				continue;		
-
-			if (!World.CanUnitsEnterTile(AdjacentTile) || !World.IsFloorTileAndValidDestination(AdjacentTile, ChasingUnitState))
-				continue;
-
-			// Checks for line of sight, but not sight distance.
-			if (!World.CanSeeTileToTile(ChasingUnitState.TileLocation, AdjacentTile, VisibilityInfo))
-				continue;
-
-			// Skip tile if it's outside unit's sight radius.
-			if (SightRadiusUnitsSq < VisibilityInfo.DefaultTargetDist)
-				continue;
-
-			// Skip tiles that don't have line of sight to the target unit.
-			if (!World.CanSeeTileToTile(AdjacentTile, TargetUnit.TileLocation, VisibilityInfo))
-				continue;
-
-			if (bCheckForFlanks)
+			if (OneVisibleToSource.TargetID == TargetState.ObjectID)
 			{
-				if (VisibilityMgr.GetVisibilityInfoFromRemoteLocation(ChasingUnitState.ObjectID, AdjacentTile, TargetUnit.ObjectID, VisibilityInfo))
-				{
-					if (VisibilityInfo.TargetCover != CT_None)
-						continue; // Skip tile if it provides cover against adjacent tile.
-				}
-				else continue; // skip tile cuz source unit can't see target unit from there.
+				//`AMLOG("Can see target, adding tile.");
+				SortedPossibleTiles.AddItem(ReachableTile);
 			}
-				
-			SortedPossibleTiles.AddItem(AdjacentTile);
 		}
 	}
 
 	return SortedPossibleTiles.Length > 0;
-}
-
-private function GatherTilesAdjacentToTiles_BH(out array<TTile> TargetTiles, out array<TTile> AdjacentTiles, const float TileDistance)
-{	
-	local XComWorldData      WorldData;
-	local array<TilePosPair> TilePosPairs;
-	local TilePosPair        TilePair;
-	local TTile              TargetTile;
-	local vector             TargetLocation;
-	
-	WorldData = `XWORLD;
-
-	// Collect a 3x3 box of tiles around every target tile, excluding duplicates.
-	// Melee attacks can happen diagonally upwards or downwards too,
-	// so collecting tiles on the same Z level would not be enough.
-	foreach TargetTiles(TargetTile)
-	{
-		TargetLocation = WorldData.GetPositionFromTileCoordinates(TargetTile);
-
-		WorldData.CollectTilesInSphere(TilePosPairs, TargetLocation, `TILESTOUNITS(TileDistance));
-
-		foreach TilePosPairs(TilePair)
-		{
-			if (class'Helpers'.static.FindTileInList(TilePair.Tile, AdjacentTiles) != INDEX_NONE)
-				continue;
-
-			AdjacentTiles.AddItem(TilePair.Tile);
-		}
-	}
-}
-
-private function GatherTilesOccupiedByUnit_BH(const XComGameState_Unit TargetUnit, out array<TTile> OccupiedTiles)
-{	
-	local XComWorldData      WorldData;
-	local array<TilePosPair> TilePosPairs;
-	local TilePosPair        TilePair;
-	local Box                VisibilityExtents;
-
-	TargetUnit.GetVisibilityExtents(VisibilityExtents);
-	
-	WorldData = `XWORLD;
-	WorldData.CollectTilesInBox(TilePosPairs, VisibilityExtents.Min, VisibilityExtents.Max);
-
-	foreach TilePosPairs(TilePair)
-	{
-		OccupiedTiles.AddItem(TilePair.Tile);
-	}
 }

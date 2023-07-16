@@ -11,8 +11,6 @@ function Init(AvailableAction InAction, int NewTargetIndex)
 	Cursor = `CURSOR;
 	PathingPawn = Cursor.Spawn(class'X2MeleePathingPawn_WeaponRange', Cursor);
 
-	X2MeleePathingPawn_WeaponRange(PathingPawn).AroundTargetTileDistance = 18;
-
 	PathingPawn.SetVisible(true);
 	PathingPawn.Init(UnitState, Ability, self);
 	IconManager = Pres.GetActionIconMgr();
