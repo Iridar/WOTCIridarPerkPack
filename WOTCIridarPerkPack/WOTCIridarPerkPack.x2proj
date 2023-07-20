@@ -283,6 +283,9 @@
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Ability_ClassRework.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Action_ExitCover_ScootAndShoot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Action_Fire_Faceoff_CS.uc">
       <SubType>Content</SubType>
     </Content>

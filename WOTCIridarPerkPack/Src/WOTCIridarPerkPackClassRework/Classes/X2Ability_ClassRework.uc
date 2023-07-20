@@ -92,7 +92,7 @@ static function X2AbilityTemplate IRI_SH_ScootAndShoot()
 	Template.CinescriptCameraType = "StandardGunFiring";
 	Template.BuildNewGameStateFn = TypicalMoveEndAbility_BuildGameState;
 	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildVisualizationFn = ScootAndShoot_BuildVisualization;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
@@ -104,6 +104,93 @@ static function X2AbilityTemplate IRI_SH_ScootAndShoot()
 	return Template;
 }
 
+static private function ScootAndShoot_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateHistory				History;
+	local XComGameStateContext_Ability		AbilityContext;
+	local StateObjectReference				InteractingUnitRef;
+	local VisualizationActionMetadata		EmptyTrack;
+	local VisualizationActionMetadata		ActionMetadata;	
+	local VisualizationActionMetadata		SourceMetadata;
+	local X2VisualizerInterface				TargetVisualizerInterface;
+	local XComGameState_EnvironmentDamage	DamageEventStateObject;
+	local XComGameStateVisualizationMgr		VisMgr;
+	local X2Action_MarkerNamed				JoinActions;
+	local Array<X2Action>					FoundActions;
+	local X2Action_Fire						FireAction;
+	local X2Action_ExitCover				ExitCoverAction;
+	local XGUnit							SourceVisualizer;
+	local int i, j;
+
+	History = `XCOMHISTORY;
+	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+
+	SourceVisualizer = XGUnit(History.GetVisualizer(AbilityContext.InputContext.SourceObject.ObjectID));
+
+	SourceMetadata.StateObject_OldState = History.GetGameStateForObjectID(SourceVisualizer.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	SourceMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(SourceVisualizer.ObjectID);
+	SourceMetadata.StateObjectRef = AbilityContext.InputContext.SourceObject;
+	SourceMetadata.VisualizeActor = SourceVisualizer;
+
+	if( AbilityContext.InputContext.MovementPaths.Length > 0 )
+	{
+		class'X2VisualizerHelpers'.static.ParsePath(AbilityContext, SourceMetadata);
+	}
+
+	ExitCoverAction = X2Action_ExitCover(class'X2Action_ExitCover_ScootAndShoot'.static.AddToVisualizationTree(SourceMetadata, AbilityContext, false, SourceMetadata.LastActionAdded));
+	FireAction = X2Action_Fire(class'X2Action_Fire'.static.AddToVisualizationTree(SourceMetadata, AbilityContext, false, ExitCoverAction));
+	class'X2Action_EnterCover'.static.AddToVisualizationTree(SourceMetadata, AbilityContext, false, FireAction);
+
+	//****************************************************************************************
+	//Configure the visualization track for the targets
+	//****************************************************************************************
+	for( i = 0; i < AbilityContext.InputContext.MultiTargets.Length; ++i )
+	{
+		InteractingUnitRef = AbilityContext.InputContext.MultiTargets[i];
+		ActionMetadata = EmptyTrack;
+		ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+		ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
+		ActionMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
+
+		ActionMetadata.LastActionAdded = FireAction; //We want these applied effects to trigger off of the bombard action
+		for( j = 0; j < AbilityContext.ResultContext.MultiTargetEffectResults[i].Effects.Length; ++j )
+		{
+			AbilityContext.ResultContext.MultiTargetEffectResults[i].Effects[j].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, AbilityContext.ResultContext.MultiTargetEffectResults[i].ApplyResults[j]);
+		}
+
+		TargetVisualizerInterface = X2VisualizerInterface(ActionMetadata.VisualizeActor);
+		if( TargetVisualizerInterface != none )
+		{
+			//Allow the visualizer to do any custom processing based on the new game state. For example, units will create a death action when they reach 0 HP.
+			TargetVisualizerInterface.BuildAbilityEffectsVisualization(VisualizeGameState, ActionMetadata);
+		}
+	}
+	//****************************************************************************************
+
+	//****************************************************************************************
+	//Configure the visualization track for the targets
+	//****************************************************************************************
+	// add visualization of environment damage
+	foreach VisualizeGameState.IterateByClassType( class'XComGameState_EnvironmentDamage', DamageEventStateObject )
+	{
+		ActionMetadata = EmptyTrack;
+		ActionMetadata.StateObject_OldState = DamageEventStateObject;
+		ActionMetadata.StateObject_NewState = DamageEventStateObject;
+		ActionMetadata.VisualizeActor = `XCOMHISTORY.GetVisualizer(DamageEventStateObject.ObjectID);
+		class'X2Action_ApplyWeaponDamageToTerrain'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, FireAction);
+	}
+	//****************************************************************************************
+
+	VisMgr.GetAllLeafNodes(VisMgr.BuildVisTree, FoundActions);
+
+	if( VisMgr.BuildVisTree.ChildActions.Length > 0 )
+	{
+		JoinActions = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false, none, FoundActions));
+		JoinActions.SetName("Join");
+	}
+}
 static function X2AbilityTemplate IRI_SH_Standoff()
 {
 	local X2AbilityTemplate					Template;
