@@ -2,7 +2,7 @@
 LocFriendlyName="Predator Strike"
 LocLongDescription="Execute an adjacent humanoid enemy below <Ability:IRI_SK_PredatorStrike_HealthPercent/> HP. If the target is ADVENT, closest ADVENT unit will be revealed until the end of turn."
 LocHelpText="Execute an adjacent humanoid enemy below <Ability:IRI_SK_PredatorStrike_HealthPercent/> HP. If the target is ADVENT, closest ADVENT unit will be revealed until the end of turn."
-LocPromotionPopupText="<bullet/> This is ability is a melee attack and can miss.<br/><bullet/> This ability bypasses Sustain and other similar effects.<br/><bullet/> <Ability:IRI_SK_PredatorStrike_Cooldown/> turn cooldown."
+LocPromotionPopupText="<bullet/> This is ability is a melee attack and can miss.<br/><bullet/> This ability bypasses Sustain and other similar effects.<br/><bullet/> <Ability:SelfCooldown/> turn cooldown."
 LocFlyOverText="Predator Strike"
 
 [IRI_SK_PredatorStrike_RevealNearestEnemy X2AbilityTemplate]

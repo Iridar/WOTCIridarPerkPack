@@ -14,7 +14,7 @@ LocPromotionPopupText=""
 
 [IRI_BH_Nightfall X2AbilityTemplate]
 LocFriendlyName="Ночь"
-LocLongDescription="Активируйте, чтобы на <Ability:IRI_BH_Nightfall_Duration/> хода(ов) войти в Ночь, продвинутую форму скрытности с уменьшенной зоной обнаружения. Перезарядка <Ability:IRI_BH_Nightfall_Cooldown/> ходов."
+LocLongDescription="Активируйте, чтобы на <Ability:IRI_BH_Nightfall_Duration/> хода(ов) войти в Ночь, продвинутую форму скрытности с уменьшенной зоной обнаружения. Перезарядка <Ability:SelfCooldown/> ходов."
 LocHelpText="Активируйте, чтобы на <Ability:IRI_BH_Nightfall_Duration/> хода(ов) войти в Ночь, продвинутую форму скрытности с уменьшенной зоной обнаружения."
 LocPromotionPopupText="<bullet/> Ночь не активируется, если вас обошли с фланга.<br/><bullet/> В Ночи радиус обнаружения бойца очень мал, но в остальном это обычная скрытность: без специальных тренировок ее нарушит любая атака.<br/><bullet/> Ночь не закончится, когда остальные бойцы в отряде теряют скрытность.<br/><bullet/> Если боец ушел в Ночь из скрытности, то в нее он и вернется, если Ночь закончится сама собой."
 LocFlyOverText="Ночь"
@@ -50,7 +50,7 @@ LocFlyOverText="Ночной Дозор"
 
 [IRI_BH_ShadowTeleport X2AbilityTemplate]
 LocFriendlyName="Сквозь Ночь"
-LocLongDescription="Боец входит в Ночь и стреляет специальным пси-зарядом, создающим разлом в пространстве, а потом телепортируется во фланг врагу в пределах <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> клеток от цели. Требует все действия, дает одно атакующее действие. Общая перезарядка с Ночью (<Ability:IRI_BH_ShadowTeleport_Cooldown/> ходов). <Ability:IRI_BH_ShadowTeleport_Charges/> заряд(а) на миссию."
+LocLongDescription="Боец входит в Ночь и стреляет специальным пси-зарядом, создающим разлом в пространстве, а потом телепортируется во фланг врагу в пределах <Ability:IRI_BH_ShadowTeleport_Tile_Radius/> клеток от цели. Требует все действия, дает одно атакующее действие. Общая перезарядка с Ночью (<Ability:SelfCooldown/> ходов). <Ability:IRI_BH_ShadowTeleport_Charges/> заряд(а) на миссию."
 LocHelpText="Вход в Ночь и телепорт во фланг к цели. Дает одно атакующее действие. Общий таймер перезарядки с Ночью."
 LocPromotionPopupText="<bullet/> Если цель не может быть обойдена с фланга, телепортирует в любую доступную клетку рядом с ней."
 LocFlyOverText="Сквозь Ночь"
@@ -100,7 +100,7 @@ LocFlyOverText="Ничего личного"
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Убийственная очередь"
-LocLongDescription="Выстрел очередью (оружие: <Ability:IRI_BoundWeaponName/>). Расходует <Ability:IRI_BH_BurstFire_AmmoCost/> ед.боеприпасов, всего возможно <Ability:IRI_BH_BurstFire_NumShots/> попаданий. Штрафы за «Общий вид» увеличены на <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>. Перезарядка <Ability:IRI_BH_BurstFire_Cooldown/> ходов."
+LocLongDescription="Выстрел очередью (оружие: <Ability:IRI_BoundWeaponName/>). Расходует <Ability:IRI_BH_BurstFire_AmmoCost/> ед.боеприпасов, всего возможно <Ability:IRI_BH_BurstFire_NumShots/> попаданий. Штрафы за «Общий вид» увеличены на <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>. Перезарядка <Ability:SelfCooldown/> ходов."
 LocHelpText="Выстрел очередью (оружие: <Ability:IRI_BoundWeaponName/>). Всего возможно попаданий: <Ability:IRI_BH_BurstFire_NumShots/>."
 LocPromotionPopupText="<bullet/> Шансы на попадание рассчитываются отдельно для каждого выстрела."
 LocFlyOverText="Убийственная очередь"

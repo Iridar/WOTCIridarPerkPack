@@ -6,7 +6,7 @@
 LocFriendlyName="Zephyr Strike"
 LocLongDescription="Slash all enemies in the target area."
 LocHelpText="Slash all enemies in the target area."
-LocPromotionPopupText="<bullet/> <Ability:IRI_RN_ZephyrStrike_Radius_Tiles/> tile radius.<br/><bullet/> <Ability:IRI_RN_ZephyrStrike_Cooldown/> turn cooldown."
+LocPromotionPopupText="<bullet/> <Ability:IRI_RN_ZephyrStrike_Radius_Tiles/> tile radius.<br/><bullet/> <Ability:SelfCooldown/> turn cooldown."
 LocFlyOverText="Zephyr Strike"
 
 [IRI_RN_TacticalAdvance X2AbilityTemplate]

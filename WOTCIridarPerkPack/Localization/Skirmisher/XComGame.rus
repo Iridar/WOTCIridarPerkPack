@@ -2,7 +2,7 @@
 LocFriendlyName="Удар Хищника"
 LocLongDescription="Добивающая рукопашная атака против соседнего гуманоидного противника, имеющего менее <Ability:IRI_SK_PredatorStrike_HealthPercent/> ОЗ. Если целью является АДВЕНТ, ближайшая единица АДВЕНТ будет обнаружена до конца хода."
 LocHelpText="Добивающая рукопашная атака против соседнего гуманоидного противника, имеющего менее <Ability:IRI_SK_PredatorStrike_HealthPercent/> ОЗ. Если целью является АДВЕНТ, ближайшая единица АДВЕНТ будет обнаружена до конца хода."
-LocPromotionPopupText="<bullet/> Удар Хищника может промахнуться.<br/><bullet/> Эта способность обходит \"Спасение\" и другие подобные эффекты.<br/><bullet/> Перезарядка: <Ability:IRI_SK_PredatorStrike_Cooldown/> ходов."
+LocPromotionPopupText="<bullet/> Удар Хищника может промахнуться.<br/><bullet/> Эта способность обходит \"Спасение\" и другие подобные эффекты.<br/><bullet/> Перезарядка: <Ability:SelfCooldown/> ходов."
 LocFlyOverText="Удар Хищника"
 
 [IRI_SK_PredatorStrike_RevealNearestEnemy X2AbilityTemplate]

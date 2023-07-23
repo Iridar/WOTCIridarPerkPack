@@ -14,7 +14,7 @@ LocPromotionPopupText=""
 
 [IRI_BH_Nightfall X2AbilityTemplate]
 LocFriendlyName="Nightfall"
-LocLongDescription="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius. <Ability:IRI_BH_Nightfall_Cooldown/> turn cooldown."
+LocLongDescription="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius. <Ability:SelfCooldown/> turn cooldown."
 LocHelpText="Activate to enter Nightfall for <Ability:IRI_BH_Nightfall_Duration/> turns, an advanced form of concealment with reduced detection radius."
 LocPromotionPopupText="<bullet/> Nightfall cannot be activated while you're flanked.<br/><bullet/> Nightfall has a very small detection radius, but otherwise functions like regular concealment, and without special training will be broken by attacking.<br/><bullet/> Nightfall is not broken when other soldiers in your squad break concealment.<br/><bullet/> If you are already concealed when Nightfall is activated, then your concealment will not be broken if Nightfall runs out naturally."
 LocFlyOverText="Nightfall"
@@ -101,7 +101,7 @@ LocFlyOverText="Nothing Personal"
 
 [IRI_BH_BurstFire X2AbilityTemplate]
 LocFriendlyName="Overwhelming Burst"
-LocLongDescription="Fire an automatic burst from your <Ability:IRI_BoundWeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>. <Ability:IRI_BH_BurstFire_Cooldown/> turn cooldown."
+LocLongDescription="Fire an automatic burst from your <Ability:IRI_BoundWeaponName/>. Costs <Ability:IRI_BH_BurstFire_AmmoCost/> ammo and applies damage <Ability:IRI_BH_BurstFire_NumShots/> times. Squadsight aim penalties for this ability are increased by <Ability:IRI_BH_BurstFire_SquadSightPenaltyModifier/>. <Ability:SelfCooldown/> turn cooldown."
 LocHelpText="Fire a burst from your <Ability:IRI_BoundWeaponName/>. Applies damage <Ability:IRI_BH_BurstFire_NumShots/> times."
 LocPromotionPopupText="<bullet/> Hit chance calculations are done separately for each damage instance."
 LocFlyOverText="Overwhelming Burst"
