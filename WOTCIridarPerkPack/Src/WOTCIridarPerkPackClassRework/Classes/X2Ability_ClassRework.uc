@@ -19,8 +19,158 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_RN_Intercept());
 	Templates.AddItem(IRI_RN_Intercept_Return());
 	Templates.AddItem(IRI_RN_Intercept_Attack());
+
+	// Grenadier
+	Templates.AddItem(IRI_GN_OrdnancePouch());
+	Templates.AddItem(IRI_GN_CollateralDamage());
+	Templates.AddItem(IRI_GN_CollateralDamage_Passive());
 	
 	return Templates;
+}
+
+// ========================================================
+//							GRENADIER
+// --------------------------------------------------------
+
+static function X2AbilityTemplate IRI_GN_CollateralDamage_Passive()
+{
+	local X2AbilityTemplate				Template;
+	local X2Effect_GN_CollateralDamage	Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_GN_CollateralDamage_Passive');
+
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_demolition";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetPassive(Template);
+
+	Effect = new class'X2Effect_GN_CollateralDamage';
+	Effect.DamageMod = `GetConfigFloat("IRI_GN_CollateralDamage_DamageMod");
+	Effect.BuildPersistentEffect(1, true, false, false);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, false,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_GN_CollateralDamage()
+{
+	local X2AbilityTemplate						Template;	
+	local X2AbilityCost_Ammo					AmmoCost;
+	local X2AbilityTarget_Cursor				CursorTarget;
+	local X2AbilityMultiTarget_Radius			RadiusMultiTarget;
+	local X2AbilityCooldown						Cooldown;
+	local X2Effect_ReliableWorldDamage			WorldDamage;
+	local X2AbilityToHitCalc_StandardAim		StandardAim;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_GN_CollateralDamage');
+
+	// Icon Setup
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SERGEANT_PRIORITY;
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_demolition";
+
+	// Targeting and Triggering
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bGuaranteedHit = true;
+	StandardAim.bAllowCrit = false;
+	Template.AbilityToHitCalc = StandardAim;
+
+	CursorTarget = new class'X2AbilityTarget_Cursor';
+	Template.AbilityTargetStyle = CursorTarget;	
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = false;
+	RadiusMultiTarget.bIgnoreBlockingCover = true;
+	RadiusMultiTarget.bExcludeSelfAsTargetIfWithinRadius = true;
+	RadiusMultiTarget.fTargetRadius = `TILESTOMETERS(`GetConfigFloat("IRI_GN_CollateralDamage_TileRadius"));
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	Template.TargetingMethod = class'X2TargetingMethod_VoidRift';
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Costs
+	AmmoCost = new class'X2AbilityCost_Ammo';	
+	AmmoCost.iAmmo = `GetConfigInt("IRI_GN_CollateralDamage_AmmoCost");
+	Template.AbilityCosts.AddItem(AmmoCost);
+	
+	Template.AbilityCosts.AddItem(default.WeaponActionTurnEnding);
+
+	Cooldown = new class'X2AbilityCooldown';
+	Cooldown.iNumTurns = `GetConfigInt("IRI_GN_CollateralDamage_Cooldown");
+	Template.AbilityCooldown = Cooldown;
+	
+	// Effects
+	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
+	Template.AssociatedPassives.AddItem('HoloTargeting');
+
+	Template.AddMultiTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.ShredderDamageEffect());
+	Template.bAllowAmmoEffects = true;
+	Template.bAllowBonusWeaponEffects = true;
+
+	WorldDamage = new class'X2Effect_ReliableWorldDamage';
+	WorldDamage.DamageAmount = `GetConfigInt("IRI_GN_CollateralDamage_EnvDamage");
+	Template.AddMultiTargetEffect(WorldDamage);
+
+	// State and Viz	
+	Template.bOverrideVisualResult = true;
+	Template.OverrideVisualResult = eHit_Miss;
+
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	//Template.ActionFireClass = class'X2Action_Fire_CollateralDamage';
+	Template.CinescriptCameraType = "Grenadier_SaturationFire";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.Hostility = eHostility_Offensive;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	Template.AdditionalAbilities.AddItem('IRI_GN_CollateralDamage_Passive');
+
+	return Template;	
+}
+
+static function X2AbilityTemplate IRI_GN_OrdnancePouch()
+{
+	local X2AbilityTemplate Template;
+
+	Template = PurePassive('IRI_GN_OrdnancePouch', "img:///UILibrary_PerkIcons.UIPerk_steadyhands", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/);
+
+	Template.SoldierAbilityPurchasedFn = OrdnancePouchPurchased;
+
+	return Template;
+}
+
+static private function OrdnancePouchPurchased(XComGameState NewGameState, XComGameState_Unit UnitState)
+{
+	local X2ItemTemplate FreeItem;
+	local XComGameState_Item ItemState;
+
+	// Cargo cult
+	if (UnitState.IsMPCharacter())
+		return;
+
+	FreeItem = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate(class'X2Ability_GrenadierAbilitySet'.default.FreeGrenadeForPocket);
+	if (FreeItem == none)
+	{
+		`RedScreen("Free grenade '" $ class'X2Ability_GrenadierAbilitySet'.default.FreeGrenadeForPocket $ "' is not a valid item template.");
+		return;
+	}
+	ItemState = FreeItem.CreateInstanceFromTemplate(NewGameState);
+	if (!UnitState.AddItemToInventory(ItemState, class'OrdnanceInventorySlot'.default.UseSlot, NewGameState))
+	{
+		`RedScreen("Unable to add free grenade to unit's inventory. Sadness." @ UnitState.ToString());
+		return;
+	}
 }
 
 // ========================================================

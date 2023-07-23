@@ -77,3 +77,23 @@ LocLongDescription="Move to the target location and fire your <Ability:IRI_Bound
 LocHelpText="Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn."
 LocFlyOverText=Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn.
 LocPromotionPopupText=""
+
+
+
+
+; ================================================
+;				GRENADIER
+; ------------------------------------------------
+
+[IRI_GN_OrdnancePouch X2AbilityTemplate]
+LocFriendlyName="Ordnance Pouch"
+LocHelpText="Gain an Ordnance slot which can be used for a Grenade or Ammo."
+LocLongDescription="Gain an Ordnance slot which can be used for a Grenade or Ammo."
+
+[IRI_GN_CollateralDamage X2AbilityTemplate]
+LocFriendlyName="Collateral Damage"
+LocLongDescription="Use your <Ability:IRI_BoundWeaponName/> to fire at the target area, destroying most cover objects and hitting all eligible targets for 50% of total damage. This attack cannot cause critical hits. Uses 3 ammo."
+LocHelpText="Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn."
+LocFlyOverText=Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn.
+LocPromotionPopupText="<Bullet/><Ability:SelfCooldown/> turn cooldown.<br/>"
+
