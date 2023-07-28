@@ -201,6 +201,9 @@
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2TargetingMethod_MeleePath_WeaponRange.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2TargetingMethod_TileSnapProjectile.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2TargetingMethod_TopDown_NoCameraLock.uc">
       <SubType>Content</SubType>
     </Content>

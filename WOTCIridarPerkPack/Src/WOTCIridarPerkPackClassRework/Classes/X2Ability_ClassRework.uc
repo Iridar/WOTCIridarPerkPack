@@ -39,7 +39,7 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage_Passive()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_GN_CollateralDamage_Passive');
 
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_demolition";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_CollateralDamage";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	SetPassive(Template);
 
@@ -61,6 +61,7 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage()
 	local X2AbilityCooldown						Cooldown;
 	local X2Effect_ReliableWorldDamage			WorldDamage;
 	local X2AbilityToHitCalc_StandardAim		StandardAim;
+	local X2Condition_Visibility				Visibility;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_GN_CollateralDamage');
 
@@ -68,31 +69,42 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage()
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SERGEANT_PRIORITY;
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_demolition";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_CollateralDamage";
 
 	// Targeting and Triggering
 	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
 	StandardAim.bGuaranteedHit = true;
 	StandardAim.bAllowCrit = false;
 	Template.AbilityToHitCalc = StandardAim;
+	Template.DisplayTargetHitChance = false;
 
 	CursorTarget = new class'X2AbilityTarget_Cursor';
-	Template.AbilityTargetStyle = CursorTarget;	
+	CursorTarget.FixedAbilityRange = `TILESTOMETERS(`GetConfigFloat("IRI_GN_CollateralDamage_TileDistance"));
+	Template.AbilityTargetStyle = CursorTarget;
 
 	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
 	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = false;
 	RadiusMultiTarget.bIgnoreBlockingCover = true;
 	RadiusMultiTarget.bExcludeSelfAsTargetIfWithinRadius = true;
+	RadiusMultiTarget.bAddPrimaryTargetAsMultiTarget = true;
 	RadiusMultiTarget.fTargetRadius = `TILESTOMETERS(`GetConfigFloat("IRI_GN_CollateralDamage_TileRadius"));
 	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
 
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
-	Template.TargetingMethod = class'X2TargetingMethod_VoidRift';
+	Template.TargetingMethod = class'X2TargetingMethod_TileSnapProjectile';
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Visibility = new class'X2Condition_Visibility';
+	Visibility.bRequireGameplayVisible = true;
+	Visibility.bRequireBasicVisibility = true;
+	Visibility.bAllowSquadsight = true;
+	Template.AbilityTargetConditions.AddItem(Visibility);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
 
 	// Costs
 	AmmoCost = new class'X2AbilityCost_Ammo';	
@@ -106,7 +118,7 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage()
 	Template.AbilityCooldown = Cooldown;
 	
 	// Effects
-	Template.AddTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
+	Template.AddMultiTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.HoloTargetEffect());
 	Template.AssociatedPassives.AddItem('HoloTargeting');
 
 	Template.AddMultiTargetEffect(class'X2Ability_GrenadierAbilitySet'.static.ShredderDamageEffect());
@@ -115,14 +127,15 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage()
 
 	WorldDamage = new class'X2Effect_ReliableWorldDamage';
 	WorldDamage.DamageAmount = `GetConfigInt("IRI_GN_CollateralDamage_EnvDamage");
+	WorldDamage.bSkipGroundTiles = true;
 	Template.AddMultiTargetEffect(WorldDamage);
+	Template.bRecordValidTiles = true; // For the world damage effect
 
 	// State and Viz	
-	Template.bOverrideVisualResult = true;
-	Template.OverrideVisualResult = eHit_Miss;
+	Template.bOverrideAim = true;
+	Template.ActionFireClass = class'X2Action_Fire_CollateralDamage';
 
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
-	//Template.ActionFireClass = class'X2Action_Fire_CollateralDamage';
 	Template.CinescriptCameraType = "Grenadier_SaturationFire";
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;

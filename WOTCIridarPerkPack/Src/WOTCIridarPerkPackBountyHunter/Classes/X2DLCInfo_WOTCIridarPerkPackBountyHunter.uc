@@ -123,10 +123,21 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		return true;		
 
 	// ======================================================================================================================
-	//												RANGER TAGS
+	//												SHARPSHOOTER TAGS
 	// ----------------------------------------------------------------------------------------------------------------------
 	case "IRI_SH_Standoff_Radius_Tiles":
 		OutString = TruncateFloat(`GetConfigFloat(InString));
+		return true;	
+
+	// ======================================================================================================================
+	//												GRENADIER TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
+	case "IRI_GN_CollateralDamage_AmmoCost":
+		OutString = string(`GetConfigInt(InString));
+		return true;	
+	
+	case "IRI_GN_CollateralDamage_DamageMod":
+		OutString = string(int((1 + `GetConfigFloat(InString)) * 100));
 		return true;	
 		
 
