@@ -128,7 +128,7 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage()
 	WorldDamage = new class'X2Effect_ReliableWorldDamage';
 	WorldDamage.DamageAmount = `GetConfigInt("IRI_GN_CollateralDamage_EnvDamage");
 	WorldDamage.bSkipGroundTiles = true;
-	Template.AddMultiTargetEffect(WorldDamage);
+	Template.AddShooterEffect(WorldDamage);
 	Template.bRecordValidTiles = true; // For the world damage effect
 
 	// State and Viz	
