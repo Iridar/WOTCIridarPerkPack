@@ -10,7 +10,7 @@ static function array<X2DataTemplate> CreateTemplates()
 }
 
 
-static function X2AbilityTemplate IRI_TM_SoulShot()
+static private function X2AbilityTemplate IRI_TM_SoulShot()
 {
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
@@ -171,7 +171,7 @@ static function SetHidden(out X2AbilityTemplate Template)
 	Template.bHideOnClassUnlock = true;
 }
 
-static function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
+static private function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
 {
 	local X2AbilityTemplate                 Template;
 	local X2Effect_AdditionalAnimSets		AnimSetEffect;
@@ -215,7 +215,7 @@ static function SetPassive(out X2AbilityTemplate Template)
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 }
 
-static function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
+static private function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
 {
 	local X2AbilityTemplate	Template;
 	

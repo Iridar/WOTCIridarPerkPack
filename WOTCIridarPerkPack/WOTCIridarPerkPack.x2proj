@@ -316,6 +316,9 @@
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Effect_SP_AutonomousProtocols.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Effect_SP_ConstantReadiness.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Effect_TacticalAdvance.uc">
       <SubType>Content</SubType>
     </Content>

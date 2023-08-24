@@ -10,7 +10,7 @@ class X2Ability_Foxcom extends X2Ability;
 //	return Templates;
 //}
 /*
-static function X2AbilityTemplate IRI_FM_OverwatchShot()
+static private function X2AbilityTemplate IRI_FM_OverwatchShot()
 {
 	local X2AbilityTemplate                 Template;	
 	local X2AbilityCost_Ammo                AmmoCost;
@@ -114,7 +114,7 @@ static function X2AbilityTemplate IRI_FM_OverwatchShot()
 	return Template;	
 }*/
 
-static function X2AbilityTemplate IRI_FM_IgnoreCoverDefense()
+static private function X2AbilityTemplate IRI_FM_IgnoreCoverDefense()
 {
 	local X2AbilityTemplate Template;
 	local X2Effect_IgnoreCoverDefense Effect;
@@ -227,7 +227,7 @@ static function SetHidden(out X2AbilityTemplate Template)
 	Template.bHideOnClassUnlock = true;
 }
 
-static function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
+static private function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
 {
 	local X2AbilityTemplate                 Template;
 	local X2Effect_AdditionalAnimSets		AnimSetEffect;
@@ -271,7 +271,7 @@ static function SetPassive(out X2AbilityTemplate Template)
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 }
 
-static function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
+static private function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
 {
 	local X2AbilityTemplate	Template;
 	

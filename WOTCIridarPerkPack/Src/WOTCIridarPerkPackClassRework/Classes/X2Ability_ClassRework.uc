@@ -29,11 +29,33 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_SP_AutonomousProtocols());
 	Templates.AddItem(IRI_SP_Overclock());
 	Templates.AddItem(IRI_SP_ScoutingProtocol());
+	Templates.AddItem(IRI_SP_ConstantReadiness());
 	
 	return Templates;
 }
 
-static function X2AbilityTemplate IRI_SP_ScoutingProtocol()
+static private function X2AbilityTemplate IRI_SP_ConstantReadiness()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_SP_ConstantReadiness		Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SP_ConstantReadiness');
+
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_evervigilant";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetPassive(Template);
+
+	Effect = new class'X2Effect_SP_ConstantReadiness';
+	Effect.BuildPersistentEffect(1, true, false, false);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	Template.PrerequisiteAbilities.AddItem('NOT_EverVigilant');
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_SP_ScoutingProtocol()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityCost_ActionPoints		ActionPointCost;
@@ -241,7 +263,7 @@ static private function ScoutingProtocol_BuildVisualization(XComGameState Visual
 	//****************************************************************************************
 }
 
-static function X2AbilityTemplate IRI_SP_Overclock()
+static private function X2AbilityTemplate IRI_SP_Overclock()
 {
 	local X2AbilityTemplate				Template;
 	local X2Effect_GrantActionPoints    ActionPointEffect;
@@ -287,7 +309,7 @@ static function X2AbilityTemplate IRI_SP_Overclock()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_SP_AutonomousProtocols()
+static private function X2AbilityTemplate IRI_SP_AutonomousProtocols()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_SP_AutonomousProtocols	Effect;
@@ -301,7 +323,7 @@ static function X2AbilityTemplate IRI_SP_AutonomousProtocols()
 	Effect = new class'X2Effect_SP_AutonomousProtocols';
 	Effect.ProtocolAbilities = `GetConfigArrayName("IRI_SP_AutonomousProtocols_Abilities");
 	Effect.BuildPersistentEffect(1, true, false, false);
-	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, false,, Template.AbilitySourceName);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
 	return Template;
@@ -311,7 +333,7 @@ static function X2AbilityTemplate IRI_SP_AutonomousProtocols()
 //							GRENADIER
 // --------------------------------------------------------
 
-static function X2AbilityTemplate IRI_GN_CollateralDamage_Passive()
+static private function X2AbilityTemplate IRI_GN_CollateralDamage_Passive()
 {
 	local X2AbilityTemplate				Template;
 	local X2Effect_GN_CollateralDamage	Effect;
@@ -331,7 +353,7 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage_Passive()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_GN_CollateralDamage()
+static private function X2AbilityTemplate IRI_GN_CollateralDamage()
 {
 	local X2AbilityTemplate						Template;	
 	local X2AbilityCost_Ammo					AmmoCost;
@@ -431,7 +453,7 @@ static function X2AbilityTemplate IRI_GN_CollateralDamage()
 	return Template;	
 }
 
-static function X2AbilityTemplate IRI_GN_OrdnancePouch()
+static private function X2AbilityTemplate IRI_GN_OrdnancePouch()
 {
 	local X2AbilityTemplate Template;
 
@@ -470,7 +492,7 @@ static private function OrdnancePouchPurchased(XComGameState NewGameState, XComG
 // --------------------------------------------------------
 
 
-static function X2AbilityTemplate IRI_SH_ScootAndShoot()
+static private function X2AbilityTemplate IRI_SH_ScootAndShoot()
 {
 	local X2AbilityTemplate							Template;
 	local X2AbilityCost_ActionPoints				ActionPointCost;
@@ -632,7 +654,7 @@ static private function ScootAndShoot_BuildVisualization(XComGameState Visualize
 		JoinActions.SetName("Join");
 	}
 }
-static function X2AbilityTemplate IRI_SH_Standoff()
+static private function X2AbilityTemplate IRI_SH_Standoff()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityCost_Ammo				AmmoCost;
@@ -714,7 +736,7 @@ static function X2AbilityTemplate IRI_SH_Standoff()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_SH_Standoff_Shot()
+static private function X2AbilityTemplate IRI_SH_Standoff_Shot()
 {
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_Ammo				AmmoCost;
@@ -832,7 +854,7 @@ static function X2AbilityTemplate IRI_SH_Standoff_Shot()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_SH_SteadyHands()
+static private function X2AbilityTemplate IRI_SH_SteadyHands()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityTrigger_EventListener	Trigger;
@@ -1191,7 +1213,7 @@ static private function X2Action FindActionWithClosestHistoryIndex(const array<X
 }
 
 
-static function X2AbilityTemplate IRI_RN_TacticalAdvance()
+static private function X2AbilityTemplate IRI_RN_TacticalAdvance()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_TacticalAdvance			Effect;
@@ -1270,7 +1292,7 @@ static private function EventListenerReturn OnHunkerDown_TriggerEventListener(Ob
 	return ELR_NoInterrupt;
 }
 
-static function X2AbilityTemplate IRI_RN_ZephyrStrike()
+static private function X2AbilityTemplate IRI_RN_ZephyrStrike()
 {
 	local X2AbilityTemplate						Template;
 	local X2AbilityMultiTarget_Radius           MultiTargetRadius;
@@ -1683,7 +1705,7 @@ static function SetHidden(out X2AbilityTemplate Template)
 	Template.bHideOnClassUnlock = true;
 }
 
-static function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
+static private function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
 {
 	local X2AbilityTemplate                 Template;
 	local X2Effect_AdditionalAnimSets		AnimSetEffect;
@@ -1727,7 +1749,7 @@ static function SetPassive(out X2AbilityTemplate Template)
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 }
 
-static function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
+static private function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
 {
 	local X2AbilityTemplate	Template;
 	

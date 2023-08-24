@@ -124,3 +124,10 @@ LocLongDescription="Send the GREMLIN to scan the target area, revealing any hidd
 LocHelpText="Send the GREMLIN to scan the target area, revealing any hidden or disguised enemies. Does not end turn."
 LocFlyOverText="Scouting Protocol"
 LocPromotionPopupText=""
+
+[IRI_SP_ConstantReadiness X2AbilityTemplate]
+LocFriendlyName="Constant Readiness"
+LocLongDescription="If you did not attack this turn, enter Overwatch automatically."
+LocHelpText="If you did not attack this turn, enter Overwatch automatically."
+LocFlyOverText="Constant Readiness"
+LocPromotionPopupText="<Bullet/> Non-offensive actions like Reload can still be performed without invalidating Constatn Readiness.<br/>"

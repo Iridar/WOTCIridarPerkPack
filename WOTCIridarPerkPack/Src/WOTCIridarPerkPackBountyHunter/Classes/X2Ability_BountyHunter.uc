@@ -78,7 +78,7 @@ static private function SetCrossClass(out X2AbilityTemplate Template)
 
 
 
-static function X2AbilityTemplate IRI_BH_Terminate()
+static private function X2AbilityTemplate IRI_BH_Terminate()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_BountyHunter_Terminate	TargetEffect;
@@ -138,7 +138,7 @@ static function X2AbilityTemplate IRI_BH_Terminate()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_Terminate_ExtraShot()
+static private function X2AbilityTemplate IRI_BH_Terminate_ExtraShot()
 {
 	local X2AbilityTemplate		Template;
 	local X2AbilityCost_Ammo	AmmoCost;
@@ -174,7 +174,7 @@ static function X2AbilityTemplate IRI_BH_Terminate_ExtraShot()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_Terminate_ExtraShot_SkipFireAction()
+static private function X2AbilityTemplate IRI_BH_Terminate_ExtraShot_SkipFireAction()
 {
 	local X2AbilityTemplate		Template;
 	local X2AbilityCost_Ammo	AmmoCost;
@@ -216,7 +216,7 @@ static function X2AbilityTemplate IRI_BH_Terminate_ExtraShot_SkipFireAction()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_BurstFire_Anim_Passive()
+static private function X2AbilityTemplate IRI_BH_BurstFire_Anim_Passive()
 {
 	local X2AbilityTemplate Template;
 
@@ -226,7 +226,7 @@ static function X2AbilityTemplate IRI_BH_BurstFire_Anim_Passive()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_NightWatch()
+static private function X2AbilityTemplate IRI_BH_NightWatch()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_ModifySquadsightPenalty	NightWatch;
@@ -250,7 +250,7 @@ static function X2AbilityTemplate IRI_BH_NightWatch()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_NightRounds()
+static private function X2AbilityTemplate IRI_BH_NightRounds()
 {
 	local X2AbilityTemplate			Template;
 	local X2Effect_ToHitModifier	Effect;
@@ -283,7 +283,7 @@ static function X2AbilityTemplate IRI_BH_NightRounds()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_UnrelentingPressure()
+static private function X2AbilityTemplate IRI_BH_UnrelentingPressure()
 {
 	local X2AbilityTemplate							Template;
 	local X2Effect_BountyHunter_UnrelentingPressure	ReduceCooldown;
@@ -305,7 +305,7 @@ static function X2AbilityTemplate IRI_BH_UnrelentingPressure()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_BombRaider()
+static private function X2AbilityTemplate IRI_BH_BombRaider()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_BountyHunter_BombRaider	BiggestBoomsEffect;
@@ -327,7 +327,7 @@ static function X2AbilityTemplate IRI_BH_BombRaider()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_BurstFire()
+static private function X2AbilityTemplate IRI_BH_BurstFire()
 {
 	local X2AbilityTemplate						Template;	
 	local X2AbilityCost_Ammo					AmmoCost;
@@ -376,7 +376,7 @@ static function X2AbilityTemplate IRI_BH_BurstFire()
 	return Template;	
 }
 
-static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
+static private function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 {
 	local X2AbilityTemplate							Template;
 	local X2Effect_ModifySquadsightPenalty			BurstFireAimPenalty;
@@ -401,7 +401,7 @@ static function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_NothingPersonal_Passive()
+static private function X2AbilityTemplate IRI_BH_NothingPersonal_Passive()
 {
 	local X2AbilityTemplate Template;	
 
@@ -415,7 +415,7 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal_Passive()
 
 // This ability is a bit funky. We use perk content with a perk weapon to fire a psionic projectile with special impact FX,
 // and the Fire Other Weapon notify to fire the pistol projectile for pistol's sounds.
-static function X2AbilityTemplate IRI_BH_NothingPersonal()
+static private function X2AbilityTemplate IRI_BH_NothingPersonal()
 {
 	local X2AbilityTemplate							Template;	
 	local X2Effect_ApplyWeaponDamage				WeaponDamageEffect;
@@ -459,7 +459,7 @@ static function X2AbilityTemplate IRI_BH_NothingPersonal()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_DoublePayload()
+static private function X2AbilityTemplate IRI_BH_DoublePayload()
 {
 	local X2AbilityTemplate			Template;
 	local X2Effect_BaseDamageBonus	BaseDamageBonus;
@@ -489,7 +489,7 @@ static function X2AbilityTemplate IRI_BH_DoublePayload()
 
 
 
-static function X2AbilityTemplate IRI_BH_ExplosiveAction()
+static private function X2AbilityTemplate IRI_BH_ExplosiveAction()
 {
 	local X2AbilityTemplate							Template;
 	local X2Effect_BountyHunter_DramaticEntrance	ExplosiveAction;
@@ -512,7 +512,7 @@ static function X2AbilityTemplate IRI_BH_ExplosiveAction()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_DarkNight_Passive()
+static private function X2AbilityTemplate IRI_BH_DarkNight_Passive()
 {
 	local X2AbilityTemplate Template;
 
@@ -523,7 +523,7 @@ static function X2AbilityTemplate IRI_BH_DarkNight_Passive()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_ShadowTeleport()
+static private function X2AbilityTemplate IRI_BH_ShadowTeleport()
 {
 	local X2AbilityTemplate							Template;
 	local X2AbilityCooldown							Cooldown;
@@ -780,7 +780,7 @@ static private function int GetSecondaryWeaponAmmo(const XComGameState_Unit Unit
 
 
 
-static function X2AbilityTemplate IRI_BH_BigGameHunter()
+static private function X2AbilityTemplate IRI_BH_BigGameHunter()
 {
 	local X2AbilityTemplate						Template;
 	local X2Effect_BountyHunter_CustomZeroIn	BonusEffect;
@@ -799,7 +799,7 @@ static function X2AbilityTemplate IRI_BH_BigGameHunter()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_Nightmare()
+static private function X2AbilityTemplate IRI_BH_Nightmare()
 {
 	local X2AbilityTemplate			Template;
 	local X2Effect_ToHitModifier	Effect;
@@ -834,7 +834,7 @@ static function X2AbilityTemplate IRI_BH_Nightmare()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_FirePistol()
+static private function X2AbilityTemplate IRI_BH_FirePistol()
 {
 	local X2AbilityTemplate Template;	
 	local X2Condition_UnitEffectsWithAbilitySource TargetEffectCondition;
@@ -860,7 +860,7 @@ static function X2AbilityTemplate IRI_BH_FirePistol()
 	return Template;	
 }
 
-static function X2AbilityTemplate IRI_BH_NamedBullet()
+static private function X2AbilityTemplate IRI_BH_NamedBullet()
 {
 	local X2AbilityTemplate					Template;	
 	local X2AbilityCost_ActionPoints		ActionPointCost;
@@ -1072,7 +1072,7 @@ static private function NamedBullet_BuildVisualization(XComGameState VisualizeGa
 	TimeDilation.TimeDilation = 1.0f;
 }
 
-static function X2AbilityTemplate IRI_BH_Untraceable()
+static private function X2AbilityTemplate IRI_BH_Untraceable()
 {
 	local X2AbilityTemplate				Template;
 	local X2Effect_ReduceCooldowns		ReduceCooldown;
@@ -1124,7 +1124,7 @@ static function X2AbilityTemplate IRI_BH_Untraceable()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_BlindingFire()
+static private function X2AbilityTemplate IRI_BH_BlindingFire()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityTrigger_EventListener	Trigger;
@@ -1183,7 +1183,7 @@ static function X2AbilityTemplate IRI_BH_BlindingFire()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_WitchHunt()
+static private function X2AbilityTemplate IRI_BH_WitchHunt()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityTrigger_EventListener	Trigger;
@@ -1247,7 +1247,7 @@ static function X2AbilityTemplate IRI_BH_WitchHunt()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_Headhunter()
+static private function X2AbilityTemplate IRI_BH_Headhunter()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_BountyHunter_Headhunter	Headhunter;
@@ -1277,7 +1277,7 @@ static function X2AbilityTemplate IRI_BH_Headhunter()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_Nightfall()
+static private function X2AbilityTemplate IRI_BH_Nightfall()
 {
 	local X2AbilityTemplate						Template;
 	local X2AbilityCooldown						Cooldown;
@@ -1394,7 +1394,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 
 
 
-static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
+static private function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_BountyHunter_CritMagic	CritMagic;
@@ -1417,7 +1417,7 @@ static function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_BH_HomingMine()
+static private function X2AbilityTemplate IRI_BH_HomingMine()
 {
 	local X2AbilityTemplate							Template;
 	local X2Effect_BountyHunter_HomingMine			MineEffect;
@@ -1510,7 +1510,7 @@ static private function bool HomingMine_DamagePreview(XComGameState_Ability Abil
 	return true;
 }
 
-static function X2AbilityTemplate IRI_BH_HomingMineDetonation()
+static private function X2AbilityTemplate IRI_BH_HomingMineDetonation()
 {
 	local X2AbilityTemplate							Template;
 	local X2AbilityToHitCalc_StandardAim			ToHit;
@@ -1800,7 +1800,7 @@ static function SetHidden(out X2AbilityTemplate Template)
 	Template.bHideOnClassUnlock = true;
 }
 
-static function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
+static private function X2AbilityTemplate Create_AnimSet_Passive(name TemplateName, string AnimSetPath)
 {
 	local X2AbilityTemplate                 Template;
 	local X2Effect_AdditionalAnimSets		AnimSetEffect;
@@ -1835,7 +1835,7 @@ static function SetPassive(out X2AbilityTemplate Template)
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 }
 
-static function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
+static private function X2AbilityTemplate HiddenPurePassive(name TemplateName, optional string TemplateIconImage="img:///UILibrary_PerkIcons.UIPerk_standard", optional bool bCrossClassEligible=false, optional Name AbilitySourceName='eAbilitySource_Perk', optional bool bDisplayInUI=true)
 {
 	local X2AbilityTemplate	Template;
 	
