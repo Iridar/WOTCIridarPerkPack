@@ -139,6 +139,14 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_GN_CollateralDamage_DamageMod":
 		OutString = string(int((1 + `GetConfigFloat(InString)) * 100));
 		return true;	
+
+	// ======================================================================================================================
+	//												SPECIALIST TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
+	case "IRI_SP_ScoutingProtocol_InitCharges":
+		OutString = string(`GetConfigInt(InString));
+		return true;	
+		
 		
 
 	// ----------------------------------------------------------------------------------------------------------------------

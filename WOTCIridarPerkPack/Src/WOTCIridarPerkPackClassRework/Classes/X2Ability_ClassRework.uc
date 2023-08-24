@@ -24,8 +24,287 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_GN_OrdnancePouch());
 	Templates.AddItem(IRI_GN_CollateralDamage());
 	Templates.AddItem(IRI_GN_CollateralDamage_Passive());
+
+	// Specialist
+	Templates.AddItem(IRI_SP_AutonomousProtocols());
+	Templates.AddItem(IRI_SP_Overclock());
+	Templates.AddItem(IRI_SP_ScoutingProtocol());
 	
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_SP_ScoutingProtocol()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityCost_ActionPoints		ActionPointCost;
+	local X2AbilityMultiTarget_Radius		RadiusMultiTarget;
+	local X2Effect_PersistentSquadViewer    ViewerEffect;
+	local X2Effect_ScanningProtocol			ScanningEffect;
+	local X2Condition_UnitProperty			CivilianProperty;
+	local X2AbilityTarget_Cursor			CursorTarget;
+	local X2AbilityCost_Charges				ChargeCost;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SP_ScoutingProtocol');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_sensorsweep";
+	Template.AbilitySourceName = 'eAbilitySource_Item';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.Hostility = eHostility_Neutral;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY;
+
+	// Targeting and Triggering
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.TargetingMethod = class'X2TargetingMethod_GremlinAOE';
+	
+	CursorTarget = new class'X2AbilityTarget_Cursor';
+	CursorTarget.FixedAbilityRange = `GetConfigInt("IRI_SP_ScoutingProtocol_RangeMeters");            //  meters
+	Template.AbilityTargetStyle = CursorTarget;
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.fTargetRadius = `GetConfigInt("IRI_SP_ScoutingProtocol_Radius");
+	//RadiusMultiTarget.bUseWeaponRadius = true;
+	RadiusMultiTarget.bIgnoreBlockingCover = true; // skip the cover checks, the squad viewer will handle this once selected
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Costs
+	if (`GetConfigInt("IRI_SP_ScoutingProtocol_InitCharges") > 0)
+	{
+		Template.AbilityCharges = new class'X2AbilityCharges_ScanningProtocol';
+		Template.AbilityCharges.InitialCharges = `GetConfigInt("IRI_SP_ScoutingProtocol_InitCharges");
+
+		ChargeCost = new class'X2AbilityCost_Charges';
+		ChargeCost.NumCharges = 1;
+		Template.AbilityCosts.AddItem(ChargeCost);
+	}
+
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.AllowedTypes.AddItem('IRI_Gremlin_Action_Point');
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	AddCooldown(Template, `GetConfigInt("IRI_SP_ScoutingProtocol_Cooldown"));
+
+	// Effects
+	ScanningEffect = new class'X2Effect_ScanningProtocol';
+	ScanningEffect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnEnd);
+	ScanningEffect.TargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
+	Template.AddMultiTargetEffect(ScanningEffect);
+
+	ScanningEffect = new class'X2Effect_ScanningProtocol';
+	ScanningEffect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnEnd);
+	CivilianProperty = new class'X2Condition_UnitProperty';
+	CivilianProperty.ExcludeNonCivilian = true;
+	CivilianProperty.ExcludeHostileToSource = false;
+	CivilianProperty.ExcludeFriendlyToSource = false;
+	ScanningEffect.TargetConditions.AddItem(CivilianProperty);
+	Template.AddMultiTargetEffect(ScanningEffect);
+
+	ViewerEffect = new class'X2Effect_PersistentSquadViewer';
+	ViewerEffect.bUseSourceLocation = false;
+	ViewerEffect.bUseWeaponRadius = false;
+	ViewerEffect.ViewRadius = `GetConfigInt("IRI_SP_ScoutingProtocol_Radius");
+	ViewerEffect.BuildPersistentEffect(1, false, false, false, eGameRule_PlayerTurnEnd);
+	Template.AddShooterEffect(ViewerEffect);
+
+	// State and Viz
+	Template.bStationaryWeapon = true;
+	Template.bSkipFireAction = true;
+	Template.bShowActivation = true;
+	Template.bSkipPerkActivationActions = true;
+	Template.ActivationSpeech = 'ScanningProtocol';
+	Template.PostActivationEvents.AddItem('ItemRecalled');
+	Template.BuildNewGameStateFn = class'X2Ability_SpecialistAbilitySet'.static.SendGremlinToLocation_BuildGameState;
+	Template.BuildVisualizationFn = ScoutingProtocol_BuildVisualization;
+	Template.CinescriptCameraType = "Specialist_ScanningProtocol";
+	
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+
+	return Template;
+}
+
+static private function ScoutingProtocol_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateHistory History;
+	local XComGameStateContext_Ability  Context;
+	local X2AbilityTemplate             AbilityTemplate;
+	local StateObjectReference          InteractingUnitRef;
+	local XComGameState_Item			GremlinItem;
+	local XComGameState_Unit			GremlinUnitState;
+	local XComGameState_Ability         AbilityState;
+	local array<PathPoint> Path;
+
+	local VisualizationActionMetadata        EmptyTrack;
+	local VisualizationActionMetadata        ActionMetadata;
+	local VisualizationActionMetadata        ShooterMetadata;
+	local X2Action_WaitForAbilityEffect DelayAction;
+
+	local int EffectIndex, MultiTargetIndex;
+	local PathingInputData              PathData;
+	local PathingResultData				ResultData;
+	local X2Action_RevealArea			RevealAreaAction;
+	local TTile TargetTile;
+	local vector TargetPos;
+
+	local X2Action_PlayAnimation PlayAnimation;
+
+	History = `XCOMHISTORY;
+
+	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(Context.InputContext.AbilityRef.ObjectID, , VisualizeGameState.HistoryIndex));
+	AbilityTemplate = AbilityState.GetMyTemplate();
+
+	GremlinItem = XComGameState_Item(History.GetGameStateForObjectID(Context.InputContext.ItemObject.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1));
+	GremlinUnitState = XComGameState_Unit(History.GetGameStateForObjectID(GremlinItem.CosmeticUnitRef.ObjectID, , VisualizeGameState.HistoryIndex - 1));
+
+	//Configure the visualization track for the shooter
+	//****************************************************************************************
+
+	//****************************************************************************************
+	InteractingUnitRef = Context.InputContext.SourceObject;
+	ShooterMetadata = EmptyTrack;
+	ShooterMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	ShooterMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
+	ShooterMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
+
+	class'X2Action_IntrusionProtocolSoldier'.static.AddToVisualizationTree(ShooterMetadata, Context, false, ShooterMetadata.LastActionAdded);
+
+	
+	//Configure the visualization track for the gremlin
+	//****************************************************************************************
+	InteractingUnitRef = GremlinUnitState.GetReference();
+
+	ActionMetadata = EmptyTrack;
+	History.GetCurrentAndPreviousGameStatesForObjectID(GremlinUnitState.ObjectID, ActionMetadata.StateObject_OldState, ActionMetadata.StateObject_NewState, , VisualizeGameState.HistoryIndex);
+	ActionMetadata.VisualizeActor = GremlinUnitState.GetVisualizer();
+
+	class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+
+	// Given the target location, we want to generate the movement data.  
+	TargetPos = Context.InputContext.TargetLocations[0];
+	TargetTile = `XWORLD.GetTileCoordinatesFromPosition(TargetPos);
+
+	class'X2PathSolver'.static.BuildPath(GremlinUnitState, GremlinUnitState.TileLocation, TargetTile, PathData.MovementTiles);
+	class'X2PathSolver'.static.GetPathPointsFromPath(GremlinUnitState, PathData.MovementTiles, Path);
+	class'XComPath'.static.PerformStringPulling(XGUnitNativeBase(ActionMetadata.VisualizeActor), Path);
+	PathData.MovingUnitRef = GremlinUnitState.GetReference();
+	PathData.MovementData = Path;
+	Context.InputContext.MovementPaths.AddItem(PathData);
+	class'X2TacticalVisibilityHelpers'.static.FillPathTileData(PathData.MovingUnitRef.ObjectID,	PathData.MovementTiles,	ResultData.PathTileData);
+	Context.ResultContext.PathResults.AddItem(ResultData);
+	class'X2VisualizerHelpers'.static.ParsePath(Context, ActionMetadata);
+	class'X2Action_AbilityPerkStart'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+
+	RevealAreaAction = X2Action_RevealArea(class'X2Action_RevealArea'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
+	RevealAreaAction.TargetLocation = TargetPos;
+	RevealAreaAction.ScanningRadius = `GetConfigInt("IRI_SP_ScoutingProtocol_Radius");
+	
+	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
+	PlayAnimation.Params.AnimName = 'NO_ScanningProtocol';
+
+	for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityShooterEffects.Length; ++EffectIndex)
+	{
+		AbilityTemplate.AbilityShooterEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, Context.FindShooterEffectApplyResult(AbilityTemplate.AbilityShooterEffects[EffectIndex]));
+	}
+	
+	DelayAction = X2Action_WaitForAbilityEffect(class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
+	DelayAction.ChangeTimeoutLength(class'X2Ability_SpecialistAbilitySet'.default.GREMLIN_PERK_EFFECT_WINDOW);
+
+	class'X2Action_AbilityPerkEnd'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded);
+	//****************************************************************************************
+
+	//Configure the visualization track for the target
+	//****************************************************************************************
+	for (MultiTargetIndex = 0; MultiTargetIndex < Context.InputContext.MultiTargets.Length; ++MultiTargetIndex)
+	{
+		InteractingUnitRef = Context.InputContext.MultiTargets[MultiTargetIndex];
+		ActionMetadata = EmptyTrack;
+		ActionMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+		ActionMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
+		ActionMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
+
+		DelayAction = X2Action_WaitForAbilityEffect(class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
+		DelayAction.ChangeTimeoutLength(class'X2Ability_SpecialistAbilitySet'.default.GREMLIN_ARRIVAL_TIMEOUT);       //  give the gremlin plenty of time to show up
+
+		for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityMultiTargetEffects.Length; ++EffectIndex)
+		{
+			AbilityTemplate.AbilityMultiTargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, Context.FindMultiTargetEffectApplyResult(AbilityTemplate.AbilityMultiTargetEffects[EffectIndex], MultiTargetIndex));
+		}
+	}
+
+	//****************************************************************************************
+}
+
+static function X2AbilityTemplate IRI_SP_Overclock()
+{
+	local X2AbilityTemplate				Template;
+	local X2Effect_GrantActionPoints    ActionPointEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SP_Overclock');
+
+	// Icon Properties
+	Template.DisplayTargetHitChance = false;
+	Template.AbilitySourceName = 'eAbilitySource_Perk';                                       // color of the icon
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Overclock";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
+	Template.Hostility = eHostility_Neutral;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+
+	// Costs
+	AddCooldown(Template, `GetConfigInt("IRI_SP_Overclock_Cooldown"));
+	Template.AbilityCosts.AddItem(default.FreeActionCost);
+
+	// Targeting and Triggering
+	Template.AbilityTargetStyle = default.SelfTarget;	
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.AbilityToHitCalc = default.DeadEye;
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Effects
+	ActionPointEffect = new class'X2Effect_GrantActionPoints';
+	ActionPointEffect.NumActionPoints = 1;
+	ActionPointEffect.PointType = 'IRI_Gremlin_Action_Point';
+	Template.AddTargetEffect(ActionPointEffect);
+
+	// State and Viz
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	//Template.ActivationSpeech = 'RunAndGun';
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.bCrossClassEligible = false;
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_SP_AutonomousProtocols()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_SP_AutonomousProtocols	Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SP_AutonomousProtocols');
+
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_defensiveprotocol";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetPassive(Template);
+
+	Effect = new class'X2Effect_SP_AutonomousProtocols';
+	Effect.ProtocolAbilities = `GetConfigArrayName("IRI_SP_AutonomousProtocols_Abilities");
+	Effect.BuildPersistentEffect(1, true, false, false);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, false,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	return Template;
 }
 
 // ========================================================
@@ -194,7 +473,6 @@ static private function OrdnancePouchPurchased(XComGameState NewGameState, XComG
 static function X2AbilityTemplate IRI_SH_ScootAndShoot()
 {
 	local X2AbilityTemplate							Template;
-	local X2AbilityCooldown							Cooldown;
 	local X2AbilityCost_ActionPoints				ActionPointCost;
 	local X2Effect_Knockback						KnockbackEffect;
 
@@ -357,14 +635,11 @@ static private function ScootAndShoot_BuildVisualization(XComGameState Visualize
 static function X2AbilityTemplate IRI_SH_Standoff()
 {
 	local X2AbilityTemplate					Template;
-	local X2AbilityCooldown					Cooldown;
 	local X2AbilityCost_Ammo				AmmoCost;
 	local X2AbilityCost_ActionPoints		ActionPointCost;
-	local X2AbilityTarget_Cursor			CursorTarget;
 	local X2AbilityMultiTarget_Radius		MultiTarget;
 	local X2Effect_ReserveActionPoints		ReservePointsEffect;
 	local X2Condition_UnitEffects           SuppressedCondition;
-	local X2Effect_Persistent				KillZoneEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SH_Standoff');
 
@@ -445,7 +720,6 @@ static function X2AbilityTemplate IRI_SH_Standoff_Shot()
 	local X2AbilityCost_Ammo				AmmoCost;
 	local X2AbilityCost_ReserveActionPoints ReserveActionPointCost;
 	local X2AbilityToHitCalc_StandardAim    StandardAim;
-	local X2Condition_AbilityProperty       AbilityCondition;
 	local X2AbilityTarget_Single            SingleTarget;
 	local X2AbilityTrigger_EventListener	Trigger;
 	local X2Effect_Persistent               KillZoneEffect;

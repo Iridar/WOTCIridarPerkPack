@@ -39,7 +39,7 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 	local TTile							ReturnTile;
 	local bool							bTargetMoving;
 	local TTile							ClosestAttackTile;
-	local int i, j, z;
+	local int i, j;
 
 	//	========================================================================
 	//			Initial Checks Start

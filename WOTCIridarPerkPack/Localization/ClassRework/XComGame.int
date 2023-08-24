@@ -78,9 +78,6 @@ LocHelpText="Move to the target location and fire your <Ability:IRI_BoundWeaponN
 LocFlyOverText=Move to the target location and fire your <Ability:IRI_BoundWeaponName/> at the selected target. Can be used once per turn. Does not end turn. Passive effect: Quickdraw - your standard pistol shot does not end turn.
 LocPromotionPopupText=""
 
-
-
-
 ; ================================================
 ;				GRENADIER
 ; ------------------------------------------------
@@ -95,10 +92,35 @@ LocFriendlyName="Collateral Damage"
 LocLongDescription="Use your <Ability:IRI_BoundWeaponName/> to fire at the target area, destroying most cover objects and hitting all eligible targets for <Ability:IRI_GN_CollateralDamage_DamageMod/> of total weapon damage. This attack cannot cause critical hits. Uses <Ability:IRI_GN_CollateralDamage_AmmoCost/> ammo."
 LocHelpText="Use your <Ability:IRI_BoundWeaponName/> to fire at the target area, destroying most cover objects and hitting all eligible targets for <Ability:IRI_GN_CollateralDamage_DamageMod/> of total weapon damage. This attack cannot cause critical hits."
 LocFlyOverText=""
-LocPromotionPopupText="<Bullet/><Ability:SelfCooldown/> turn cooldown.<br/><Bullet/> Collateral Damage applies on-hit effects, such as Holo Targeting, Shred and Experimental Ammo."
+LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/><Bullet/> Collateral Damage applies on-hit effects, such as Holo Targeting, Shred and Experimental Ammo."
 
 [IRI_GN_CollateralDamage_Passive X2AbilityTemplate]
 LocFriendlyName="Collateral Damage"
 LocLongDescription="Use your <Ability:IRI_BoundWeaponName/> to fire at the target area, destroying most cover objects and hitting all eligible targets for <Ability:IRI_GN_CollateralDamage_DamageMod/> of total weapon damage. This attack cannot cause critical hits. Uses <Ability:IRI_GN_CollateralDamage_AmmoCost/> ammo."
 LocHelpText="Use your <Ability:IRI_BoundWeaponName/> to fire at the target area, destroying most cover objects and hitting all eligible targets for <Ability:IRI_GN_CollateralDamage_DamageMod/> of total weapon damage. This attack cannot cause critical hits."
 LocFlyOverText=""
+
+; ================================================
+;				SPECIALIST
+; ------------------------------------------------
+
+[IRI_SP_AutonomousProtocols X2AbilityTemplate]
+LocFriendlyName="Autonomous Protocols"
+LocLongDescription="Using any Protocol or Hacking grants a Move-only action."
+LocHelpText="Using any Protocol or Hacking grants a Move-only action."
+LocFlyOverText="Autonomous Protocols"
+LocPromotionPopupText=""
+
+[IRI_SP_Overclock X2AbilityTemplate]
+LocFriendlyName="Overclock"
+LocLongDescription="Activate to gain a special action point that can be used on any Protocol or Hack."
+LocHelpText="Activate to gain a special action point that can be used on any Protocol or Hack"
+LocFlyOverText="Overclock"
+LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/><Bullet/> Overclock enables the <Ability:ClassName/> to use a Protocol or Hack after dashing."
+
+[IRI_SP_ScoutingProtocol X2AbilityTemplate]
+LocFriendlyName="Scouting Protocol"
+LocLongDescription="Send the GREMLIN to scan the target area, revealing any hidden or disguised enemies. Does not end turn. Starts at <Ability:IRI_SP_ScoutingProtocol_InitCharges/> uses per mission, advanced GREMLINS gain additional uses."
+LocHelpText="Send the GREMLIN to scan the target area, revealing any hidden or disguised enemies. Does not end turn."
+LocFlyOverText="Scouting Protocol"
+LocPromotionPopupText=""

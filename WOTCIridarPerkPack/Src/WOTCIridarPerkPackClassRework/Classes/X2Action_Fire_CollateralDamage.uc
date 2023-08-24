@@ -9,8 +9,8 @@ function Init()
 	local float degree, testDegree, degreeDelta;
 	local TTile tile;
 	local bool found;
-	local XComGameState_Unit TargetUnit;
-	local XComGameStateHistory History;
+	//local XComGameState_Unit LocTargetUnit;
+	local XComGameStateHistory LocHistory;
 
 	local float a;
 
@@ -20,9 +20,9 @@ function Init()
 	
 	SetFireParameters(false, , false);		// Notify targets individually and not at once
 	
-	History = `XCOMHISTORY;
-	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
-	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	LocHistory = `XCOMHISTORY;
+	AbilityState = XComGameState_Ability(LocHistory.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
+	//LocTargetUnit = XComGameState_Unit(LocHistory.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
 
 	//if (AbilityState.GetMyTemplate().TargetingMethod == class'X2TargetingMethod_Cone')
 	//{
