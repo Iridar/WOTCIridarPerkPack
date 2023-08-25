@@ -30,6 +30,9 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_SP_Overclock());
 	Templates.AddItem(IRI_SP_ScoutingProtocol());
 	Templates.AddItem(IRI_SP_ConstantReadiness());
+
+	// AWC
+	Templates.AddItem(PurePassive('IRI_AWC_MedicinePouch', "img:///UILibrary_PerkIcons.UIPerk_item_medikit", true /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	
 	return Templates;
 }

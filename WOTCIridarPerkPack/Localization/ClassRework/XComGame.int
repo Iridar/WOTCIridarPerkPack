@@ -131,3 +131,13 @@ LocLongDescription="If you did not attack this turn, enter Overwatch automatical
 LocHelpText="If you did not attack this turn, enter Overwatch automatically."
 LocFlyOverText="Constant Readiness"
 LocPromotionPopupText="<Bullet/> Non-offensive actions like Reload can still be performed without invalidating Constatn Readiness.<br/>"
+
+; ================================================
+;				UNIVERSAL
+; ------------------------------------------------
+
+[IRI_AWC_MedicinePouch X2AbilityTemplate]
+LocFriendlyName="Medicine Pouch"
+LocHelpText="Gain a dedicated slot for a medikit or another similar item."
+LocLongDescription="Gain a dedicated slot for a medikit or another similar item."
+LocPromotionPopupText="<Bullet/> Medicine Pouch does not bypass the rule of one healing item per soldier."

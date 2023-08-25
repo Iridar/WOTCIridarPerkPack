@@ -289,6 +289,9 @@
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\XComGameState_Effect_CritMagic.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\MedicineInventorySlot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\OrdnanceInventorySlot.uc">
       <SubType>Content</SubType>
     </Content>
