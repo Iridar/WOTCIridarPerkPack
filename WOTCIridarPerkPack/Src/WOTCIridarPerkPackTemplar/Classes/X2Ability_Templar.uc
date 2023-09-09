@@ -4,9 +4,205 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
+	Templates.AddItem(IRI_TM_Rend());
+	Templates.AddItem(IRI_TM_Volt());
 	Templates.AddItem(IRI_TM_SoulShot());
+	Templates.AddItem(IRI_TM_TemplarFocus());
 
 	return Templates;
+}
+
+
+static function X2AbilityTemplate IRI_TM_Volt()
+{
+	local X2AbilityTemplate				Template;
+	local X2AbilityCost_ActionPoints	ActionPointCost;
+	local X2Condition_UnitProperty		TargetCondition;
+	local X2Effect_ApplyWeaponDamage	DamageEffect;
+	local X2Effect_ToHitModifier		HitModEffect;
+	local X2Condition_AbilityProperty	AbilityCondition;
+	local X2AbilityTag                  AbilityTag;
+	local X2AbilityCost_ActionPoints	ActionCost;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Volt');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_volt";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY;
+
+	// Targeting and Triggering
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityMultiTargetStyle = new class'X2AbilityMultiTarget_Volt';
+	Template.AbilityToHitCalc = new class'X2AbilityToHitCalc_Volt'; // Custom calc to force crits against Psionics for cosmetic effect.
+	Template.TargetingMethod = class'X2TargetingMethod_Volt';
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	
+	// Costs
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	//	NOTE: visibility is NOT required for multi targets as it is required between each target (handled by multi target class)
+
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeAlive = false;
+	TargetCondition.ExcludeDead = true;
+	TargetCondition.ExcludeFriendlyToSource = true;
+	TargetCondition.ExcludeHostileToSource = false;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
+	TargetCondition.FailOnNonUnits = true;
+	TargetCondition.ExcludeCivilian = true;
+	TargetCondition.ExcludeCosmetic = true;
+	TargetCondition.ExcludeRobotic = true;
+	Template.AbilityTargetConditions.AddItem(TargetCondition);
+	Template.AbilityMultiTargetConditions.AddItem(TargetCondition);
+
+	// Effect - non-psionic
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludePsionic = true;
+	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	DamageEffect.bIgnoreBaseDamage = true;
+	DamageEffect.DamageTag = 'IRI_TM_Volt';
+	DamageEffect.bIgnoreArmor = true;
+	DamageEffect.TargetConditions.AddItem(TargetCondition);
+	Template.AddTargetEffect(DamageEffect);
+	Template.AddMultiTargetEffect(DamageEffect);
+
+	// Effect - psionic
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeNonPsionic = true;
+	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	DamageEffect.bIgnoreBaseDamage = true;
+	DamageEffect.DamageTag = 'IRI_TM_Volt_Psi';
+	DamageEffect.bIgnoreArmor = true;
+	DamageEffect.TargetConditions.AddItem(TargetCondition);
+	Template.AddTargetEffect(DamageEffect);
+	Template.AddMultiTargetEffect(DamageEffect);
+
+	// Effect - Aftershock
+	HitModEffect = new class'X2Effect_ToHitModifier';
+	HitModEffect.BuildPersistentEffect(2, , , , eGameRule_PlayerTurnBegin);
+	HitModEffect.AddEffectHitModifier(eHit_Success, class'X2Ability_TemplarAbilitySet'.default.VoltHitMod, class'X2Ability_TemplarAbilitySet'.default.RecoilEffectName);
+	HitModEffect.bApplyAsTarget = true;
+	HitModEffect.bRemoveWhenTargetDies = true;
+	HitModEffect.bUseSourcePlayerState = true;
+	
+	AbilityTag = X2AbilityTag(`XEXPANDCONTEXT.FindTag("Ability"));
+	AbilityTag.ParseObj = HitModEffect;
+	HitModEffect.SetDisplayInfo(ePerkBuff_Penalty, class'X2Ability_TemplarAbilitySet'.default.RecoilEffectName, `XEXPAND.ExpandString(class'X2Ability_TemplarAbilitySet'.default.RecoilEffectDesc), "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Recoil");
+
+	AbilityTag.ParseObj = none;
+	
+	AbilityCondition = new class'X2Condition_AbilityProperty';
+	AbilityCondition.OwnerHasSoldierAbilities.AddItem('Reverberation');
+	HitModEffect.TargetConditions.AddItem(default.LivingTargetOnlyProperty);
+	HitModEffect.TargetConditions.AddItem(AbilityCondition);
+	Template.AddTargetEffect(HitModEffect);
+	Template.AddMultiTargetEffect(HitModEffect);
+
+	// State and Viz
+	Template.CustomFireAnim = 'HL_Volt';
+	Template.ActivationSpeech = 'Volt';
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.ActionFireClass = class'X2Action_Fire_Volt';
+	Template.Hostility = eHostility_Offensive;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState; // Interruptible, unlike original Volt
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	Template.DamagePreviewFn = class'X2Ability_TemplarAbilitySet'.static.VoltDamagePreview;
+
+	return Template;
+}
+
+static function X2AbilityTemplate IRI_TM_TemplarFocus()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_TemplarFocus	FocusEffect;
+	local array<StatChange>		StatChanges;
+	local StatChange			NewStatChange;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_TemplarFocus');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_InnerFocus";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	Template.Hostility = eHostility_Neutral;
+	
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+
+	// Effects
+	FocusEffect = new class'X2Effect_TemplarFocus';
+	FocusEffect.BuildPersistentEffect(1, true, false);
+	FocusEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, false, , Template.AbilitySourceName);
+	FocusEffect.EffectSyncVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
+	FocusEffect.VisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
+
+	//	focus 0
+	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
+	//	focus 1
+	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
+	//	focus 2
+	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
+
+	Template.AddTargetEffect(FocusEffect);
+
+	Template.AdditionalAbilities.AddItem('FocusKillTracker');
+
+	Template.bIsPassive = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.bSkipFireAction = true;
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_Rend()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityCost_ActionPoints		ActionPointCost;
+	local X2Effect_ApplyWeaponDamage		WeaponDamageEffect;
+	local X2AbilityToHitCalc_StandardMelee  StandardMelee;
+
+	Template = class'X2Ability_TemplarAbilitySet'.static.Rend('IRI_TM_Rend');
+
+	StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
+	StandardMelee.bGuaranteedHit = true;
+	StandardMelee.bAllowCrit = false;
+	Template.AbilityToHitCalc = StandardMelee;
+	
+	Template.AbilityCosts.Length = 0;
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bConsumeAllPoints = true;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	Template.AbilityTargetEffects.Length = 0;
+	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	WeaponDamageEffect.DamageTypes.AddItem('Melee');
+	Template.AddTargetEffect(WeaponDamageEffect);
+
+	return Template;
 }
 
 
@@ -16,6 +212,7 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2Effect_ApplyWeaponDamage        WeaponDamageEffect;
 	local X2Condition_Visibility            TargetVisibilityCondition;
+	local X2AbilityToHitCalc_StandardAim	StandardAim;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_SoulShot');
 
@@ -26,7 +223,9 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CORPORAL_PRIORITY;
 
 	// Targeting and Triggering
-	Template.AbilityToHitCalc = default.DeadEye;
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bAllowCrit = false;
+	Template.AbilityToHitCalc = StandardAim;
 	Template.AbilityTargetStyle = default.SimpleSingleTarget;
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 

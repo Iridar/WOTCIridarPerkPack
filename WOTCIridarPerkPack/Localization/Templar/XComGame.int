@@ -1,5 +1,22 @@
 [IRI_TM_SoulShot X2AbilityTemplate]
 LocFriendlyName="Soul Shot"
-LocLongDescription="A powerful ranged attack that scales with Focus and generates Focus on kills."
-LocHelpText="A powerful ranged attack that scales with Focus and generates Focus on kills."
-LocPromotionPopupText="<Bullet/> <Ability:IRI_TM_SoulShot_Cooldown/> turn(s) cooldown."
+LocLongDescription="A ranged version of Rend that can miss."
+LocHelpText="A ranged version of Rend that can miss."
+LocPromotionPopupText="<Bullet/> Soul Shot triggers Momentum, and generates Focus on kills, same as Rend."
+
+[IRI_TM_Rend X2AbilityTemplate]
+LocFriendlyName="Rend"
+LocLongDescription="A psionic melee attack that cannot miss. Triggers Momentum, and generates Focus on kills."
+LocHelpText="A psionic melee attack that cannot miss. Triggers Momentum, and generates Focus on kills."
+LocPromotionPopupText="<Bullet/> Using Rend to kill enemies is the Templar's primary method for generating Focus.<br/><Bullet/> After casting Rend, the Templar will gain Momentum, allowing them one movement action. Use this to return to cover after attacking."
+
+[IRI_TM_TemplarFocus X2AbilityTemplate]
+LocFriendlyName="Focus"
+LocLongDescription="Gain Focus during missions by killing enemies with Rend. Focus can be spent on powerful abilities. Most abilities that cost Focus do not cost action points."
+LocPromotionPopupText=""
+
+[IRI_TM_Volt X2AbilityTemplate]
+LocFriendlyName="Volt"
+LocLongDescription="Ranged psionic attack. Deals critical damage to psionic units. Costs 1 Focus. Jumps to another nearby enemy when used at 2 Focus."
+LocHelpText="Ranged psionic attack. Deals critical damage to psionic units. Costs 1 Focus. Jumps to another nearby enemy when used at 2 Focus."
+LocPromotionPopupText="<Bullet/> Volt has no cooldown and does not cost any Action Points, only Focus."

@@ -141,6 +141,9 @@
     <Content Include="ContentForCook\Templar\IRISoulShotPerk2.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIVolt.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\BountyHunter\WOTCIridarPerkPack.int">
       <SubType>Content</SubType>
     </Content>
@@ -205,6 +208,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2TargetingMethod_TopDown_NoCameraLock.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2VersionCheck.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\extra_globals.uci" />
@@ -377,6 +383,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\XComPrecomputedPath_ThunderLance.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2AbilityToHitCalc_Volt.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Ability_Templar.uc">
