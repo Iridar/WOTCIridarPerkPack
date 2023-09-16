@@ -90,6 +90,9 @@
     <Content Include="Config\Templar\XComGame.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\Templar\XComGameData_CharacterStats.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Templar\XComGameData_SoldierSkills.ini">
       <SubType>Content</SubType>
     </Content>
@@ -139,6 +142,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\Templar\IRISoulShotPerk2.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Templar\IRIStunStrike.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\Templar\IRIVolt.upk">
@@ -391,6 +397,21 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2CharacterTemplate_AstralGrasp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Character_AstralGrasp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_AstralGrasp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_Amplify.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Reflect.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Templar_SoulShot_ArrowHit.uc">
       <SubType>Content</SubType>
     </Content>
@@ -430,6 +451,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_RemoveEffects_MatchSource.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\XComGameState_Effect_IRI_Amplify.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="UnusedCode.txt">

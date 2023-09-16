@@ -9,14 +9,367 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_SoulShot());
 	Templates.AddItem(IRI_TM_TemplarFocus());
 
+	Templates.AddItem(IRI_TM_Amplify()); // TODO: Check if vanilla Amplify has a visual effect?
+	Templates.AddItem(IRI_TM_Reflect()); // TODO: Fix the ReflectAttack projectile missing the target and then causing a viz delay
+	Templates.AddItem(IRI_TM_Stunstrike()); // TODO: No visible projectile? Because of no damage effect?
+
+	Templates.AddItem(IRI_TM_AstralGrasp());
+	Templates.AddItem(IRI_TM_AstralGrasp_DamageImmunity());
+	
+
 	return Templates;
 }
 
+static private function X2AbilityTemplate IRI_TM_AstralGrasp_DamageImmunity()
+{
+	local X2AbilityTemplate			Template;
+	local X2Effect_DamageImmunity	Effect;
 
-static function X2AbilityTemplate IRI_TM_Volt()
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_DamageImmunity');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+
+	SetPassive(Template);
+	SetHidden(Template);
+	Template.bUniqueSource = true;
+
+	// This will make the Astral Grasped unit immune to all damage except mental and psionic
+	Effect = new class'X2Effect_DamageImmunity';
+	Effect.BuildPersistentEffect(1, true);
+	Effect.ImmueTypesAreInclusive = false;
+	Effect.ImmuneTypes.AddItem('Mental');
+	Effect.ImmuneTypes.AddItem('Psi');
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_AstralGrasp()
+{
+	local X2AbilityTemplate							Template;
+	local X2AbilityCost_ActionPoints				ActionCost;
+	local X2Condition_UnitProperty					TargetCondition;
+	local X2Condition_UnitEffects					UnitEffectsCondition;
+	local X2Condition_UnitImmunities				MentalImmunityCondition;
+	local X2Condition_UnblockedNeighborTile			UnblockedNeighborTileCondition;
+	local X2Effect_AstralGrasp						AstralGrasp;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.Hostility = eHostility_Offensive;
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_StunStrike";
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	// Costs
+//Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus'); DEBUG ONLY
+
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// There must be a free tile around the source unit
+	UnblockedNeighborTileCondition = new class'X2Condition_UnblockedNeighborTile';
+	UnblockedNeighborTileCondition.RequireVisible = true;
+	Template.AbilityShooterConditions.AddItem(UnblockedNeighborTileCondition);
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeAlive = false;
+	TargetCondition.ExcludeDead = true;
+	TargetCondition.ExcludeFriendlyToSource = true;
+	TargetCondition.ExcludeHostileToSource = false;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
+	TargetCondition.FailOnNonUnits = true;
+	TargetCondition.ExcludeLargeUnits = false;
+	TargetCondition.ExcludeRobotic = true;
+	Template.AbilityTargetConditions.AddItem(TargetCondition);
+
+	MentalImmunityCondition = new class'X2Condition_UnitImmunities';
+	MentalImmunityCondition.ExcludeDamageTypes.AddItem('Mental');
+	Template.AbilityTargetConditions.AddItem(MentalImmunityCondition);
+
+	UnitEffectsCondition = new class'X2Condition_UnitEffects';
+	UnitEffectsCondition.AddExcludeEffect('IRI_TM_AstralGrasp_Effect', 'AA_UnitIsBound');
+	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
+
+	// Effects
+	AstralGrasp = new class'X2Effect_AstralGrasp';
+	AstralGrasp.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	AstralGrasp.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(AstralGrasp);
+
+	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateStunnedStatusEffect(2, 100, true));
+
+	// State and Viz
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.CinescriptCameraType = "Psionic_FireAtUnit";
+	Template.ActivationSpeech = 'StunStrike';
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.CustomFireAnim = 'HL_StunStrike';
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_Stunstrike()
+{
+	local X2AbilityTemplate							Template;
+	local X2Effect_Knockback						KnockbackEffect;
+	//local X2Effect_PersistentStatChange				DisorientEffect;
+	local X2AbilityCost_ActionPoints				ActionCost;
+	local X2Effect_ApplyWeaponDamage				DamageEffect;
+	local X2Effect_TriggerEvent						TriggerEventEffect;
+	local X2Condition_UnitProperty					TargetCondition;
+	local X2Condition_UnitEffects					UnitEffectsCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Stunstrike');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.Hostility = eHostility_Offensive;
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_StunStrike";
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	// Costs
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeAlive = false;
+	TargetCondition.ExcludeDead = true;
+	TargetCondition.ExcludeFriendlyToSource = true;
+	TargetCondition.ExcludeHostileToSource = false;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
+	TargetCondition.FailOnNonUnits = true;
+	TargetCondition.ExcludeLargeUnits = true;
+	Template.AbilityTargetConditions.AddItem(TargetCondition);
+	
+
+	UnitEffectsCondition = new class'X2Condition_UnitEffects';
+	UnitEffectsCondition.AddExcludeEffect(class'X2Ability_Viper'.default.BindSustainedEffectName, 'AA_UnitIsBound');
+	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
+
+	// Effects
+	KnockbackEffect = new class'X2Effect_Knockback';
+	KnockbackEffect.KnockbackDistance = 2;
+	KnockbackEffect.OnlyOnDeath = false; 
+	Template.AddTargetEffect(KnockbackEffect);
+
+	TriggerEventEffect = new class'X2Effect_TriggerEvent';
+	TriggerEventEffect.TriggerEventName = 'StunStrikeActivated';
+	TriggerEventEffect.PassTargetAsSource = true;
+	Template.AddTargetEffect(TriggerEventEffect);
+
+	//	this effect is just here for visuals on a miss
+	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	DamageEffect.bIgnoreBaseDamage = true;
+	DamageEffect.DamageTag = 'IRI_TM_Stunstrike';
+	//DamageEffect.bBypassShields = true;
+	DamageEffect.bIgnoreArmor = true;
+	Template.AddTargetEffect(DamageEffect);
+
+	//DisorientEffect = class'X2StatusEffects'.static.CreateDisorientedStatusEffect();
+	//DisorientEffect.iNumTurns = default.StunStrikeDisorientNumTurns;
+	//DisorientEffect.ApplyChanceFn = StunStrikeDisorientApplyChance;
+	//Template.AddTargetEffect(DisorientEffect);
+
+	// State and Viz
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.CinescriptCameraType = "Psionic_FireAtUnit";
+	Template.ActivationSpeech = 'StunStrike';
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.CustomFireAnim = 'HL_StunStrike';
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+
+static private function X2AbilityTemplate IRI_TM_Reflect()
 {
 	local X2AbilityTemplate				Template;
+	local X2Effect_IncrementUnitValue	ParryUnitValue;
 	local X2AbilityCost_ActionPoints	ActionPointCost;
+	local X2Effect_Reflect				Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Reflect');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
+	Template.OverrideAbilityAvailabilityFn = Reflect_OverrideAbilityAvailability;
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Parry";
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+ 	Template.AddShooterEffectExclusions();
+
+	// Costs
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.AllowedTypes.Length = 0;
+	ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Effects
+	ParryUnitValue = new class'X2Effect_IncrementUnitValue';
+	ParryUnitValue.NewValueToSet = 1;
+	ParryUnitValue.UnitName = 'IRI_TM_Reflect';
+	ParryUnitValue.CleanupType = eCleanup_BeginTurn;
+	Template.AddShooterEffect(ParryUnitValue);
+
+	Effect = new class'X2Effect_Reflect';
+	Effect.BuildPersistentEffect(1, false, false,, eGameRule_PlayerTurnBegin);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	// State and Viz
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.Hostility = eHostility_Defensive;
+	Template.BuildInterruptGameStateFn = none; // TypicalAbility_BuildInterruptGameState; // Firaxis has Parry as offensive and interruptible, which is asinine
+
+	Template.PrerequisiteAbilities.AddItem('Parry');
+	Template.AdditionalAbilities.AddItem('ReflectShot');
+
+	return Template;
+}
+
+// Same as Parry, but later
+static private function Reflect_OverrideAbilityAvailability(out AvailableAction Action, XComGameState_Ability AbilityState, XComGameState_Unit OwnerState)
+{
+	if (Action.AvailableCode == 'AA_Success')
+	{
+		if (OwnerState.ActionPoints.Length == 1 && OwnerState.ActionPoints[0] == class'X2CharacterTemplateManager'.default.MomentumActionPoint)
+			Action.ShotHUDPriority = class'UIUtilities_Tactical'.const.PARRY_PRIORITY + 2;
+	}
+}
+
+static private function X2AbilityTemplate IRI_TM_Amplify()
+{
+	local X2AbilityTemplate				Template;
+	local X2Effect_Amplify				AmplifyEffect;
+	local X2AbilityCost_ActionPoints	ActionPointCost;
+	local X2AbilityTag					AbilityTag;
+	local X2Condition_UnitEffects		EffectsCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Amplify');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Amplify";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Costs
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
+
+	EffectsCondition = new class'X2Condition_UnitEffects';
+	EffectsCondition.AddExcludeEffect(class'X2Effect_Amplify'.default.EffectName, 'AA_AlreadyAmplified');
+	Template.AbilityTargetConditions.AddItem(EffectsCondition);
+
+	// Effects
+	AmplifyEffect = new class'X2Effect_IRI_Amplify';
+	AmplifyEffect.BuildPersistentEffect(1, true, true);
+	AmplifyEffect.bRemoveWhenTargetDies = true;
+	AmplifyEffect.BonusDamageMult = class'X2Ability_TemplarAbilitySet'.default.AmplifyBonusDamageMult;
+	AmplifyEffect.MinBonusDamage = class'X2Ability_TemplarAbilitySet'.default.AmplifyMinBonusDamage;
+	
+	AbilityTag = X2AbilityTag(`XEXPANDCONTEXT.FindTag("Ability"));
+	AbilityTag.ParseObj = AmplifyEffect;
+	AmplifyEffect.SetDisplayInfo(ePerkBuff_Penalty, class'X2Ability_TemplarAbilitySet'.default.AmplifyEffectName, `XEXPAND.ExpandString(class'X2Ability_TemplarAbilitySet'.default.AmplifyEffectDesc), Template.IconImage, true, , Template.AbilitySourceName);
+	AbilityTag.ParseObj = none; // bsg-dforrest (7.27.17): need to clear out ParseObject
+
+	Template.AddTargetEffect(AmplifyEffect);
+
+	// State and Viz
+	Template.bShowActivation = true;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.CustomFireAnim = 'HL_Lens';
+	Template.ActivationSpeech = 'Amplify';
+	Template.Hostility = eHostility_Offensive;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_Volt()
+{
+	local X2AbilityTemplate				Template;
 	local X2Condition_UnitProperty		TargetCondition;
 	local X2Effect_ApplyWeaponDamage	DamageEffect;
 	local X2Effect_ToHitModifier		HitModEffect;
@@ -131,12 +484,11 @@ static function X2AbilityTemplate IRI_TM_Volt()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_TM_TemplarFocus()
+static private function X2AbilityTemplate IRI_TM_TemplarFocus()
 {
 	local X2AbilityTemplate		Template;
 	local X2Effect_TemplarFocus	FocusEffect;
 	local array<StatChange>		StatChanges;
-	local StatChange			NewStatChange;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_TemplarFocus');
 
@@ -157,8 +509,10 @@ static function X2AbilityTemplate IRI_TM_TemplarFocus()
 	FocusEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, false, , Template.AbilitySourceName);
 	FocusEffect.EffectSyncVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
 	FocusEffect.VisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
+	FocusEffect.bDisplayInSpecialDamageMessageUI = false;
 
 	//	focus 0
+	StatChanges.Length = 0; // Settle down, compiler
 	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
 	//	focus 1
 	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
@@ -274,6 +628,9 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	// Trigger Momentum
+	Template.PostActivationEvents.AddItem('RendActivated');
 	
 	return Template;
 }
@@ -285,7 +642,7 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 //				COMMON CODE
 //	========================================
 
-static function AddCooldown(out X2AbilityTemplate Template, int Cooldown)
+static private function AddCooldown(out X2AbilityTemplate Template, int Cooldown)
 {
 	local X2AbilityCooldown AbilityCooldown;
 
@@ -297,7 +654,7 @@ static function AddCooldown(out X2AbilityTemplate Template, int Cooldown)
 	}
 }
 
-static function AddCharges(out X2AbilityTemplate Template, int InitialCharges)
+static private function AddCharges(out X2AbilityTemplate Template, int InitialCharges)
 {
 	local X2AbilityCharges		Charges;
 	local X2AbilityCost_Charges	ChargeCost;
@@ -314,7 +671,7 @@ static function AddCharges(out X2AbilityTemplate Template, int InitialCharges)
 	}
 }
 
-static function AddFreeCost(out X2AbilityTemplate Template)
+static private function AddFreeCost(out X2AbilityTemplate Template)
 {
 	local X2AbilityCost_ActionPoints ActionPointCost;
 
@@ -324,7 +681,7 @@ static function AddFreeCost(out X2AbilityTemplate Template)
 	Template.AbilityCosts.AddItem(ActionPointCost);
 }
 
-static function RemoveVoiceLines(out X2AbilityTemplate Template)
+static private function RemoveVoiceLines(out X2AbilityTemplate Template)
 {
 	Template.ActivationSpeech = '';
 	Template.SourceHitSpeech = '';
@@ -340,7 +697,7 @@ static function RemoveVoiceLines(out X2AbilityTemplate Template)
 	Template.TargetMissedSpeech = '';
 }
 
-static function SetFireAnim(out X2AbilityTemplate Template, name Anim)
+static private function SetFireAnim(out X2AbilityTemplate Template, name Anim)
 {
 	Template.CustomFireAnim = Anim;
 	Template.CustomFireKillAnim = Anim;
@@ -352,7 +709,7 @@ static function SetFireAnim(out X2AbilityTemplate Template, name Anim)
 	Template.CustomMovingTurnRightFireKillAnim = Anim;
 }
 
-static function SetHidden(out X2AbilityTemplate Template)
+static private function SetHidden(out X2AbilityTemplate Template)
 {
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
 	
@@ -397,7 +754,7 @@ static private function X2AbilityTemplate Create_AnimSet_Passive(name TemplateNa
 	return Template;
 }
 
-static function SetPassive(out X2AbilityTemplate Template)
+static private function SetPassive(out X2AbilityTemplate Template)
 {
 	Template.bIsPassive = true;
 
@@ -425,7 +782,7 @@ static private function X2AbilityTemplate HiddenPurePassive(name TemplateName, o
 }
 
 //	Use: SetSelfTarget_WithEventTrigger(Template, 'PlayerTurnBegun',, eFilter_Player);
-static function	SetSelfTarget_WithEventTrigger(out X2AbilityTemplate Template, name EventID, optional EventListenerDeferral Deferral = ELD_OnStateSubmitted, optional AbilityEventFilter Filter = eFilter_None, optional int Priority = 50)
+static private function	SetSelfTarget_WithEventTrigger(out X2AbilityTemplate Template, name EventID, optional EventListenerDeferral Deferral = ELD_OnStateSubmitted, optional AbilityEventFilter Filter = eFilter_None, optional int Priority = 50)
 {
 	local X2AbilityTrigger_EventListener Trigger;
 
@@ -441,7 +798,7 @@ static function	SetSelfTarget_WithEventTrigger(out X2AbilityTemplate Template, n
 	Template.AbilityTriggers.AddItem(Trigger);
 }
 
-static function PrintActionRecursive(X2Action Action, int iLayer)
+static private function PrintActionRecursive(X2Action Action, int iLayer)
 {
 	local X2Action ChildAction;
 

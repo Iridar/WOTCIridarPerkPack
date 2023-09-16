@@ -20,3 +20,38 @@ LocFriendlyName="Volt"
 LocLongDescription="Ranged psionic attack. Deals critical damage to psionic units. Costs 1 Focus. Jumps to another nearby enemy when used at 2 Focus."
 LocHelpText="Ranged psionic attack. Deals critical damage to psionic units. Costs 1 Focus. Jumps to another nearby enemy when used at 2 Focus."
 LocPromotionPopupText="<Bullet/> Volt has no cooldown and does not cost any Action Points, only Focus."
+
+[IRI_TM_Amplify X2AbilityTemplate]
+LocFriendlyName="Amplify"
+LocLongDescription="Mark a single target with a Psionic lens, causing them to take an additional <Ability:AmplifyDamageMult/>% base damage from the next single-target attack. Does not end turn, can be used with the Momentum action point."
+LocHelpText="Mark a target, causing them to take additional damage from the next single-target attack. Does not end turn, can be used with the Momentum action point."
+LocHitMessage="Amplified"
+LocPromotionPopupText="<Bullet/> Amplify has no cooldown, so you can cast Amplify once, then use Rend, then use Amplify again with the Momentum action point."
+
+[IRI_TM_Reflect X2AbilityTemplate]
+LocFriendlyName="Reflect"
+LocLongDescription="Empowered version of Parry that reflects the next incoming shot back at the attacker. Costs 1 Focus."
+LocHelpText="Reflect the next attack made against you during the enemy turn back at the attacker, preventing all damage. Costs 1 Focus."
+LocFlyoverText="Reflected!"
+LocPromotionPopupText="<Bullet/> Reflect will prevent damage from both melee and ranged attacks.<br/><Bullet/> Reflect will use the action granted by Momentum.<br/>"
+
+[IRI_TM_Stunstrike X2AbilityTemplate]
+LocFriendlyName="Stun Strike"
+LocLongDescription="Strike an enemy with Psionic force, knocking them back in the direction of the attack. Costs 1 Focus."
+LocHelpText="Knock an enemy back in the direction of the attack. Costs 1 Focus."
+LocPromotionPopupText="<Bullet/> Stun Strike has a <Ability:STUNSTRIKEHITCHANCE/>% chance to hit, increased by <Ability:STUNSTRIKEFOCUSHITCHANCE/>% for each Focus level.<br/><Bullet/> Stun Strike has a <Ability:STUNSTRIKEDISORIENTCHANCE/>% chance to disorient the target for each Focus level.<br/><Bullet/> Stun Strike does not end the Templar's turn, but has a <Ability:SelfCooldown/> turn cooldown.<br/>" 
+
+
+[IRI_TM_AstralGrasp X2AbilityTemplate]
+LocFriendlyName="Astral Grasp"
+LocLongDescription="Obscure Bleach reference. Costs 1 Focus."
+LocHelpText="Obscure Bleach reference. Costs 1 Focus."
+LocPromotionPopupText="<Bullet/> Stun Strike has a <Ability:STUNSTRIKEHITCHANCE/>% chance to hit, increased by <Ability:STUNSTRIKEFOCUSHITCHANCE/>% for each Focus level.<br/><Bullet/> Stun Strike has a <Ability:STUNSTRIKEDISORIENTCHANCE/>% chance to disorient the target for each Focus level.<br/><Bullet/> Stun Strike does not end the Templar's turn, but has a <Ability:SelfCooldown/> turn cooldown.<br/>" 
+
+[IRI_TM_AstralGraspUnit X2CharacterTemplate]
+strCharacterName="Spirit Echo"
+
+[IRI_TM_AstralGrasp_DamageImmunity X2AbilityTemplate]
+LocFriendlyName="Disembodied Spirit"
+LocLongDescription="Spirit Echo can take only mental and psionic damage."
+LocHelpText="Spirit Echo can take only mental and psionic damage."
