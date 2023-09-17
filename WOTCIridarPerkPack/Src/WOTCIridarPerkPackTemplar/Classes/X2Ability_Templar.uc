@@ -14,37 +14,146 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_Stunstrike()); // TODO: No visible projectile? Because of no damage effect?
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
-	Templates.AddItem(IRI_TM_AstralGrasp_DamageImmunity());
-	
+	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
+	Templates.AddItem(IRI_TM_AstralGrasp_DamageLink());
 
 	return Templates;
 }
 
-static private function X2AbilityTemplate IRI_TM_AstralGrasp_DamageImmunity()
+static private function X2AbilityTemplate IRI_TM_AstralGrasp_DamageLink()
 {
-	local X2AbilityTemplate			Template;
-	local X2Effect_DamageImmunity	Effect;
+	local X2AbilityTemplate Template;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_DamageImmunity');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_DamageLink');
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
-
-	SetPassive(Template);
 	SetHidden(Template);
-	Template.bUniqueSource = true;
+	
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
+	
+	// Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	//Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
 
-	// This will make the Astral Grasped unit immune to all damage except mental and psionic
-	Effect = new class'X2Effect_DamageImmunity';
-	Effect.BuildPersistentEffect(1, true);
-	Effect.ImmueTypesAreInclusive = false;
-	Effect.ImmuneTypes.AddItem('Mental');
-	Effect.ImmuneTypes.AddItem('Psi');
-	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
-	Template.AddTargetEffect(Effect);
+	Template.AddTargetEffect(new class'X2Effect_ApplySpiritLinkDamage');
+
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = true;
+	Template.bUniqueSource = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.Hostility = eHostility_Neutral;
 
 	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_AstralGraspSpirit		Effect;
+	local X2Effect_OverrideDeathAction		DeathActionEffect;
+	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect_Persistent				PerkEffect;
+	local X2Effect_AdditionalAnimSets		AnimSetEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_Spirit');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+	SetHidden(Template);
+	
+	// Targeting and Triggering
+
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'OnUnitBeginPlay';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Unit;
+	Trigger.ListenerData.Priority = 100;
+	Trigger.ListenerData.EventFn = AstralGrasp_SpiritSpawned_Trigger;
+	Template.AbilityTriggers.AddItem(Trigger);
+	
+	// Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+
+	// This will make the Astral Grasped unit immune to all damage except mental and psionic
+	Effect = new class'X2Effect_AstralGraspSpirit';
+	Effect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
+	//Effect.ImmueTypesAreInclusive = false;
+	//Effect.ImmuneTypes.AddItem('Mental');
+	//Effect.ImmuneTypes.AddItem('Psi');
+	Effect.EffectName = 'IRI_TM_AstralGrasp_Spirit';
+	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddShooterEffect(Effect);
+
+	DeathActionEffect = new class'X2Effect_OverrideDeathAction';
+	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
+	DeathActionEffect.EffectName = 'IRI_TM_AstralGrasp_Spirit_DeathOverride';
+	DeathActionEffect.BuildPersistentEffect(1, true);
+	Template.AddShooterEffect(DeathActionEffect);
+
+	AnimSetEffect = new class'X2Effect_AdditionalAnimSets';
+	AnimSetEffect.AddAnimSetWithPath("IRIAstralGrasp.AS_PsiDeath");
+	AnimSetEffect.BuildPersistentEffect(1, true);
+	AnimSetEffect.bRemoveWhenTargetDies = false;
+	AnimSetEffect.bRemoveWhenSourceDies = false;
+	Template.AddShooterEffect(AnimSetEffect);
+
+	PerkEffect = new class'X2Effect_Persistent';
+	PerkEffect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
+	PerkEffect.EffectName = 'IRI_TM_AstralGrasp_PerkEffect';
+	Template.AddTargetEffect(PerkEffect);
+
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = true;
+	Template.bUniqueSource = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.Hostility = eHostility_Neutral;
+
+	return Template;
+}
+
+static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Unit	SpawnedUnit;
+	local XComGameState_Unit	TargetUnit;
+	local XComGameState_Ability	TriggerAbility;
+	local UnitValue				UV;
+
+	`AMLOG("Running");
+
+	SpawnedUnit = XComGameState_Unit(EventSource);
+	if (SpawnedUnit == none)
+		return ELR_NoInterrupt;
+
+	if (!SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
+		return ELR_NoInterrupt;
+
+	TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UV.fValue));
+	if (TargetUnit == none)
+		return ELR_NoInterrupt;
+
+	TriggerAbility = XComGameState_Ability(CallbackData);
+	if (TriggerAbility == none)
+		return ELR_NoInterrupt;
+
+	`AMLOG("Triggering Spirint Spawned ability at:" @ TargetUnit.GetFullName());
+
+	TriggerAbility.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
+
+	return ELR_NoInterrupt;
 }
 
 static private function X2AbilityTemplate IRI_TM_AstralGrasp()
@@ -106,12 +215,12 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	Template.AbilityTargetConditions.AddItem(MentalImmunityCondition);
 
 	UnitEffectsCondition = new class'X2Condition_UnitEffects';
-	UnitEffectsCondition.AddExcludeEffect('IRI_TM_AstralGrasp_Effect', 'AA_UnitIsBound');
+	UnitEffectsCondition.AddExcludeEffect('IRI_TM_AstralGrasp_Effect', 'AA_DuplicateEffectIgnored');
 	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
 
 	// Effects
 	AstralGrasp = new class'X2Effect_AstralGrasp';
-	AstralGrasp.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	AstralGrasp.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
 	AstralGrasp.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(AstralGrasp);
 
@@ -124,10 +233,14 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	Template.ActivationSpeech = 'StunStrike';
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.CustomFireAnim = 'HL_StunStrike';
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.Hostility = eHostility_Offensive;
+	//Template.CustomFireAnim = 'HL_StunStrike';
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	Template.AdditionalAbilities.AddItem('IRI_TM_AstralGrasp_DamageLink');
 
 	return Template;
 }

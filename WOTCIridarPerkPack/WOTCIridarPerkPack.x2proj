@@ -90,6 +90,9 @@
     <Content Include="Config\Templar\XComGame.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Config\Templar\XComGameData.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Config\Templar\XComGameData_CharacterStats.ini">
       <SubType>Content</SubType>
     </Content>
@@ -138,13 +141,13 @@
     <Content Include="ContentForCook\Skirmisher\IRIThunderLancePerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIAstralGrasp.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRISoulShot2.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\Templar\IRISoulShotPerk2.upk">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="ContentForCook\Templar\IRIStunStrike.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\Templar\IRIVolt.upk">
@@ -196,6 +199,9 @@
     <Content Include="Config\Base\XComEngine.ini" />
     <Content Include="Config\Base\XComGame.ini" />
     <Content Include="ReadMe_rus.txt">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_ApplyMITV.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_Flyover.uc">
@@ -397,13 +403,22 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_AstralGraspSpiritDeath.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2CharacterTemplate_AstralGrasp.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Character_AstralGrasp.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_ApplySpiritLinkDamage.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_AstralGrasp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_AstralGraspSpirit.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_Amplify.uc">

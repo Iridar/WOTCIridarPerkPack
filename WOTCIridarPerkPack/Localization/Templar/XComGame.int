@@ -48,10 +48,7 @@ LocLongDescription="Obscure Bleach reference. Costs 1 Focus."
 LocHelpText="Obscure Bleach reference. Costs 1 Focus."
 LocPromotionPopupText="<Bullet/> Stun Strike has a <Ability:STUNSTRIKEHITCHANCE/>% chance to hit, increased by <Ability:STUNSTRIKEFOCUSHITCHANCE/>% for each Focus level.<br/><Bullet/> Stun Strike has a <Ability:STUNSTRIKEDISORIENTCHANCE/>% chance to disorient the target for each Focus level.<br/><Bullet/> Stun Strike does not end the Templar's turn, but has a <Ability:SelfCooldown/> turn cooldown.<br/>" 
 
-[IRI_TM_AstralGraspUnit X2CharacterTemplate]
-strCharacterName="Spirit Echo"
-
-[IRI_TM_AstralGrasp_DamageImmunity X2AbilityTemplate]
+[IRI_TM_AstralGrasp_Spirit X2AbilityTemplate]
 LocFriendlyName="Disembodied Spirit"
-LocLongDescription="Spirit Echo can take only mental and psionic damage."
-LocHelpText="Spirit Echo can take only mental and psionic damage."
+LocLongDescription="Spirit Echo can take only psionic damage."
+LocHelpText="Spirit Echo can take and psionic damage."

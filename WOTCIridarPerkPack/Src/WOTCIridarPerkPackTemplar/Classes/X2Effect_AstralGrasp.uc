@@ -1,9 +1,208 @@
 class X2Effect_AstralGrasp extends X2Effect_SpawnUnit;
 
-//var XComGameState_Unit TargetUnitRef;
+simulated function ModifyAbilitiesPreActivation(StateObjectReference NewUnitRef, out array<AbilitySetupData> AbilityData, XComGameState NewGameState)
+{
+	local AbilitySetupData NewData;
 
-// TODO: Override TriggerSpawnEvent and use the same character template as the enemy lol
+	NewData.TemplateName = 'IRI_TM_AstralGrasp_Spirit';
+	NewData.Template = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(NewData.TemplateName);
+	if (NewData.Template == none)
+		return;
 
+	AbilityData.AddItem(NewData);
+}
+
+// Spawn the spirit unit near the shooter.
+function vector GetSpawnLocation(const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState)
+{
+	local Vector				PreferredDirection;
+	local TTIle					FoundTile;
+	local XComWorldData			World;
+	local XComGameStateHistory	History;
+	local XComGameState_Unit	SourceUnitState;
+	local XComGameState_Unit	TargetUnitState;
+
+	History = `XCOMHISTORY;
+	World = `XWORLD;
+
+	SourceUnitState = XComGameState_Unit(History.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
+	if (SourceUnitState == none)
+	{
+		`AMLOG("ERROR :: No source unit state!");
+		return vect(0, 0, 0);
+	}
+
+	TargetUnitState = XComGameState_Unit(History.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
+	if (TargetUnitState == none)
+	{
+		`AMLOG("ERROR :: No target unit state!");
+		return World.GetPositionFromTileCoordinates(SourceUnitState.TileLocation); // Better janky than broken. assuming it would even work anyway
+	}
+
+	PreferredDirection = Normal(World.GetPositionFromTileCoordinates(TargetUnitState.TileLocation) - World.GetPositionFromTileCoordinates(SourceUnitState.TileLocation));
+
+	`AMLOG("Source unit:" @ SourceUnitState.GetFullName() @ SourceUnitState.TileLocation.X @ SourceUnitState.TileLocation.Y @ SourceUnitState.TileLocation.Z @ "Target unit:" @ TargetUnitState.GetFullName() @ TargetUnitState.TileLocation.X @ TargetUnitState.TileLocation.Y @ TargetUnitState.TileLocation.Z @ "Direction:" @ PreferredDirection);
+	
+	if (SourceUnitState.FindAvailableNeighborTileWeighted(PreferredDirection, FoundTile, IsTileValidForBind))
+	{
+		`AMLOG("SUCCESS :: Found neighbor tile:" @ FoundTile.X @ FoundTile.Y @ FoundTile.Z);
+		return World.GetPositionFromTileCoordinates(FoundTile);
+	}
+
+	// Fallback to any neighbor tile, without validation
+	if (SourceUnitState.FindAvailableNeighborTileWeighted(PreferredDirection, FoundTile))
+	{
+		`AMLOG("WARNING :: Found neighbor tile:" @ FoundTile.X @ FoundTile.Y @ FoundTile.Z @ "without validation.");
+		return World.GetPositionFromTileCoordinates(FoundTile);
+	}
+
+	// Fallback to the shooter's own tile.
+	`AMLOG("ERROR :: No neighbor tile available!");
+	return World.GetPositionFromTileCoordinates(SourceUnitState.TileLocation);
+}
+
+function OnSpawnComplete(const out EffectAppliedData ApplyEffectParameters, StateObjectReference NewUnitRef, XComGameState NewGameState, XComGameState_Effect NewEffectState)
+{
+	local XComGameState_Unit	SpawnedUnit;
+	local XComGameState_Unit	TargetUnit;
+	local XComGameState_Unit	SourceUnit;
+
+	TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit == none)
+	{
+		`AMLOG("ERROR :: No Shadowbind Target unit state!");
+		return;
+	}
+
+	SpawnedUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', NewUnitRef.ObjectID));
+	if (SpawnedUnit == none)
+	{
+		`AMLOG("ERROR :: No Shadowbind unit state!");
+		return;
+	}
+
+	SpawnedUnit.ActionPoints.Length = 0;
+
+	`AMLOG("Setting Max HP to:" @ TargetUnit.GetMaxStat(eStat_HP) @ "Current HP:" @ TargetUnit.GetCurrentStat(eStat_HP));
+
+	SpawnedUnit.SetBaseMaxStat(eStat_HP, TargetUnit.GetMaxStat(eStat_HP));
+	SpawnedUnit.SetBaseMaxStat(eStat_ShieldHP, 0);
+	SpawnedUnit.SetBaseMaxStat(eStat_ArmorMitigation, 0);
+	SpawnedUnit.SetBaseMaxStat(eStat_Defense, 0);
+	SpawnedUnit.SetBaseMaxStat(eStat_Dodge, 0);
+	SpawnedUnit.SetBaseMaxStat(eStat_SightRadius, 0);
+	SpawnedUnit.SetBaseMaxStat(eStat_Mobility, 0);
+
+	SpawnedUnit.SetCurrentStat(eStat_HP, TargetUnit.GetCurrentStat(eStat_HP));
+	SpawnedUnit.SetCurrentStat(eStat_ShieldHP, 0);
+	SpawnedUnit.SetCurrentStat(eStat_ArmorMitigation, 0);
+	SpawnedUnit.SetCurrentStat(eStat_Defense, 0);
+	SpawnedUnit.SetCurrentStat(eStat_Dodge, 0);
+	SpawnedUnit.SetCurrentStat(eStat_SightRadius, 0);
+	SpawnedUnit.SetCurrentStat(eStat_Mobility, 0);
+	SpawnedUnit.StunnedActionPoints = 2;
+
+	SpawnedUnit.SetUnitFloatValue('IRI_TM_AstralGrasp_SpiritLink', TargetUnit.ObjectID, eCleanup_BeginTactical);
+	TargetUnit.SetUnitFloatValue('IRI_TM_AstralGrasp_SpiritLink', SpawnedUnit.ObjectID, eCleanup_BeginTactical);
+	
+	// Shadow units need the anim sets of the units they copied. They are all humanoid units so this should be fine
+	// Iridar: not sure if this is still necessary
+	SpawnedUnit.ShadowUnit_CopiedUnit = TargetUnit.GetReference();
+	`XEVENTMGR.TriggerEvent('IRI_AstralGrasp_SpiritSpawned', TargetUnit, SpawnedUnit, NewGameState);
+}
+
+simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)
+{
+	local array<XComGameState_Unit>		SpawnedUnits;
+	local XComGameState_Unit			SpawnedUnit;
+	local XComGameState_Unit			TargetUnit;
+	local VisualizationActionMetadata	EmptyTrack;
+	local VisualizationActionMetadata	SpawnedUnitTrack;
+	local XComGameStateContext_Ability	AbilityContext;
+
+	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	if (AbilityContext == none)
+		return;
+
+	TargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit == none)
+		return;
+
+	FindNewlySpawnedUnit(VisualizeGameState, SpawnedUnits);
+
+	foreach SpawnedUnits(SpawnedUnit)
+	{
+		SpawnedUnitTrack = EmptyTrack;
+		SpawnedUnitTrack.StateObject_OldState = SpawnedUnit;
+		SpawnedUnitTrack.StateObject_NewState = SpawnedUnit;
+		SpawnedUnitTrack.VisualizeActor = `XCOMHISTORY.GetVisualizer(SpawnedUnit.ObjectID);
+
+		class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(SpawnedUnitTrack, AbilityContext);
+
+		// TypicalAbility_BuildVisualization doesn't call this, so do it manually.
+		AddSpawnVisualizationsToTracks(AbilityContext, SpawnedUnit, SpawnedUnitTrack, TargetUnit);
+	}
+}
+
+function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameState_Unit SpawnedUnit, out VisualizationActionMetadata SpawnedUnitTrack, XComGameState_Unit EffectTargetUnit, optional out VisualizationActionMetadata EffectTargetUnitTrack)
+{
+	local X2Action_ViperGetOverHereTarget	GetOverHereTarget;
+	local X2Action_CreateDoppelganger		CopyUnitAction;
+	local vector							NewUnitLoc;
+	local X2Action_ApplyMITV				ApplyMITV;
+	//local X2Action_PlayEffect				TetherEffect;
+	local XComGameState_Unit				TargetUnit;
+	local XComGameStateContext_Ability		AbilityContext;
+	local XComGameStateHistory				History;
+	local X2Action_PlayAnimation			PlayAnimation;
+
+	History = `XCOMHISTORY;
+	AbilityContext = XComGameStateContext_Ability(Context);
+	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+
+	// This will create the visualizer for the spawned unit, and put them on the tile they were supposed to spawn at
+	// in this case - near the shooter
+	class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context);
+
+	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context));
+	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
+	
+	//if (TargetUnit != none)
+	//{
+	//	TetherEffect = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	//	TetherEffect.EffectName = "FX_Psi_Mind_Control.P_Psi_Mind_Control_Tether_Persistent";
+	//	TetherEffect.AttachToSocketName = 'FX_Chest';
+	//	TetherEffect.TetherToSocketName = 'FX_Chest';
+	//	TetherEffect.TetherToUnit = XGUnit(TargetUnit.GetVisualizer());
+	//}
+
+	// This will copy the thrower unit's appearance and put the visualizer on top of the target pawn,
+	// which is exactly what I want
+	CopyUnitAction = X2Action_CreateDoppelganger(class'X2Action_CreateDoppelganger'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	CopyUnitAction.OriginalUnit = XGUnit(`XCOMHISTORY.GetVisualizer(EffectTargetUnit.ObjectID));
+	CopyUnitAction.ShouldCopyAppearance = true;
+	CopyUnitAction.bReplacingOriginalUnit = false;
+	CopyUnitAction.bIgnorePose = false;
+
+	// This will drag the spawned pawn from the target unit to the tile near the shooter
+	GetOverHereTarget = X2Action_ViperGetOverHereTarget(class'X2Action_ViperGetOverHereTarget'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(XComGameState_Unit(SpawnedUnitTrack.StateObject_NewState).TileLocation);
+	GetOverHereTarget.SetDesiredLocation(NewUnitLoc, XGUnit(SpawnedUnitTrack.VisualizeActor));
+	
+	// Play the start stun animation
+	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	PlayAnimation.Params.AnimName = 'HL_StunnedStart';
+	PlayAnimation.bResetWeaponsToDefaultSockets = true;
+
+	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	PlayAnimation.Params.AnimName = 'HL_StunnedIdle';
+	PlayAnimation.bResetWeaponsToDefaultSockets = true;
+	//PlayAnimation.Params.Looping = true;
+}
+
+// ------------------------------------------------------------------
+
+// Iridar: use the target unit's own char template, otherwise identical.
 function TriggerSpawnEvent(const out EffectAppliedData ApplyEffectParameters, XComGameState_Unit EffectTargetUnit, XComGameState NewGameState, XComGameState_Effect EffectGameState)
 {
 	local XComGameState_Unit SourceUnitState, TargetUnitState, SpawnedUnit, CopiedUnit, ModifiedEffectTargetUnit;
@@ -42,7 +241,7 @@ function TriggerSpawnEvent(const out EffectAppliedData ApplyEffectParameters, XC
 	// Spawn the new unit
 	NewUnitRef = SpawnManager.CreateUnit(
 		GetSpawnLocation(ApplyEffectParameters, NewGameState), 
-		TargetUnitState.GetMyTemplateName(), 
+		TargetUnitState.GetMyTemplateName(), // Iridar: use the target unit's own template.
 		GetTeam(ApplyEffectParameters), 
 		false, 
 		false, 
@@ -74,220 +273,48 @@ function TriggerSpawnEvent(const out EffectAppliedData ApplyEffectParameters, XC
 	OnSpawnComplete(ApplyEffectParameters, NewUnitRef, NewGameState, EffectGameState);
 }
 
-// Spawn the spirit unit near the shooter.
-function vector GetSpawnLocation(const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState)
+static private function bool IsTileValidForBind(const out TTile TileOption, const out TTile SourceTile, const out Object PassedObject)
 {
-	local Vector				PreferredDirection;
-	local TTIle					FoundTile;
-	local XComWorldData			World;
-	local XComGameStateHistory	History;
-	local XComGameState_Unit	SourceUnitState;
-	local XComGameState_Unit	TargetUnitState;
-
-	History = `XCOMHISTORY;
+	local XComWorldData World;
+	local GameRulesCache_VisibilityInfo OutVisibilityInfo;
+	local vector SourceLoc, TargetLoc;
+	local ECoverType Cover;
+	local float TargetCoverAngle;
 	World = `XWORLD;
-
-	SourceUnitState = XComGameState_Unit(History.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
-	if (SourceUnitState == none)
+	// Match the tile visibility condition checks from the Bind ability template as much as possible. (X2Ability_Viper::CreateBindAbility)
+	//   Actual conditions from Bind ability cannot be directly tested without the units in place 
+	//	 i.e. gameplay visibility not tested via CanSeeTileToTile.
+	if( World.CanSeeTileToTile(SourceTile, TileOption, OutVisibilityInfo) ) // Visible? 
 	{
-		`AMLOG("ERROR :: No source unit state!");
-		return vect(0, 0, 0);
+		if( OutVisibilityInfo.bVisibleFromDefault ) // No peeking!
+		{
+			// No high cover allowed for bind.  CanSeeTileToTile does not update TargetCover either, so we must check this manually.
+			SourceLoc = World.GetPositionFromTileCoordinates(SourceTile);
+			TargetLoc = World.GetPositionFromTileCoordinates(TileOption);
+			Cover = World.GetCoverTypeForTarget(SourceLoc, TargetLoc, TargetCoverAngle);
+			if( Cover != CT_Standing )
+			{
+				return true;
+			}
+		}
 	}
-
-	TargetUnitState = XComGameState_Unit(History.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
-	if (TargetUnitState == none)
-	{
-		`AMLOG("ERROR :: No target unit state!");
-		return World.GetPositionFromTileCoordinates(SourceUnitState.TileLocation); // Better janky than broken. assuming it would even work anyway
-	}
-	
-	PreferredDirection = Normal(World.GetPositionFromTileCoordinates(TargetUnitState.TileLocation) - World.GetPositionFromTileCoordinates(SourceUnitState.TileLocation));
-
-	if (!SourceUnitState.FindAvailableNeighborTileWeighted(PreferredDirection, FoundTile))
-	{
-		`AMLOG("ERROR :: No neighbor tile available!");
-		return World.GetPositionFromTileCoordinates(SourceUnitState.TileLocation);
-	}
-		
-	`AMLOG("SUCCESS :: Found neighbor tile:" @ FoundTile.X @ FoundTile.Y @ FoundTile.Z);
-
-	return World.GetPositionFromTileCoordinates(FoundTile);
+	return false;
 }
 
-// Get the team that this unit should be added to
+// Spawn the spirit on the same team as the target.
 function ETeam GetTeam(const out EffectAppliedData ApplyEffectParameters)
 {
 	return GetTargetUnitsTeam(ApplyEffectParameters, true);
-}
-
-function OnSpawnComplete(const out EffectAppliedData ApplyEffectParameters, StateObjectReference NewUnitRef, XComGameState NewGameState, XComGameState_Effect NewEffectState)
-{
-	local XComGameState_Unit	SpawnedUnit;
-	local XComGameState_Unit	TargetUnit;
-	//local EffectAppliedData		NewEffectParams;
-	//local X2Effect ShadowboundLinkEffect;
-	local X2EventManager		EventMgr;
-	local Object				EffectObj;
-
-	TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID));
-	if (TargetUnit == none)
-	{
-		`AMLOG("ERROR :: No Shadowbind Target unit state!");
-		return;
-	}
-
-	SpawnedUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', NewUnitRef.ObjectID));
-	if (SpawnedUnit == none)
-	{
-		`AMLOG("ERROR :: No Shadowbind unit state!");
-		return;
-	}
-
-	SpawnedUnit.ActionPoints.Length = 0;
-
-	`AMLOG("Setting Max HP to:" @ TargetUnit.GetMaxStat(eStat_HP) @ "Current HP:" @ TargetUnit.GetCurrentStat(eStat_HP));
-
-	SpawnedUnit.SetBaseMaxStat(eStat_HP, TargetUnit.GetMaxStat(eStat_HP));
-	SpawnedUnit.SetCurrentStat(eStat_HP, TargetUnit.GetCurrentStat(eStat_HP));
-
-	// Link the Source and Shadow units
-	//NewEffectParams = ApplyEffectParameters;
-	//NewEffectParams.EffectRef.ApplyOnTickIndex = INDEX_NONE;
-	//NewEffectParams.EffectRef.LookupType = TELT_AbilityTargetEffects;
-	//NewEffectParams.EffectRef.SourceTemplateName = class'X2Ability_Spectre'.default.ShadowboundLinkName;
-	//NewEffectParams.EffectRef.TemplateEffectLookupArrayIndex = 0;
-	//NewEffectParams.TargetStateObjectRef = SpawnedUnit.GetReference();
-	//
-	//ShadowboundLinkEffect = class'X2Effect'.static.GetX2Effect(NewEffectParams.EffectRef);
-	//if (ShadowboundLinkEffect != none)
-	//{
-	//	ShadowboundLinkEffect.ApplyEffect(NewEffectParams, SpawnedUnit, NewGameState);
-	//}
-	//else `AMLOG("ERROR :: No Shadowbind Link effect!");
-
-	// Shadow units need the anim sets of the units they copied. They are all humanoid units so this should be fine
-	SpawnedUnit.ShadowUnit_CopiedUnit = TargetUnit.GetReference();
-
-	//TargetUnitRef = TargetUnit;
-
-	//X2CharacterTemplate_AstralGrasp(SpawnedUnit.GetMyTemplate()).GetPawnArchetypeStringFn = GetPawnArchetypeString;
-	
-	//SpawnedUnit.GetMyTemplate().strTargetIconImage = TargetUnit.GetMyTemplate().strTargetIconImage;
-
-	EventMgr = `XEVENTMGR;
-	EffectObj = NewEffectState;
-	EventMgr.RegisterForEvent(EffectObj, 'UnitDied', ShadowbindUnitDeathListener, ELD_OnStateSubmitted,, SpawnedUnit,, NewEffectState);
-}
-/*
-simulated function string GetPawnArchetypeString(XComGameState_Unit kUnit, optional const XComGameState_Unit ReanimatedFromUnit = None)
-{
-	//local XComGameState_Unit SpawnedUnit;
-	//local XComGameState_Unit TargetUnit;
-	//
-	//TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(SpawnedUnit.ShadowUnit_CopiedUnit.ObjectID));
-
-	`AMLOG("I'm reanimated from unit:" @ TargetUnitRef.GetFullName());
-	
-	return TargetUnitRef.GetMyTemplate().GetPawnArchetypeString(TargetUnitRef);
-}
-*/
-// Copied from X2Effect_Executed
-static private function EventListenerReturn ShadowbindUnitDeathListener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
-{
-	local XComGameState_Effect EffectState;
-	local XComGameState_Unit TargetUnit;
-	local int KillAmount;
-	local bool bForceBleedOut;
-	local XComGameState NewGameState;
-
-	EffectState = XComGameState_Effect(CallbackData);
-	if (EffectState == none)
-		return ELR_NoInterrupt;
-
-	TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID));
-	if (TargetUnit == none)
-		return ELR_NoInterrupt;
-
-	// If a unit is bleeding out, kill it
-	// If a unit is alive AND cannot become bleeding out, kill it
-	// if a unit is alive AND can become bleeding out, set it to bleeding out
-	KillAmount = TargetUnit.GetCurrentStat(eStat_HP) + TargetUnit.GetCurrentStat(eStat_ShieldHP);
-
-	if (!TargetUnit.IsBleedingOut() && TargetUnit.CanBleedOut())
-	{
-		bForceBleedOut = true;
-	}
-
-	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Astral Grasp Damage");
-	TargetUnit.TakeEffectDamage(EffectState.GetX2Effect(), KillAmount, 0, 0, EffectState.ApplyEffectParameters, NewGameState, bForceBleedOut);
-	`GAMERULES.SubmitGameState(NewGameState);
-
-	return ELR_NoInterrupt;
-}
-
-simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)
-{
-	local array<XComGameState_Unit>		SpawnedUnits;
-	local XComGameState_Unit			SpawnedUnit;
-	local XComGameState_Unit			TargetUnit;
-	local VisualizationActionMetadata	EmptyTrack;
-	local VisualizationActionMetadata	SpawnedUnitTrack;
-	local XComGameStateContext_Ability	AbilityContext;
-
-	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
-	if (AbilityContext == none)
-		return;
-
-	TargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
-	if (TargetUnit == none)
-		return;
-
-	FindNewlySpawnedUnit(VisualizeGameState, SpawnedUnits);
-
-	foreach SpawnedUnits(SpawnedUnit)
-	{
-		SpawnedUnitTrack = EmptyTrack;
-		SpawnedUnitTrack.StateObject_OldState = SpawnedUnit;
-		SpawnedUnitTrack.StateObject_NewState = SpawnedUnit;
-		SpawnedUnitTrack.VisualizeActor = `XCOMHISTORY.GetVisualizer(SpawnedUnit.ObjectID);
-
-		class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(SpawnedUnitTrack, AbilityContext);
-
-		AddSpawnVisualizationsToTracks(AbilityContext, SpawnedUnit, SpawnedUnitTrack, TargetUnit);
-	}
-}
-
-function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameState_Unit SpawnedUnit, out VisualizationActionMetadata SpawnedUnitTrack,
-										XComGameState_Unit EffectTargetUnit, optional out VisualizationActionMetadata EffectTargetUnitTrack )
-{
-
-	local X2Action_CreateDoppelganger CopyUnitAction;
-	local XComGameStateHistory History;
-
-	History = `XCOMHISTORY;
-
-	// Copy the thrower unit's appearance to the mimic
-	CopyUnitAction = X2Action_CreateDoppelganger(class'X2Action_CreateDoppelganger'.static.AddToVisualizationTree(SpawnedUnitTrack, Context));
-	CopyUnitAction.OriginalUnit = XGUnit(History.GetVisualizer(EffectTargetUnit.ObjectID));
-	CopyUnitAction.ShouldCopyAppearance = true;
-	CopyUnitAction.bReplacingOriginalUnit = false;
-	CopyUnitAction.bIgnorePose = false;
-
-	//class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context);
-
-	// TODO: visualize pull
-	// TODO: Apply MITV
 }
 
 
 defaultproperties
 {
 	DamageTypes(0) = "Psi"
-	//UnitToSpawnName = "IRI_TM_AstralGraspUnit"
 	bCopyTargetAppearance = false
-	bKnockbackAffectsSpawnLocation = true
+	bKnockbackAffectsSpawnLocation = false
 	EffectName = "IRI_X2Effect_AstralGrasp"
-	bCopyReanimatedFromUnit = false // don't need to copy inventory, abilities, etc.
+	bCopyReanimatedFromUnit = true // don't need to copy inventory, abilities, etc.
 	//bCopyReanimatedStatsFromUnit=true // apparently not used by the code?
 	bSetProcessedScamperAs = true
 }
