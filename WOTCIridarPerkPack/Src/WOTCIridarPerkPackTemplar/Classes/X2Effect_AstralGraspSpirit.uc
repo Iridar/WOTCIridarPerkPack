@@ -10,12 +10,12 @@ function ModifyTurnStartActionPoints(XComGameState_Unit UnitState, out array<nam
 {
 	ActionPoints.Length = 0;
 }
-
+/*
 function bool ProvidesDamageImmunity(XComGameState_Effect EffectState, name DamageType)
 {
 	// Only psi damage should be allowed, but then it would block Rend too.
 	return DamageType != 'Psi' && DamageType != 'Melee';
-}
+}*/
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
@@ -245,7 +245,7 @@ simulated function AddX2ActionsForVisualization_Sync(XComGameState VisualizeGame
 	//	return;
 	//}
 
-	AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, 'AA_Success');
+	//AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, 'AA_Success');
 	
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext()));
 	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
@@ -319,7 +319,7 @@ defaultproperties
 	DuplicateResponse = eDupe_Ignore
 	bRemoveWhenSourceDies = false
 	bRemoveWhenTargetDies = true
-	bIsImpairing = true
-	CustomIdleOverrideAnim="HL_StunnedIdle"
-	StunStopAnimName="HL_StunnedStop"
+	//bIsImpairing = true
+	//CustomIdleOverrideAnim="HL_StunnedIdle"
+	//StunStopAnimName="HL_StunnedStop"
 }

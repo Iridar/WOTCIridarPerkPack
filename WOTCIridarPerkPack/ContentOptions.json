@@ -12,6 +12,8 @@
 		"IRIPredatorStrikePerk",
 		"IRIThunderLancePerk",
 		"IRIPerkPackUI",
+		"IRIAstralGraspPerk",
+		"IRIAstralGraspSpirit",
 		"IRIZephyrStrikePerkOnly"
     ]
 }

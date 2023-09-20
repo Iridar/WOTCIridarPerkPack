@@ -144,6 +144,12 @@
     <Content Include="ContentForCook\Templar\IRIAstralGrasp.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIAstralGraspPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Templar\IRIAstralGraspSpirit.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRISoulShot2.upk">
       <SubType>Content</SubType>
     </Content>
@@ -428,6 +434,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Reflect.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Stunned_AstralGrasp.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Templar_SoulShot_ArrowHit.uc">

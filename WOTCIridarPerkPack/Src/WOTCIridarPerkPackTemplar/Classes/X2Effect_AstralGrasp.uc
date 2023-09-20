@@ -5,6 +5,8 @@ simulated function ModifyAbilitiesPreActivation(StateObjectReference NewUnitRef,
 	local AbilitySetupData NewData;
 	local AbilitySetupData EmptyData;
 
+	AbilityData.Length = 0;
+
 	NewData.TemplateName = 'IRI_TM_AstralGrasp_Spirit';
 	NewData.Template = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(NewData.TemplateName);
 	if (NewData.Template != none)
@@ -109,7 +111,7 @@ function OnSpawnComplete(const out EffectAppliedData ApplyEffectParameters, Stat
 	SpawnedUnit.SetCurrentStat(eStat_Dodge, 0);
 	SpawnedUnit.SetCurrentStat(eStat_SightRadius, 0);
 	SpawnedUnit.SetCurrentStat(eStat_Mobility, 0);
-	SpawnedUnit.StunnedActionPoints = 2;
+	//SpawnedUnit.StunnedActionPoints = 2;
 
 	SpawnedUnit.SetUnitFloatValue('IRI_TM_AstralGrasp_SpiritLink', TargetUnit.ObjectID, eCleanup_BeginTactical);
 	TargetUnit.SetUnitFloatValue('IRI_TM_AstralGrasp_SpiritLink', SpawnedUnit.ObjectID, eCleanup_BeginTactical);
@@ -166,6 +168,7 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	local X2Action_PlayAnimation			PlayAnimation;
 	local X2Action							ExitCover;
 	local X2Action_ViperGetOverHere			FireAction;
+	local X2Action_MarkerNamed				NamedMarker;
 
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(Context);
@@ -203,6 +206,12 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
 
+	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	NamedMarker.SetName("IRI_AstralGrasp_MarkerStart");
+
+	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	NamedMarker.SetName("IRI_AstralGrasp_MarkerEnd");
+
 	// This will drag the spawned pawn from the target unit to the tile near the shooter
 	GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(XComGameState_Unit(SpawnedUnitTrack.StateObject_NewState).TileLocation);
@@ -210,13 +219,13 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	
 	
 	// Play the start stun animation
-	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
-	PlayAnimation.Params.AnimName = 'HL_StunnedStart';
-	PlayAnimation.bResetWeaponsToDefaultSockets = true;
-
-	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
-	PlayAnimation.Params.AnimName = 'HL_StunnedIdle';
-	PlayAnimation.bResetWeaponsToDefaultSockets = true;
+	//PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	//PlayAnimation.Params.AnimName = 'HL_StunnedStart';
+	//PlayAnimation.bResetWeaponsToDefaultSockets = true;
+	//
+	//PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	//PlayAnimation.Params.AnimName = 'HL_StunnedIdle';
+	//PlayAnimation.bResetWeaponsToDefaultSockets = true;
 	//PlayAnimation.Params.Looping = true;
 }
 

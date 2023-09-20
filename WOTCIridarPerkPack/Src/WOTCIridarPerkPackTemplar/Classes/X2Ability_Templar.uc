@@ -61,6 +61,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	local X2AbilityTrigger_EventListener	Trigger;
 	local X2Effect_Persistent				PerkEffect;
 	local X2Effect_AdditionalAnimSets		AnimSetEffect;
+	local X2Effect							StunnedEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_Spirit');
 
@@ -76,7 +77,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	//Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
 
 	Trigger = new class'X2AbilityTrigger_EventListener';	
-	Trigger.ListenerData.EventID = 'OnUnitBeginPlay';
+	Trigger.ListenerData.EventID = 'IRI_AstralGrasp_SpiritSpawned';
 	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
 	Trigger.ListenerData.Filter = eFilter_Unit;
 	Trigger.ListenerData.Priority = 100;
@@ -107,10 +108,15 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	AnimSetEffect.bRemoveWhenSourceDies = false;
 	Template.AddShooterEffect(AnimSetEffect);
 
+	StunnedEffect = class'X2Effect_Stunned_AstralGrasp'.static.CreateStunnedStatusEffect(2, 100);
+	StunnedEffect.DamageTypes.Length = 0;
+	StunnedEffect.DamageTypes.AddItem('Psi');
+	Template.AddShooterEffect(StunnedEffect);
+
 	PerkEffect = new class'X2Effect_Persistent';
 	PerkEffect.BuildPersistentEffect(1, true);
 	PerkEffect.bRemoveWhenTargetDies = true;
-	PerkEffect.bRemoveWhenSourceDies = true;
+	PerkEffect.bRemoveWhenSourceDies = false;
 	PerkEffect.EffectName = class'X2Ability_AdvPriest'.default.HolyWarriorEffectName;
 	Template.AddTargetEffect(PerkEffect);
 
@@ -119,9 +125,58 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	Template.bUniqueSource = true;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.MergeVisualizationFn = AstralGrasp_Spirit_MergeVisualization;
 	Template.Hostility = eHostility_Neutral;
 
 	return Template;
+}
+
+
+static private function AstralGrasp_Spirit_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
+{
+	local X2Action_Death PriestDeathAction;
+	local X2Action BuildTreeStartNode, BuildTreeEndNode;
+	local XComGameStateVisualizationMgr VisMgr;
+	local XComGameStateContext_Ability AbilityContext;
+	local array<X2Action>		FoundActions;
+	local X2Action				FoundAction;
+	local X2Action_MarkerNamed	NamedMarker;
+	local X2Action				StartAction;
+	local X2Action				EndAction;
+
+	local X2Action_MarkerTreeInsertBegin MarkerStart;
+	local X2Action_MarkerTreeInsertEnd MarkerEnd;
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+	AbilityContext = XComGameStateContext_Ability(BuildTree.StateChangeContext);
+
+	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerNamed', FoundActions,, AbilityContext.InputContext.SourceObject.ObjectID);
+
+	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
+	MarkerEnd = X2Action_MarkerTreeInsertEnd(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertEnd'));
+
+	foreach FoundActions(FoundAction)
+	{
+		NamedMarker = X2Action_MarkerNamed(FoundAction);
+		switch (NamedMarker.MarkerName)
+		{
+			case 'IRI_AstralGrasp_MarkerStart':
+				StartAction = NamedMarker;
+				break;
+			case 'IRI_AstralGrasp_MarkerEnd':
+				EndAction = NamedMarker;
+				break;
+			default:
+				break;
+		}
+	}
+	if (StartAction == none || EndAction == none)
+	{
+		XComGameStateContext_Ability(BuildTree.StateChangeContext).SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
+		return;
+	}
+
+	VisMgr.InsertSubtree(MarkerStart, MarkerEnd, StartAction);
 }
 
 static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
@@ -129,7 +184,7 @@ static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Ob
 	local XComGameState_Unit	SpawnedUnit;
 	local XComGameState_Unit	TargetUnit;
 	local XComGameState_Ability	TriggerAbility;
-	local UnitValue				UV;
+	//local UnitValue				UV;
 
 	`AMLOG("Running");
 
@@ -137,10 +192,10 @@ static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Ob
 	if (SpawnedUnit == none)
 		return ELR_NoInterrupt;
 
-	if (!SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
-		return ELR_NoInterrupt;
+	//if (!SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
+	//	return ELR_NoInterrupt;
 
-	TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UV.fValue));
+	TargetUnit = XComGameState_Unit(EventData);
 	if (TargetUnit == none)
 		return ELR_NoInterrupt;
 
@@ -211,10 +266,11 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 
 	MentalImmunityCondition = new class'X2Condition_UnitImmunities';
 	MentalImmunityCondition.ExcludeDamageTypes.AddItem('Mental');
+	MentalImmunityCondition.ExcludeDamageTypes.AddItem('Psi');
 	Template.AbilityTargetConditions.AddItem(MentalImmunityCondition);
 
 	UnitEffectsCondition = new class'X2Condition_UnitEffects';
-	UnitEffectsCondition.AddExcludeEffect('IRI_TM_AstralGrasp_Effect', 'AA_DuplicateEffectIgnored');
+	UnitEffectsCondition.AddExcludeEffect('IRI_X2Effect_AstralGrasp', 'AA_DuplicateEffectIgnored');
 	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
 
 	// Effects
