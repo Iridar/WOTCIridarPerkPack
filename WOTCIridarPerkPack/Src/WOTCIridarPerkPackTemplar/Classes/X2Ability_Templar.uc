@@ -15,40 +15,59 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
-	//Templates.AddItem(IRI_TM_AstralGrasp_DamageLink());
+	Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
 }
 
-static private function X2AbilityTemplate IRI_TM_AstralGrasp_DamageLink()
+static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
 {
 	local X2AbilityTemplate Template;
+	local X2AbilityTrigger_EventListener DeathEventListener;
+	local X2Condition_UnitEffectsWithAbilitySource TargetEffectCondition;
+	local X2Effect_HolyWarriorDeath HolyWarriorDeathEffect;
+	local X2Effect_RemoveEffects RemoveEffects;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_DamageLink');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritDeath');
 
-	// Icon Setup
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
-	SetHidden(Template);
-	
-	// Targeting and Triggering
+	Template.bDontDisplayInAbilitySummary = true;
+	Template.AbilitySourceName = 'eAbilitySource_Standard';
+	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_NeverShow;
+	Template.Hostility = eHostility_Neutral;
+
 	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
-	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
-	
-	// Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	//Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
-	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	Template.AbilityTargetStyle = default.SelfTarget;
 
-	Template.AddTargetEffect(new class'X2Effect_ApplySpiritLinkDamage');
+	// This ability fires when the unit dies
+	DeathEventListener = new class'X2AbilityTrigger_EventListener';
+	DeathEventListener.ListenerData.Deferral = ELD_OnStateSubmitted;
+	DeathEventListener.ListenerData.EventID = 'UnitDied';
+	DeathEventListener.ListenerData.Filter = eFilter_Unit;
+	DeathEventListener.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_SelfWithAdditionalTargets;
+	Template.AbilityTriggers.AddItem(DeathEventListener);
 
-	Template.bShowActivation = false;
-	Template.bSkipFireAction = true;
-	Template.bUniqueSource = true;
+	Template.AbilityMultiTargetStyle = new class'X2AbilityMultiTarget_AllUnits';
+
+	TargetEffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	TargetEffectCondition.AddRequireEffect('IRI_AstralGrasp_SpiritKillEffect', 'AA_UnitIsImmune');
+	Template.AbilityMultiTargetConditions.AddItem(TargetEffectCondition);
+
+	HolyWarriorDeathEffect = new class'X2Effect_HolyWarriorDeath';
+	HolyWarriorDeathEffect.DelayTimeS = class'X2Ability_AdvPriest'.default.HOLYWARRIOR_DEATH_DELAY_S;
+	Template.AddMultiTargetEffect(HolyWarriorDeathEffect);
+
+	RemoveEffects = new class'X2Effect_RemoveEffects';
+	RemoveEffects.EffectNamesToRemove.AddItem('IRI_AstralGrasp_SpiritKillEffect');
+	Template.AddMultiTargetEffect(RemoveEffects);
+
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.Hostility = eHostility_Neutral;
+	Template.MergeVisualizationFn = class'X2Ability_AdvPriest'.static.HolyWarriorDeath_MergeVisualization;
+	
+	Template.CinescriptCameraType = "HolyWarrior_Death";
+
+	Template.bSkipFireAction = true;
+	Template.FrameAbilityCameraType = eCameraFraming_Never;
 
 	return Template;
 }
@@ -117,7 +136,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	PerkEffect.BuildPersistentEffect(1, true);
 	PerkEffect.bRemoveWhenTargetDies = true;
 	PerkEffect.bRemoveWhenSourceDies = false;
-	PerkEffect.EffectName = class'X2Ability_AdvPriest'.default.HolyWarriorEffectName;
+	PerkEffect.EffectName = 'IRI_AstralGrasp_SpiritKillEffect';
 	Template.AddTargetEffect(PerkEffect);
 
 	Template.bShowActivation = false;

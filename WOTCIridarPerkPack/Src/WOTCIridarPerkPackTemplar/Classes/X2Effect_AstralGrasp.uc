@@ -15,7 +15,7 @@ simulated function ModifyAbilitiesPreActivation(StateObjectReference NewUnitRef,
 	}
 
 	NewData = EmptyData;
-	NewData.TemplateName = 'HolyWarriorDeath';
+	NewData.TemplateName = 'IRI_TM_AstralGrasp_SpiritDeath';
 	NewData.Template = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(NewData.TemplateName);
 	if (NewData.Template != none)
 	{

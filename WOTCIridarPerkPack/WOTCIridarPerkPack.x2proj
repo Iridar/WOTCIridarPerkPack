@@ -150,6 +150,9 @@
     <Content Include="ContentForCook\Templar\IRIAstralGraspSpirit.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIAstralGraspSpiritDeathPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRISoulShot2.upk">
       <SubType>Content</SubType>
     </Content>
