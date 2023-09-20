@@ -269,10 +269,10 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 	local X2Action_ApplyMITV	ApplyMITV;
 	local X2Action_TimedWait	TimedWait;
 	local XComGameState_Unit	SpawnedUnit;
-	local XComGameState_Unit	TargetUnit;
+	//local XComGameState_Unit	TargetUnit;
 	local X2Action_PlayAnimation PlayAnimation;
 	//local X2Action_PlayEffect	TetherEffect;
-	local UnitValue				UV;
+	//local UnitValue				UV;
 	
 	
 	SpawnedUnit = XComGameState_Unit(ActionMetadata.StateObject_NewState);

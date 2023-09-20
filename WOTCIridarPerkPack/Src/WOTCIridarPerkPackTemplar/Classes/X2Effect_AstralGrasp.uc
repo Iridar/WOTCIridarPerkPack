@@ -3,13 +3,22 @@ class X2Effect_AstralGrasp extends X2Effect_SpawnUnit;
 simulated function ModifyAbilitiesPreActivation(StateObjectReference NewUnitRef, out array<AbilitySetupData> AbilityData, XComGameState NewGameState)
 {
 	local AbilitySetupData NewData;
+	local AbilitySetupData EmptyData;
 
 	NewData.TemplateName = 'IRI_TM_AstralGrasp_Spirit';
 	NewData.Template = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(NewData.TemplateName);
-	if (NewData.Template == none)
-		return;
+	if (NewData.Template != none)
+	{
+		AbilityData.AddItem(NewData);
+	}
 
-	AbilityData.AddItem(NewData);
+	NewData = EmptyData;
+	NewData.TemplateName = 'HolyWarriorDeath';
+	NewData.Template = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(NewData.TemplateName);
+	if (NewData.Template != none)
+	{
+		AbilityData.AddItem(NewData);
+	}
 }
 
 // Spawn the spirit unit near the shooter.
@@ -65,7 +74,7 @@ function OnSpawnComplete(const out EffectAppliedData ApplyEffectParameters, Stat
 {
 	local XComGameState_Unit	SpawnedUnit;
 	local XComGameState_Unit	TargetUnit;
-	local XComGameState_Unit	SourceUnit;
+	//local XComGameState_Unit	SourceUnit;
 
 	TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID));
 	if (TargetUnit == none)
@@ -137,7 +146,7 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 		SpawnedUnitTrack.StateObject_NewState = SpawnedUnit;
 		SpawnedUnitTrack.VisualizeActor = `XCOMHISTORY.GetVisualizer(SpawnedUnit.ObjectID);
 
-		class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(SpawnedUnitTrack, AbilityContext);
+		//class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(SpawnedUnitTrack, AbilityContext);
 
 		// TypicalAbility_BuildVisualization doesn't call this, so do it manually.
 		AddSpawnVisualizationsToTracks(AbilityContext, SpawnedUnit, SpawnedUnitTrack, TargetUnit);
@@ -146,35 +155,42 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 
 function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameState_Unit SpawnedUnit, out VisualizationActionMetadata SpawnedUnitTrack, XComGameState_Unit EffectTargetUnit, optional out VisualizationActionMetadata EffectTargetUnitTrack)
 {
-	local X2Action_ViperGetOverHereTarget	GetOverHereTarget;
+	local VisualizationActionMetadata		ShooterMetadata;
+	local X2Action_AstralGrasp				GetOverHereTarget;
 	local X2Action_CreateDoppelganger		CopyUnitAction;
 	local vector							NewUnitLoc;
 	local X2Action_ApplyMITV				ApplyMITV;
-	//local X2Action_PlayEffect				TetherEffect;
-	local XComGameState_Unit				TargetUnit;
+	//local XComGameState_Unit				TargetUnit;
 	local XComGameStateContext_Ability		AbilityContext;
 	local XComGameStateHistory				History;
 	local X2Action_PlayAnimation			PlayAnimation;
+	local X2Action							ExitCover;
+	local X2Action_ViperGetOverHere			FireAction;
 
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(Context);
-	TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	//TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+
+	// TRACK FOR THE SHOOTER
+
+	ShooterMetadata.StateObject_OldState = History.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID);
+	ShooterMetadata.StateObject_NewState = Context.AssociatedState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID);
+	ShooterMetadata.VisualizeActor = History.GetVisualizer(AbilityContext.InputContext.SourceObject.ObjectID);
+
+	class'X2Action_WaitForAbilityEffect'.static.AddToVisualizationTree(ShooterMetadata, Context);
+	
+	ExitCover = class'X2Action_ExitCover'.static.AddToVisualizationTree(ShooterMetadata, Context, false, ShooterMetadata.LastActionAdded);
+	FireAction = X2Action_ViperGetOverHere(class'X2Action_ViperGetOverHere'.static.AddToVisualizationTree(ShooterMetadata, Context, false, ShooterMetadata.LastActionAdded));
+	FireAction.StartAnimName = 'NO_AstralGrasp_Start';
+	FireAction.StopAnimName = 'NO_AstralGrasp_Stop';
+	FireAction.SetFireParameters(true, SpawnedUnit.ObjectID);
+	class'X2Action_EnterCover'.static.AddToVisualizationTree(ShooterMetadata, Context, false, ShooterMetadata.LastActionAdded);
+
+	// TRACK FOR THE SPAWNED UNIT
 
 	// This will create the visualizer for the spawned unit, and put them on the tile they were supposed to spawn at
 	// in this case - near the shooter
-	class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context);
-
-	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context));
-	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
-	
-	//if (TargetUnit != none)
-	//{
-	//	TetherEffect = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
-	//	TetherEffect.EffectName = "FX_Psi_Mind_Control.P_Psi_Mind_Control_Tether_Persistent";
-	//	TetherEffect.AttachToSocketName = 'FX_Chest';
-	//	TetherEffect.TetherToSocketName = 'FX_Chest';
-	//	TetherEffect.TetherToUnit = XGUnit(TargetUnit.GetVisualizer());
-	//}
+	class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, ExitCover);
 
 	// This will copy the thrower unit's appearance and put the visualizer on top of the target pawn,
 	// which is exactly what I want
@@ -184,10 +200,14 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	CopyUnitAction.bReplacingOriginalUnit = false;
 	CopyUnitAction.bIgnorePose = false;
 
+	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
+
 	// This will drag the spawned pawn from the target unit to the tile near the shooter
-	GetOverHereTarget = X2Action_ViperGetOverHereTarget(class'X2Action_ViperGetOverHereTarget'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(XComGameState_Unit(SpawnedUnitTrack.StateObject_NewState).TileLocation);
 	GetOverHereTarget.SetDesiredLocation(NewUnitLoc, XGUnit(SpawnedUnitTrack.VisualizeActor));
+	
 	
 	// Play the start stun animation
 	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));

@@ -403,6 +403,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Ability_Templar.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_AstralGrasp.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_AstralGraspSpiritDeath.uc">
       <SubType>Content</SubType>
     </Content>

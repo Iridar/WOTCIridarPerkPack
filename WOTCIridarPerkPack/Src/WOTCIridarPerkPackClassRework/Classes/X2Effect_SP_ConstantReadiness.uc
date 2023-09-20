@@ -35,7 +35,6 @@ static private function EventListenerReturn TurnEndListener(Object EventData, Ob
 	local XComGameState_Effect	EffectState;
 	local XComGameState_Unit	UnitState;
 	local UnitValue				AttacksThisTurn;
-	local bool					GotValue;
 	local StateObjectReference	AbilityRef;
 	local XComGameState_Ability	OverwatchAbilityState;
 	local XComGameStateHistory	History;
@@ -54,7 +53,7 @@ static private function EventListenerReturn TurnEndListener(Object EventData, Ob
 	if (UnitState == none)
 		return ELR_NoInterrupt;
 		
-	GotValue = UnitState.GetUnitValue('AttacksThisTurn', AttacksThisTurn);
+	UnitState.GetUnitValue('AttacksThisTurn', AttacksThisTurn);
 	if (AttacksThisTurn.fValue != 0)
 		return ELR_NoInterrupt;
 

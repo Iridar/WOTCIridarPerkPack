@@ -15,7 +15,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
-	Templates.AddItem(IRI_TM_AstralGrasp_DamageLink());
+	//Templates.AddItem(IRI_TM_AstralGrasp_DamageLink());
 
 	return Templates;
 }
@@ -73,7 +73,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTargetStyle = default.SimpleSingleTarget;
-	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+	//Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
 
 	Trigger = new class'X2AbilityTrigger_EventListener';	
 	Trigger.ListenerData.EventID = 'OnUnitBeginPlay';
@@ -85,15 +85,12 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	
 	// Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	//Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 
 	// This will make the Astral Grasped unit immune to all damage except mental and psionic
 	Effect = new class'X2Effect_AstralGraspSpirit';
 	Effect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
-	//Effect.ImmueTypesAreInclusive = false;
-	//Effect.ImmuneTypes.AddItem('Mental');
-	//Effect.ImmuneTypes.AddItem('Psi');
-	Effect.EffectName = 'IRI_TM_AstralGrasp_Spirit';
+	Effect.EffectName = 'IRI_TM_AstralGrasp_SpiritLink';
 	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddShooterEffect(Effect);
 
@@ -111,8 +108,10 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	Template.AddShooterEffect(AnimSetEffect);
 
 	PerkEffect = new class'X2Effect_Persistent';
-	PerkEffect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
-	PerkEffect.EffectName = 'IRI_TM_AstralGrasp_PerkEffect';
+	PerkEffect.BuildPersistentEffect(1, true);
+	PerkEffect.bRemoveWhenTargetDies = true;
+	PerkEffect.bRemoveWhenSourceDies = true;
+	PerkEffect.EffectName = class'X2Ability_AdvPriest'.default.HolyWarriorEffectName;
 	Template.AddTargetEffect(PerkEffect);
 
 	Template.bShowActivation = false;
@@ -227,23 +226,50 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateStunnedStatusEffect(2, 100, true));
 
 	// State and Viz
+	Template.bSkipFireAction = true;
 	Template.bFrameEvenWhenUnitIsHidden = true;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.CinescriptCameraType = "Psionic_FireAtUnit";
 	Template.ActivationSpeech = 'StunStrike';
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	//Template.BuildVisualizationFn = AstralGrasp_BuildVisualization;
+	//Template.BuildVisualizationFn = class'X2Ability_SkirmisherAbilitySet'.static.Justice_BuildVisualization;
 	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
 	Template.Hostility = eHostility_Offensive;
+	//Template.ActionFireClass = class'XComGame.X2Action_ViperGetOverHere';
 	//Template.CustomFireAnim = 'HL_StunStrike';
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
-	Template.AdditionalAbilities.AddItem('IRI_TM_AstralGrasp_DamageLink');
+	//Template.AdditionalAbilities.AddItem('IRI_TM_AstralGrasp_DamageLink');
 
 	return Template;
 }
+/*
+static private function AstralGrasp_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local VisualizationActionMetadata   ShooterMetadata;
+	local VisualizationActionMetadata   TargetMetadata;
+
+	local XComGameStateVisualizationMgr VisMgr;
+	local X2Action_ViperGetOverHere GetOverHereAction;
+	local X2Action_ExitCover ExitCover;
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	TypicalAbility_BuildVisualization(VisualizeGameState);
+
+	ExitCover = X2Action_ExitCover(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_ExitCover'));
+	ExitCover.bUsePreviousGameState = true;
+
+	GetOverHereAction = X2Action_ViperGetOverHere(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_ViperGetOverHere'));
+	GetOverHereAction.StartAnimName = 'NO_StranglePullStart';
+	GetOverHereAction.StopAnimName = 'NO_StranglePullStop';
+}
+*/
+
 
 static private function X2AbilityTemplate IRI_TM_Stunstrike()
 {
