@@ -19,35 +19,35 @@ simulated function OnEffectRemoved(const out EffectAppliedData ApplyEffectParame
 {
 	local XComGameState_Unit	SpawnedUnit;
 	local XComGameStateHistory	History;
-	local XComGameState_Effect	EffectState;
-	local X2Effect_Persistent	PersistentEffect;
-	local UnitValue				UV;
-	local StateObjectReference	EffectRef;
+	//local XComGameState_Effect	EffectState;
+	//local X2Effect_Persistent	PersistentEffect;
+	//local UnitValue				UV;
+	//local StateObjectReference	EffectRef;
 	
 	History = `XCOMHISTORY;
 	SpawnedUnit = XComGameState_Unit(History.GetGameStateForObjectID(RemovedEffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID));
 	if (SpawnedUnit == none)
 		return;
 
-	if (SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
-	{
-		foreach SpawnedUnit.AppliedEffects(EffectRef)
-		{
-			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-			if (EffectState == none || EffectState.bRemoved)
-				continue;
-			
-			if (EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID != UV.fValue)
-				continue;
-
-			PersistentEffect = EffectState.GetX2Effect();
-			if (PersistentEffect == none || PersistentEffect.EffectName != 'IRI_AstralGrasp_SpiritKillEffect')
-				continue;
-
-			EffectState.RemoveEffect(NewGameState, NewGameState, false);
-
-		}
-	}
+	//if (SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
+	//{
+	//	foreach SpawnedUnit.AppliedEffects(EffectRef)
+	//	{
+	//		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+	//		if (EffectState == none || EffectState.bRemoved)
+	//			continue;
+	//		
+	//		if (EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID != UV.fValue)
+	//			continue;
+	//
+	//		PersistentEffect = EffectState.GetX2Effect();
+	//		if (PersistentEffect == none || PersistentEffect.EffectName != 'IRI_AstralGrasp_SpiritKillEffect')
+	//			continue;
+	//
+	//		EffectState.RemoveEffect(NewGameState, NewGameState, false);
+	//
+	//	}
+	//}
 
 	`XEVENTMGR.TriggerEvent('UnitRemovedFromPlay', SpawnedUnit, SpawnedUnit, NewGameState);
 }
@@ -63,9 +63,13 @@ simulated function AddX2ActionsForVisualization_Sync(XComGameState VisualizeGame
 simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult, XComGameState_Effect RemovedEffect)
 {
 	local X2Action_ApplyMITV		ApplyMITV;
-	local X2Action_TimedWait		TimedWait;
+	//local X2Action_TimedWait		TimedWait;
 	local XComGameState_Unit		SpawnedUnit;
 	local X2Action_PlayAnimation	PlayAnimation;
+	local UnitValue					UV;
+	local XComGameState_Unit		TargetUnit;
+	local vector					NewUnitLoc;
+	local X2Action_AstralGrasp		GetOverHereTarget;
 	
 	SpawnedUnit = XComGameState_Unit(ActionMetadata.StateObject_NewState);
 	if (SpawnedUnit == none)
@@ -77,18 +81,28 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 		PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext()));
 		PlayAnimation.Params.AnimName = 'HL_StunnedStop';
 		PlayAnimation.bResetWeaponsToDefaultSockets = true;
+
+		if (SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
+		{
+			TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UV.fValue));
+			if (TargetUnit != none && TargetUnit.IsAlive())
+			{
+				GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+				NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
+				GetOverHereTarget.SetDesiredLocation(NewUnitLoc, XGUnit(TargetUnit.GetVisualizer()));
+			}
+		}		
 	}
-	
+
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
 	ApplyMITV.MITVPath = "FX_Corrupt.M_SpectralZombie_Dissolve_MITV";
 
-	super.AddX2ActionsForVisualization_Removed(VisualizeGameState, ActionMetadata, EffectApplyResult, RemovedEffect);
-
-	TimedWait = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-	TimedWait.DelayTimeSec = 3.0f;
+	//TimedWait = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+	//TimedWait.DelayTimeSec = 3.0f;
 
 	class'X2Action_RemoveUnit'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded);
 }
+
 
 // ------------------------- HIT EFFECT EVENTS -------------------------
 

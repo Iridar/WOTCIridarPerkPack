@@ -62,7 +62,7 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	}
 }
 
-static final function X2Effect_Stunned_AstralGrasp CreateStunnedStatusEffect(int StunLevel, int Chance, optional bool bIsMentalDamage = true)
+static final function X2Effect_Stunned_AstralGrasp CreateStunnedStatusEffect(int LocStunLevel, int Chance, optional bool bIsMentalDamage = true)
 {
 	local X2Effect_Stunned_AstralGrasp StunnedEffect;
 	local X2Condition_UnitProperty UnitPropCondition;
@@ -70,7 +70,7 @@ static final function X2Effect_Stunned_AstralGrasp CreateStunnedStatusEffect(int
 	StunnedEffect = new class'X2Effect_Stunned_AstralGrasp';
 	StunnedEffect.BuildPersistentEffect(1, true, true, false, eGameRule_UnitGroupTurnBegin);
 	StunnedEffect.ApplyChance = Chance;
-	StunnedEffect.StunLevel = StunLevel;
+	StunnedEffect.StunLevel = LocStunLevel;
 	StunnedEffect.bIsImpairing = true;
 	StunnedEffect.EffectHierarchyValue = class'X2StatusEffects'.default.STUNNED_HIERARCHY_VALUE;
 	StunnedEffect.EffectName = class'X2AbilityTemplateManager'.default.StunnedName;

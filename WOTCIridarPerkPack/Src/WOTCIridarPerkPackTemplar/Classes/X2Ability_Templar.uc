@@ -11,7 +11,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_TM_Amplify()); // TODO: Check if vanilla Amplify has a visual effect?
 	Templates.AddItem(IRI_TM_Reflect()); // TODO: Fix the ReflectAttack projectile missing the target and then causing a viz delay
-	Templates.AddItem(IRI_TM_Stunstrike()); // TODO: No visible projectile? Because of no damage effect?
+	//Templates.AddItem(IRI_TM_Stunstrike());
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
@@ -20,215 +20,28 @@ static function array<X2DataTemplate> CreateTemplates()
 	return Templates;
 }
 
-static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
-{
-	local X2AbilityTemplate Template;
-	local X2AbilityTrigger_EventListener DeathEventListener;
-	local X2Condition_UnitEffectsWithAbilitySource TargetEffectCondition;
-	local X2Effect_HolyWarriorDeath HolyWarriorDeathEffect;
-	local X2Effect_RemoveEffects RemoveEffects;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritDeath');
-
-	Template.bDontDisplayInAbilitySummary = true;
-	Template.AbilitySourceName = 'eAbilitySource_Standard';
-	Template.eAbilityIconBehaviorHUD = EAbilityIconBehavior_NeverShow;
-	Template.Hostility = eHostility_Neutral;
-
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SelfTarget;
-
-	// This ability fires when the unit dies
-	DeathEventListener = new class'X2AbilityTrigger_EventListener';
-	DeathEventListener.ListenerData.Deferral = ELD_OnStateSubmitted;
-	DeathEventListener.ListenerData.EventID = 'UnitDied';
-	DeathEventListener.ListenerData.Filter = eFilter_Unit;
-	DeathEventListener.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_SelfWithAdditionalTargets;
-	Template.AbilityTriggers.AddItem(DeathEventListener);
-
-	Template.AbilityMultiTargetStyle = new class'X2AbilityMultiTarget_AllUnits';
-
-	TargetEffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
-	TargetEffectCondition.AddRequireEffect('IRI_AstralGrasp_SpiritKillEffect', 'AA_UnitIsImmune');
-	Template.AbilityMultiTargetConditions.AddItem(TargetEffectCondition);
-
-	HolyWarriorDeathEffect = new class'X2Effect_HolyWarriorDeath';
-	HolyWarriorDeathEffect.DelayTimeS = class'X2Ability_AdvPriest'.default.HOLYWARRIOR_DEATH_DELAY_S;
-	Template.AddMultiTargetEffect(HolyWarriorDeathEffect);
-
-	RemoveEffects = new class'X2Effect_RemoveEffects';
-	RemoveEffects.EffectNamesToRemove.AddItem('IRI_AstralGrasp_SpiritKillEffect');
-	Template.AddMultiTargetEffect(RemoveEffects);
-
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.MergeVisualizationFn = class'X2Ability_AdvPriest'.static.HolyWarriorDeath_MergeVisualization;
-	
-	Template.CinescriptCameraType = "HolyWarrior_Death";
-
-	Template.bSkipFireAction = true;
-	Template.FrameAbilityCameraType = eCameraFraming_Never;
-
-	return Template;
-}
-
-static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
-{
-	local X2AbilityTemplate					Template;
-	local X2Effect_AstralGraspSpirit		Effect;
-	local X2Effect_OverrideDeathAction		DeathActionEffect;
-	local X2AbilityTrigger_EventListener	Trigger;
-	local X2Effect_Persistent				PerkEffect;
-	local X2Effect_AdditionalAnimSets		AnimSetEffect;
-	local X2Effect							StunnedEffect;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_Spirit');
-
-	// Icon Setup
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
-	SetHidden(Template);
-	
-	// Targeting and Triggering
-
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
-	//Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
-
-	Trigger = new class'X2AbilityTrigger_EventListener';	
-	Trigger.ListenerData.EventID = 'IRI_AstralGrasp_SpiritSpawned';
-	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
-	Trigger.ListenerData.Filter = eFilter_Unit;
-	Trigger.ListenerData.Priority = 100;
-	Trigger.ListenerData.EventFn = AstralGrasp_SpiritSpawned_Trigger;
-	Template.AbilityTriggers.AddItem(Trigger);
-	
-	// Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	//Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
-
-	// This will make the Astral Grasped unit immune to all damage except mental and psionic
-	Effect = new class'X2Effect_AstralGraspSpirit';
-	Effect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
-	Effect.EffectName = 'IRI_TM_AstralGrasp_SpiritLink';
-	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
-	Template.AddShooterEffect(Effect);
-
-	DeathActionEffect = new class'X2Effect_OverrideDeathAction';
-	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
-	DeathActionEffect.EffectName = 'IRI_TM_AstralGrasp_Spirit_DeathOverride';
-	DeathActionEffect.BuildPersistentEffect(1, true);
-	Template.AddShooterEffect(DeathActionEffect);
-
-	AnimSetEffect = new class'X2Effect_AdditionalAnimSets';
-	AnimSetEffect.AddAnimSetWithPath("IRIAstralGrasp.AS_PsiDeath");
-	AnimSetEffect.BuildPersistentEffect(1, true);
-	AnimSetEffect.bRemoveWhenTargetDies = false;
-	AnimSetEffect.bRemoveWhenSourceDies = false;
-	Template.AddShooterEffect(AnimSetEffect);
-
-	StunnedEffect = class'X2Effect_Stunned_AstralGrasp'.static.CreateStunnedStatusEffect(2, 100);
-	StunnedEffect.DamageTypes.Length = 0;
-	StunnedEffect.DamageTypes.AddItem('Psi');
-	Template.AddShooterEffect(StunnedEffect);
-
-	PerkEffect = new class'X2Effect_Persistent';
-	PerkEffect.BuildPersistentEffect(1, true);
-	PerkEffect.bRemoveWhenTargetDies = true;
-	PerkEffect.bRemoveWhenSourceDies = false;
-	PerkEffect.EffectName = 'IRI_AstralGrasp_SpiritKillEffect';
-	Template.AddTargetEffect(PerkEffect);
-
-	Template.bShowActivation = false;
-	Template.bSkipFireAction = true;
-	Template.bUniqueSource = true;
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.MergeVisualizationFn = AstralGrasp_Spirit_MergeVisualization;
-	Template.Hostility = eHostility_Neutral;
-
-	return Template;
-}
-
-
-static private function AstralGrasp_Spirit_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
-{
-	local X2Action_Death PriestDeathAction;
-	local X2Action BuildTreeStartNode, BuildTreeEndNode;
-	local XComGameStateVisualizationMgr VisMgr;
-	local XComGameStateContext_Ability AbilityContext;
-	local array<X2Action>		FoundActions;
-	local X2Action				FoundAction;
-	local X2Action_MarkerNamed	NamedMarker;
-	local X2Action				StartAction;
-	local X2Action				EndAction;
-
-	local X2Action_MarkerTreeInsertBegin MarkerStart;
-	local X2Action_MarkerTreeInsertEnd MarkerEnd;
-
-	VisMgr = `XCOMVISUALIZATIONMGR;
-	AbilityContext = XComGameStateContext_Ability(BuildTree.StateChangeContext);
-
-	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerNamed', FoundActions,, AbilityContext.InputContext.SourceObject.ObjectID);
-
-	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
-	MarkerEnd = X2Action_MarkerTreeInsertEnd(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertEnd'));
-
-	foreach FoundActions(FoundAction)
-	{
-		NamedMarker = X2Action_MarkerNamed(FoundAction);
-		switch (NamedMarker.MarkerName)
-		{
-			case 'IRI_AstralGrasp_MarkerStart':
-				StartAction = NamedMarker;
-				break;
-			case 'IRI_AstralGrasp_MarkerEnd':
-				EndAction = NamedMarker;
-				break;
-			default:
-				break;
-		}
-	}
-	if (StartAction == none || EndAction == none)
-	{
-		XComGameStateContext_Ability(BuildTree.StateChangeContext).SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
-		return;
-	}
-
-	VisMgr.InsertSubtree(MarkerStart, MarkerEnd, StartAction);
-}
-
-static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
-{
-	local XComGameState_Unit	SpawnedUnit;
-	local XComGameState_Unit	TargetUnit;
-	local XComGameState_Ability	TriggerAbility;
-	//local UnitValue				UV;
-
-	`AMLOG("Running");
-
-	SpawnedUnit = XComGameState_Unit(EventSource);
-	if (SpawnedUnit == none)
-		return ELR_NoInterrupt;
-
-	//if (!SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
-	//	return ELR_NoInterrupt;
-
-	TargetUnit = XComGameState_Unit(EventData);
-	if (TargetUnit == none)
-		return ELR_NoInterrupt;
-
-	TriggerAbility = XComGameState_Ability(CallbackData);
-	if (TriggerAbility == none)
-		return ELR_NoInterrupt;
-
-	`AMLOG("Triggering Spirint Spawned ability at:" @ TargetUnit.GetFullName());
-
-	TriggerAbility.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
-
-	return ELR_NoInterrupt;
-}
-
+// Somewhat complicated ability. Explained in steps:
+// 1. Use Astral Grasp on the target organic.
+// 2. X2Effect_AstralGrasp will spawn a copy of the enemy unit (spirit/ghost) on a tile near the shooter,
+// the spirit will visibly spawn standing right inside the target.
+// Astral Grasp skips fire action in typical visualization,
+// instead its fire action is created in X2Effect_AstralGrasp visualization,
+// because the fire action needs to visualize against the spirit,
+// pulling it out of the target's body, Skirmisher's Justice style.
+// Perk content is used for the fire action visualization.
+// 3. X2Effect_AstralGrasp will trigger an event when the spirit's unit state is created,
+// which will trigger IRI_TM_AstralGrasp_Spirit ability.
+// Perk content is used to create a "mind control"-like tether to the spirit's body.
+// To make the tether visible when the spirit is getting pulled by Astral Grasp, 
+// a MergeVis function is used to insert this ability's visualization tree
+// after the spirit spawns inside the target's body, but before it is pulled out by Astral Grasp.
+// 4. The effect used by Perk Content for tether is also used to track the connection 
+// between the spirit and the body.
+// If the spirit is killed, IRI_TM_AstralGrasp_SpiritDeath is triggered,
+// which kills the unit who has this effect, Holy Warrior style.
+// 5. X2Effect_AstralGraspSpirit is put on the Spirit by the IRI_TM_AstralGrasp_Spirit ability.
+// It ensures the spirit can't dodge and other similarly reasonable stuff.
+// The effect has the same duration as X2Effect_AstralGrasp, and when it expires, it despawns the spirit.
 static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 {
 	local X2AbilityTemplate							Template;
@@ -270,7 +83,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	UnblockedNeighborTileCondition.RequireVisible = true;
 	Template.AbilityShooterConditions.AddItem(UnblockedNeighborTileCondition);
 
-	// Target Conditions
+	// Target Conditions - visible organic that's not immune to psi and mental and hasn't been grasped yet
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 	TargetCondition = new class'X2Condition_UnitProperty';
 	TargetCondition.ExcludeAlive = false;
@@ -290,9 +103,12 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 
 	UnitEffectsCondition = new class'X2Condition_UnitEffects';
 	UnitEffectsCondition.AddExcludeEffect('IRI_X2Effect_AstralGrasp', 'AA_DuplicateEffectIgnored');
+	// Can't grasp grasped spirits lol
+	UnitEffectsCondition.AddExcludeEffect(class'X2Effect_AstralGraspSpirit'.default.EffectName, 'AA_DuplicateEffectIgnored'); 
 	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
 
 	// Effects
+	// Spawns the spirit and visualizes pulling it out of the body
 	AstralGrasp = new class'X2Effect_AstralGrasp';
 	AstralGrasp.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
 	AstralGrasp.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
@@ -301,142 +117,261 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	Template.AddTargetEffect(class'X2StatusEffects'.static.CreateStunnedStatusEffect(2, 100, true));
 
 	// State and Viz
-	Template.bSkipFireAction = true;
+	Template.bSkipFireAction = true; // Fire action is in the X2Effect_AstralGrasp's visualization
 	Template.bFrameEvenWhenUnitIsHidden = true;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
-	Template.CinescriptCameraType = "Psionic_FireAtUnit";
-	Template.ActivationSpeech = 'StunStrike';
+	Template.ActivationSpeech = 'Justice';
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	//Template.BuildVisualizationFn = AstralGrasp_BuildVisualization;
-	//Template.BuildVisualizationFn = class'X2Ability_SkirmisherAbilitySet'.static.Justice_BuildVisualization;
 	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
 	Template.Hostility = eHostility_Offensive;
 	//Template.ActionFireClass = class'XComGame.X2Action_ViperGetOverHere';
+
+	//Template.CinescriptCameraType = "Psionic_FireAtUnit";;
+	//Template.BuildVisualizationFn = AstralGrasp_BuildVisualization;
+	//Template.BuildVisualizationFn = class'X2Ability_SkirmisherAbilitySet'.static.Justice_BuildVisualization;
 	//Template.CustomFireAnim = 'HL_StunStrike';
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
-	//Template.AdditionalAbilities.AddItem('IRI_TM_AstralGrasp_DamageLink');
-
 	return Template;
 }
-/*
-static private function AstralGrasp_BuildVisualization(XComGameState VisualizeGameState)
+
+// Main purpose of this ability is to create a visible tether
+// between the spirit and the body via Perk Content
+static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 {
-	local VisualizationActionMetadata   ShooterMetadata;
-	local VisualizationActionMetadata   TargetMetadata;
+	local X2AbilityTemplate					Template;
+	local X2Effect_AstralGraspSpirit		Effect;
+	local X2Effect_OverrideDeathAction		DeathActionEffect;
+	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect_Persistent				PerkEffect;
+	local X2Effect_AdditionalAnimSets		AnimSetEffect;
+	local X2Effect							StunnedEffect;
 
-	local XComGameStateVisualizationMgr VisMgr;
-	local X2Action_ViperGetOverHere GetOverHereAction;
-	local X2Action_ExitCover ExitCover;
-
-	VisMgr = `XCOMVISUALIZATIONMGR;
-
-	TypicalAbility_BuildVisualization(VisualizeGameState);
-
-	ExitCover = X2Action_ExitCover(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_ExitCover'));
-	ExitCover.bUsePreviousGameState = true;
-
-	GetOverHereAction = X2Action_ViperGetOverHere(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_ViperGetOverHere'));
-	GetOverHereAction.StartAnimName = 'NO_StranglePullStart';
-	GetOverHereAction.StopAnimName = 'NO_StranglePullStop';
-}
-*/
-
-
-static private function X2AbilityTemplate IRI_TM_Stunstrike()
-{
-	local X2AbilityTemplate							Template;
-	local X2Effect_Knockback						KnockbackEffect;
-	//local X2Effect_PersistentStatChange				DisorientEffect;
-	local X2AbilityCost_ActionPoints				ActionCost;
-	local X2Effect_ApplyWeaponDamage				DamageEffect;
-	local X2Effect_TriggerEvent						TriggerEventEffect;
-	local X2Condition_UnitProperty					TargetCondition;
-	local X2Condition_UnitEffects					UnitEffectsCondition;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Stunstrike');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_Spirit');
 
 	// Icon Setup
-	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-	Template.Hostility = eHostility_Offensive;
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_StunStrike";
-
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+	SetHidden(Template);
+	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	//Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger); // idk doesn't work
 
-	// Costs
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
-
-	ActionCost = new class'X2AbilityCost_ActionPoints';
-	ActionCost.iNumPoints = 1;
-	ActionCost.bFreeCost = true;
-	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
-	Template.AbilityCosts.AddItem(ActionCost);
-
-	// Shooter Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AddShooterEffectExclusions();
-
-	// Target Conditions
-	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
-	TargetCondition = new class'X2Condition_UnitProperty';
-	TargetCondition.ExcludeAlive = false;
-	TargetCondition.ExcludeDead = true;
-	TargetCondition.ExcludeFriendlyToSource = true;
-	TargetCondition.ExcludeHostileToSource = false;
-	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
-	TargetCondition.FailOnNonUnits = true;
-	TargetCondition.ExcludeLargeUnits = true;
-	Template.AbilityTargetConditions.AddItem(TargetCondition);
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'IRI_AstralGrasp_SpiritSpawned'; // Triggered from X2Effect_AstralGrasp
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Unit;
+	Trigger.ListenerData.Priority = 100;
+	Trigger.ListenerData.EventFn = AstralGrasp_SpiritSpawned_Trigger;
+	Template.AbilityTriggers.AddItem(Trigger);
 	
-
-	UnitEffectsCondition = new class'X2Condition_UnitEffects';
-	UnitEffectsCondition.AddExcludeEffect(class'X2Ability_Viper'.default.BindSustainedEffectName, 'AA_UnitIsBound');
-	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
+	// Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	//Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 
 	// Effects
-	KnockbackEffect = new class'X2Effect_Knockback';
-	KnockbackEffect.KnockbackDistance = 2;
-	KnockbackEffect.OnlyOnDeath = false; 
-	Template.AddTargetEffect(KnockbackEffect);
+	Effect = new class'X2Effect_AstralGraspSpirit';
+	Effect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
+	Effect.EffectName = 'IRI_TM_AstralGrasp_SpiritLink';
+	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddShooterEffect(Effect);
 
-	TriggerEventEffect = new class'X2Effect_TriggerEvent';
-	TriggerEventEffect.TriggerEventName = 'StunStrikeActivated';
-	TriggerEventEffect.PassTargetAsSource = true;
-	Template.AddTargetEffect(TriggerEventEffect);
+	// Custom death action and AnimSet with the death animation
+	DeathActionEffect = new class'X2Effect_OverrideDeathAction';
+	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
+	DeathActionEffect.EffectName = 'IRI_TM_AstralGrasp_Spirit_DeathOverride';
+	DeathActionEffect.BuildPersistentEffect(1, true);
+	Template.AddShooterEffect(DeathActionEffect);
 
-	//	this effect is just here for visuals on a miss
-	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
-	DamageEffect.bIgnoreBaseDamage = true;
-	DamageEffect.DamageTag = 'IRI_TM_Stunstrike';
-	//DamageEffect.bBypassShields = true;
-	DamageEffect.bIgnoreArmor = true;
-	Template.AddTargetEffect(DamageEffect);
+	AnimSetEffect = new class'X2Effect_AdditionalAnimSets';
+	AnimSetEffect.AddAnimSetWithPath("IRIAstralGrasp.AS_PsiDeath");
+	AnimSetEffect.BuildPersistentEffect(1, true);
+	AnimSetEffect.bRemoveWhenTargetDies = false;
+	AnimSetEffect.bRemoveWhenSourceDies = false;
+	Template.AddShooterEffect(AnimSetEffect);
 
-	//DisorientEffect = class'X2StatusEffects'.static.CreateDisorientedStatusEffect();
-	//DisorientEffect.iNumTurns = default.StunStrikeDisorientNumTurns;
-	//DisorientEffect.ApplyChanceFn = StunStrikeDisorientApplyChance;
-	//Template.AddTargetEffect(DisorientEffect);
+	// Stun the spirit
+	StunnedEffect = class'X2Effect_Stunned_AstralGrasp'.static.CreateStunnedStatusEffect(2, 100);
+	StunnedEffect.DamageTypes.Length = 0;
+	StunnedEffect.DamageTypes.AddItem('Psi');
+	Template.AddShooterEffect(StunnedEffect);
+
+	// Used by Perk Content to create a tether and to kill the original unit when the spirit dies
+	PerkEffect = new class'X2Effect_Persistent';
+	PerkEffect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
+	PerkEffect.bRemoveWhenTargetDies = true;
+	PerkEffect.bRemoveWhenSourceDies = false;
+	PerkEffect.EffectName = 'IRI_AstralGrasp_SpiritKillEffect';
+	Template.AddTargetEffect(PerkEffect);
 
 	// State and Viz
-	Template.bFrameEvenWhenUnitIsHidden = true;
-	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
-	Template.CinescriptCameraType = "Psionic_FireAtUnit";
-	Template.ActivationSpeech = 'StunStrike';
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = true;
+	Template.bUniqueSource = true;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.CustomFireAnim = 'HL_StunStrike';
-
-	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.MergeVisualizationFn = AstralGrasp_Spirit_MergeVisualization;
+	Template.Hostility = eHostility_Neutral;
 
 	return Template;
+}
+
+static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Unit	SpawnedUnit;
+	local XComGameState_Unit	TargetUnit;
+	local XComGameState_Ability	TriggerAbility;
+
+	SpawnedUnit = XComGameState_Unit(EventSource);
+	if (SpawnedUnit == none)
+		return ELR_NoInterrupt;
+
+	TargetUnit = XComGameState_Unit(EventData);
+	if (TargetUnit == none)
+		return ELR_NoInterrupt;
+
+	TriggerAbility = XComGameState_Ability(CallbackData);
+	if (TriggerAbility == none)
+		return ELR_NoInterrupt;
+
+	`AMLOG("Triggering Spirint Spawned ability at:" @ TargetUnit.GetFullName());
+
+	TriggerAbility.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
+
+	return ELR_NoInterrupt;
+}
+
+// Use a custom Merge Vis function to make this ability visualize (create a tether between body and spirit) 
+// after the spirit has been spawned but before it's been pulled out of the body
+static private function AstralGrasp_Spirit_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
+{
+	local XComGameStateVisualizationMgr	VisMgr;
+	local XComGameStateContext_Ability	AbilityContext;
+	local array<X2Action>				FoundActions;
+	local X2Action						FoundAction;
+	local X2Action_MarkerNamed			NamedMarker;
+	local X2Action						StartAction;
+	local X2Action						EndAction;
+
+	local X2Action_MarkerTreeInsertBegin MarkerStart;
+	local X2Action_MarkerTreeInsertEnd MarkerEnd;
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+	AbilityContext = XComGameStateContext_Ability(BuildTree.StateChangeContext);
+
+	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerNamed', FoundActions,, AbilityContext.InputContext.SourceObject.ObjectID);
+
+	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
+	MarkerEnd = X2Action_MarkerTreeInsertEnd(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertEnd'));
+
+	foreach FoundActions(FoundAction)
+	{
+		NamedMarker = X2Action_MarkerNamed(FoundAction);
+		switch (NamedMarker.MarkerName)
+		{
+			case 'IRI_AstralGrasp_MarkerStart':
+				StartAction = NamedMarker;
+				break;
+			case 'IRI_AstralGrasp_MarkerEnd':
+				EndAction = NamedMarker;
+				break;
+			default:
+				break;
+		}
+	}
+	if (StartAction == none || EndAction == none)
+	{
+		XComGameStateContext_Ability(BuildTree.StateChangeContext).SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
+		return;
+	}
+
+	VisMgr.InsertSubtree(MarkerStart, MarkerEnd, StartAction);
+}
+
+// Copy of the HolyWarriorDeath ability.
+static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
+{
+	local X2AbilityTemplate								Template;
+	local X2AbilityTrigger_EventListener				DeathEventListener;
+	local X2Condition_UnitEffectsWithAbilitySource		TargetEffectCondition;
+	local X2Effect_HolyWarriorDeath						HolyWarriorDeathEffect;
+	local X2Effect_RemoveEffects						RemoveEffects;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritDeath');
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	SetHidden(Template);
+
+	// Targetind and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	// This ability fires when the owner dies
+	DeathEventListener = new class'X2AbilityTrigger_EventListener';
+	DeathEventListener.ListenerData.Deferral = ELD_OnStateSubmitted;
+	DeathEventListener.ListenerData.EventID = 'UnitDied';
+	DeathEventListener.ListenerData.Filter = eFilter_Unit;
+	DeathEventListener.ListenerData.EventFn = AstralGrasp_SpiritDeath_EventListenerTrigger;
+	Template.AbilityTriggers.AddItem(DeathEventListener);
+
+	// Target Conditions
+	TargetEffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	TargetEffectCondition.AddRequireEffect('IRI_AstralGrasp_SpiritKillEffect', 'AA_UnitIsImmune');
+	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
+
+	// Effects
+	HolyWarriorDeathEffect = new class'X2Effect_HolyWarriorDeath';
+	HolyWarriorDeathEffect.DelayTimeS = class'X2Ability_AdvPriest'.default.HOLYWARRIOR_DEATH_DELAY_S;
+	Template.AddTargetEffect(HolyWarriorDeathEffect);
+
+	RemoveEffects = new class'X2Effect_RemoveEffects';
+	RemoveEffects.EffectNamesToRemove.AddItem('IRI_AstralGrasp_SpiritKillEffect');
+	Template.AddTargetEffect(RemoveEffects);
+
+	// State and Viz
+	Template.Hostility = eHostility_Neutral;
+	Template.bSkipFireAction = true;
+	Template.FrameAbilityCameraType = eCameraFraming_Never;
+	Template.CinescriptCameraType = "HolyWarrior_Death";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.MergeVisualizationFn = class'X2Ability_AdvPriest'.static.HolyWarriorDeath_MergeVisualization;
+
+	return Template;
+}
+
+static private function EventListenerReturn AstralGrasp_SpiritDeath_EventListenerTrigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Ability AbilityState;
+	local XComGameState_Unit	SpawnedUnit;
+	local XComGameState_Unit	TargetUnit;
+	local UnitValue				UV;
+
+	SpawnedUnit = XComGameState_Unit(EventSource);
+	if (SpawnedUnit == none)
+		return ELR_NoInterrupt;
+
+	if (!SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
+		return ELR_NoInterrupt;
+
+	TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UV.fValue));
+	if (TargetUnit == none)
+		return ELR_NoInterrupt;
+
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+
+	AbilityState.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
+
+	return ELR_NoInterrupt;
 }
 
 
@@ -851,6 +786,100 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 
 
 
+// Unfinished and unused
+// No visible projectile? Because of no damage effect?
+static private function X2AbilityTemplate IRI_TM_Stunstrike()
+{
+	local X2AbilityTemplate							Template;
+	local X2Effect_Knockback						KnockbackEffect;
+	//local X2Effect_PersistentStatChange				DisorientEffect;
+	local X2AbilityCost_ActionPoints				ActionCost;
+	local X2Effect_ApplyWeaponDamage				DamageEffect;
+	local X2Effect_TriggerEvent						TriggerEventEffect;
+	local X2Condition_UnitProperty					TargetCondition;
+	local X2Condition_UnitEffects					UnitEffectsCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Stunstrike');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.Hostility = eHostility_Offensive;
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_StunStrike";
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	// Costs
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeAlive = false;
+	TargetCondition.ExcludeDead = true;
+	TargetCondition.ExcludeFriendlyToSource = true;
+	TargetCondition.ExcludeHostileToSource = false;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
+	TargetCondition.FailOnNonUnits = true;
+	TargetCondition.ExcludeLargeUnits = true;
+	Template.AbilityTargetConditions.AddItem(TargetCondition);
+	
+
+	UnitEffectsCondition = new class'X2Condition_UnitEffects';
+	UnitEffectsCondition.AddExcludeEffect(class'X2Ability_Viper'.default.BindSustainedEffectName, 'AA_UnitIsBound');
+	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
+
+	// Effects
+	KnockbackEffect = new class'X2Effect_Knockback';
+	KnockbackEffect.KnockbackDistance = 2;
+	KnockbackEffect.OnlyOnDeath = false; 
+	Template.AddTargetEffect(KnockbackEffect);
+
+	TriggerEventEffect = new class'X2Effect_TriggerEvent';
+	TriggerEventEffect.TriggerEventName = 'StunStrikeActivated';
+	TriggerEventEffect.PassTargetAsSource = true;
+	Template.AddTargetEffect(TriggerEventEffect);
+
+	//	this effect is just here for visuals on a miss
+	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	DamageEffect.bIgnoreBaseDamage = true;
+	DamageEffect.DamageTag = 'IRI_TM_Stunstrike';
+	//DamageEffect.bBypassShields = true;
+	DamageEffect.bIgnoreArmor = true;
+	Template.AddTargetEffect(DamageEffect);
+
+	//DisorientEffect = class'X2StatusEffects'.static.CreateDisorientedStatusEffect();
+	//DisorientEffect.iNumTurns = default.StunStrikeDisorientNumTurns;
+	//DisorientEffect.ApplyChanceFn = StunStrikeDisorientApplyChance;
+	//Template.AddTargetEffect(DisorientEffect);
+
+	// State and Viz
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.CinescriptCameraType = "Psionic_FireAtUnit";
+	Template.ActivationSpeech = 'StunStrike';
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.CustomFireAnim = 'HL_StunStrike';
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
+}
 
 //	========================================
 //				COMMON CODE

@@ -165,7 +165,7 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	//local XComGameState_Unit				TargetUnit;
 	local XComGameStateContext_Ability		AbilityContext;
 	local XComGameStateHistory				History;
-	local X2Action_PlayAnimation			PlayAnimation;
+	//local X2Action_PlayAnimation			PlayAnimation;
 	local X2Action							ExitCover;
 	local X2Action_ViperGetOverHere			FireAction;
 	local X2Action_MarkerNamed				NamedMarker;
