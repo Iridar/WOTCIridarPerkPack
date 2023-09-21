@@ -15,6 +15,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
+	Templates.AddItem(IRI_TM_AstralGrasp_SpiritStun());
 	Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
@@ -67,6 +68,17 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 
 	// Costs
 //Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus'); DEBUG ONLY
+
+// TODO: Handle cases:
+// 1. Grasp the spirit and kill the spirit
+// 2. Grasp the spirit and kill the body
+// 3. Grasp the spirit and let it expire
+// 4. Grasping non-humanoid spirits
+// 5. Remove blood pools
+// 6. Fix camerawork when spirit is killed
+// 7. Make spirit visibly spawn when the projectile hits (maybe hide the unit temporarily)
+// 8. Add a MergeVis delegate to the stun spirit ability so that it visualizes right after spirit is moved
+// 8. Custom fire/pull animations and projectiles
 
 	ActionCost = new class'X2AbilityCost_ActionPoints';
 	ActionCost.iNumPoints = 1;
@@ -148,7 +160,6 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	local X2AbilityTrigger_EventListener	Trigger;
 	local X2Effect_Persistent				PerkEffect;
 	local X2Effect_AdditionalAnimSets		AnimSetEffect;
-	local X2Effect							StunnedEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_Spirit');
 
@@ -195,12 +206,6 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	AnimSetEffect.bRemoveWhenSourceDies = false;
 	Template.AddShooterEffect(AnimSetEffect);
 
-	// Stun the spirit
-	StunnedEffect = class'X2Effect_Stunned_AstralGrasp'.static.CreateStunnedStatusEffect(2, 100);
-	StunnedEffect.DamageTypes.Length = 0;
-	StunnedEffect.DamageTypes.AddItem('Psi');
-	Template.AddShooterEffect(StunnedEffect);
-
 	// Used by Perk Content to create a tether and to kill the original unit when the spirit dies
 	PerkEffect = new class'X2Effect_Persistent';
 	PerkEffect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
@@ -216,6 +221,52 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.MergeVisualizationFn = AstralGrasp_Spirit_MergeVisualization;
+	Template.Hostility = eHostility_Neutral;
+
+	return Template;
+}
+
+// Stun the spirit. Moved to the separate ability for visualization purposes.
+static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritStun()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityTrigger_EventListener	Trigger;
+	local X2Effect							StunnedEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritStun');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+	SetHidden(Template);
+	
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'IRI_AstralGrasp_SpiritSpawned'; // Triggered from X2Effect_AstralGrasp
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Unit;
+	Trigger.ListenerData.Priority = 100;
+	Trigger.ListenerData.EventFn = AstralGrasp_SpiritSpawned_Trigger;
+	Template.AbilityTriggers.AddItem(Trigger);
+	
+	// Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+
+	// Stun the spirit
+	StunnedEffect = class'X2Effect_Stunned_AstralGrasp'.static.CreateStunnedStatusEffect(2, 100);
+	StunnedEffect.DamageTypes.Length = 0;
+	StunnedEffect.DamageTypes.AddItem('Psi');
+	Template.AddShooterEffect(StunnedEffect);
+
+	// State and Viz
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = true;
+	Template.bUniqueSource = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.Hostility = eHostility_Neutral;
 
 	return Template;

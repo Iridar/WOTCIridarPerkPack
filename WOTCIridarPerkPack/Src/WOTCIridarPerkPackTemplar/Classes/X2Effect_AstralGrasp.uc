@@ -15,6 +15,14 @@ simulated function ModifyAbilitiesPreActivation(StateObjectReference NewUnitRef,
 	}
 
 	NewData = EmptyData;
+	NewData.TemplateName = 'IRI_TM_AstralGrasp_SpiritStun';
+	NewData.Template = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(NewData.TemplateName);
+	if (NewData.Template != none)
+	{
+		AbilityData.AddItem(NewData);
+	}
+
+	NewData = EmptyData;
 	NewData.TemplateName = 'IRI_TM_AstralGrasp_SpiritDeath';
 	NewData.Template = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(NewData.TemplateName);
 	if (NewData.Template != none)
@@ -169,6 +177,7 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	local X2Action							ExitCover;
 	local X2Action_ViperGetOverHere			FireAction;
 	local X2Action_MarkerNamed				NamedMarker;
+	local array<X2Action>					ParentActions;
 
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(Context);
@@ -193,10 +202,11 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 
 	// This will create the visualizer for the spawned unit, and put them on the tile they were supposed to spawn at
 	// in this case - near the shooter
-	class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, ExitCover);
+	ParentActions.AddItem(class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, ExitCover));
 
 	// This will copy the thrower unit's appearance and put the visualizer on top of the target pawn,
 	// which is exactly what I want
+	
 	CopyUnitAction = X2Action_CreateDoppelganger(class'X2Action_CreateDoppelganger'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	CopyUnitAction.OriginalUnit = XGUnit(`XCOMHISTORY.GetVisualizer(EffectTargetUnit.ObjectID));
 	CopyUnitAction.ShouldCopyAppearance = true;
@@ -213,7 +223,8 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	NamedMarker.SetName("IRI_AstralGrasp_MarkerEnd");
 
 	// This will drag the spawned pawn from the target unit to the tile near the shooter
-	GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	ParentActions.AddItem(FireAction);
+	GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false,, ParentActions));
 	NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(XComGameState_Unit(SpawnedUnitTrack.StateObject_NewState).TileLocation);
 	GetOverHereTarget.SetDesiredLocation(NewUnitLoc, XGUnit(SpawnedUnitTrack.VisualizeActor));
 	
