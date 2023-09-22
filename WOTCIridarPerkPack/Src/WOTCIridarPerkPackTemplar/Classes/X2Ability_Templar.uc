@@ -77,7 +77,6 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 // 5. Remove blood pools
 // 6. Fix camerawork when spirit is killed
 // 7. Make spirit visibly spawn when the projectile hits (maybe hide the unit temporarily)
-// 8. Add a MergeVis delegate to the stun spirit ability so that it visualizes right after spirit is moved
 // 8. Custom fire/pull animations and projectiles
 
 	ActionCost = new class'X2AbilityCost_ActionPoints';
@@ -197,6 +196,8 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
 	DeathActionEffect.EffectName = 'IRI_TM_AstralGrasp_Spirit_DeathOverride';
 	DeathActionEffect.BuildPersistentEffect(1, true);
+	DeathActionEffect.bRemoveWhenTargetDies = false;
+	DeathActionEffect.bRemoveWhenSourceDies = false;
 	Template.AddShooterEffect(DeathActionEffect);
 
 	AnimSetEffect = new class'X2Effect_AdditionalAnimSets';
@@ -209,7 +210,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	// Used by Perk Content to create a tether and to kill the original unit when the spirit dies
 	PerkEffect = new class'X2Effect_Persistent';
 	PerkEffect.BuildPersistentEffect(2, false,,, eGameRule_PlayerTurnBegin);
-	PerkEffect.bRemoveWhenTargetDies = true;
+	PerkEffect.bRemoveWhenTargetDies = true;	// Remove tether when the body is killed
 	PerkEffect.bRemoveWhenSourceDies = false;
 	PerkEffect.EffectName = 'IRI_AstralGrasp_SpiritKillEffect';
 	Template.AddTargetEffect(PerkEffect);
@@ -225,6 +226,39 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 
 	return Template;
 }
+
+static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Unit	SpawnedUnit;
+	local XComGameState_Unit	TargetUnit;
+	local XComGameState_Ability	TriggerAbility;
+
+	SpawnedUnit = XComGameState_Unit(EventSource);
+	if (SpawnedUnit == none)
+		return ELR_NoInterrupt;
+
+	TargetUnit = XComGameState_Unit(EventData);
+	if (TargetUnit == none)
+		return ELR_NoInterrupt;
+
+	TriggerAbility = XComGameState_Ability(CallbackData);
+	if (TriggerAbility == none)
+		return ELR_NoInterrupt;
+
+	`AMLOG("Triggering Spirint Spawned ability at:" @ TargetUnit.GetFullName());
+
+	TriggerAbility.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
+
+	return ELR_NoInterrupt;
+}
+
+// Use a custom Merge Vis function to make this ability visualize (create a tether between body and spirit) 
+// after the spirit has been spawned but before it's been pulled out of the body
+static private function AstralGrasp_Spirit_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
+{
+	class'Help'.static.InsertAfterMarker_MergeVisualization(BuildTree, VisualizationTree, 'IRI_AstralGrasp_MarkerStart');
+}
+
 
 // Stun the spirit. Moved to the separate ability for visualization purposes.
 static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritStun()
@@ -267,81 +301,17 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritStun()
 	Template.bUniqueSource = true;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.MergeVisualizationFn = AstralGrasp_SpiritStun_MergeVisualization;
 	Template.Hostility = eHostility_Neutral;
 
 	return Template;
 }
 
-static private function EventListenerReturn AstralGrasp_SpiritSpawned_Trigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+// Use a custom Merge Vis function to make this ability visualize (stun the spawned unit) 
+// after the spirit has been pulled out of the body
+static private function AstralGrasp_SpiritStun_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
 {
-	local XComGameState_Unit	SpawnedUnit;
-	local XComGameState_Unit	TargetUnit;
-	local XComGameState_Ability	TriggerAbility;
-
-	SpawnedUnit = XComGameState_Unit(EventSource);
-	if (SpawnedUnit == none)
-		return ELR_NoInterrupt;
-
-	TargetUnit = XComGameState_Unit(EventData);
-	if (TargetUnit == none)
-		return ELR_NoInterrupt;
-
-	TriggerAbility = XComGameState_Ability(CallbackData);
-	if (TriggerAbility == none)
-		return ELR_NoInterrupt;
-
-	`AMLOG("Triggering Spirint Spawned ability at:" @ TargetUnit.GetFullName());
-
-	TriggerAbility.AbilityTriggerAgainstSingleTarget(TargetUnit.GetReference(), false);
-
-	return ELR_NoInterrupt;
-}
-
-// Use a custom Merge Vis function to make this ability visualize (create a tether between body and spirit) 
-// after the spirit has been spawned but before it's been pulled out of the body
-static private function AstralGrasp_Spirit_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
-{
-	local XComGameStateVisualizationMgr	VisMgr;
-	local XComGameStateContext_Ability	AbilityContext;
-	local array<X2Action>				FoundActions;
-	local X2Action						FoundAction;
-	local X2Action_MarkerNamed			NamedMarker;
-	local X2Action						StartAction;
-	local X2Action						EndAction;
-
-	local X2Action_MarkerTreeInsertBegin MarkerStart;
-	local X2Action_MarkerTreeInsertEnd MarkerEnd;
-
-	VisMgr = `XCOMVISUALIZATIONMGR;
-	AbilityContext = XComGameStateContext_Ability(BuildTree.StateChangeContext);
-
-	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerNamed', FoundActions,, AbilityContext.InputContext.SourceObject.ObjectID);
-
-	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
-	MarkerEnd = X2Action_MarkerTreeInsertEnd(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertEnd'));
-
-	foreach FoundActions(FoundAction)
-	{
-		NamedMarker = X2Action_MarkerNamed(FoundAction);
-		switch (NamedMarker.MarkerName)
-		{
-			case 'IRI_AstralGrasp_MarkerStart':
-				StartAction = NamedMarker;
-				break;
-			case 'IRI_AstralGrasp_MarkerEnd':
-				EndAction = NamedMarker;
-				break;
-			default:
-				break;
-		}
-	}
-	if (StartAction == none || EndAction == none)
-	{
-		XComGameStateContext_Ability(BuildTree.StateChangeContext).SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
-		return;
-	}
-
-	VisMgr.InsertSubtree(MarkerStart, MarkerEnd, StartAction);
+	class'Help'.static.InsertAfterMarker_MergeVisualization(BuildTree, VisualizationTree, 'IRI_AstralGrasp_UnitSpawned_MarkerStart');
 }
 
 // Copy of the HolyWarriorDeath ability.

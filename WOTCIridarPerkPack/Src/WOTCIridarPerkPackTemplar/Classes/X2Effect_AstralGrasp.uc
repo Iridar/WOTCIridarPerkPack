@@ -170,18 +170,16 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	local X2Action_CreateDoppelganger		CopyUnitAction;
 	local vector							NewUnitLoc;
 	local X2Action_ApplyMITV				ApplyMITV;
-	//local XComGameState_Unit				TargetUnit;
 	local XComGameStateContext_Ability		AbilityContext;
 	local XComGameStateHistory				History;
-	//local X2Action_PlayAnimation			PlayAnimation;
 	local X2Action							ExitCover;
 	local X2Action_ViperGetOverHere			FireAction;
 	local X2Action_MarkerNamed				NamedMarker;
+	//local X2Action							WaitForHitsAction;
 	local array<X2Action>					ParentActions;
 
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(Context);
-	//TargetUnit = XComGameState_Unit(History.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
 
 	// TRACK FOR THE SHOOTER
 
@@ -200,13 +198,12 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 
 	// TRACK FOR THE SPAWNED UNIT
 
-	// This will create the visualizer for the spawned unit, and put them on the tile they were supposed to spawn at
+	// This will create the visualizer for the spawned unit, and put them on the tile they were supposed to spawn at.
 	// in this case - near the shooter
-	ParentActions.AddItem(class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, ExitCover));
-
-	// This will copy the thrower unit's appearance and put the visualizer on top of the target pawn,
-	// which is exactly what I want
+	class'X2Action_ShowSpawnedUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, ExitCover);
 	
+	// This will copy the target unit's appearance and put the visualizer on top of the target pawn,
+	// which is exactly what I want
 	CopyUnitAction = X2Action_CreateDoppelganger(class'X2Action_CreateDoppelganger'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	CopyUnitAction.OriginalUnit = XGUnit(`XCOMHISTORY.GetVisualizer(EffectTargetUnit.ObjectID));
 	CopyUnitAction.ShouldCopyAppearance = true;
@@ -216,28 +213,36 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
 
+	// These are used to hook in the "create a psionic tether between the spirit and the body" ability visualization via its custom MergeVis
 	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	NamedMarker.SetName("IRI_AstralGrasp_MarkerStart");
 
 	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	NamedMarker.SetName("IRI_AstralGrasp_MarkerEnd");
 
+	// Hide the spawned unit
+	//class'X2Action_HideUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, NamedMarker);
+	
+	//// Wait for the Fire Action's projectile to hit the unit
+	////class'X2Action_ApplyDamageSpacer'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded);
+	//
+	//// Then unhide the unit
+	//ParentActions.AddItem(FireAction);
+	//class'X2Action_ShowUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded, ParentActions);
+
 	// This will drag the spawned pawn from the target unit to the tile near the shooter
 	ParentActions.AddItem(FireAction);
+	ParentActions.AddItem(NamedMarker);
 	GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false,, ParentActions));
 	NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(XComGameState_Unit(SpawnedUnitTrack.StateObject_NewState).TileLocation);
 	GetOverHereTarget.SetDesiredLocation(NewUnitLoc, XGUnit(SpawnedUnitTrack.VisualizeActor));
-	
-	
-	// Play the start stun animation
-	//PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
-	//PlayAnimation.Params.AnimName = 'HL_StunnedStart';
-	//PlayAnimation.bResetWeaponsToDefaultSockets = true;
-	//
-	//PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
-	//PlayAnimation.Params.AnimName = 'HL_StunnedIdle';
-	//PlayAnimation.bResetWeaponsToDefaultSockets = true;
-	//PlayAnimation.Params.Looping = true;
+
+	// These are used to hook in the "stun the spawned spirit" ability visualization via its custom MergeVis
+	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	NamedMarker.SetName("IRI_AstralGrasp_UnitSpawned_MarkerStart");
+
+	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	NamedMarker.SetName("IRI_AstralGrasp_UnitSpawned_MarkerEnd");
 }
 
 // ------------------------------------------------------------------

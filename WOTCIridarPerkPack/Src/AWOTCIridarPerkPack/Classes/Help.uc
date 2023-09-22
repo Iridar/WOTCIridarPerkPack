@@ -219,6 +219,8 @@ static function string ColourText(string strValue, string strColour)
 
 
 
+
+
 static final function int GetForceLevel()
 {
 	local XComGameStateHistory		History;
@@ -678,4 +680,40 @@ final static function FollowUpShot_MergeVisualization(X2Action BuildTree, out X2
 			break;
 		}
 	}
+}
+
+
+static final function InsertAfterMarker_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree, const name MarkerName)
+{
+	local XComGameStateVisualizationMgr		VisMgr;
+	local XComGameStateContext_Ability		AbilityContext;
+	local array<X2Action>					FoundActions;
+	local X2Action							FoundAction;
+	local X2Action_MarkerNamed				NamedMarker;
+	local X2Action_MarkerTreeInsertBegin	MarkerStart;
+	local X2Action_MarkerTreeInsertEnd		MarkerEnd;
+
+	VisMgr = `XCOMVISUALIZATIONMGR;
+	AbilityContext = XComGameStateContext_Ability(BuildTree.StateChangeContext);
+
+	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerNamed', FoundActions,, AbilityContext.InputContext.SourceObject.ObjectID);
+
+	MarkerStart = X2Action_MarkerTreeInsertBegin(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin'));
+	MarkerEnd = X2Action_MarkerTreeInsertEnd(VisMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertEnd'));
+
+	if (MarkerStart != none && MarkerEnd != none)
+	{
+		foreach FoundActions(FoundAction)
+		{
+			NamedMarker = X2Action_MarkerNamed(FoundAction);
+			if (NamedMarker.MarkerName == MarkerName)
+			{
+				VisMgr.InsertSubtree(MarkerStart, MarkerEnd, NamedMarker);
+				return;
+			}
+		}
+	}
+
+	// Fallback to generic merge vis in case something goes wrong
+	XComGameStateContext_Ability(BuildTree.StateChangeContext).SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
 }
