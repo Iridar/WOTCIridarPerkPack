@@ -176,6 +176,7 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	local X2Action_ViperGetOverHere			FireAction;
 	local X2Action_MarkerNamed				NamedMarker;
 	local X2Action							WaitForHitsAction;
+	local X2Action_HideUIUnitFlag			HideFlag;
 
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(Context);
@@ -213,6 +214,9 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	ApplyMITV.MITVPath = "FX_Cyberus_Materials.M_Cyberus_Invisible_MITV";
 
+	HideFlag = X2Action_HideUIUnitFlag(class'X2Action_HideUIUnitFlag'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	HideFlag.bHideUIUnitFlag = true;
+
 	// Wait for the Fire Action's projectile to hit the unit
 	WaitForHitsAction = class'X2Action_ApplyDamageSpacer'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, FireAction);
 	WaitForHitsAction.ClearInputEvents();
@@ -228,6 +232,10 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 
 	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	NamedMarker.SetName("IRI_AstralGrasp_MarkerEnd");
+
+	// Show the unit flag after the spirit finished moving
+	HideFlag = X2Action_HideUIUnitFlag(class'X2Action_HideUIUnitFlag'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	HideFlag.bHideUIUnitFlag = false;
 
 	// This will drag the spawned pawn from the target unit to the tile near the shooter
 	GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));

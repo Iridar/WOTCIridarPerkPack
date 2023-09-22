@@ -76,8 +76,8 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 // 4. Grasping non-humanoid spirits
 // 5. Remove blood pools
 // 6. Fix camerawork when spirit is killed
-// 7. Hide the spirit's unit flag until it is pulled
 // 8. Custom fire/pull animations and projectiles
+// 9. Fix custom death action
 
 	ActionCost = new class'X2AbilityCost_ActionPoints';
 	ActionCost.iNumPoints = 1;
@@ -115,7 +115,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	UnitEffectsCondition = new class'X2Condition_UnitEffects';
 	UnitEffectsCondition.AddExcludeEffect('IRI_X2Effect_AstralGrasp', 'AA_DuplicateEffectIgnored');
 	// Can't grasp grasped spirits lol
-	UnitEffectsCondition.AddExcludeEffect(class'X2Effect_AstralGraspSpirit'.default.EffectName, 'AA_DuplicateEffectIgnored'); 
+	UnitEffectsCondition.AddExcludeEffect('IRI_TM_AstralGrasp_SpiritLink', 'AA_DuplicateEffectIgnored'); 
 	Template.AbilityTargetConditions.AddItem(UnitEffectsCondition);
 
 	// Effects
@@ -155,7 +155,6 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 {
 	local X2AbilityTemplate					Template;
 	local X2Effect_AstralGraspSpirit		Effect;
-	local X2Effect_OverrideDeathAction		DeathActionEffect;
 	local X2AbilityTrigger_EventListener	Trigger;
 	local X2Effect_Persistent				PerkEffect;
 	local X2Effect_AdditionalAnimSets		AnimSetEffect;
@@ -191,15 +190,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	Effect.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddShooterEffect(Effect);
 
-	// Custom death action and AnimSet with the death animation
-	DeathActionEffect = new class'X2Effect_OverrideDeathAction';
-	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
-	DeathActionEffect.EffectName = 'IRI_TM_AstralGrasp_Spirit_DeathOverride';
-	DeathActionEffect.BuildPersistentEffect(1, true);
-	DeathActionEffect.bRemoveWhenTargetDies = false;
-	DeathActionEffect.bRemoveWhenSourceDies = false;
-	Template.AddShooterEffect(DeathActionEffect);
-
+	// AnimSet with the death animation
 	AnimSetEffect = new class'X2Effect_AdditionalAnimSets';
 	AnimSetEffect.AddAnimSetWithPath("IRIAstralGrasp.AS_PsiDeath");
 	AnimSetEffect.BuildPersistentEffect(1, true);
@@ -322,6 +313,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
 	local X2Condition_UnitEffectsWithAbilitySource		TargetEffectCondition;
 	local X2Effect_HolyWarriorDeath						HolyWarriorDeathEffect;
 	local X2Effect_RemoveEffects						RemoveEffects;
+	local X2Effect_OverrideDeathAction					DeathActionEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritDeath');
 
@@ -348,6 +340,11 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
 	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
 
 	// Effects
+	DeathActionEffect = new class'X2Effect_OverrideDeathAction';
+	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
+	DeathActionEffect.EffectName = 'IRI_SpiritDeathActionEffect';
+	Template.AddShooterEffect(DeathActionEffect);
+
 	HolyWarriorDeathEffect = new class'X2Effect_HolyWarriorDeath';
 	HolyWarriorDeathEffect.DelayTimeS = class'X2Ability_AdvPriest'.default.HOLYWARRIOR_DEATH_DELAY_S;
 	Template.AddTargetEffect(HolyWarriorDeathEffect);
