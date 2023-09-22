@@ -176,8 +176,6 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	local X2Action_ViperGetOverHere			FireAction;
 	local X2Action_MarkerNamed				NamedMarker;
 	local X2Action							WaitForHitsAction;
-	local array<X2Action>					ParentActions;
-	local X2Action							ShowUnitAction;
 
 	History = `XCOMHISTORY;
 	AbilityContext = XComGameStateContext_Ability(Context);
@@ -212,10 +210,10 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	CopyUnitAction.bIgnorePose = false;
 
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
-	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
+	ApplyMITV.MITVPath = "FX_Cyberus_Materials.M_Cyberus_Invisible_MITV";
 
 	// Hide the spawned unit
-	class'X2Action_HideUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded);
+	//class'X2Action_HideUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded);
 	
 	// Wait for the Fire Action's projectile to hit the unit
 	WaitForHitsAction = class'X2Action_ApplyDamageSpacer'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, FireAction);
@@ -223,8 +221,9 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	WaitForHitsAction.AddInputEvent('Visualizer_ProjectileHit');
 	
 	// Then unhide the unit
-	//ParentActions.AddItem(FireAction);
-	class'X2Action_ShowUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded);
+	//class'X2Action_RemoveMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded);
+	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
+	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
 
 	// These are used to hook in the "create a psionic tether between the spirit and the body" ability visualization via its custom MergeVis
 	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
@@ -234,8 +233,6 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	NamedMarker.SetName("IRI_AstralGrasp_MarkerEnd");
 
 	// This will drag the spawned pawn from the target unit to the tile near the shooter
-	//ParentActions.AddItem(FireAction);
-	//ParentActions.AddItem(NamedMarker);
 	GetOverHereTarget =  X2Action_AstralGrasp(class'X2Action_AstralGrasp'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(XComGameState_Unit(SpawnedUnitTrack.StateObject_NewState).TileLocation);
 	GetOverHereTarget.SetDesiredLocation(NewUnitLoc, XGUnit(SpawnedUnitTrack.VisualizeActor));

@@ -216,6 +216,9 @@
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_HideUnit.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_RemoveMITV.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_ShowUnit.uc">
       <SubType>Content</SubType>
     </Content>
