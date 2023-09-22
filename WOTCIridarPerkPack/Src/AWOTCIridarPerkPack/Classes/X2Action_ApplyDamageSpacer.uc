@@ -8,7 +8,7 @@
 
 class X2Action_ApplyDamageSpacer extends X2Action;
 
-var float DelayTimer;
+//var float DelayTimer;
 
 //work around for protected property
 static function ChangeActionContext(X2Action Action, XComGameStateContext NewContext)
