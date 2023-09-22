@@ -76,7 +76,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 // 4. Grasping non-humanoid spirits
 // 5. Remove blood pools
 // 6. Fix camerawork when spirit is killed
-// 7. Make spirit visibly spawn when the projectile hits (maybe hide the unit temporarily)
+// 7. Hide the spirit's unit flag until it is pulled
 // 8. Custom fire/pull animations and projectiles
 
 	ActionCost = new class'X2AbilityCost_ActionPoints';

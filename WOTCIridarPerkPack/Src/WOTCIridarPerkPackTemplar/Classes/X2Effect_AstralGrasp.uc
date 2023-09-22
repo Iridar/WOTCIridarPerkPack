@@ -209,19 +209,16 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	CopyUnitAction.bReplacingOriginalUnit = false;
 	CopyUnitAction.bIgnorePose = false;
 
+	// Hide the spawned unit
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	ApplyMITV.MITVPath = "FX_Cyberus_Materials.M_Cyberus_Invisible_MITV";
 
-	// Hide the spawned unit
-	//class'X2Action_HideUnit'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded);
-	
 	// Wait for the Fire Action's projectile to hit the unit
 	WaitForHitsAction = class'X2Action_ApplyDamageSpacer'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, FireAction);
 	WaitForHitsAction.ClearInputEvents();
 	WaitForHitsAction.AddInputEvent('Visualizer_ProjectileHit');
 	
 	// Then unhide the unit
-	//class'X2Action_RemoveMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded);
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
 	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
 
