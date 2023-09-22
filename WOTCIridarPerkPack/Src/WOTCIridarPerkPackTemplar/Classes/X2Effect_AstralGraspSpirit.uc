@@ -82,6 +82,9 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 		PlayAnimation.Params.AnimName = 'HL_StunnedStop';
 		PlayAnimation.bResetWeaponsToDefaultSockets = true;
 
+		ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+		ApplyMITV.MITVPath = "FX_Corrupt.M_SpectralZombie_Dissolve_MITV";
+
 		if (SpawnedUnit.GetUnitValue('IRI_TM_AstralGrasp_SpiritLink', UV))
 		{
 			TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UV.fValue));
@@ -91,16 +94,10 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 				NewUnitLoc = `XWORLD.GetPositionFromTileCoordinates(TargetUnit.TileLocation);
 				GetOverHereTarget.SetDesiredLocation(NewUnitLoc, XGUnit(TargetUnit.GetVisualizer()));
 			}
-		}		
+		}
+		
+		class'X2Action_RemoveUnit'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded);		
 	}
-
-	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-	ApplyMITV.MITVPath = "FX_Corrupt.M_SpectralZombie_Dissolve_MITV";
-
-	//TimedWait = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-	//TimedWait.DelayTimeSec = 3.0f;
-
-	class'X2Action_RemoveUnit'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded);
 }
 
 

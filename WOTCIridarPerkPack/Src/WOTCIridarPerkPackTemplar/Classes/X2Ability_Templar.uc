@@ -313,7 +313,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
 	local X2Condition_UnitEffectsWithAbilitySource		TargetEffectCondition;
 	local X2Effect_HolyWarriorDeath						HolyWarriorDeathEffect;
 	local X2Effect_RemoveEffects						RemoveEffects;
-	local X2Effect_OverrideDeathAction					DeathActionEffect;
+	local X2Effect_AstralGrasp_OverrideDeathAction		DeathActionEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritDeath');
 
@@ -340,7 +340,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
 	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
 
 	// Effects
-	DeathActionEffect = new class'X2Effect_OverrideDeathAction';
+	DeathActionEffect = new class'X2Effect_AstralGrasp_OverrideDeathAction';
 	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
 	DeathActionEffect.EffectName = 'IRI_SpiritDeathActionEffect';
 	Template.AddShooterEffect(DeathActionEffect);
