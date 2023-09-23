@@ -9,8 +9,8 @@ var private vector			LocationDiff;
 */
 function Init()
 {
-	local XComGameState_Unit BodyUnit;
-	local UnitValue	UV;
+	//local XComGameState_Unit BodyUnit;
+	//local UnitValue	UV;
 
 	super.Init();
 
@@ -44,13 +44,37 @@ static function bool AllowOverrideActionDeath(VisualizationActionMetadata Action
 {
 	return true;
 }
-
+/*
 simulated function Name ComputeAnimationToPlay()
 {
+	local XComGameStateVisualizationMgr		VisMgr;
+	local array<X2Action>					FoundActions;
+	local X2Action							FoundAction;
+	local X2Action_ApplyWeaponDamageToUnit	DamageAction;
+
+	`AMLOG("Running");
+
 	UnitPawn.GetAnimTreeController().SetAllowNewAnimations(true);
 
-	return 'HL_AstralGrasp_Death';
-}
+	VisMgr = `XCOMVISUALIZATIONMGR;
+
+	VisMgr.GetNodesOfType(VisMgr.VisualizationTree, class'X2Action_ApplyWeaponDamageToUnit', FoundActions,, NewUnitState.ObjectID);
+
+	`AMLOG("Found this many actions" @ FoundActions.Length @ "For ObjectID:" @ NewUnitState.ObjectID);
+
+	foreach FoundActions(FoundAction)
+	{
+		DamageAction = X2Action_ApplyWeaponDamageToUnit(FoundAction);
+
+		`AMLOG("Computed animation:" @ DamageAction.ComputeAnimationToPlay(""));
+
+		return DamageAction.ComputeAnimationToPlay("");
+	}
+	
+	`AMLOG("Found no actions, falling back");
+
+	return 'HL_HurtFront';
+}*/
 
 
 function bool ShouldRunDeathHandler()

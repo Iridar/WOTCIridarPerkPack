@@ -256,7 +256,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritStun()
 {
 	local X2AbilityTemplate					Template;
 	local X2AbilityTrigger_EventListener	Trigger;
-	local X2Effect							StunnedEffect;
+	local X2Effect_Persistent				StunnedEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritStun');
 
@@ -284,6 +284,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritStun()
 	StunnedEffect = class'X2Effect_Stunned_AstralGrasp'.static.CreateStunnedStatusEffect(2, 100);
 	StunnedEffect.DamageTypes.Length = 0;
 	StunnedEffect.DamageTypes.AddItem('Psi');
+	StunnedEffect.bRemoveWhenTargetDies = true;
 	Template.AddShooterEffect(StunnedEffect);
 
 	// State and Viz
@@ -340,6 +341,10 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
 	Template.AbilityTargetConditions.AddItem(TargetEffectCondition);
 
 	// Effects
+	RemoveEffects = new class'X2Effect_RemoveEffects';
+	RemoveEffects.EffectNamesToRemove.AddItem(class'X2AbilityTemplateManager'.default.StunnedName);
+	Template.AddShooterEffect(RemoveEffects);
+
 	DeathActionEffect = new class'X2Effect_AstralGrasp_OverrideDeathAction';
 	DeathActionEffect.DeathActionClass = class'X2Action_AstralGraspSpiritDeath';
 	DeathActionEffect.EffectName = 'IRI_SpiritDeathActionEffect';

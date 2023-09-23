@@ -52,12 +52,22 @@ simulated function OnEffectRemoved(const out EffectAppliedData ApplyEffectParame
 	`XEVENTMGR.TriggerEvent('UnitRemovedFromPlay', SpawnedUnit, SpawnedUnit, NewGameState);
 }
 
+simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, name EffectApplyResult)
+{
+	local X2Action_ApplyMITV ApplyMITV;
+	
+	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext()));
+	ApplyMITV.MITVPath = "FX_Corrupt.M_SpectralZombie_Pulsing_MITV";
+
+	super.AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, EffectApplyResult);
+}
+
 simulated function AddX2ActionsForVisualization_Sync(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata)
 {
 	local X2Action_ApplyMITV ApplyMITV;
 	
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext()));
-	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
+	ApplyMITV.MITVPath = "FX_Corrupt.M_SpectralZombie_Pulsing_MITV";
 }
 
 simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult, XComGameState_Effect RemovedEffect)
@@ -103,6 +113,7 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 
 // ------------------------- HIT EFFECT EVENTS -------------------------
 
+// These should be preventing things like blood effects when the spirit is getting hit
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager		EventMgr;
@@ -133,75 +144,67 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 
 static private function EventListenerReturn OnOverrideHitEffects(Object EventData, Object EventSource, XComGameState NewGameState, name InEventID, Object CallbackData)
 {
-    local XComUnitPawn Pawn;
+    //local XComUnitPawn Pawn;
     local XComLWTuple Tuple;
-    local bool OverrideHitEffect;
-    local float Damage;
-    local Actor InstigatedBy;
-    local vector HitLocation;
-    local name DamageTypeName;
-    local vector Momentum;
-    local bool bIsUnitRuptured;
-    local EAbilityHitResult HitResult;
+    //local bool OverrideHitEffect;
+    //local float Damage;
+    //local Actor InstigatedBy;
+    //local vector HitLocation;
+    //local name DamageTypeName;
+    //local vector Momentum;
+    //local bool bIsUnitRuptured;
+    //local EAbilityHitResult HitResult;
 
-    Pawn = XComUnitPawn(EventSource);
+    //Pawn = XComUnitPawn(EventSource);
     Tuple = XComLWTuple(EventData);
 
-    OverrideHitEffect = Tuple.Data[0].b;
-    Damage = Tuple.Data[1].f;
-    InstigatedBy = Actor(Tuple.Data[2].o);
-    HitLocation = Tuple.Data[3].v;
-    DamageTypeName = Tuple.Data[4].n;
-    Momentum = Tuple.Data[5].v;
-    bIsUnitRuptured = Tuple.Data[6].b;
-    HitResult = EAbilityHitResult(Tuple.Data[7].i);
+    //OverrideHitEffect = Tuple.Data[0].b;
+    //Damage = Tuple.Data[1].f;
+    //InstigatedBy = Actor(Tuple.Data[2].o);
+    //HitLocation = Tuple.Data[3].v;
+    //DamageTypeName = Tuple.Data[4].n;
+    //Momentum = Tuple.Data[5].v;
+    //bIsUnitRuptured = Tuple.Data[6].b;
+    //HitResult = EAbilityHitResult(Tuple.Data[7].i);
 
-    // Your code here
-
-	OverrideHitEffect = true;
-
-    Tuple.Data[0].b = OverrideHitEffect;
-    Tuple.Data[1].f = Damage;
-    Tuple.Data[3].v = HitLocation;
-    Tuple.Data[4].n = DamageTypeName;
-    Tuple.Data[5].v = Momentum;
-    Tuple.Data[6].b = bIsUnitRuptured;
-    Tuple.Data[7].i = HitResult;
+    Tuple.Data[0].b = true; //OverrideHitEffect;
+    //Tuple.Data[1].f = Damage;
+    //Tuple.Data[3].v = HitLocation;
+    //Tuple.Data[4].n = DamageTypeName;
+    //Tuple.Data[5].v = Momentum;
+    //Tuple.Data[6].b = bIsUnitRuptured;
+    //Tuple.Data[7].i = HitResult;
 
     return ELR_NoInterrupt;
 }
 
 static private function EventListenerReturn OnOverrideMetaHitEffect(Object EventData, Object EventSource, XComGameState NewGameState, name InEventID, Object CallbackData)
 {
-    local XComUnitPawn Pawn;
+    //local XComUnitPawn Pawn;
     local XComLWTuple Tuple;
-    local bool OverrideMetaHitEffect;
-    local vector HitLocation;
-    local name DamageTypeName;
-    local vector Momentum;
-    local bool bIsUnitRuptured;
-    local EAbilityHitResult HitResult;
+    //local bool OverrideMetaHitEffect;
+    //local vector HitLocation;
+    //local name DamageTypeName;
+    //local vector Momentum;
+    //local bool bIsUnitRuptured;
+    //local EAbilityHitResult HitResult;
 
-    Pawn = XComUnitPawn(EventSource);
+   // Pawn = XComUnitPawn(EventSource);
     Tuple = XComLWTuple(EventData);
 
-    OverrideMetaHitEffect = Tuple.Data[0].b;
-    HitLocation = Tuple.Data[1].v;
-    DamageTypeName = Tuple.Data[2].n;
-    Momentum = Tuple.Data[3].v;
-    bIsUnitRuptured = Tuple.Data[4].b;
-    HitResult = EAbilityHitResult(Tuple.Data[5].i);
+    //OverrideMetaHitEffect = Tuple.Data[0].b;
+    //HitLocation = Tuple.Data[1].v;
+    //DamageTypeName = Tuple.Data[2].n;
+    //Momentum = Tuple.Data[3].v;
+    //bIsUnitRuptured = Tuple.Data[4].b;
+    //HitResult = EAbilityHitResult(Tuple.Data[5].i);
 
-	OverrideMetaHitEffect = true;
-
-    // Your code here
-
-    Tuple.Data[0].b = OverrideMetaHitEffect;
-    Tuple.Data[1].v = HitLocation;
-    Tuple.Data[2].n = DamageTypeName;
-    Tuple.Data[3].v = Momentum;
-    Tuple.Data[4].b = bIsUnitRuptured;
-    Tuple.Data[5].i = HitResult;
+    Tuple.Data[0].b = true; // OverrideMetaHitEffect;
+    //Tuple.Data[1].v = HitLocation;
+    //Tuple.Data[2].n = DamageTypeName;
+    //Tuple.Data[3].v = Momentum;
+    //Tuple.Data[4].b = bIsUnitRuptured;
+    //Tuple.Data[5].i = HitResult;
 
     return ELR_NoInterrupt;
 }

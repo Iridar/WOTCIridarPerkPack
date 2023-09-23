@@ -224,7 +224,7 @@ function AddSpawnVisualizationsToTracks(XComGameStateContext Context, XComGameSt
 	
 	// Then unhide the unit
 	ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
-	ApplyMITV.MITVPath = "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV";
+	ApplyMITV.MITVPath = "FX_Corrupt.M_SpectralZombie_Reveal_MITV";
 
 	// These are used to hook in the "create a psionic tether between the spirit and the body" ability visualization via its custom MergeVis
 	NamedMarker = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SpawnedUnitTrack, Context, false, SpawnedUnitTrack.LastActionAdded));
