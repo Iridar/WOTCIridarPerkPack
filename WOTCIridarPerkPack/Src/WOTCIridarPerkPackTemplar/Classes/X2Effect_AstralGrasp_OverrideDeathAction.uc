@@ -4,7 +4,6 @@ simulated function X2Action AddX2ActionsForVisualization_Death(out Visualization
 {
 	local X2Action					AddAction;
 	local X2Action_ApplyMITV		ApplyMITV;
-	//local X2Action_AstralGrasp		GetOverHereTarget;
 	local X2Action_TimedWait		TimedWait;
 	local X2Action					CommonParent;
 
