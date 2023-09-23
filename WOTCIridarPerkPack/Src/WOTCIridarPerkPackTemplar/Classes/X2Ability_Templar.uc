@@ -74,10 +74,8 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 // 2. Grasp the spirit and kill the body
 // 3. Grasp the spirit and let it expire
 // 4. Grasping non-humanoid spirits
-// 5. Remove blood pools
 // 6. Fix camerawork when spirit is killed
 // 8. Custom fire/pull animations and projectiles
-// 9. Fix custom death action
 
 	ActionCost = new class'X2AbilityCost_ActionPoints';
 	ActionCost.iNumPoints = 1;
@@ -365,9 +363,52 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritDeath()
 	Template.CinescriptCameraType = "HolyWarrior_Death";
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.MergeVisualizationFn = class'X2Ability_AdvPriest'.static.HolyWarriorDeath_MergeVisualization;
+	Template.MergeVisualizationFn = AstralGrasp_SpiritDeath_MergeVisualization;
 
 	return Template;
+}
+
+
+static private function AstralGrasp_SpiritDeath_MergeVisualization(X2Action BuildTree, out X2Action VisualizationTree)
+{
+	local X2Action						TargetDeathAction;
+	local X2Action_Death				PriestDeathAction;
+	local X2Action						BuildTreeStartNode;
+	local X2Action						BuildTreeEndNode;
+	local XComGameStateVisualizationMgr	LocalVisualizationMgr;
+	local XComGameStateContext_Ability	AbilityContext;
+	local X2Action_CameraLookAt			CameraAction;
+	local VisualizationActionMetadata	ActionMetadata;
+	local XComGameState_Unit			GraspedUnit;
+
+	LocalVisualizationMgr = `XCOMVISUALIZATIONMGR;
+
+	AbilityContext = XComGameStateContext_Ability(BuildTree.StateChangeContext);
+
+	PriestDeathAction = X2Action_Death(LocalVisualizationMgr.GetNodeOfType(VisualizationTree, class'X2Action_Death', , AbilityContext.InputContext.SourceObject.ObjectID));
+	BuildTreeStartNode = LocalVisualizationMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertBegin');
+	BuildTreeEndNode = LocalVisualizationMgr.GetNodeOfType(BuildTree, class'X2Action_MarkerTreeInsertEnd');
+	LocalVisualizationMgr.InsertSubtree(BuildTreeStartNode, BuildTreeEndNode, PriestDeathAction);
+
+	GraspedUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (GraspedUnit == none)
+		return;
+
+	`AMLOG("Grasped Unit is:" @ GraspedUnit.GetFullName());
+
+	TargetDeathAction = LocalVisualizationMgr.GetNodeOfType(VisualizationTree, class'X2Action_Death',, GraspedUnit.ObjectID);
+	if (TargetDeathAction == none)
+		return;
+
+	ActionMetadata = TargetDeathAction.Metadata;
+
+	CameraAction = X2Action_CameraLookAt(class'X2Action_CameraLookAt'.static.AddToVisualizationTree(ActionMetadata, AbilityContext, false,, TargetDeathAction.ParentActions));
+	CameraAction.LookAtLocation = `XWORLD.GetPositionFromTileCoordinates(GraspedUnit.TileLocation);
+	`AMLOG("CameraAction.LookAtLocation:" @ CameraAction.LookAtLocation);
+	CameraAction.LookAtDuration = 4;
+	CameraAction.BlockUntilFinished = true;
+	CameraAction.DesiredCameraPriority = eCameraPriority_Kismet;
+	//LookAtAction.BlockUntilActorOnScreen = true;
 }
 
 static private function EventListenerReturn AstralGrasp_SpiritDeath_EventListenerTrigger(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)

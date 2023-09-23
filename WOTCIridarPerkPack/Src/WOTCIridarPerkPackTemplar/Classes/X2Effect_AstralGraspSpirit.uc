@@ -7,12 +7,11 @@ function ModifyTurnStartActionPoints(XComGameState_Unit UnitState, out array<nam
 {
 	ActionPoints.Length = 0;
 }
-/*
+
 function bool ProvidesDamageImmunity(XComGameState_Effect EffectState, name DamageType)
 {
-	// Only psi damage should be allowed, but then it would block Rend too.
-	return DamageType != 'Psi' && DamageType != 'Melee';
-}*/
+	return DamageType == 'KnockbackDamage';
+}
 
 
 simulated function OnEffectRemoved(const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState, bool bCleansed, XComGameState_Effect RemovedEffectState)
