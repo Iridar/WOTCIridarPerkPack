@@ -434,9 +434,7 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
-	Template.HideErrors.AddItem('AA_CannotAfford_ActionPoints');
-	Template.HideErrors.AddItem('AA_AbilityUnavailable');
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.OverrideAbilityAvailabilityFn = Reflect_OverrideAbilityAvailability;
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ReflectShot";
 
@@ -491,12 +489,15 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 // Same as Parry, but later
 static private function Reflect_OverrideAbilityAvailability(out AvailableAction Action, XComGameState_Ability AbilityState, XComGameState_Unit OwnerState)
 {
-	if (Action.AvailableCode == 'AA_Success' || Action.AvailableCode == 'AA_CannotAfford_Focus')
+	if (Action.AvailableCode == 'AA_Success' || // Focus is checked before Action Points, so have to check Action Points explicitly
+		Action.AvailableCode == 'AA_CannotAfford_Focus' && OwnerState.ActionPoints.Find(class'X2CharacterTemplateManager'.default.MomentumActionPoint) != INDEX_NONE)
 	{
-		if (OwnerState.ActionPoints.Length == 1 && OwnerState.ActionPoints[0] == class'X2CharacterTemplateManager'.default.MomentumActionPoint)
-		{
-			Action.ShotHUDPriority = class'UIUtilities_Tactical'.const.PARRY_PRIORITY + 2;
-		}
+		Action.ShotHUDPriority = class'UIUtilities_Tactical'.const.PARRY_PRIORITY + 2;
+		Action.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	}
+	else
+	{
+		Action.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
 	}
 }
 
