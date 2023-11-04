@@ -25,7 +25,6 @@ static private function EventListenerReturn AbilityActivated_Listener(Object Eve
     local XComGameState_Unit				TargetUnit;
 	local XComGameStateContext_Ability		AbilityContext;
 	local XComGameState_Effect_TemplarFocus	FocusState;
-	local X2EventManager					EventMgr;
 	local XComGameState						NewGameState;
 	local array<name>						SupportedAbilities;
 		
@@ -48,10 +47,11 @@ static private function EventListenerReturn AbilityActivated_Listener(Object Eve
 	FocusState = SourceUnit.GetTemplarFocusEffectState();
 	if (FocusState != none)
 	{
-		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Trigger Overcharge Focus");
-
+		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Trigger Overcharge Flyover");
 		`XEVENTMGR.TriggerEvent('X2Effect_Overcharge_Event', CallbackData, SourceUnit, NewGameState);	
+		`GAMERULES.SubmitGameState(NewGameState);
 
+		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Trigger Overcharge Focus");
 		FocusState = XComGameState_Effect_TemplarFocus(NewGameState.ModifyStateObject(FocusState.Class, FocusState.ObjectID));
 		FocusState.SetFocusLevel(FocusState.FocusLevel + 1, SourceUnit, NewGameState);	
 		`GAMERULES.SubmitGameState(NewGameState);
