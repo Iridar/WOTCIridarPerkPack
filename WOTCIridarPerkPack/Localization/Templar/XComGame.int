@@ -30,10 +30,16 @@ LocPromotionPopupText="<Bullet/> Amplify has no cooldown, so you can cast Amplif
 
 [IRI_TM_Reflect X2AbilityTemplate]
 LocFriendlyName="Reflect"
-LocLongDescription="Empowered version of Parry that reflects the next incoming shot back at the attacker. Costs 1 Focus."
-LocHelpText="Reflect the next attack made against you during the enemy turn back at the attacker, preventing all damage. Costs 1 Focus."
+LocLongDescription="Empowered version of Parry that reflects the next incoming shot back at the attacker. Reflecting an attack costs 1 Focus."
+LocHelpText="Reflect the next attack made against you during the enemy turn back at the attacker, preventing all damage. Reflecting an attack costs 1 Focus."
 LocFlyoverText="Reflected!"
-LocPromotionPopupText="<Bullet/> Reflect will prevent damage from both melee and ranged attacks.<br/><Bullet/> Reflect will use the action granted by Momentum.<br/>"
+LocPromotionPopupText="<Bullet/> Reflect will prevent damage from both melee and ranged attacks.<br/><Bullet/> Reflect will use the action granted by Momentum.<br/><Bullet/> Avoiding the damage of the enemy attack is guaranteed, but hitting the enemy with the reflected attack is not. The chance depends on the <Ability:ClassName/>'s Aim and ignores enemy cover Defense."
+
+[IRI_TM_ReflectShot X2AbilityTemplate]
+LocFriendlyName="Reflect"
+LocLongDescription="Empowered version of Parry that reflects the next incoming shot back at the attacker. Reflecting an attack costs 1 Focus."
+LocHelpText="Reflect the next attack made against you during the enemy turn back at the attacker, preventing all damage. Reflecting an attack costs 1 Focus."
+
 
 [IRI_TM_Stunstrike X2AbilityTemplate]
 LocFriendlyName="Stun Strike"

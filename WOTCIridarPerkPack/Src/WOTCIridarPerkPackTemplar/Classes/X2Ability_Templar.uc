@@ -5,13 +5,14 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	Templates.AddItem(IRI_TM_Rend());
-	Templates.AddItem(IRI_TM_Volt());
+	Templates.AddItem(IRI_TM_Volt()); // TODO: Vanilla Aftershock requires vanilla Volt, lol
 	Templates.AddItem(IRI_TM_SoulShot());
 	Templates.AddItem(IRI_TM_TemplarFocus());
 
 	Templates.AddItem(IRI_TM_Amplify()); // TODO: Check if vanilla Amplify has a visual effect?
-	Templates.AddItem(IRI_TM_Reflect()); // TODO: Fix the ReflectAttack projectile missing the target and then causing a viz delay
+	Templates.AddItem(IRI_TM_Reflect());
 	//Templates.AddItem(IRI_TM_Stunstrike());
+	Templates.AddItem(IRI_TM_ReflectShot());
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
@@ -402,6 +403,7 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 	local X2Effect_IncrementUnitValue	ParryUnitValue;
 	local X2AbilityCost_ActionPoints	ActionPointCost;
 	local X2Effect_Reflect				Effect;
+	local X2AbilityCost_Focus			FocusCost;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Reflect');
 
@@ -409,7 +411,7 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
 	Template.OverrideAbilityAvailabilityFn = Reflect_OverrideAbilityAvailability;
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Parry";
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ReflectShot";
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -421,7 +423,9 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
  	Template.AddShooterEffectExclusions();
 
 	// Costs
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+	FocusCost = new class'X2AbilityCost_Focus';
+	FocusCost.bFreeCost = true; // Actual Focus cost is applied by Reflect Shot.
+	Template.AbilityCosts.AddItem(FocusCost);
 
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.iNumPoints = 1;
@@ -436,7 +440,7 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 	ParryUnitValue.CleanupType = eCleanup_BeginTurn;
 	Template.AddShooterEffect(ParryUnitValue);
 
-	Effect = new class'X2Effect_Reflect';
+	Effect = new class'X2Effect_Reflect'; // Not a Firaxis class
 	Effect.BuildPersistentEffect(1, false, false,, eGameRule_PlayerTurnBegin);
 	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
@@ -452,7 +456,7 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 	Template.BuildInterruptGameStateFn = none; // TypicalAbility_BuildInterruptGameState; // Firaxis has Parry as offensive and interruptible, which is asinine
 
 	Template.PrerequisiteAbilities.AddItem('Parry');
-	Template.AdditionalAbilities.AddItem('ReflectShot');
+	Template.AdditionalAbilities.AddItem('IRI_TM_ReflectShot');
 
 	return Template;
 }
@@ -460,12 +464,72 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 // Same as Parry, but later
 static private function Reflect_OverrideAbilityAvailability(out AvailableAction Action, XComGameState_Ability AbilityState, XComGameState_Unit OwnerState)
 {
-	if (Action.AvailableCode == 'AA_Success')
+	if (Action.AvailableCode == 'AA_Success' || Action.AvailableCode == 'AA_CannotAfford_Focus')
 	{
 		if (OwnerState.ActionPoints.Length == 1 && OwnerState.ActionPoints[0] == class'X2CharacterTemplateManager'.default.MomentumActionPoint)
 			Action.ShotHUDPriority = class'UIUtilities_Tactical'.const.PARRY_PRIORITY + 2;
 	}
 }
+
+static private function X2AbilityTemplate IRI_TM_ReflectShot()
+{
+	local X2AbilityTemplate						Template;
+	local X2AbilityTrigger_EventListener		EventListener;
+	local X2Effect_ApplyReflectDamage			DamageEffect;
+	local X2AbilityToHitCalc_StandardAim		StandardAim;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_ReflectShot');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ReflectShot";
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bIgnoreCoverBonus = true;
+	Template.AbilityToHitCalc = StandardAim;
+
+	EventListener = new class'X2AbilityTrigger_EventListener';
+	EventListener.ListenerData.EventID = 'AbilityActivated';
+	EventListener.ListenerData.Filter = eFilter_None;
+	EventListener.ListenerData.Deferral = ELD_OnStateSubmitted;
+	EventListener.ListenerData.EventFn = class'XComGameState_Ability'.static.TemplarReflectListener;
+	Template.AbilityTriggers.AddItem(EventListener);
+
+	// Costs
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	
+	DamageEffect = new class'X2Effect_ApplyReflectDamage';
+	DamageEffect.EffectDamageValue.DamageType = 'Psi';
+	Template.AddTargetEffect(DamageEffect);
+
+	// State and Viz
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.CustomFireAnim = 'HL_IRI_ReflectFire';
+	Template.CustomFireKillAnim = 'HL_IRI_ReflectFire';
+	Template.Hostility = eHostility_Offensive;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.MergeVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.ReflectShotMergeVisualization;
+	
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
 
 static private function X2AbilityTemplate IRI_TM_Amplify()
 {

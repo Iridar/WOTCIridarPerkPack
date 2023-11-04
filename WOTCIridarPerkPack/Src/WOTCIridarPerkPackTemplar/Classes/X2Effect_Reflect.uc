@@ -21,9 +21,36 @@ function bool ChangeHitResultForTarget(XComGameState_Effect EffectState, XComGam
 	`LOG("Reflect not available.",, 'XCom_HitRolls');
 	return false;
 }
+/*
+static private function ReflectEffectRemoved(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState, bool bCleansed)
+{
+	local XComGameState_Effect_TemplarFocus	FocusState;
+	local XComGameState_Unit				UnitState;
+	local UnitValue							UV;
+
+	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
+	if (UnitState == none)
+	{
+		UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.TargetStateObjectRef.ObjectID));
+	}
+	if (UnitState == none)
+		return;
+
+	UnitState.GetUnitValue('IRI_TM_Reflect', UV);
+	if (UV.fValue == 0)
+		return;
+
+	FocusState = UnitState.GetTemplarFocusEffectState();
+	if (FocusState != none)
+	{
+		FocusState = XComGameState_Effect_TemplarFocus(NewGameState.ModifyStateObject(FocusState.Class, FocusState.ObjectID));
+		FocusState.SetFocusLevel(FocusState.FocusLevel + UV.fValue, UnitState, NewGameState);		
+	}
+}*/
 
 DefaultProperties
 {
 	DuplicateResponse = eDupe_Ignore
 	EffectName = "IRI_X2Effect_Reflect"
+	//EffectRemovedFn = ReflectEffectRemoved;
 }

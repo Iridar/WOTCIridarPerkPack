@@ -181,7 +181,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	
 	CursorTarget = new class'X2AbilityTarget_ThunderLance';
 	CursorTarget.bRestrictToWeaponRange = true;
-	CursorTarget.IncreaseWeaponRange = 4;
+	CursorTarget.IncreaseWeaponRange = 4; // TODO: Make configurable wtf
 	Template.AbilityTargetStyle = CursorTarget;
 
 	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
