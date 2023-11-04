@@ -40,6 +40,14 @@ LocFriendlyName="Reflect"
 LocLongDescription="Empowered version of Parry that reflects the next incoming shot back at the attacker. Reflecting an attack costs 1 Focus."
 LocHelpText="Reflect the next attack made against you during the enemy turn back at the attacker, preventing all damage. Reflecting an attack costs 1 Focus."
 
+[IRI_TM_Overcharge X2AbilityTemplate]
+LocFriendlyName="Overcharge"
+LocLongDescription="Rend and Soul Shot generate a point of Focus even when they don't kill the target."
+LocHelpText="Rend and Soul Shot generate a point of Focus even when they don't kill the target."
+LocFlyoverText="Overcharge"
+LocPromotionPopupText="<Bullet/> Killing an enemy with Rend and Soult Shot still generates only one point of Focus."
+
+
 
 [IRI_TM_Stunstrike X2AbilityTemplate]
 LocFriendlyName="Stun Strike"

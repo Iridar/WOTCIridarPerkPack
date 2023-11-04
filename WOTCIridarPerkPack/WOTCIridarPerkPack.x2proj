@@ -451,6 +451,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_Amplify.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Overcharge.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Reflect.uc">
       <SubType>Content</SubType>
     </Content>

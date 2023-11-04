@@ -13,6 +13,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_Reflect());
 	//Templates.AddItem(IRI_TM_Stunstrike());
 	Templates.AddItem(IRI_TM_ReflectShot());
+	Templates.AddItem(IRI_TM_Overcharge());
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
@@ -21,6 +22,30 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	return Templates;
 }
+
+static private function X2AbilityTemplate IRI_TM_Overcharge()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_Overcharge	Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Overcharge');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Overcharge";
+
+	SetPassive(Template);
+	SetHidden(Template);
+	Template.bUniqueSource = true;
+
+	Effect = new class'X2Effect_Overcharge';
+	Effect.BuildPersistentEffect(1, true);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	return Template;
+}
+
 
 // Somewhat complicated ability. Explained in steps:
 // 1. Use Astral Grasp on the target organic.
@@ -161,7 +186,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_Spirit');
 
 	// Icon Setup
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
 	SetHidden(Template);
 	
@@ -260,7 +285,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_SpiritStun()
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_AstralGrasp_SpiritStun');
 
 	// Icon Setup
-	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
 	SetHidden(Template);
 	
@@ -409,7 +434,9 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
+	Template.HideErrors.AddItem('AA_CannotAfford_ActionPoints');
+	Template.HideErrors.AddItem('AA_AbilityUnavailable');
 	Template.OverrideAbilityAvailabilityFn = Reflect_OverrideAbilityAvailability;
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ReflectShot";
 
@@ -467,7 +494,9 @@ static private function Reflect_OverrideAbilityAvailability(out AvailableAction 
 	if (Action.AvailableCode == 'AA_Success' || Action.AvailableCode == 'AA_CannotAfford_Focus')
 	{
 		if (OwnerState.ActionPoints.Length == 1 && OwnerState.ActionPoints[0] == class'X2CharacterTemplateManager'.default.MomentumActionPoint)
+		{
 			Action.ShotHUDPriority = class'UIUtilities_Tactical'.const.PARRY_PRIORITY + 2;
+		}
 	}
 }
 
