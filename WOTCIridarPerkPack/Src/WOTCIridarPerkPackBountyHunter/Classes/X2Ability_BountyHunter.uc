@@ -110,7 +110,7 @@ static private function X2AbilityTemplate IRI_BH_Terminate()
 	TargetEffect = new class'X2Effect_BountyHunter_Terminate';
 	TargetEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnEnd);
 	TargetEffect.bRemoveWhenTargetDies = true;
-	TargetEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString('IRI_BH_Terminate_EffectTitle'), `GetLocalizedString('IRI_BH_Terminate_EffectText'), Template.IconImage, true, "img:///IRIPerkPackUI.status_Terminate", Template.AbilitySourceName);
+	TargetEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_BH_Terminate_EffectTitle"), `GetLocalizedString("IRI_BH_Terminate_EffectText"), Template.IconImage, true, "img:///IRIPerkPackUI.status_Terminate", Template.AbilitySourceName);
 	Template.AddTargetEffect(TargetEffect);
 	
 	// State and Viz
@@ -754,11 +754,11 @@ static private function ShadowTeleport_BuildVisualization(XComGameState Visualiz
 	if (UnitState.HasSoldierAbility('IRI_BH_FeelingLucky_Passive'))
 	{
 		Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,,, LeafNodes));
-		Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('IRI_BH_FeelingLucky_Flyover_Added'), '', eColor_Good);
+		Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString("IRI_BH_FeelingLucky_Flyover_Added"), '', eColor_Good);
 	}
 
 	Flyover = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, AbilityContext,, Flyover, LeafNodes));
-	Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString('NightDiveActionAvailable'), '', eColor_Good);
+	Flyover.SetSoundAndFlyOverParameters(None, `GetLocalizedString("NightDiveActionAvailable"), '', eColor_Good);
 }
 
 static private function int GetSecondaryWeaponAmmo(const XComGameState_Unit UnitState, optional XComGameState CheckGameState)

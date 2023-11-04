@@ -131,7 +131,7 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 	if (EffectApplyResult == 'AA_Success')
 	{
 		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, `GetLocalizedString('IRI_BH_FeelingLucky_Flyover_Added'), '', eColor_Good);
+		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, `GetLocalizedString("IRI_BH_FeelingLucky_Flyover_Added"), '', eColor_Good);
 	}
 	super.AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, EffectApplyResult);
 }
@@ -146,7 +146,7 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 	if (UnitState != none && UnitState.GetUnitValue(EffectName, UV))
 	{
 		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, `GetLocalizedString('IRI_BH_FeelingLucky_Flyover_Removed'), '', eColor_Bad);
+		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, `GetLocalizedString("IRI_BH_FeelingLucky_Flyover_Removed"), '', eColor_Bad);
 	}
 	super.AddX2ActionsForVisualization_Removed(VisualizeGameState, ActionMetadata, EffectApplyResult, RemovedEffect);
 }
