@@ -763,7 +763,6 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 	AbilityTag = X2AbilityTag(`XEXPANDCONTEXT.FindTag("Ability"));
 	AbilityTag.ParseObj = HitModEffect;
 	HitModEffect.SetDisplayInfo(ePerkBuff_Penalty, class'X2Ability_TemplarAbilitySet'.default.RecoilEffectName, `XEXPAND.ExpandString(class'X2Ability_TemplarAbilitySet'.default.RecoilEffectDesc), "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Recoil");
-
 	AbilityTag.ParseObj = none;
 	
 	AbilityCondition = new class'X2Condition_AbilityProperty';
@@ -773,6 +772,10 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 
 	HitModEffect.EffectName = 'IRI_TM_Aftershock_Effect';
 	HitModEffect.DuplicateResponse = eDupe_Ignore;
+
+	HitModEffect.VFXTemplateName = "IRIVolt.PS_Aftershock";
+	HitModEffect.VFXSocket = 'FX_Chest'; // FX_Head
+	HitModEffect.VFXSocketsArrayName = 'BoneSocketActor';
 
 	Template.AddTargetEffect(HitModEffect);
 	Template.AddMultiTargetEffect(HitModEffect);
