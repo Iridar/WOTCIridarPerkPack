@@ -14,6 +14,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	//Templates.AddItem(IRI_TM_Stunstrike());
 	Templates.AddItem(IRI_TM_ReflectShot());
 	Templates.AddItem(IRI_TM_Overcharge());
+	Templates.AddItem(PurePassive('IRI_TM_Concentration', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
+	
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
@@ -21,6 +23,21 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
+}
+
+static private function X2Effect CreateConcentrationEffect()
+{
+	local X2Effect_Concentration			ConcentrationEffect;
+
+	ConcentrationEffect = new class'X2Effect_Concentration';
+	ConcentrationEffect.BuildPersistentEffect(1, true);
+	// TODO: Icon
+	ConcentrationEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Concentration_EffectTitle"), `GetLocalizedString("IRI_TM_Concentration_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_WitchHunt", true,, 'eAbilitySource_Psionic');
+
+	ConcentrationEffect.TargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	ConcentrationEffect.TargetConditions.AddItem(new class'X2Condition_Concentration');
+
+	return ConcentrationEffect;
 }
 
 static private function X2AbilityTemplate IRI_TM_Overcharge()
@@ -169,6 +186,8 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	Template.AddTargetEffect(CreateConcentrationEffect());
 
 	return Template;
 }
@@ -557,6 +576,8 @@ static private function X2AbilityTemplate IRI_TM_ReflectShot()
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
+	Template.AddTargetEffect(CreateConcentrationEffect());
+
 	return Template;
 }
 
@@ -627,6 +648,8 @@ static private function X2AbilityTemplate IRI_TM_Amplify()
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	Template.AddTargetEffect(CreateConcentrationEffect());
 
 	return Template;
 }
@@ -745,6 +768,9 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 
 	Template.DamagePreviewFn = class'X2Ability_TemplarAbilitySet'.static.VoltDamagePreview;
 
+	Template.AddTargetEffect(CreateConcentrationEffect());
+	Template.AddMultiTargetEffect(CreateConcentrationEffect());
+
 	return Template;
 }
 
@@ -819,6 +845,8 @@ static private function X2AbilityTemplate IRI_TM_Rend()
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamageEffect.DamageTypes.AddItem('Melee');
 	Template.AddTargetEffect(WeaponDamageEffect);
+
+	Template.AddTargetEffect(CreateConcentrationEffect());
 
 	return Template;
 }
@@ -895,6 +923,8 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 
 	// Trigger Momentum
 	Template.PostActivationEvents.AddItem('RendActivated');
+
+	Template.AddTargetEffect(CreateConcentrationEffect());
 	
 	return Template;
 }

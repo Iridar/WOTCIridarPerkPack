@@ -12,4 +12,8 @@ IRI_BH_Terminate_EffectTitle = "Marked for termination"
 IRI_BH_Terminate_EffectText = "This unit is marked for termination."
 IRI_BH_HomingMine_Effect_Desc = "Shots that target this unit are guaranteed to hit. The Sticky Bomb will explode upon this unit taking damage."
 
-;	----------------------------------------------------
+;	====================================================
+;						TEMPLAR
+
+IRI_TM_Concentration_EffectTitle = "Concentration"
+IRI_TM_Concentration_EffectDesc = "When this unit dies, the Templar that applied this effect will generate a point of Focus."

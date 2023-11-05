@@ -53,6 +53,7 @@ static private function EventListenerReturn AbilityActivated_Listener(Object Eve
 
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Trigger Overcharge Focus");
 		FocusState = XComGameState_Effect_TemplarFocus(NewGameState.ModifyStateObject(FocusState.Class, FocusState.ObjectID));
+		SourceUnit = XComGameState_Unit(NewGameState.ModifyStateObject(SourceUnit.Class, SourceUnit.ObjectID));
 		FocusState.SetFocusLevel(FocusState.FocusLevel + 1, SourceUnit, NewGameState);	
 		`GAMERULES.SubmitGameState(NewGameState);
 	}

@@ -66,3 +66,10 @@ LocPromotionPopupText="<Bullet/> Stun Strike has a <Ability:STUNSTRIKEHITCHANCE/
 LocFriendlyName="Disembodied Spirit"
 LocLongDescription="Spirit Echo can take only psionic damage."
 LocHelpText="Spirit Echo can take and psionic damage."
+
+[IRI_TM_Concentration X2AbilityTemplate]
+LocFriendlyName="Concentration"
+LocLongDescription="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
+LocHelpText="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
+LocPromotionPopupText="<Bullet/> A new mark cannot be applied until the old one is removed.<br/><Bullet/> No additional Focus is generated if the <Ability:ClassName/> themselves kills a marked enemy." 
+LocFlyoverText="Concentration"

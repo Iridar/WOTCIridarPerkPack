@@ -436,6 +436,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Character_AstralGrasp.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Concentration.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_ApplySpiritLinkDamage.uc">
       <SubType>Content</SubType>
     </Content>
@@ -446,6 +449,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_AstralGrasp_OverrideDeathAction.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Concentration.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_Amplify.uc">
