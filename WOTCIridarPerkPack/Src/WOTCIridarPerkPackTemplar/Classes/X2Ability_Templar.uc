@@ -5,11 +5,12 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	Templates.AddItem(IRI_TM_Rend());
-	Templates.AddItem(IRI_TM_Volt()); // TODO: Vanilla Aftershock requires vanilla Volt, lol
+	Templates.AddItem(IRI_TM_Volt()); 
+	Templates.AddItem(IRI_TM_Aftershock()); 
 	Templates.AddItem(IRI_TM_SoulShot());
 	Templates.AddItem(IRI_TM_TemplarFocus());
 
-	Templates.AddItem(IRI_TM_Amplify()); // TODO: Check if vanilla Amplify has a visual effect?
+	Templates.AddItem(IRI_TM_Amplify());
 	Templates.AddItem(IRI_TM_Reflect());
 	//Templates.AddItem(IRI_TM_Stunstrike());
 	Templates.AddItem(IRI_TM_ReflectShot());
@@ -45,6 +46,19 @@ static private function X2Effect CreateConcentrationEffect()
 	ConcentrationEffect.VFXSocketsArrayName = 'BoneSocketActor';
 
 	return ConcentrationEffect;
+}
+
+
+static private function X2AbilityTemplate IRI_TM_Aftershock()
+{
+	local X2AbilityTemplate Template;
+
+	Template = PurePassive('IRI_TM_Aftershock', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Recoil", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/);
+
+	// Vanilla Aftershock requires vanilla Volt, lol
+	Template.PrerequisiteAbilities.AddItem('IRI_TM_Volt');
+
+	return Template;
 }
 
 static private function X2AbilityTemplate IRI_TM_Overcharge()
@@ -753,9 +767,13 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 	AbilityTag.ParseObj = none;
 	
 	AbilityCondition = new class'X2Condition_AbilityProperty';
-	AbilityCondition.OwnerHasSoldierAbilities.AddItem('Reverberation');
+	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_TM_Aftershock');
 	HitModEffect.TargetConditions.AddItem(default.LivingTargetOnlyProperty);
 	HitModEffect.TargetConditions.AddItem(AbilityCondition);
+
+	HitModEffect.EffectName = 'IRI_TM_Aftershock_Effect';
+	HitModEffect.DuplicateResponse = eDupe_Ignore;
+
 	Template.AddTargetEffect(HitModEffect);
 	Template.AddMultiTargetEffect(HitModEffect);
 

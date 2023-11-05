@@ -415,6 +415,7 @@ static event OnPostTemplatesCreated()
 {
 	Skirmisher_ThunderLance_PatchOverrideicons();
 	Ranger_TacticalAdvance_PatchAbilityCosts();
+	CopyAbilityLocalization('IRI_TM_Aftershock', 'Reverberation');
 	
 	//local X2SoldierClassTemplateManager	ClassMgr;
 	//local X2SoldierClassTemplate		ClassTemplate;
@@ -527,6 +528,34 @@ static private function Skirmisher_ThunderLance_PatchOverrideicons()
 				break;
 			}
 		}
+	}
+}
+
+static private function CopyAbilityLocalization(const name AcceptorAbility, const name DonorAbility)
+{
+	local X2AbilityTemplateManager AbilityTemplateManager;
+	local X2AbilityTemplate Template;
+	local X2AbilityTemplate DonorTemplate;
+
+	AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+
+	Template = AbilityTemplateManager.FindAbilityTemplate(AcceptorAbility);
+	DonorTemplate = AbilityTemplateManager.FindAbilityTemplate(DonorAbility);
+
+	if (Template != none && DonorTemplate != none)
+	{
+		Template.LocFriendlyName = DonorTemplate.LocFriendlyName;
+		Template.LocHelpText = DonorTemplate.LocHelpText;                   
+		Template.LocLongDescription = DonorTemplate.LocLongDescription;
+		Template.LocPromotionPopupText = DonorTemplate.LocPromotionPopupText;
+		Template.LocFlyOverText = DonorTemplate.LocFlyOverText;
+		Template.LocMissMessage = DonorTemplate.LocMissMessage;
+		Template.LocHitMessage = DonorTemplate.LocHitMessage;
+		Template.LocFriendlyNameWhenConcealed = DonorTemplate.LocFriendlyNameWhenConcealed;      
+		Template.LocLongDescriptionWhenConcealed = DonorTemplate.LocLongDescriptionWhenConcealed;   
+		Template.LocDefaultSoldierClass = DonorTemplate.LocDefaultSoldierClass;
+		Template.LocDefaultPrimaryWeapon = DonorTemplate.LocDefaultPrimaryWeapon;
+		Template.LocDefaultSecondaryWeapon = DonorTemplate.LocDefaultSecondaryWeapon;
 	}
 }
 
