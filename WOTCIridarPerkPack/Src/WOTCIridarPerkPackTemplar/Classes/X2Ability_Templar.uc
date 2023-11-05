@@ -27,7 +27,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 static private function X2Effect CreateConcentrationEffect()
 {
-	local X2Effect_Concentration			ConcentrationEffect;
+	local X2Effect_Concentration ConcentrationEffect;
 
 	ConcentrationEffect = new class'X2Effect_Concentration';
 	ConcentrationEffect.BuildPersistentEffect(1, true);
@@ -35,7 +35,14 @@ static private function X2Effect CreateConcentrationEffect()
 	ConcentrationEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Concentration_EffectTitle"), `GetLocalizedString("IRI_TM_Concentration_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_WitchHunt", true,, 'eAbilitySource_Psionic');
 
 	ConcentrationEffect.TargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+
+	// Can't apply the effect if we're already applying it to any unit
+	// Can't apply the effect if we're missing the Concentration ability
 	ConcentrationEffect.TargetConditions.AddItem(new class'X2Condition_Concentration');
+
+	ConcentrationEffect.VFXTemplateName = "IRIVolt.PS_Concentration_Persistent";
+	ConcentrationEffect.VFXSocket = 'FX_Chest'; // FX_Head
+	ConcentrationEffect.VFXSocketsArrayName = 'BoneSocketActor';
 
 	return ConcentrationEffect;
 }

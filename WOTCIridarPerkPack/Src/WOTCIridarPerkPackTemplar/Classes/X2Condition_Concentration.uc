@@ -1,61 +1,55 @@
 class X2Condition_Concentration extends X2Condition;
 
-// Can't apply the effect if we're already applying it to someone else.
-var private X2Condition_UnitEffectsApplying UniqueEffectCondition;
-
-// Can't apply the effect to the target if we already applied it to the target
-var private X2Condition_UnitEffectsWithAbilitySource EffectCondition;
-
-// Can't apply the effect if we're missing the Concentration ability
-var private X2Condition_AbilityProperty AbilityCondition;
-
-
-event name CallMeetsCondition(XComGameState_BaseObject kTarget) 
-{
-	`AMLOG(EffectCondition.ExcludeEffects.Length @ XComGameState_Unit(kTarget).GetFullName() @ EffectCondition.CallMeetsCondition(kTarget));
-
-	return EffectCondition.CallMeetsCondition(kTarget);
-}
-
-
 event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGameState_BaseObject kSource) 
-{ 
-	local name RetVal;
-
-	
-
-	RetVal = EffectCondition.CallMeetsConditionWithSource(kTarget, kSource);
-
-	`AMLOG(XComGameState_Unit(kTarget).GetFullName() @ XComGameState_Unit(kSource).GetFullName() @ "RetVal:" @ RetVal);
-	if (RetVal != 'AA_Success')
-	{
-		return RetVal;
-	}
-	`AMLOG(UniqueEffectCondition.ExcludeEffects.Length @ XComGameState_Unit(kTarget).GetFullName() @ XComGameState_Unit(kSource).GetFullName() @ "UniqueEffectCondition:" @ UniqueEffectCondition.CallMeetsCondition(kSource));
-	return UniqueEffectCondition.CallMeetsCondition(kSource);
-}
-
-event name CallAbilityMeetsCondition(XComGameState_Ability kAbility, XComGameState_BaseObject kTarget) 
 {
+	local XComGameState_Unit	SourceUnit;
+	//local XComGameState_Unit	TargetUnit;
+	local XComGameStateHistory	History;
+	local XComGameState_Effect	EffectState;
+	local StateObjectReference	EffectRef;
 	
-	`AMLOG(AbilityCondition.OwnerHasSoldierAbilities.Length @ XComGameState_Unit(kTarget).GetFullName() @ AbilityCondition.CallAbilityMeetsCondition(kAbility, kTarget));
-	return AbilityCondition.CallAbilityMeetsCondition(kAbility, kTarget);
-}
+	SourceUnit = XComGameState_Unit(kSource);
+	if (SourceUnit == none)
+		return 'AA_NotAUnit';
 
-defaultproperties
-{	
-    Begin Object Class=X2Condition_UnitEffectsApplying Name=DefaultUniqueEffectCondition
-	ExcludeEffects(0) = (EffectName = "IRI_TM_Concentration_Effect", Reason = "AA_DuplicateEffectIgnored")
-    End Object
-    UniqueEffectCondition = DefaultUniqueEffectCondition;
+	if (!SourceUnit.HasSoldierAbility('IRI_TM_Concentration'))
+	{
+		return 'AA_AbilityUnavailable';
+	}
 
-    Begin Object Class=X2Condition_UnitEffectsWithAbilitySource Name=DefaultEffectCondition
-	ExcludeEffects(0) = (EffectName = "IRI_TM_Concentration_Effect", Reason = "AA_DuplicateEffectIgnored")
-    End Object
-    EffectCondition = DefaultEffectCondition;
+	// Check if the source unit is already applying this effect to any target
+	History = `XCOMHISTORY;
 
-	Begin Object Class=X2Condition_AbilityProperty Name=DefaultAbilityCondition
-    OwnerHasSoldierAbilities(0) = "IRI_TM_Concentration"
-    End Object
-    AbilityCondition = DefaultAbilityCondition;
+	foreach SourceUnit.AppliedEffects(EffectRef)
+	{
+		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+		if (EffectState == none || EffectState.bRemoved)
+			continue;
+
+		if (EffectState.GetX2Effect().EffectName == 'IRI_TM_Concentration_Effect')
+		{
+			return 'AA_DuplicateEffectIgnored';
+		}
+	}
+
+	//TargetUnit = XComGameState_Unit(kTarget);
+	//if (TargetUnit == none)
+	//	return 'AA_NotAUnit';
+	//
+	//foreach TargetUnit.AffectedByEffects(EffectRef)
+	//{
+	//	EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+	//	if (EffectState == none || EffectState.bRemoved)
+	//		continue;
+	//
+	//	if (EffectState.GetX2Effect().EffectName != 'IRI_TM_Concentration_Effect')
+	//		continue;
+	//
+	//	if (EffectState.ApplyEffectParameters.SourceStateObjectRef.ObjectID == kSource.ObjectID)
+	//	{
+	//		return 'AA_DuplicateEffectIgnored';
+	//	}
+	//}
+
+	return 'AA_Success';
 }

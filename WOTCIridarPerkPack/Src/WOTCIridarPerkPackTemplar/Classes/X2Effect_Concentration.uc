@@ -1,21 +1,15 @@
 class X2Effect_Concentration extends X2Effect_Persistent;
 
-// TODO: Particle effect
-
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
 	local X2EventManager EventMgr;
-	//local XComGameState_Unit UnitState;
 	local Object EffectObj;
 
 	EventMgr = `XEVENTMGR;
 	EffectObj = EffectGameState;
-	//UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectGameState.ApplyEffectParameters.SourceStateObjectRef.ObjectID));
 
-	//EventMgr.RegisterForEvent(EffectObj, 'X2Effect_Concentration_Event', TriggerAbilityFlyover, ELD_OnStateSubmitted,, UnitState);
 	EventMgr.RegisterForEvent(EffectObj, 'KillMail', OnKillMail, ELD_OnStateSubmitted,, none,, EffectObj);	
 }
-
 
 static private function EventListenerReturn OnKillMail(Object EventData, Object EventSource, XComGameState GameState, name InEventID, Object CallbackData)
 {
@@ -53,6 +47,10 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 	if (SourceUnit == none || !SourceUnit.IsAbleToAct())
 		return ELR_NoInterrupt;
 
+	// Trigger only when enemy is killed by an ally.
+	if (!KillerUnit.IsFriendlyUnit(SourceUnit))
+		return ELR_NoInterrupt;
+
 	`AMLOG(XComGameState_Unit(EventData).GetFullName() @ "killed by:" @ KillerUnit.GetFullName() @ "Source unit:" @ SourceUnit.GetFullName());
 
 	FocusState = SourceUnit.GetTemplarFocusEffectState();
@@ -76,7 +74,6 @@ static private function EventListenerReturn OnKillMail(Object EventData, Object 
 		FocusState = XComGameState_Effect_TemplarFocus(NewGameState.ModifyStateObject(FocusState.Class, FocusState.ObjectID));
 		SourceUnit = XComGameState_Unit(NewGameState.ModifyStateObject(SourceUnit.Class, SourceUnit.ObjectID));
 		FocusState.SetFocusLevel(FocusState.FocusLevel + 1, SourceUnit, NewGameState);	
-		//EffectState.RemoveEffect(NewGameState, NewGameState, true);
 		`GAMERULES.SubmitGameState(NewGameState);
 	}
 
@@ -118,65 +115,33 @@ static private function TriggerAbilityFlyoverVisualizationFn(XComGameState Visua
 		break;
 	}
 }
-/*
-static private function ConcentrationEffectAdded(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_BaseObject kNewTargetState, XComGameState NewGameState)
+
+static private function ConcentrationEffectRemovedVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
 {
-	local XComGameStateHistory	History;
-	local XComGameState_Effect	EffectState;
+	local X2Action_PlayDeathEffect	EffectAction;
+	local XGUnit					VisualizeUnit;
+	local XComUnitPawn				UnitPawn;
 
-	History = `XCOMHISTORY;
-	foreach History.IterateByClassType(class'XComGameState_Effect', EffectState)
-	{
-		if (EffectState.bRemoved)
-			continue;
-
-		if (EffectState.ApplyEffectParameters.SourceStateObjectRef.ObjectID != ApplyEffectParameters.SourceStateObjectRef.ObjectID)
-			continue;
-
-		if (EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID == ApplyEffectParameters.TargetStateObjectRef.ObjectID)
-			continue;
-			
-		if (EffectState.GetX2Effect().EffectName != 'IRI_TM_Concentration_Effect')
-			continue;
-
-		EffectState.RemoveEffect(NewGameState, NewGameState, true);
-	}
-}
-*/
-/*
-static private function ConcentrationEffectRemoved(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState NewGameState, bool bCleansed)
-{
-	local XComGameState_Effect_TemplarFocus	FocusState;
-	local XComGameState_Unit				SourceUnit;
-	local XComGameState_Unit				TargetUnit;
-	local UnitValue							UV;
-
-	SourceUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.SourceStateObjectRef.ObjectID));
-	if (SourceUnit == none)
-	{
-		SourceUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', ApplyEffectParameters.SourceStateObjectRef.ObjectID));
-	}
-	if (SourceUnit == none || !SourceUnit.IsAbleToAct())
+	VisualizeUnit = XGUnit(ActionMetadata.VisualizeActor);
+	if (VisualizeUnit == none)
 		return;
 
-	TargetUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ApplyEffectParameters.TargetStateObjectRef.ObjectID));
-	if (TargetUnit.IsAlive());
+	UnitPawn = VisualizeUnit.GetPawn();
+	if (UnitPawn == none || UnitPawn.Mesh == none)
+		return;
 
-	FocusState = SourceUnit.GetTemplarFocusEffectState();
-	if (FocusState != none)
-	{
-		FocusState = XComGameState_Effect_TemplarFocus(NewGameState.ModifyStateObject(FocusState.Class, FocusState.ObjectID));
-		FocusState.SetFocusLevel(FocusState.FocusLevel + UV.fValue, UnitState, NewGameState);		
-	}
-	// TODO: Trigger Flyover
-}*/
-
-
+	// Use a custom effect that will get the effect location from the pawn mesh when running, not when building visualization.
+	EffectAction = X2Action_PlayDeathEffect(class'X2Action_PlayDeathEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+	EffectAction.EffectName = "IRIVolt.PS_Concentration_Death";
+	EffectAction.PawnMesh = UnitPawn.Mesh;
+	EffectAction.AttachToSocketName = 'FX_Chest';
+}
 
 defaultproperties
 {
 	//EffectAddedFn = ConcentrationEffectAdded;
 	//EffectRemovedFn = ConcentrationEffectRemoved;
+	EffectRemovedVisualizationFn = ConcentrationEffectRemovedVisualization
 	bRemoveWhenTargetDies = true
 	bRemoveWhenSourceDies = true
 	EffectName = "IRI_TM_Concentration_Effect"
