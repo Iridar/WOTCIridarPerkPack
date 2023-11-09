@@ -69,7 +69,14 @@ LocHelpText="Spirit Echo can take and psionic damage."
 
 [IRI_TM_Concentration X2AbilityTemplate]
 LocFriendlyName="Concentration"
-LocLongDescription="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
-LocHelpText="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
+LocLongDescription="Your psionic abilities that do not cost Focus mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
+LocHelpText="Your psionic abilities that do not cost Focus mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
 LocPromotionPopupText="<Bullet/> A new mark cannot be applied until the old one is removed.<br/><Bullet/> No additional Focus is generated if the <Ability:ClassName/> themselves kills a marked enemy." 
 LocFlyoverText="Concentration"
+
+[IRI_TM_SpectralStride X2AbilityTemplate]
+LocFriendlyName="Spectral Stride"
+LocLongDescription="Target ally gains the ability to walk through obstacles and jump to the top of ledges and structures until the end of turn. Costs 1 Focus."
+LocHelpText="Target ally gains the ability to walk through obstacles and jump to the top of ledges and structures until the end of turn. Costs 1 Focus."
+LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/>" 
+LocFlyoverText="Spectral Stride"

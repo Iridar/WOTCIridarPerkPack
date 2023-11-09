@@ -17,6 +17,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_Overcharge());
 	Templates.AddItem(PurePassive('IRI_TM_Concentration', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
 	
+	Templates.AddItem(IRI_TM_SpectralStride());
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
@@ -24,6 +25,85 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
+}
+
+
+
+static private function X2AbilityTemplate IRI_TM_SpectralStride()
+{
+	local X2AbilityTemplate				Template;
+	local X2Condition_UnitEffects		EffectsCondition;
+	local X2Condition_UnitProperty		UnitPropertyCondition;
+	local X2AbilityCost_ActionPoints	ActionCost;
+	local X2Effect_PersistentTraversalChange SpectralStride;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_SpectralStride');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Amplify";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Costs
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	
+	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = true;
+	UnitPropertyCondition.ExcludeHostileToSource = true;
+	UnitPropertyCondition.ExcludeFriendlyToSource = false;
+	UnitPropertyCondition.FailOnNonUnits = true;
+	//UnitPropertyCondition.ExcludeRobotic = true;
+	Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
+
+	EffectsCondition = new class'X2Condition_UnitEffects';
+	EffectsCondition.AddExcludeEffect(class'X2Effect_SpectralStride'.default.EffectName, 'AA_DuplicateEffectIgnored');
+	Template.AbilityTargetConditions.AddItem(EffectsCondition);
+
+	// Effects
+	SpectralStride = new class'X2Effect_PersistentTraversalChange';
+	SpectralStride.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	SpectralStride.AddTraversalChange( eTraversal_Phasing, true );
+	SpectralStride.AddTraversalChange( eTraversal_JumpUp, true );
+	SpectralStride.bRemoveWhenTargetDies = true;
+	SpectralStride.EffectName = 'IRI_TM_SpectralStride_Effect';
+	SpectralStride.DuplicateResponse = eDupe_Ignore;
+	SpectralStride.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(SpectralStride);
+
+	// State and Viz
+	Template.bShowActivation = true;
+	Template.CinescriptCameraType = "Templar_Ghost";
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.CustomFireAnim = 'HL_SpectralStride';
+	Template.ActivationSpeech = 'Amplify'; // TODO: Speech
+	Template.Hostility = eHostility_Neutral;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
 }
 
 static private function X2Effect CreateConcentrationEffect()
@@ -597,7 +677,7 @@ static private function X2AbilityTemplate IRI_TM_ReflectShot()
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
-	Template.AddTargetEffect(CreateConcentrationEffect());
+	//Template.AddTargetEffect(CreateConcentrationEffect());
 
 	return Template;
 }
@@ -777,6 +857,11 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 	HitModEffect.VFXSocket = 'FX_Chest'; // FX_Head
 	HitModEffect.VFXSocketsArrayName = 'BoneSocketActor';
 
+	// Disspates Aftershock FX upon target death/duration
+	HitModEffect.EffectRemovedVisualizationFn = AftershockEffectRemovedVisualization;
+
+	// TODO: Dissipate the effect on target death // orbit -30%, pieces -30-50%
+
 	Template.AddTargetEffect(HitModEffect);
 	Template.AddMultiTargetEffect(HitModEffect);
 
@@ -796,10 +881,31 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 
 	Template.DamagePreviewFn = class'X2Ability_TemplarAbilitySet'.static.VoltDamagePreview;
 
-	Template.AddTargetEffect(CreateConcentrationEffect());
-	Template.AddMultiTargetEffect(CreateConcentrationEffect());
+	//Template.AddTargetEffect(CreateConcentrationEffect());
+	//Template.AddMultiTargetEffect(CreateConcentrationEffect());
 
 	return Template;
+}
+
+static private function AftershockEffectRemovedVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
+{
+	local X2Action_PlayDeathEffect	EffectAction;
+	local XGUnit					VisualizeUnit;
+	local XComUnitPawn				UnitPawn;
+
+	VisualizeUnit = XGUnit(ActionMetadata.VisualizeActor);
+	if (VisualizeUnit == none)
+		return;
+
+	UnitPawn = VisualizeUnit.GetPawn();
+	if (UnitPawn == none || UnitPawn.Mesh == none)
+		return;
+
+	// Use a custom effect that will get the effect location from the pawn mesh when running, not when building visualization.
+	EffectAction = X2Action_PlayDeathEffect(class'X2Action_PlayDeathEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+	EffectAction.EffectName = "IRIVolt.PS_Aftershock_Dissipate";
+	EffectAction.PawnMesh = UnitPawn.Mesh;
+	EffectAction.AttachToSocketName = 'FX_Chest';
 }
 
 static private function X2AbilityTemplate IRI_TM_TemplarFocus()
@@ -1053,6 +1159,8 @@ static private function X2AbilityTemplate IRI_TM_Stunstrike()
 
 	return Template;
 }
+
+
 
 //	========================================
 //				COMMON CODE
