@@ -165,6 +165,9 @@
     <Content Include="ContentForCook\Templar\IRISpectralStride.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRISpectralStridePerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRIVolt.upk">
       <SubType>Content</SubType>
     </Content>
@@ -467,6 +470,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Reflect.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_SpectralStride.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Stunned_AstralGrasp.uc">

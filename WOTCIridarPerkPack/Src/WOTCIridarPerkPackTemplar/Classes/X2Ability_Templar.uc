@@ -46,7 +46,7 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityTargetStyle = default.SingleTargetWithSelf;
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
 	// Costs
@@ -55,7 +55,8 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	ActionCost.bFreeCost = true;
 	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
 	Template.AbilityCosts.AddItem(ActionCost);
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+	
+//Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus'); // TODO DEBUG ONLY
 
 	// Shooter Conditions
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
@@ -91,7 +92,7 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	Template.bShowActivation = true;
 	Template.CinescriptCameraType = "Templar_Ghost";
 	Template.bFrameEvenWhenUnitIsHidden = true;
-	Template.CustomFireAnim = 'HL_SpectralStride';
+	SetFireAnim(Template, 'HL_SpectralStride');
 	Template.ActivationSpeech = 'Amplify'; // TODO: Speech
 	Template.Hostility = eHostility_Neutral;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
