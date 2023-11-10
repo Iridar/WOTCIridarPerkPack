@@ -3,7 +3,7 @@ class X2Effect_SpectralStride extends X2Effect_PersistentTraversalChange;
 simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
 {
 	local X2Action_ApplyMITV			ApplyMITV;
-	local X2Action_PlaySound	SoundAction;
+	local X2Action_PlaySound			SoundAction;
 	local X2Action_PlayEffect			EffectAction;
 
 	if (EffectApplyResult == 'AA_Success')
@@ -39,10 +39,11 @@ simulated function AddX2ActionsForVisualization_Sync( XComGameState VisualizeGam
 
 simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult, XComGameState_Effect RemovedEffect)
 {
-	local X2Action_PlaySound	SoundAction;
+	local X2Action_PlaySound			SoundAction;
 	local X2Action_PlayDeathEffect		EffectAction;
 	local XGUnit						VisualizeUnit;
 	local XComUnitPawn					UnitPawn;
+	local X2Action_PlayEffect			StopEffectAction;
 
 	VisualizeUnit = XGUnit(ActionMetadata.VisualizeActor);
 	if (VisualizeUnit != none)
@@ -56,6 +57,13 @@ simulated function AddX2ActionsForVisualization_Removed(XComGameState VisualizeG
 			EffectAction.AttachToSocketName = 'FX_Chest';
 		}
 	}
+
+	StopEffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
+	StopEffectAction.EffectName = "FX_Templar_Ghost.P_Ghost_Target_Persistent";
+	StopEffectAction.AttachToUnit = true;
+	StopEffectAction.AttachToSocketName = 'FX_Chest';
+	StopEffectAction.AttachToSocketsArrayName = 'BoneSocketActor';
+	StopEffectAction.bStopEffect = true;
 
 	SoundAction = X2Action_PlaySound(class'X2Action_PlaySound'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
 	SoundAction.SoundCue = "IRISpectralStride.Stop_Templar_Ghost_Target_Loop_Cue";

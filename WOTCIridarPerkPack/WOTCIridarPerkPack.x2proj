@@ -141,6 +141,9 @@
     <Content Include="ContentForCook\Skirmisher\IRIThunderLancePerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIAmplify.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRIAstralGrasp.upk">
       <SubType>Content</SubType>
     </Content>
@@ -434,6 +437,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_AstralGraspSpiritDeath.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_PlaySound.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2CharacterTemplate_AstralGrasp.uc">

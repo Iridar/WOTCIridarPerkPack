@@ -6,7 +6,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_TM_Rend());
 	Templates.AddItem(IRI_TM_Volt()); 
-	Templates.AddItem(IRI_TM_Aftershock());  // TODO: Copy Firaxis perk content for Amplify and Aftershock
+	Templates.AddItem(IRI_TM_Aftershock());
 	Templates.AddItem(IRI_TM_SoulShot());
 	Templates.AddItem(IRI_TM_TemplarFocus());
 
@@ -859,14 +859,11 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 	HitModEffect.EffectName = 'IRI_TM_Aftershock_Effect';
 	HitModEffect.DuplicateResponse = eDupe_Ignore;
 
-	HitModEffect.VFXTemplateName = "IRIVolt.PS_Aftershock";
-	HitModEffect.VFXSocket = 'FX_Chest'; // FX_Head
-	HitModEffect.VFXSocketsArrayName = 'BoneSocketActor';
-
+	//HitModEffect.VFXTemplateName = "IRIVolt.PS_Aftershock";
+	//HitModEffect.VFXSocket = 'FX_Chest'; // FX_Head
+	//HitModEffect.VFXSocketsArrayName = 'BoneSocketActor';
 	// Disspates Aftershock FX upon target death/duration
-	HitModEffect.EffectRemovedVisualizationFn = AftershockEffectRemovedVisualization;
-
-	// TODO: Dissipate the effect on target death // orbit -30%, pieces -30-50%
+	//HitModEffect.EffectRemovedVisualizationFn = AftershockEffectRemovedVisualization;
 
 	Template.AddTargetEffect(HitModEffect);
 	Template.AddMultiTargetEffect(HitModEffect);

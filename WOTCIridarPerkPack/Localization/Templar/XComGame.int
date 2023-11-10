@@ -80,3 +80,10 @@ LocLongDescription="Target ally gains the ability to walk through obstacles and 
 LocHelpText="Target ally gains the ability to walk through obstacles and jump to the top of ledges and structures until the end of turn. Costs 1 Focus."
 LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/>" 
 LocFlyoverText="Spectral Stride"
+
+[IRI_TM_Aftershock X2AbilityTemplate]
+LocFriendlyName="Aftershock"
+LocLongDescription="Targets struck by Volt will be easier to hit, increasing your squad's aim by +<Ability:RECOILAIMBONUS/> against the target."
+LocHelpText="Targets struck by Volt will be easier to hit."
+LocPromotionPopupText="<Bullet/> Aftershock will last for 2 turns.<br/><Bullet/> Aftershock will affect all of the units hit by Volt if it jumps multiple times.<br/>"
+
