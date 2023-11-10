@@ -95,10 +95,11 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 
 	// State and Viz
 	Template.bShowActivation = true;
-	Template.CinescriptCameraType = "Templar_Ghost";
+	Template.CinescriptCameraType = "IRI_TM_SpectralStride";
 	Template.bFrameEvenWhenUnitIsHidden = true;
 	SetFireAnim(Template, 'HL_SpectralStride');
 	Template.ActivationSpeech = 'Amplify'; // TODO: Speech
+	Template.ActivationSpeech = 'Exchange';
 	Template.Hostility = eHostility_Neutral;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
