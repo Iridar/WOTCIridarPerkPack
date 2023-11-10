@@ -165,9 +165,6 @@
     <Content Include="ContentForCook\Templar\IRISpectralStride.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="ContentForCook\Templar\IRISpectralStridePerk.upk">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="ContentForCook\Templar\IRIVolt.upk">
       <SubType>Content</SubType>
     </Content>

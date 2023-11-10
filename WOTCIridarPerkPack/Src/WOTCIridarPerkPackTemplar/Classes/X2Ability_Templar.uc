@@ -6,7 +6,7 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_TM_Rend());
 	Templates.AddItem(IRI_TM_Volt()); 
-	Templates.AddItem(IRI_TM_Aftershock()); 
+	Templates.AddItem(IRI_TM_Aftershock());  // TODO: Copy Firaxis perk content for Amplify and Aftershock
 	Templates.AddItem(IRI_TM_SoulShot());
 	Templates.AddItem(IRI_TM_TemplarFocus());
 
@@ -35,7 +35,8 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	local X2Condition_UnitEffects		EffectsCondition;
 	local X2Condition_UnitProperty		UnitPropertyCondition;
 	local X2AbilityCost_ActionPoints	ActionCost;
-	local X2Effect_PersistentTraversalChange SpectralStride;
+	local X2Effect_SpectralStride		SpectralStride;
+	local X2Effect_AdditionalAnimSets	AnimEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_SpectralStride');
 
@@ -78,15 +79,19 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	Template.AbilityTargetConditions.AddItem(EffectsCondition);
 
 	// Effects
-	SpectralStride = new class'X2Effect_PersistentTraversalChange';
+	SpectralStride = new class'X2Effect_SpectralStride';
 	SpectralStride.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
 	SpectralStride.AddTraversalChange( eTraversal_Phasing, true );
 	SpectralStride.AddTraversalChange( eTraversal_JumpUp, true );
 	SpectralStride.bRemoveWhenTargetDies = true;
-	SpectralStride.EffectName = 'IRI_TM_SpectralStride_Effect';
-	SpectralStride.DuplicateResponse = eDupe_Ignore;
 	SpectralStride.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(SpectralStride);
+
+	AnimEffect = new class'X2Effect_AdditionalAnimSets';
+	AnimEffect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	AnimEffect.AddAnimSetWithPath("IRISpectralStride.AS_SpectralStride_Target");
+	AnimEffect.bRemoveWhenTargetDies = true;
+	Template.AddTargetEffect(AnimEffect);
 
 	// State and Viz
 	Template.bShowActivation = true;
