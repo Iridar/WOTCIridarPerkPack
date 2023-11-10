@@ -9,7 +9,7 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 	if (EffectApplyResult == 'AA_Success')
 	{
 		ApplyMITV = X2Action_ApplyMITV(class'X2Action_ApplyMITV'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
-		ApplyMITV.MITVPath = "FX_Templar_Ghost.M_Ghost_Character_Reveal_MITV"; // "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV"; //
+		ApplyMITV.MITVPath = "IRISpectralStride.SpectralStride_MITV"; //"FX_Templar_Ghost.M_Ghost_Character_Reveal_MITV"; // "FX_Warlock_SpectralArmy.M_SpectralArmy_Activate_MITV"; //
 
 		EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
 		EffectAction.EffectName = "FX_Warlock_SpectralArmy.P_SpectralArmy_End";
