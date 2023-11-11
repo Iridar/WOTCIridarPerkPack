@@ -111,6 +111,10 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		OutString = TMColor(`GetConfigInt(InString));
 		return true;
 
+	case "IRI_TM_SiphonedEffects":
+		OutString = GetSiphonedEffects(ParseObj, StrategyParseOb, GameState);
+		return true;
+
 	// ======================================================================================================================
 	//												RANGER TAGS
 	// ----------------------------------------------------------------------------------------------------------------------
@@ -191,6 +195,52 @@ static private function string TruncateFloat(float value)
 	}
 
 	return FloatString;
+}
+
+static private function string GetSiphonedEffects(Object ParseObj, Object StrategyParseObj, XComGameState GameState)
+{
+	local XComGameState_Effect	EffectState;
+	local XComGameState_Unit	UnitState;
+	local UnitValue		UV;
+	local array<string> AppliedEffects;
+	local string		RetString;
+	local string		AppliedEffect;
+	local int			i;
+
+	EffectState = XComGameState_Effect(ParseObj);
+	if (EffectState != none)
+	{
+		UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID));
+		if (UnitState != none)
+		{
+			if (UnitState.GetUnitValue('IRI_TM_Siphon_fire', UV))
+			{
+				AppliedEffects.AddItem(Locs(class'UIEventNoticesTactical'.default.BurningTitle));
+			}
+			if (UnitState.GetUnitValue('IRI_TM_Siphon_acid', UV))
+			{
+				AppliedEffects.AddItem(Locs(class'UIEventNoticesTactical'.default.AcidBurningTitle));
+			}
+			if (UnitState.GetUnitValue('IRI_TM_Siphon_poison', UV))
+			{
+				AppliedEffects.AddItem(Locs(class'UIEventNoticesTactical'.default.PoisonedTitle));
+			}
+			if (UnitState.GetUnitValue('IRI_TM_Siphon_Frost', UV))
+			{
+				AppliedEffects.AddItem(Locs(class'UIEventNoticesTactical'.default.FrozenTitle));
+			}
+		}
+	}
+	if (AppliedEffects.Length == 1)
+	{
+		return AppliedEffects[0];
+	}
+	RetString = AppliedEffects[0];
+	for (i = 1; i < AppliedEffects.Length; i++)
+	{
+		RetString $= ", " $ AppliedEffects[i];
+	}
+	return RetString;
 }
 
 static private function string GetBoundWeaponName(Object ParseObj, Object StrategyParseObj, XComGameState GameState)

@@ -87,3 +87,9 @@ LocLongDescription="Targets struck by Volt will be easier to hit, increasing you
 LocHelpText="Targets struck by Volt will be easier to hit."
 LocPromotionPopupText="<Bullet/> Aftershock will last for 2 turns.<br/><Bullet/> Aftershock will affect all of the units hit by Volt if it jumps multiple times.<br/>"
 
+[IRI_TM_Siphon X2AbilityTemplate]
+LocFriendlyName="Siphon"
+LocLongDescription="Remove fire, freeze, acid or poison effects from the target unit, and add them to your next Rend or Soul Shot. Costs 1 Focus."
+LocHelpText="Remove fire, freeze, acid or poison effects from the target unit, and add them to your next Rend or Soul Shot. Costs 1 Focus."
+LocPromotionPopupText="<Bullet/> You can Siphon fire, acid and poison from yourself, but not freeze.<br/><Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/>" 
+LocFlyoverText="Siphon"

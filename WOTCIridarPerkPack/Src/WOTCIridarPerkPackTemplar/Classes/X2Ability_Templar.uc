@@ -1,5 +1,7 @@
 class X2Ability_Templar extends X2Ability;
 
+var private localized string strSiphonEffectDesc;
+
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
@@ -18,6 +20,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(PurePassive('IRI_TM_Concentration', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
 	
 	Templates.AddItem(IRI_TM_SpectralStride());
+	Templates.AddItem(IRI_TM_Siphon());
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
@@ -27,6 +30,136 @@ static function array<X2DataTemplate> CreateTemplates()
 	return Templates;
 }
 
+static private function X2AbilityTemplate IRI_TM_Siphon()
+{
+	local X2AbilityTemplate				Template;
+	local X2AbilityCost_ActionPoints	ActionCost;
+	local array<name>					SkipExclusions;
+	local X2Effect_Persistent			PersistentEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Siphon');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ReflectShot";
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SingleTargetWithSelf;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	SkipExclusions.AddItem(class'X2StatusEffects'.default.BurningName);
+	//SkipExclusions.AddItem('Freeze'); // Arguably shouldn't be able to unfreeze themselves
+ 	Template.AddShooterEffectExclusions(SkipExclusions);
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingTargetUnitOnlyProperty);
+	Template.AbilityTargetConditions.AddItem(new class'X2Condition_Siphon');
+
+	// Costs
+//Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus'); // TODO DEBUG ONLY
+//AddCooldown(Template, `GetConfigInt('IRI_TM_Siphon_Cooldown'));
+
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+
+	// Effects
+	PersistentEffect = new class'X2Effect_Persistent';
+	PersistentEffect.EffectName = 'IRI_TM_Siphon_Buff_Effect';
+	PersistentEffect.BuildPersistentEffect(1, true);
+	PersistentEffect.bRemoveWhenSourceDies = true;
+	PersistentEffect.bRemoveWhenTargetDies = true;
+	PersistentEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, default.strSiphonEffectDesc, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddShooterEffect(PersistentEffect);
+
+	Template.AddTargetEffect(new class'X2Effect_Siphon');
+
+	// State and Viz
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = false;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+
+	return Template;
+}
+
+static private function AddSiphonEffects(out X2AbilityTemplate Template)
+{
+	local X2Effect_RemoveEffects	RemoveEffects;
+	local X2Effect_DLC_Day60Freeze	FreezeEffect;
+	local X2Effect					Effect;
+
+	RemoveEffects = new class'X2Effect_RemoveEffects';
+	RemoveEffects.EffectNamesToRemove.AddItem('IRI_TM_Siphon_Buff_Effect');
+	Template.AddShooterEffect(RemoveEffects);
+
+	// Fire
+	Effect = class'X2StatusEffects'.static.CreateBurningStatusEffect(2, 1);
+	Effect.TargetConditions.AddItem(CreateUnitValueCondition('IRI_TM_Siphon_fire'));
+	Template.AddTargetEffect(Effect);
+
+	// Acid
+	Effect = class'X2StatusEffects'.static.CreateAcidBurningStatusEffect(2, 1);
+	Effect.TargetConditions.AddItem(CreateUnitValueCondition('IRI_TM_Siphon_acid'));
+	Template.AddTargetEffect(Effect);
+
+	// Poison
+	Effect = class'X2StatusEffects'.static.CreatePoisonedStatusEffect();
+	Effect.TargetConditions.AddItem(CreateUnitValueCondition('IRI_TM_Siphon_poison'));
+	Template.AddTargetEffect(Effect);
+
+	// Freeze
+	if (`GetConfigBool("IRI_TM_Siphon_AllowFreeze"))
+	{
+		FreezeEffect = class'X2Effect_DLC_Day60Freeze'.static.CreateFreezeEffect(class'X2Item_DLC_Day60Grenades'.default.FROSTBOMB_MIN_RULER_FREEZE_DURATION, class'X2Item_DLC_Day60Grenades'.default.FROSTBOMB_MAX_RULER_FREEZE_DURATION);
+		FreezeEffect.bApplyRulerModifiers = true;
+		FreezeEffect.TargetConditions.AddItem(CreateUnitValueCondition('IRI_TM_Siphon_Frost'));
+		Template.AddTargetEffect(FreezeEffect);
+
+		Effect = class'X2Effect_DLC_Day60Freeze'.static.CreateFreezeRemoveEffects();
+		Effect.TargetConditions.AddItem(CreateUnitValueCondition('IRI_TM_Siphon_Frost'));
+		Template.AddTargetEffect(Effect);
+
+		Template.AddTargetEffect(CreateClearUnitValueEffect('IRI_TM_Siphon_Frost'));
+	}
+
+	// Cleanse all values - use target effects array, cuz shooter effects seem to be processed before target effects
+	// preventing unit value conditions from passing
+	Template.AddTargetEffect(CreateClearUnitValueEffect('IRI_TM_Siphon_fire'));
+	Template.AddTargetEffect(CreateClearUnitValueEffect('IRI_TM_Siphon_poison'));
+	Template.AddTargetEffect(CreateClearUnitValueEffect('IRI_TM_Siphon_acid'));
+}
+
+static private function X2Effect CreateClearUnitValueEffect(const name ValueName)
+{
+	local X2Effect_ClearUnitValue ClearUnitValue;
+
+	ClearUnitValue = new class'X2Effect_ClearUnitValue';
+	ClearUnitValue.UnitValueName = ValueName;
+	ClearUnitValue.bSource = true;
+
+	return ClearUnitValue;
+}
+static private function X2Condition CreateUnitValueCondition(const name ValueName)
+{
+	local X2Condition_UnitValueSource UnitValue;
+
+	UnitValue = new class'X2Condition_UnitValueSource';
+	UnitValue.AddCheckValue(ValueName, 1);
+
+	return UnitValue;
+}
 
 
 static private function X2AbilityTemplate IRI_TM_SpectralStride()
@@ -98,7 +231,6 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	Template.CinescriptCameraType = "IRI_TM_SpectralStride";
 	Template.bFrameEvenWhenUnitIsHidden = true;
 	SetFireAnim(Template, 'HL_SpectralStride');
-	Template.ActivationSpeech = 'Amplify'; // TODO: Speech
 	Template.ActivationSpeech = 'Exchange';
 	Template.Hostility = eHostility_Neutral;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
@@ -985,6 +1117,7 @@ static private function X2AbilityTemplate IRI_TM_Rend()
 	Template.AddTargetEffect(WeaponDamageEffect);
 
 	Template.AddTargetEffect(CreateConcentrationEffect());
+	AddSiphonEffects(Template);
 
 	return Template;
 }
@@ -997,6 +1130,8 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 	local X2Effect_ApplyWeaponDamage        WeaponDamageEffect;
 	local X2Condition_Visibility            TargetVisibilityCondition;
 	local X2AbilityToHitCalc_StandardAim	StandardAim;
+
+	local X2AbilityMultiTarget_Cone			ConeMultiTarget;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_SoulShot');
 
@@ -1063,6 +1198,18 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 	Template.PostActivationEvents.AddItem('RendActivated');
 
 	Template.AddTargetEffect(CreateConcentrationEffect());
+	AddSiphonEffects(Template);
+
+	ConeMultiTarget = new class'X2AbilityMultiTarget_Cone';
+	ConeMultiTarget.ConeEndDiameter = class'X2Ability_TemplarAbilitySet'.default.ArcWaveConeEndDiameterTiles * class'XComWorldData'.const.WORLD_StepSize;
+	ConeMultiTarget.ConeLength = class'X2Ability_TemplarAbilitySet'.default.ArcWaveConeLengthTiles * class'XComWorldData'.const.WORLD_StepSize;
+	ConeMultiTarget.fTargetRadius = Sqrt(Square(ConeMultiTarget.ConeEndDiameter / 2) + Square(ConeMultiTarget.ConeLength)) * class'XComWorldData'.const.WORLD_UNITS_TO_METERS_MULTIPLIER;
+	ConeMultiTarget.bExcludeSelfAsTargetIfWithinRadius = true;
+	ConeMultiTarget.bLockShooterZ = true;
+	Template.AbilityMultiTargetStyle = ConeMultiTarget;
+	Template.TargetingMethod = class'X2TargetingMethod_ArcWave';
+	Template.ActionFireClass = class'X2Action_Fire_Wave';
+	Template.AddMultiTargetEffect(WeaponDamageEffect);
 	
 	return Template;
 }

@@ -159,6 +159,9 @@
     <Content Include="ContentForCook\Templar\IRIReflect.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIRend.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRISoulShot2.upk">
       <SubType>Content</SubType>
     </Content>
@@ -204,6 +207,9 @@
     <Content Include="Localization\Skirmisher\XComGame.rus">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Localization\Templar\WOTCIridarPerkPackTemplar.int">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Localization\Templar\XComGame.int">
       <SubType>Content</SubType>
     </Content>
@@ -232,6 +238,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_ShowUnit.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Condition_UnitValueSource.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_ClearUnitValue.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_Flyover.uc">
@@ -451,6 +463,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Concentration.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Siphon.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_ApplySpiritLinkDamage.uc">
       <SubType>Content</SubType>
     </Content>
@@ -473,6 +488,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Reflect.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Siphon.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_SpectralStride.uc">
