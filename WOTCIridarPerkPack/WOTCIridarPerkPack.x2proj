@@ -162,6 +162,9 @@
     <Content Include="ContentForCook\Templar\IRIRend.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRISiphon.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRISoulShot2.upk">
       <SubType>Content</SubType>
     </Content>

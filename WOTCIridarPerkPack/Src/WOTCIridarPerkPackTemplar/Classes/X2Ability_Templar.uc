@@ -90,6 +90,8 @@ static private function X2AbilityTemplate IRI_TM_Siphon()
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.Hostility = eHostility_Neutral;
 	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.CustomFireAnim = 'HL_Siphon';
+	Template.CustomSelfFireAnim = 'HL_SiphonSelf';
 
 	return Template;
 }

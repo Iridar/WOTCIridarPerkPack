@@ -130,6 +130,8 @@ static private function ConcentrationEffectRemovedVisualization(XComGameState Vi
 	if (UnitPawn == none || UnitPawn.Mesh == none)
 		return;
 
+	// TODO: Play this effect only when killed not by the templar... somehow.
+
 	// Use a custom effect that will get the effect location from the pawn mesh when running, not when building visualization.
 	EffectAction = X2Action_PlayDeathEffect(class'X2Action_PlayDeathEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded));
 	EffectAction.EffectName = "IRIVolt.PS_Concentration_Death";
