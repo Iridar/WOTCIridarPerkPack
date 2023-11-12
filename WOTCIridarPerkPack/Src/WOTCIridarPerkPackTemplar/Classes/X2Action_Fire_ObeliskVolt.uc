@@ -1,25 +1,29 @@
 class X2Action_Fire_ObeliskVolt extends X2Action_Fire_Volt;
 
-private function vector GetObeliskFiringLocation()
+var private vector ObeliskFiringLocation;
+
+function Init()
 {
 	local XComGameState_Effect			ObeliskEffect;
 	local XComGameState_Destructible	ObeliskState;
 	local TTile							ObeliskFiringTile;
 
+	Super.Init();
+
 	ObeliskEffect = SourceUnitState.GetUnitAffectedByEffectState('IRI_TM_Obelisk_Effect');
 	if (ObeliskEffect == none)
-		return vect(0, 0, 0);
+		return;
 
 	ObeliskState = XComGameState_Destructible(`XCOMHISTORY.GetGameStateForObjectID(ObeliskEffect.CreatedObjectReference.ObjectID));
 	if (ObeliskState == none)
-		return vect(0, 0, 0);
+		return;
 
 	ObeliskFiringTile = ObeliskState.TileLocation;
 	ObeliskFiringTile.Z += 2;
 
-	return `XWORLD.GetPositionFromTileCoordinates(ObeliskFiringTile);
+	ObeliskFiringLocation = `XWORLD.GetPositionFromTileCoordinates(ObeliskFiringTile);
 }
-
+/*
 function HandleSingleTarget(int ObjectID, int TargetObjectID, Name StartSocket, Name EndSocket)
 {
 	local XComUnitPawn FirstTethered, SecondTethered;
@@ -52,19 +56,22 @@ function HandleSingleTarget(int ObjectID, int TargetObjectID, Name StartSocket, 
 		}
 	}
 }
-
+*/
 function UpdateSingleTether(int TetherIndex, int FirstObjectID, int SecondObjectID, Name StartSocket, Name EndSocket, optional out vector Origin, optional out vector Delta)
 {
-	local XComUnitPawn FirstTethered, SecondTethered;
+	local XComUnitPawn /*FirstTethered,*/ SecondTethered;
 	local Vector FirstLocation, SecondLocation;
 	local Vector FirstToSecond;
 	local float DistanceBetween;
 	local Vector DistanceBetweenVector;
 
-	FirstTethered = XGUnit(History.GetVisualizer(UnitsTethered[TetherIndex])).GetPawn();
+	//FirstTethered = XGUnit(History.GetVisualizer(UnitsTethered[TetherIndex])).GetPawn();
 	SecondTethered = XGUnit(History.GetVisualizer(UnitsTethered[TetherIndex + 1])).GetPawn();
 
-	FirstTethered.Mesh.GetSocketWorldLocationAndRotation(StartSocket, FirstLocation);
+	//FirstTethered.Mesh.GetSocketWorldLocationAndRotation(StartSocket, FirstLocation);
+
+	FirstLocation = ObeliskFiringLocation;
+
 	SecondTethered.Mesh.GetSocketWorldLocationAndRotation(EndSocket, SecondLocation);
 	FirstToSecond = SecondLocation - FirstLocation;
 	DistanceBetween = VSize(FirstToSecond);
@@ -82,6 +89,54 @@ function UpdateSingleTether(int TetherIndex, int FirstObjectID, int SecondObject
 
 	Origin = FirstLocation;
 	Delta = SecondLocation - FirstLocation;
+}
+
+simulated state Executing
+{
+	simulated event Tick(float fDeltaT)
+	{
+		local int TetherIndex;
+		local Name UseSocket;
+
+		Super.Tick(fDeltaT);
+
+		// Loop through our tethers and update the distance parameter and their location/rotation
+		UseSocket = StartingSocket;
+		for( TetherIndex = 0; TetherIndex < TethersSpawned.Length && TetherIndex + 1 < UnitsTethered.Length; ++TetherIndex )
+		{
+			UpdateSingleTether(TetherIndex, UnitsTethered[TetherIndex], UnitsTethered[TetherIndex + 1], UseSocket, TargetSocket);
+			UseSocket = TargetSocket;
+		}
+	}
+Begin:
+	//UnitPawn.EnableRMA(true, true);
+	//UnitPawn.EnableRMAInteractPhysics(true);
+	
+	//AnimParams.AnimName = AnimName;
+	//if( bComingFromEndMove )
+	//{
+	//	AnimParams.DesiredEndingAtoms.Add(1);
+	//	AnimParams.DesiredEndingAtoms[0].Translation = MoveEndDestination;
+	//	AnimParams.DesiredEndingAtoms[0].Translation.Z = Unit.GetDesiredZForLocation(MoveEndDestination);
+	//	AnimParams.DesiredEndingAtoms[0].Rotation = QuatFromRotator(Rotator(MoveEndDirection));
+	//	AnimParams.DesiredEndingAtoms[0].Scale = 1.0f;
+	//
+	//	Unit.RestoreLocation = AnimParams.DesiredEndingAtoms[0].Translation;
+	//	Unit.RestoreHeading = vector(QuatToRotator(AnimParams.DesiredEndingAtoms[0].Rotation));
+	//}
+	//PlayingSequence = UnitPawn.GetAnimTreeController().PlayFullBodyDynamicAnim(AnimParams);
+
+	//while( !StartChain /* &&
+	//	   !IsTimedOut()*/ )	// // ADDING THIS ISTIMEDOUT UNTIL WE FIX THE VISUALIZATION FOR THESE ABILITIES
+	//{
+	//	Sleep(0.0f);
+	//}
+
+	HandleSingleTarget(UnitPawn.ObjectID, PrimaryTargetID, StartingSocket, TargetSocket);
+
+	//FinishAnim(PlayingSequence);
+
+	CompleteAction();
 }
 
 DefaultProperties
