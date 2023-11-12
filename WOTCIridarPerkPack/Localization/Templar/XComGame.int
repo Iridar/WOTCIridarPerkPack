@@ -96,11 +96,10 @@ LocFlyoverText="Siphon"
 
 [IRI_TM_Obelisk X2AbilityTemplate]
 LocFriendlyName="Obelisk"
-LocLongDescription="Summon an obelisk of Psionic energy to act as a high cover point for <Ability:IRI_TM_Obelisk_Duration/> turns. If an enemy near an obelisk attempts to attack an ally near the obelisk, the obelisk will cast Volt upon them. Costs <Ability:IRI_TM_Obelisk_FocusCost/> Focus."
-LocHelpText="Summon an obelisk of Psionic energy to act as a high cover point for <Ability:IRI_TM_Obelisk_Duration/> turns. If an enemy near an obelisk attempts to attack an ally near the obelisk, the obelisk will cast Volt upon them."
-LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/>" 
-LocFlyoverText="Siphon"
-
+LocLongDescription="Summon an obelisk of Psionic energy to act as a high cover point and protect allies within <Ability:IRI_TM_Obelisk_Volt_Distance_Tiles/> tiles of the obelisk by casting Volt upon enemies if they attempt to attack. Lasts <Ability:IRI_TM_Obelisk_Duration/> turns. Costs <Ability:IRI_TM_Obelisk_FocusCost/> Focus."
+LocHelpText="Summon an obelisk of Psionic energy to act as a high cover point and protect allies within <Ability:IRI_TM_Obelisk_Volt_Distance_Tiles/> tiles of the obelisk by casting Volt upon enemies if they attempt to attack. Lasts <Ability:IRI_TM_Obelisk_Duration/> turns."
+LocPromotionPopupText="<br/><Bullet/> Each enemy can be struck by obelisk's Volt only once per turn.<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/>" 
+LocFlyoverText="Obelisk"
 
 [IRI_TM_Obelisk_Volt X2AbilityTemplate]
 LocFriendlyName="Volt"

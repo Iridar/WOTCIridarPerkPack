@@ -148,5 +148,7 @@ Begin:
 
 	//FinishAnim(PlayingSequence);
 
+	Sleep(1.5f); // Wait for a bit to let the Volt visualization play out.
+
 	CompleteAction();
 }

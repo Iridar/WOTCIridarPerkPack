@@ -2,6 +2,8 @@ class X2Condition_ObeliskVolt extends X2Condition;
 
 // Checks whether the target unit can see the Obelisk's firing location.
 
+var int DistanceTiles;
+
 event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGameState_BaseObject kSource) 
 { 
 	local XComGameState_Unit			SourceUnit;
@@ -36,7 +38,7 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 
 	//`AMLOG("Clear LOS:" @ OutVisInfo.bClearLOS @ "distance:" @ OutVisInfo.DefaultTargetDist @ "peek distance:" @ OutVisInfo.PeekToTargetDist @ "vs:" @ `METERSTOUNITS_SQ(10 * 1.5f) @ "in range:" @ OutVisInfo.PeekToTargetDist < `TILESTOUNITS(10));
 
-	if (OutVisInfo.bClearLOS && OutVisInfo.PeekToTargetDist < `METERSTOUNITS_SQ(10 * 1.5f)) // 1.5f = TILESTOMETERS // TODO: Cache this as class var
+	if (OutVisInfo.bClearLOS && OutVisInfo.PeekToTargetDist < `METERSTOUNITS_SQ(DistanceTiles * 1.5f)) // 1.5f = TILESTOMETERS
 	{
 		//`AMLOG("Condition success!");
 		return 'AA_Success'; 

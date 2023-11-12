@@ -51,6 +51,8 @@ static function X2AbilityTemplate IRI_TM_Obelisk()
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// TODO: Add visible range requirement
 	Template.TargetingMethod = class'X2TargetingMethod_Pillar';
 
 	Cursor = new class'X2AbilityTarget_Cursor';
@@ -116,6 +118,7 @@ static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 	local X2AbilityTag                  AbilityTag;
 	local X2AbilityCost_ActionPoints	ActionCost;
 	local X2Condition_UnitEffects		EffectsCondition;
+	local X2Condition_ObeliskVolt		ObeliskCondition;
 	local X2Effect_Persistent						BladestormTargetEffect;
 	local X2Condition_UnitEffectsWithAbilitySource	BladestormTargetCondition;
 
@@ -129,15 +132,18 @@ static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 	// Targeting and Triggering
 	Template.AbilityTargetStyle = default.SimpleSingleTarget;
 	Template.AbilityToHitCalc = new class'X2AbilityToHitCalc_Volt'; // Custom calc to force crits against Psionics for cosmetic effect.
+	//X2AbilityToHitCalc_StandardAim(Template.AbilityToHitCalc).bReactionFire = true;
 	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder'); // Triggered from X2Effect_Obelisk
 	
 	// Shooter Conditions
 	EffectsCondition = new class'X2Condition_UnitEffects';
 	EffectsCondition.AddRequireEffect(class'X2Effect_Obelisk'.default.EffectName, 'AA_MissingRequiredEffect');
 	Template.AbilityShooterConditions.AddItem(EffectsCondition);
-
+	
 	// Target Conditions
-	Template.AbilityTargetConditions.AddItem(new class'X2Condition_ObeliskVolt');
+	ObeliskCondition = new class'X2Condition_ObeliskVolt';
+	ObeliskCondition.DistanceTiles = `GetConfigInt("IRI_TM_Obelisk_Volt_Distance_Tiles");
+	Template.AbilityTargetConditions.AddItem(ObeliskCondition);
 
 	TargetCondition = new class'X2Condition_UnitProperty';
 	TargetCondition.ExcludeAlive = false;
@@ -210,6 +216,7 @@ static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 	Template.BuildVisualizationFn = ObeliskVolt_BuildVisualization;
 	Template.BuildInterruptGameStateFn = none; // Not interruptible
 	Template.bSkipExitCoverWhenFiring = true;
+	Template.FrameAbilityCameraType = eCameraFraming_Never;
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
@@ -271,6 +278,10 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	if (ObeliskState == none)
 		return;
 
+	// TODO: Get rid of cinecam
+	// TODO: Fix sometimes hangs when Volt kills the enemy
+	// TODO: Vold casted twice on an enemy attack that killed the Templar??
+
 	bGoodAbility = SourceUnit.IsFriendlyToLocalPlayer();
 
 	ActionMetaData.StateObject_OldState = ObeliskState;
@@ -291,8 +302,9 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	//FlyoverAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, ExitCover.ParentActions));
     //FlyoverAction.SetSoundAndFlyOverParameters(None, AbilityTemplate.LocFlyOverText, '', bGoodAbility ? eColor_Good : eColor_Bad, AbilityTemplate.IconImage);
 
+	// TODO: Figure out why this flyover plays only once.
 	FlyoverAction = X2Action_PlayFlyover(class'X2Action_PlayFlyover'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, CommonParents));
-	FlyoverAction.ActorRef.ObjectID = SourceUnit.ObjectID;
+	FlyoverAction.ActorRef.ObjectID = SourceUnit.ObjectID; // TODO: Maybe put Obelisk's object ID here.
 	FlyoverAction.FlyoverMessage = AbilityTemplate.LocFlyOverText;
 	FlyoverAction.FlyoverIcon = AbilityTemplate.IconImage;
 	FlyoverAction.FlyoverLocation = ObeliskFiringLocation;
@@ -341,7 +353,7 @@ static private function X2AbilityTemplate IRI_TM_Siphon()
 
 	// Costs
 	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
-	AddCooldown(Template, `GetConfigInt('IRI_TM_Siphon_Cooldown'));
+	AddCooldown(Template, `GetConfigInt("IRI_TM_Siphon_Cooldown"));
 
 	ActionCost = new class'X2AbilityCost_ActionPoints';
 	ActionCost.iNumPoints = 1;

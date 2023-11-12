@@ -110,6 +110,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_TM_SoulShot_Cooldown":
 	case "IRI_TM_Obelisk_Duration":
 	case "IRI_TM_Obelisk_FocusCost":
+	case "IRI_TM_Obelisk_Volt_Distance_Tiles":
 		OutString = TMColor(`GetConfigInt(InString));
 		return true;
 
