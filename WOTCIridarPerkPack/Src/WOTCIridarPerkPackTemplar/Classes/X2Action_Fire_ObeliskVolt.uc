@@ -1,20 +1,15 @@
 class X2Action_Fire_ObeliskVolt extends X2Action_Fire_Volt;
 
 var private vector	ObeliskFiringLocation;
-var private AkEvent	VoltChargeSound;
 var private AkEvent	VoltFireSound;
 
 function Init()
 {
-	local XComContentManager Content;
-
 	Super.Init();
 
 	GetObeliskVisualFiringLocation();
 
-	Content = `CONTENT;
-	VoltChargeSound = AkEvent(Content.RequestGameArchetype("XPACK_SoundCharacterFX.Templar_Volt_ChargeUp"));
-	VoltFireSound = AkEvent(Content.RequestGameArchetype("XPACK_SoundCharacterFX.Templar_Volt_Fire"));
+	VoltFireSound = AkEvent(`CONTENT.RequestGameArchetype("XPACK_SoundCharacterFX.Templar_Volt_Fire"));
 }
 
 private function GetObeliskVisualFiringLocation()
@@ -144,11 +139,6 @@ Begin:
 	//	Sleep(0.0f);
 	//}
 
-	if (VoltChargeSound != none)
-	{
-		UnitPawn.PlayAkEvent(VoltChargeSound,,,, ObeliskFiringLocation);
-		Sleep(0.8f);
-	}
 	if (VoltFireSound != none)
 	{
 		UnitPawn.PlayAkEvent(VoltFireSound,,,, ObeliskFiringLocation);
@@ -156,14 +146,7 @@ Begin:
 
 	HandleSingleTarget(UnitPawn.ObjectID, PrimaryTargetID, StartingSocket, TargetSocket);
 
-	//Unit.CurrentPerkAction.TriggerImpact(); // Might be unnecessary 
-
 	//FinishAnim(PlayingSequence);
 
 	CompleteAction();
-}
-
-DefaultProperties
-{
-	//AnimName = "HL_Obelisk_Volt"
 }

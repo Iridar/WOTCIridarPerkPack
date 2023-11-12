@@ -100,3 +100,10 @@ LocLongDescription="Summon an obelisk of Psionic energy to act as a high cover p
 LocHelpText="Summon an obelisk of Psionic energy to act as a high cover point for <Ability:IRI_TM_Obelisk_Duration/> turns. If an enemy near an obelisk attempts to attack an ally near the obelisk, the obelisk will cast Volt upon them."
 LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/>" 
 LocFlyoverText="Siphon"
+
+
+[IRI_TM_Obelisk_Volt X2AbilityTemplate]
+LocFriendlyName="Volt"
+LocLongDescription="Volt"
+LocHelpText="Volt"
+LocFlyoverText="Obelisk"

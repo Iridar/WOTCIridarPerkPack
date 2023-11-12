@@ -204,9 +204,6 @@ static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 	Template.AddTargetEffect(HitModEffect);
 
 	// State and Viz
-	Template.CustomFireAnim = 'HL_Volt';
-	//Template.ActivationSpeech = 'Volt';
-	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.ActionFireClass = class'X2Action_Fire_ObeliskVolt';
 	Template.Hostility = eHostility_Neutral; // Not controllable by the player
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
@@ -221,13 +218,12 @@ static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 	return Template;
 }
 
-// Insert a flyover above the Obelisk when Volt activates and play some FX that are normally played by Volt animation
+// Insert a flyover above the Obelisk when Volt activates and play some FX that are normally played by Volt animation.
 static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGameState)
 {	
 	local XComGameStateVisualizationMgr		VisMgr;
-	local X2Action_Fire_ObeliskVolt			FireAction;
 	local VisualizationActionMetadata		ActionMetadata;
-	local X2Action_PlaySoundAndFlyOver		FlyoverAction;
+	local X2Action_PlayFlyover				FlyoverAction;
 	local XComGameStateContext_Ability		AbilityContext;
 	local XComGameState_Ability				AbilityState;
 	local X2AbilityTemplate					AbilityTemplate;
@@ -235,17 +231,17 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	local XComGameState_Effect				ObeliskEffect;
 	local XComGameState_Destructible		ObeliskState;
 	local TTile								ObeliskFiringTile;
+	local vector							ObeliskFiringLocation;
 	local bool								bGoodAbility;
 	local X2Action_PlayEffect				PlayEffect;
-
-	`AMLOG("Running");
+	local X2Action_PlayAkEvent				PlayAkEvent;
+	local X2Action_TimedWait				TimedWait;
+	local X2Action							ExitCover;
+	local array<X2Action>					CommonParents;
 
 	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
 
 	VisMgr = `XCOMVISUALIZATIONMGR;
-	FireAction = X2Action_Fire_ObeliskVolt(VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_Fire_ObeliskVolt'));
-	if (FireAction == none)
-		return;
 
 	AbilityContext = XComGameStateContext_Ability(VisualizeGameState.GetContext());
 	if (AbilityContext == none)
@@ -253,6 +249,10 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 
 	SourceUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.SourceObject.ObjectID));
 	if (SourceUnit == none)
+		return;
+
+	ExitCover = VisMgr.GetNodeOfType(VisMgr.BuildVisTree, class'X2Action_ExitCover',, SourceUnit.ObjectID);
+	if (ExitCover == none)
 		return;
 
 	AbilityState = XComGameState_Ability(VisualizeGameState.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
@@ -277,17 +277,36 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	ActionMetaData.StateObject_NewState	= ObeliskState;
 	ActionMetaData.VisualizeActor = ObeliskState.GetVisualizer();
 
-	`AMLOG("Adding flyover" @ ObeliskState != none @ ActionMetaData.VisualizeActor != none);
-
-	FlyoverAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, FireAction.ParentActions));
-	FlyoverAction.SetSoundAndFlyOverParameters(None, AbilityTemplate.LocFlyOverText, '', bGoodAbility ? eColor_Good : eColor_Bad, AbilityTemplate.IconImage);
-
 	ObeliskFiringTile = ObeliskState.TileLocation;
 	ObeliskFiringTile.Z += 3;
+	ObeliskFiringLocation = `XWORLD.GetPositionFromTileCoordinates(ObeliskFiringTile);
 
-	PlayEffect = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, FireAction.ParentActions));
+	CommonParents = ExitCover.ParentActions;
+
+	// Insert above Exit Cover Action to delay it for 0.8 sec
+	TimedWait = X2Action_TimedWait(class'X2Action_TimedWait'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, true,, ExitCover.ParentActions));
+	TimedWait.DelayTimeSec = 0.8f;
+
+	// Boo hoo. Boo hoo hoo. Doesn't work for non-units.
+	//FlyoverAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, ExitCover.ParentActions));
+    //FlyoverAction.SetSoundAndFlyOverParameters(None, AbilityTemplate.LocFlyOverText, '', bGoodAbility ? eColor_Good : eColor_Bad, AbilityTemplate.IconImage);
+
+	FlyoverAction = X2Action_PlayFlyover(class'X2Action_PlayFlyover'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, CommonParents));
+	FlyoverAction.ActorRef.ObjectID = SourceUnit.ObjectID;
+	FlyoverAction.FlyoverMessage = AbilityTemplate.LocFlyOverText;
+	FlyoverAction.FlyoverIcon = AbilityTemplate.IconImage;
+	FlyoverAction.FlyoverLocation = ObeliskFiringLocation;
+	FlyoverAction.MessageColor = bGoodAbility ? eColor_Good : eColor_Bad;
+
+	ActionMetaData = ExitCover.Metadata; // Use actual unit metadata for other actions.
+
+	PlayAkEvent = X2Action_PlayAkEvent(class'X2Action_PlayAkEvent'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, CommonParents));
+	PlayAkEvent.AkEventPath = "XPACK_SoundCharacterFX.Templar_Volt_ChargeUp";
+	PlayAkEvent.SoundLocation = ObeliskFiringLocation;
+
+	PlayEffect = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, CommonParents));
 	PlayEffect.EffectName = "IRIObelisk.PS_Volt_Cast";
-	PlayEffect.EffectLocation = `XWORLD.GetPositionFromTileCoordinates(ObeliskFiringTile);
+	PlayEffect.EffectLocation = ObeliskFiringLocation;
 }
 
 static private function X2AbilityTemplate IRI_TM_Siphon()

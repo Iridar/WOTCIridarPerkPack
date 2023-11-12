@@ -237,7 +237,13 @@
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_HideUnit.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_PlayAkEvent.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_PlayDeathEffect.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_PlayFlyover.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_RemoveMITV.uc">
