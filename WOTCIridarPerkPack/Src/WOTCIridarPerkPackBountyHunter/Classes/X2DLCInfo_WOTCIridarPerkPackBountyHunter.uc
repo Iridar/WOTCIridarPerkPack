@@ -108,6 +108,8 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	//												TEMPLAR TAGS
 	// ----------------------------------------------------------------------------------------------------------------------
 	case "IRI_TM_SoulShot_Cooldown":
+	case "IRI_TM_Obelisk_Duration":
+	case "IRI_TM_Obelisk_FocusCost":
 		OutString = TMColor(`GetConfigInt(InString));
 		return true;
 
@@ -204,7 +206,6 @@ static private function string GetSiphonedEffects(Object ParseObj, Object Strate
 	local UnitValue		UV;
 	local array<string> AppliedEffects;
 	local string		RetString;
-	local string		AppliedEffect;
 	local int			i;
 
 	EffectState = XComGameState_Effect(ParseObj);

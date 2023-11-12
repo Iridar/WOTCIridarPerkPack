@@ -21,6 +21,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	
 	Templates.AddItem(IRI_TM_SpectralStride());
 	Templates.AddItem(IRI_TM_Siphon());
+	Templates.AddItem(IRI_TM_Obelisk());
+	Templates.AddItem(IRI_TM_Obelisk_Volt()); 
 
 	Templates.AddItem(IRI_TM_AstralGrasp());
 	Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
@@ -28,6 +30,194 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
+}
+
+static function X2AbilityTemplate IRI_TM_Obelisk()
+{
+	local X2AbilityTemplate				Template;
+	local X2AbilityTarget_Cursor		Cursor;
+	local X2AbilityMultiTarget_Radius	RadiusMultiTarget;
+	local X2AbilityCost_ActionPoints	ActionCost;
+	local X2Effect_Obelisk				PillarEffect;
+	local X2AbilityCost_Focus			FocusCost;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Obelisk');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Pillar";
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+	Template.TargetingMethod = class'X2TargetingMethod_Pillar';
+
+	Cursor = new class'X2AbilityTarget_Cursor';
+	Cursor.bRestrictToSquadsightRange = true;
+	Template.AbilityTargetStyle = Cursor;
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.fTargetRadius = 0.25; // small amount so it just grabs one tile
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	// Costs
+
+	// TODO: DEBUG ONLY
+//FocusCost = new class'X2AbilityCost_Focus';
+//FocusCost.FocusAmount = `GetConfigInt('IRI_TM_Obelisk_FocusCost');
+//Template.AbilityCosts.AddItem(FocusCost);
+//AddCooldown(Template, `GetConfigInt('IRI_TM_Obelisk_Cooldown'));
+
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Effects
+	PillarEffect = new class'X2Effect_Obelisk';
+	// Duration here is irrelevant, it will be overridden
+	PillarEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);	
+	PillarEffect.DestructibleArchetype = "FX_Templar_Pillar.Pillar_Destructible";
+	PillarEffect.bRemoveWhenSourceDies = true;
+	PillarEffect.bRemoveWhenTargetDies = true;
+	Template.AddShooterEffect(PillarEffect);
+
+	// State and Viz
+	Template.CustomFireAnim = 'HL_Pillar';
+	Template.ActivationSpeech = 'Pillar';
+	Template.Hostility = eHostility_Defensive;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.ConcealmentRule = eConceal_Never;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.Pillar_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
+
+	Template.AdditionalAbilities.AddItem('IRI_TM_Obelisk_Volt');
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
+{
+	local X2AbilityTemplate				Template;
+	local X2Condition_UnitProperty		TargetCondition;
+	local X2Effect_ApplyWeaponDamage	DamageEffect;
+	local X2Effect_ToHitModifier		HitModEffect;
+	local X2Condition_AbilityProperty	AbilityCondition;
+	local X2AbilityTag                  AbilityTag;
+	local X2AbilityCost_ActionPoints	ActionCost;
+	local X2Condition_UnitEffects		EffectsCondition;
+	local X2Effect_Persistent               BladestormTargetEffect;
+	local X2Condition_UnitEffectsWithAbilitySource BladestormTargetCondition;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Obelisk_Volt');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_volt";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.AbilityToHitCalc = new class'X2AbilityToHitCalc_Volt'; // Custom calc to force crits against Psionics for cosmetic effect.
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder'); // Triggered from X2Effect_Obelisk
+	
+	// Shooter Conditions
+	EffectsCondition = new class'X2Condition_UnitEffects';
+	EffectsCondition.AddRequireEffect(class'X2Effect_Obelisk'.default.EffectName, 'AA_MissingRequiredEffect');
+	Template.AbilityShooterConditions.AddItem(EffectsCondition);
+
+	// Target Conditions
+	Template.AbilityTargetConditions.AddItem(new class'X2Condition_ObeliskVolt');
+
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeAlive = false;
+	TargetCondition.ExcludeDead = true;
+	TargetCondition.ExcludeFriendlyToSource = true;
+	TargetCondition.ExcludeHostileToSource = false;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
+	TargetCondition.FailOnNonUnits = true;
+	TargetCondition.ExcludeCivilian = true;
+	TargetCondition.ExcludeCosmetic = true;
+	TargetCondition.ExcludeRobotic = false;
+	Template.AbilityTargetConditions.AddItem(TargetCondition);
+
+	BladestormTargetEffect = new class'X2Effect_Persistent';
+	BladestormTargetEffect.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd);
+	BladestormTargetEffect.EffectName = 'IRI_TM_Obelisk_Volt_Target';
+	BladestormTargetEffect.bApplyOnMiss = true;
+	Template.AddTargetEffect(BladestormTargetEffect);
+	
+	BladestormTargetCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	BladestormTargetCondition.AddExcludeEffect('IRI_TM_Obelisk_Volt_Target', 'AA_DuplicateEffectIgnored');
+	Template.AbilityTargetConditions.AddItem(BladestormTargetCondition);
+
+	// Effect - non-psionic
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludePsionic = true;
+	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	DamageEffect.bIgnoreBaseDamage = true;
+	DamageEffect.DamageTag = 'IRI_TM_Volt';
+	DamageEffect.bIgnoreArmor = true;
+	DamageEffect.TargetConditions.AddItem(TargetCondition);
+	Template.AddTargetEffect(DamageEffect);
+
+	// Effect - psionic
+	TargetCondition = new class'X2Condition_UnitProperty';
+	TargetCondition.ExcludeNonPsionic = true;
+	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	DamageEffect.bIgnoreBaseDamage = true;
+	DamageEffect.DamageTag = 'IRI_TM_Volt_Psi';
+	DamageEffect.bIgnoreArmor = true;
+	DamageEffect.TargetConditions.AddItem(TargetCondition);
+	Template.AddTargetEffect(DamageEffect);
+
+	// Effect - Aftershock
+	HitModEffect = new class'X2Effect_ToHitModifier';
+	HitModEffect.BuildPersistentEffect(2, , , , eGameRule_PlayerTurnBegin);
+	HitModEffect.AddEffectHitModifier(eHit_Success, class'X2Ability_TemplarAbilitySet'.default.VoltHitMod, class'X2Ability_TemplarAbilitySet'.default.RecoilEffectName);
+	HitModEffect.bApplyAsTarget = true;
+	HitModEffect.bRemoveWhenTargetDies = true;
+	HitModEffect.bUseSourcePlayerState = true;
+	
+	AbilityTag = X2AbilityTag(`XEXPANDCONTEXT.FindTag("Ability"));
+	AbilityTag.ParseObj = HitModEffect;
+	HitModEffect.SetDisplayInfo(ePerkBuff_Penalty, class'X2Ability_TemplarAbilitySet'.default.RecoilEffectName, `XEXPAND.ExpandString(class'X2Ability_TemplarAbilitySet'.default.RecoilEffectDesc), "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Recoil");
+	AbilityTag.ParseObj = none;
+	
+	AbilityCondition = new class'X2Condition_AbilityProperty';
+	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_TM_Aftershock');
+	HitModEffect.TargetConditions.AddItem(default.LivingTargetOnlyProperty);
+	HitModEffect.TargetConditions.AddItem(AbilityCondition);
+
+	HitModEffect.EffectName = 'IRI_TM_Aftershock_Effect';
+	HitModEffect.DuplicateResponse = eDupe_Ignore;
+	Template.AddTargetEffect(HitModEffect);
+
+	// State and Viz
+	Template.CustomFireAnim = 'HL_Volt';
+	//Template.ActivationSpeech = 'Volt';
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.ActionFireClass = class'X2Action_Fire_ObeliskVolt';
+	Template.Hostility = eHostility_Neutral; // Not controllable by the player
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = none; // Not interruptible
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
 }
 
 static private function X2AbilityTemplate IRI_TM_Siphon()
@@ -61,8 +251,8 @@ static private function X2AbilityTemplate IRI_TM_Siphon()
 	Template.AbilityTargetConditions.AddItem(new class'X2Condition_Siphon');
 
 	// Costs
-//Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus'); // TODO DEBUG ONLY
-//AddCooldown(Template, `GetConfigInt('IRI_TM_Siphon_Cooldown'));
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+	AddCooldown(Template, `GetConfigInt('IRI_TM_Siphon_Cooldown'));
 
 	ActionCost = new class'X2AbilityCost_ActionPoints';
 	ActionCost.iNumPoints = 1;
@@ -82,7 +272,7 @@ static private function X2AbilityTemplate IRI_TM_Siphon()
 	Template.AddTargetEffect(new class'X2Effect_Siphon');
 
 	// State and Viz
-	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	//Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.bShowActivation = true;
 	Template.bSkipFireAction = false;
 	Template.bFrameEvenWhenUnitIsHidden = true;
@@ -943,11 +1133,11 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 	TargetCondition.ExcludeDead = true;
 	TargetCondition.ExcludeFriendlyToSource = true;
 	TargetCondition.ExcludeHostileToSource = false;
-	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
-	TargetCondition.FailOnNonUnits = true;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = true;
+	TargetCondition.FailOnNonUnits = false;
 	TargetCondition.ExcludeCivilian = true;
 	TargetCondition.ExcludeCosmetic = true;
-	TargetCondition.ExcludeRobotic = true;
+	TargetCondition.ExcludeRobotic = false;
 	Template.AbilityTargetConditions.AddItem(TargetCondition);
 	Template.AbilityMultiTargetConditions.AddItem(TargetCondition);
 
@@ -1264,7 +1454,7 @@ static private function X2AbilityTemplate IRI_TM_Stunstrike()
 	TargetCondition.ExcludeDead = true;
 	TargetCondition.ExcludeFriendlyToSource = true;
 	TargetCondition.ExcludeHostileToSource = false;
-	TargetCondition.TreatMindControlledSquadmateAsHostile = false;
+	TargetCondition.TreatMindControlledSquadmateAsHostile = true;
 	TargetCondition.FailOnNonUnits = true;
 	TargetCondition.ExcludeLargeUnits = true;
 	Template.AbilityTargetConditions.AddItem(TargetCondition);

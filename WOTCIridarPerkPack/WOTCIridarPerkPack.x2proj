@@ -156,6 +156,9 @@
     <Content Include="ContentForCook\Templar\IRIAstralGraspSpiritDeathPerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIObelisk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRIReflect.upk">
       <SubType>Content</SubType>
     </Content>
@@ -454,6 +457,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_AstralGraspSpiritDeath.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_Fire_ObeliskVolt.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_PlaySound.uc">
       <SubType>Content</SubType>
     </Content>
@@ -464,6 +470,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Concentration.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_ObeliskVolt.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Siphon.uc">
@@ -485,6 +494,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_Amplify.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Obelisk.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Overcharge.uc">
