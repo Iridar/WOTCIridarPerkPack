@@ -149,12 +149,14 @@ Begin:
 		UnitPawn.PlayAkEvent(VoltChargeSound,,,, ObeliskFiringLocation);
 		Sleep(0.8f);
 	}
-	if (VoltChargeSound != none)
+	if (VoltFireSound != none)
 	{
 		UnitPawn.PlayAkEvent(VoltFireSound,,,, ObeliskFiringLocation);
 	}
 
 	HandleSingleTarget(UnitPawn.ObjectID, PrimaryTargetID, StartingSocket, TargetSocket);
+
+	//Unit.CurrentPerkAction.TriggerImpact(); // Might be unnecessary 
 
 	//FinishAnim(PlayingSequence);
 

@@ -1,5 +1,7 @@
 class X2Effect_Obelisk extends X2Effect_Pillar;
 
+// TODO: Apply Pillar Fix
+
 function int GetStartingNumTurns(const out EffectAppliedData ApplyEffectParameters)
 {
 	return `GetConfigInt('IRI_TM_Obelisk_Duration');

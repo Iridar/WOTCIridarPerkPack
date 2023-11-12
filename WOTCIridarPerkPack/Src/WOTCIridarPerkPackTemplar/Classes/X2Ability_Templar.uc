@@ -84,8 +84,8 @@ static function X2AbilityTemplate IRI_TM_Obelisk()
 	// Duration here is irrelevant, it will be overridden
 	PillarEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);	
 	PillarEffect.DestructibleArchetype = "FX_Templar_Pillar.Pillar_Destructible";
-	PillarEffect.bRemoveWhenSourceDies = true;
-	PillarEffect.bRemoveWhenTargetDies = true;
+	PillarEffect.bRemoveWhenSourceDies = false; // Effect needs to be there for proper Volt visualization
+	PillarEffect.bRemoveWhenTargetDies = false;	// in case Templar is killed by the attack that is visually interrupted by Volt
 	Template.AddShooterEffect(PillarEffect);
 
 	// State and Viz
