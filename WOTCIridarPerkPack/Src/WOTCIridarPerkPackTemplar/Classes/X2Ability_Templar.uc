@@ -39,7 +39,7 @@ static function X2AbilityTemplate IRI_TM_Obelisk()
 	local X2AbilityMultiTarget_Radius	RadiusMultiTarget;
 	local X2AbilityCost_ActionPoints	ActionCost;
 	local X2Effect_Obelisk				PillarEffect;
-	local X2AbilityCost_Focus			FocusCost;
+	//local X2AbilityCost_Focus			FocusCost;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Obelisk');
 
@@ -108,38 +108,36 @@ static function X2AbilityTemplate IRI_TM_Obelisk()
 	return Template;
 }
 
-static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
+static function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 {
-	local X2AbilityTemplate				Template;
-	local X2Condition_UnitProperty		TargetCondition;
-	local X2Effect_ApplyWeaponDamage	DamageEffect;
-	local X2Effect_ToHitModifier		HitModEffect;
-	local X2Condition_AbilityProperty	AbilityCondition;
-	local X2AbilityTag                  AbilityTag;
-	local X2AbilityCost_ActionPoints	ActionCost;
-	local X2Condition_UnitEffects		EffectsCondition;
-	local X2Condition_ObeliskVolt		ObeliskCondition;
+	local X2AbilityTemplate							Template;
+	local X2Condition_UnitProperty					TargetCondition;
+	local X2Effect_ApplyWeaponDamage				DamageEffect;
+	local X2Effect_ToHitModifier					HitModEffect;
+	local X2Condition_AbilityProperty				AbilityCondition;
+	local X2AbilityTag								AbilityTag;
+	local X2Condition_ObeliskVolt					ObeliskCondition;
 	local X2Effect_Persistent						BladestormTargetEffect;
 	local X2Condition_UnitEffectsWithAbilitySource	BladestormTargetCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Obelisk_Volt');
 
 	// Icon Setup
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_volt";
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_volt";
 	SetHidden(Template);
 
 	// Targeting and Triggering
-	Template.AbilityTargetStyle = default.SimpleSingleTarget;
 	Template.AbilityToHitCalc = new class'X2AbilityToHitCalc_Volt'; // Custom calc to force crits against Psionics for cosmetic effect.
-	//X2AbilityToHitCalc_StandardAim(Template.AbilityToHitCalc).bReactionFire = true;
+	Template.AbilityTargetStyle = default.SimpleSingleTarget;
+	Template.TargetingMethod = none;
 	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder'); // Triggered from X2Effect_Obelisk
-	
+
 	// Shooter Conditions
-	EffectsCondition = new class'X2Condition_UnitEffects';
-	EffectsCondition.AddRequireEffect(class'X2Effect_Obelisk'.default.EffectName, 'AA_MissingRequiredEffect');
-	Template.AbilityShooterConditions.AddItem(EffectsCondition);
-	
+	//EffectsCondition = new class'X2Condition_UnitEffects';
+	//EffectsCondition.AddRequireEffect(class'X2Effect_Obelisk'.default.EffectName, 'AA_MissingRequiredEffect');
+	//Template.AbilityShooterConditions.AddItem(EffectsCondition);
+
 	// Target Conditions
 	ObeliskCondition = new class'X2Condition_ObeliskVolt';
 	ObeliskCondition.DistanceTiles = `GetConfigInt("IRI_TM_Obelisk_Volt_Distance_Tiles");
@@ -157,15 +155,17 @@ static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 	TargetCondition.ExcludeRobotic = false;
 	Template.AbilityTargetConditions.AddItem(TargetCondition);
 
+	BladestormTargetCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	BladestormTargetCondition.AddExcludeEffect('IRI_TM_Obelisk_Volt_Target', 'AA_DuplicateEffectIgnored');
+	Template.AbilityTargetConditions.AddItem(BladestormTargetCondition);
+
+	//Template.AbilityTargetConditions.AddItem(class'X2Ability_DefaultAbilitySet'.static.OverwatchTargetEffectsCondition());
+
 	BladestormTargetEffect = new class'X2Effect_Persistent';
 	BladestormTargetEffect.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd);
 	BladestormTargetEffect.EffectName = 'IRI_TM_Obelisk_Volt_Target';
 	BladestormTargetEffect.bApplyOnMiss = true;
 	Template.AddTargetEffect(BladestormTargetEffect);
-	
-	BladestormTargetCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
-	BladestormTargetCondition.AddExcludeEffect('IRI_TM_Obelisk_Volt_Target', 'AA_DuplicateEffectIgnored');
-	Template.AbilityTargetConditions.AddItem(BladestormTargetCondition);
 
 	// Effect - non-psionic
 	TargetCondition = new class'X2Condition_UnitProperty';
@@ -211,16 +211,17 @@ static private function X2AbilityTemplate IRI_TM_Obelisk_Volt()
 
 	// State and Viz
 	Template.ActionFireClass = class'X2Action_Fire_ObeliskVolt';
-	Template.Hostility = eHostility_Neutral; // Not controllable by the player
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = ObeliskVolt_BuildVisualization;
-	Template.BuildInterruptGameStateFn = none; // Not interruptible
-	Template.bSkipExitCoverWhenFiring = true;
 	Template.FrameAbilityCameraType = eCameraFraming_Never;
+	Template.BuildInterruptGameStateFn = none;	// Not interruptible
+	Template.Hostility = eHostility_Neutral;	// Not controllable by the player, so should be neutral
+	Template.bSkipExitCoverWhenFiring = false;	// bugs out visualization if set to true.
 
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NormalChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.MeleeLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
 
 	return Template;
 }
@@ -245,8 +246,11 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	local X2Action_TimedWait				TimedWait;
 	local X2Action							ExitCover;
 	local array<X2Action>					CommonParents;
+	local X2Action_MarkerNamed				ReplaceAction;
+	local X2Action							FindAction;
+	local array<X2Action>					FindActions;
 
-	class'X2Ability'.static.TypicalAbility_BuildVisualization(VisualizeGameState);
+	TypicalAbility_BuildVisualization(VisualizeGameState);
 
 	VisMgr = `XCOMVISUALIZATIONMGR;
 
@@ -278,9 +282,9 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	if (ObeliskState == none)
 		return;
 
-	// TODO: Get rid of cinecam
-	// TODO: Fix sometimes hangs when Volt kills the enemy
+	// TODO: Custom exit cover action
 	// TODO: Vold casted twice on an enemy attack that killed the Templar??
+	// TODO: Alter Aftershock effect so it doesn't pop in so suddenly. Or maybe that's Projectile Hit effect.
 
 	bGoodAbility = SourceUnit.IsFriendlyToLocalPlayer();
 
@@ -319,7 +323,25 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	PlayEffect = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, CommonParents));
 	PlayEffect.EffectName = "IRIObelisk.PS_Volt_Cast";
 	PlayEffect.EffectLocation = ObeliskFiringLocation;
+
+	//	Remove any instances of cinematic camera from the viz tree. Looks janky otherwise.
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_StartCinescriptCamera', FindActions,, AbilityContext.InputContext.SourceObject.ObjectID);
+	foreach FindActions(FindAction)
+	{
+		ReplaceAction = X2Action_MarkerNamed(class'X2Action'.static.CreateVisualizationActionClass(class'X2Action_MarkerNamed', AbilityContext));
+		ReplaceAction.SetName("ReplaceCinescriptCamera");
+		VisMgr.ReplaceNode(ReplaceAction, FindAction);
+	}
+
+	VisMgr.GetNodesOfType(VisMgr.BuildVisTree, class'X2Action_EndCinescriptCamera', FindActions,, AbilityContext.InputContext.SourceObject.ObjectID);
+	foreach FindActions(FindAction)
+	{
+		ReplaceAction = X2Action_MarkerNamed(class'X2Action'.static.CreateVisualizationActionClass(class'X2Action_MarkerNamed', AbilityContext));
+		ReplaceAction.SetName("ReplaceCinescriptCamera");
+		VisMgr.ReplaceNode(ReplaceAction, FindAction);
+	}
 }
+
 
 static private function X2AbilityTemplate IRI_TM_Siphon()
 {
