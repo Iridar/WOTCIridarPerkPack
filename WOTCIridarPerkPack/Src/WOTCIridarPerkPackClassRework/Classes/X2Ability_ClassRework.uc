@@ -20,6 +20,9 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_RN_Intercept_Return());
 	Templates.AddItem(IRI_RN_Intercept_Attack());
 
+	Templates.AddItem(IRI_RN_SurpriseAttack());
+	Templates.AddItem(PurePassive('IRI_RN_SurpriseAttack_Passive', "img:///UILibrary_PerkIcons.UIPerk_shadowstrike", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
 	// Grenadier
 	Templates.AddItem(IRI_GN_OrdnancePouch());
 	Templates.AddItem(IRI_GN_CollateralDamage());
@@ -182,11 +185,20 @@ static private function ScoutingProtocol_BuildVisualization(XComGameState Visual
 	History = `XCOMHISTORY;
 
 	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
-	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(Context.InputContext.AbilityRef.ObjectID, , VisualizeGameState.HistoryIndex));
-	AbilityTemplate = AbilityState.GetMyTemplate();
+	if (Context == none)
+		return;
 
-	GremlinItem = XComGameState_Item(History.GetGameStateForObjectID(Context.InputContext.ItemObject.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1));
-	GremlinUnitState = XComGameState_Unit(History.GetGameStateForObjectID(GremlinItem.CosmeticUnitRef.ObjectID, , VisualizeGameState.HistoryIndex - 1));
+	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(Context.InputContext.AbilityRef.ObjectID));
+	if (AbilityState == none)
+		return;
+
+	GremlinItem = XComGameState_Item(History.GetGameStateForObjectID(Context.InputContext.ItemObject.ObjectID));
+	if (GremlinItem == none)
+		return;
+
+	GremlinUnitState = XComGameState_Unit(History.GetGameStateForObjectID(GremlinItem.CosmeticUnitRef.ObjectID));
+	if (GremlinUnitState == none)
+		return;
 
 	//Configure the visualization track for the shooter
 	//****************************************************************************************
@@ -233,6 +245,7 @@ static private function ScoutingProtocol_BuildVisualization(XComGameState Visual
 	PlayAnimation = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(ActionMetadata, Context, false, ActionMetadata.LastActionAdded));
 	PlayAnimation.Params.AnimName = 'NO_ScanningProtocol';
 
+	AbilityTemplate = AbilityState.GetMyTemplate();
 	for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityShooterEffects.Length; ++EffectIndex)
 	{
 		AbilityTemplate.AbilityShooterEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, ActionMetadata, Context.FindShooterEffectApplyResult(AbilityTemplate.AbilityShooterEffects[EffectIndex]));
@@ -942,6 +955,62 @@ static private function EventListenerReturn SteadyHands_TriggerEventListener(Obj
 // ========================================================
 //							RANGER
 // --------------------------------------------------------
+
+static private function X2AbilityTemplate IRI_RN_SurpriseAttack()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_ToHitModifier			Effect;
+	local X2AbilityTrigger_EventListener	Trigger;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RN_SurpriseAttack');
+
+	// Icon Properties
+	Template.AbilitySourceName = 'eAbilitySource_Standard';
+	SetHidden(Template);
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_shadowstrike";
+	
+	//	Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;	
+
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'PlayerTurnBegun';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Player;
+	Trigger.ListenerData.Priority = 50;
+	Trigger.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
+	Template.AbilityTriggers.AddItem(Trigger);
+
+	//	Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+	Template.AbilityShooterConditions.AddItem(new class'X2Condition_NotVisibleToEnemies');
+	
+	//	Ability Effects
+	Effect = new class'X2Effect_ToHitModifier';
+	Effect.EffectName = 'IRI_RN_SurpriseAttack';
+	Effect.DuplicateResponse = eDupe_Ignore;
+	Effect.BuildPersistentEffect(1, false, false,, eGameRule_PlayerTurnEnd);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage,,,Template.AbilitySourceName);
+	Effect.AddEffectHitModifier(eHit_Success, class'X2Ability_RangerAbilitySet'.default.SHADOWSTRIKE_AIM, Template.LocFriendlyName);
+	Effect.AddEffectHitModifier(eHit_Crit, class'X2Ability_RangerAbilitySet'.default.SHADOWSTRIKE_CRIT, Template.LocFriendlyName);
+	Template.AddTargetEffect(Effect);
+
+	//	Game State and Viz	
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.AdditionalAbilities.AddItem('IRI_RN_SurpriseAttack_Passive');
+
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentNormalLoss;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.NormalLostSpawnIncreasePerUse;
+
+	return Template;
+}
 
 static private function X2AbilityTemplate IRI_RN_Intercept()
 {

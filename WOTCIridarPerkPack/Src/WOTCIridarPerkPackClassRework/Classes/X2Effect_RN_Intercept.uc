@@ -61,13 +61,16 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 		return ELR_NoInterrupt;
 	}
 
-	// Forbid reacting to reaction attacks as that can cause a visualization softlock, see: https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1162
-	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityContext.InputContext.AbilityTemplateName);
-	if (AbilityTemplate == none || IsReactionFireAbility(AbilityTemplate))
+	if (class'XComTacticalGRI'.static.GetReactionFireSequencer().IsReactionFire(AbilityContext))
 	{
+		// Forbid reaction to reaction attacks as that can cause a visualization softlock, see: https://github.com/X2CommunityCore/X2WOTCCommunityHighlander/issues/1162
 		`AMLOG("EXIT ::" @ AbilityContext.InputContext.AbilityTemplateName @ "is a reaction fire attack, cannot react to it.");
 		return ELR_NoInterrupt;
 	}
+
+	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityContext.InputContext.AbilityTemplateName);
+	if (AbilityTemplate == none)
+		return ELR_NoInterrupt;
 
 	if (AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
     {
@@ -483,23 +486,6 @@ static private function int TileDistanceBetweenTiles(const TTile TileA, const TT
 	Tiles = Dist / WorldData.WORLD_StepSize;
 
 	return Tiles;
-}
-
-static private function bool IsReactionFireAbility(const X2AbilityTemplate Template)
-{	
-	local X2AbilityTrigger Trigger;
-	local X2AbilityTrigger_EventListener EventListenerTrigger;
-
-	foreach Template.AbilityTriggers(Trigger)
-	{
-		EventListenerTrigger = X2AbilityTrigger_EventListener(Trigger);
-		if (EventListenerTrigger == none)
-			continue;
-			
-		if (EventListenerTrigger.ListenerData.EventID == 'AbilityActivated')
-			return true;
-	}
-	return false;
 }
 
 static final function Intercept_PostBuildVisualization(XComGameState VisualizeGameState)

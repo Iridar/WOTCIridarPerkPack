@@ -15,7 +15,86 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_SK_Waylay());
 
+	Templates.AddItem(IRI_SK_ForwardOperator());
+	Templates.AddItem(PurePassive('IRI_SK_ForwardOperator_Passive', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ForwardOperator", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
+
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_SK_ForwardOperator()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityTrigger_EventListener	AbilityTrigger;
+	//local array<name>						SkipExclusions;
+	local X2Condition_UnitProperty			UnitProperty;
+	local X2Effect_GrantActionPoints		ActionPointEffect;
+	local X2Condition_ThisUnitTurn			ThisTurnCondition;
+	local X2Effect_SkirmisherInterrupt_Fixed	InterruptEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_ForwardOperator');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ForwardOperator";
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+
+	AbilityTrigger = new class'X2AbilityTrigger_EventListener';
+	AbilityTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	AbilityTrigger.ListenerData.EventID = 'ScamperEnd';
+	AbilityTrigger.ListenerData.Filter = eFilter_None;
+	AbilityTrigger.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
+	Template.AbilityTriggers.AddItem(AbilityTrigger);
+
+	// Shooter conditions
+	UnitProperty = new class'X2Condition_UnitProperty';
+	UnitProperty.ExcludeHostileToSource = true;
+	UnitProperty.ExcludeFriendlyToSource = false;
+	UnitProperty.ExcludeDead = true;
+	UnitProperty.ExcludeUnableToAct = true;
+	Template.AbilityTargetConditions.AddItem(UnitProperty);
+
+	// Reflex triggers as long as you're able to act, so w/e.
+	//SkipExclusions.AddItem(class'X2StatusEffects'.default.BurningName);
+	//Template.AddShooterEffectExclusions(SkipExclusions);
+
+	// Cost and Cooldown
+	AddCooldown(Template, 1);
+
+	// Effects
+
+	// When it's this unit's turn, give action point immediately.
+	ActionPointEffect = new class'X2Effect_GrantActionPoints';
+	ActionPointEffect.NumActionPoints = 1;
+	ActionPointEffect.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
+	ActionPointEffect.TargetConditions.AddItem(new class'X2Condition_ThisUnitTurn');
+	Template.AddTargetEffect(ActionPointEffect);
+
+	// Otherwise interrupt the turn.
+	ThisTurnCondition = new class'X2Condition_ThisUnitTurn';
+	ThisTurnCondition.bReverseCondition = true;
+
+	InterruptEffect = new class'X2Effect_SkirmisherInterrupt_Fixed';
+	InterruptEffect.BuildPersistentEffect(1, false, , , eGameRule_PlayerTurnBegin);
+	InterruptEffect.TargetConditions.AddItem(ThisTurnCondition);
+	Template.AddShooterEffect(InterruptEffect);
+
+	// State and Viz
+	Template.ActivationSpeech = 'ForwardOperator';
+	Template.bUniqueSource = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.AdditionalAbilities.AddItem('IRI_SK_ForwardOperator_Passive');
+
+	return Template;
 }
 
 static private function X2AbilityTemplate IRI_SK_Waylay()

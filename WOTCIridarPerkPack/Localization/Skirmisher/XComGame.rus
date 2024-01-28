@@ -1,30 +1,30 @@
-[IRI_SK_PredatorStrike X2AbilityTemplate]
-LocFriendlyName="Удар Хищника"
-LocLongDescription="Добивающая рукопашная атака против соседнего гуманоидного противника, имеющего менее <Ability:IRI_SK_PredatorStrike_HealthPercent/> ОЗ. Если целью является АДВЕНТ, ближайшая единица АДВЕНТ будет обнаружена до конца хода."
-LocHelpText="Добивающая рукопашная атака против соседнего гуманоидного противника, имеющего менее <Ability:IRI_SK_PredatorStrike_HealthPercent/> ОЗ. Если целью является АДВЕНТ, ближайшая единица АДВЕНТ будет обнаружена до конца хода."
-LocPromotionPopupText="<bullet/> Удар Хищника может промахнуться.<br/><bullet/> Эта способность обходит \"Спасение\" и другие подобные эффекты.<br/><bullet/> Перезарядка: <Ability:SelfCooldown/> ходов."
-LocFlyOverText="Удар Хищника"
-
-[IRI_SK_PredatorStrike_RevealNearestEnemy X2AbilityTemplate]
-LocFriendlyName="Удар Хищника: Обнаружение"
-LocLongDescription="Положение этого противника было раскрыто из-за бреши в псионической сети АДВЕНТ, вызванной Ударом Хищника"
-LocHelpText="Положение этого противника было раскрыто из-за бреши в псионической сети АДВЕНТ, вызванной Ударом Хищника"
-LocFlyOverText="Удар Хищника: Обнаружение"
-
-[IRI_SK_ThunderLance X2AbilityTemplate]
-LocFriendlyName="Громовое копье"
-LocHelpText="Запустите гранату с помощью вашего крюка-кошки."
-LocLongDescription="Разблокирует возможность запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом попадании, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
-LocPromotionPopupText=""
-
-[IRI_SK_ThunderLance_Passive X2AbilityTemplate]
-LocFriendlyName="Громовое копье"
-LocHelpText="Вы можете запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
-LocLongDescription="Вы можете запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
-
-[IRI_SK_Waylay X2AbilityTemplate]
-LocFriendlyName="Перехват"
-LocHelpText="\"Наблюдение\" предоставляет дополнительный выстрел и не снимается при получении урона."
-LocLongDescription="\"Наблюдение\" предоставляет дополнительный выстрел и не снимается при получении урона."
-LocPromotionPopupText="<Bullet/> Устройте засаду и спугните врагов соратником - так вы сможете основательно проредить ряды противника \"Перехватом\"."
-LocFlyOverText="Перехват"
+;[IRI_SK_PredatorStrike X2AbilityTemplate]
+;LocFriendlyName="Удар Хищника"
+;LocLongDescription="Добивающая рукопашная атака против соседнего гуманоидного противника, имеющего менее <Ability:IRI_SK_PredatorStrike_HealthPercent/> ОЗ. Если целью является АДВЕНТ, ближайшая единица АДВЕНТ будет обнаружена до конца хода."
+;LocHelpText="Добивающая рукопашная атака против соседнего гуманоидного противника, имеющего менее <Ability:IRI_SK_PredatorStrike_HealthPercent/> ОЗ. Если целью является АДВЕНТ, ближайшая единица АДВЕНТ будет обнаружена до конца хода."
+;LocPromotionPopupText="<bullet/> Удар Хищника может промахнуться.<br/><bullet/> Эта способность обходит \"Спасение\" и другие подобные эффекты.<br/><bullet/> Перезарядка: <Ability:SelfCooldown/> ходов."
+;LocFlyOverText="Удар Хищника"
+;
+;[IRI_SK_PredatorStrike_RevealNearestEnemy X2AbilityTemplate]
+;LocFriendlyName="Удар Хищника: Обнаружение"
+;LocLongDescription="Положение этого противника было раскрыто из-за бреши в псионической сети АДВЕНТ, вызванной Ударом Хищника"
+;LocHelpText="Положение этого противника было раскрыто из-за бреши в псионической сети АДВЕНТ, вызванной Ударом Хищника"
+;LocFlyOverText="Удар Хищника: Обнаружение"
+;
+;[IRI_SK_ThunderLance X2AbilityTemplate]
+;LocFriendlyName="Громовое копье"
+;LocHelpText="Запустите гранату с помощью вашего крюка-кошки."
+;LocLongDescription="Разблокирует возможность запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом попадании, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
+;LocPromotionPopupText=""
+;
+;[IRI_SK_ThunderLance_Passive X2AbilityTemplate]
+;LocFriendlyName="Громовое копье"
+;LocHelpText="Вы можете запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
+;LocLongDescription="Вы можете запускать гранаты с помощью вашего крюка-кошки. Запущенные гранаты наносят <Ability:IRI_SK_ThunderLance_DamageBonusPercent/> дополнительного базового урона юнитам при прямом, а их дальность увеличивается на <Ability:IRI_SK_ThunderLance_RangeIncrease_Tiles/> клеток."
+;
+;[IRI_SK_Waylay X2AbilityTemplate]
+;LocFriendlyName="Перехват"
+;LocHelpText="\"Наблюдение\" предоставляет дополнительный выстрел и не снимается при получении урона."
+;LocLongDescription="\"Наблюдение\" предоставляет дополнительный выстрел и не снимается при получении урона."
+;LocPromotionPopupText="<Bullet/> Устройте засаду и спугните врагов соратником - так вы сможете основательно проредить ряды противника \"Перехватом\"."
+;LocFlyOverText="Перехват"

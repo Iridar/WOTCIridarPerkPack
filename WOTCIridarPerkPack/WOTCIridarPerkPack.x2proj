@@ -252,6 +252,12 @@
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_ShowUnit.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Condition_NotVisibleToEnemies.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Condition_ThisUnitTurn.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Condition_UnitValueSource.uc">
       <SubType>Content</SubType>
     </Content>
@@ -436,6 +442,9 @@
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_PredatorStrikeReveal.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_SkirmisherInterrupt_Fixed.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>
@@ -461,6 +470,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_AstralGraspSpiritDeath.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_ExitCover_ObeliskVolt.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_Fire_ObeliskVolt.uc">
