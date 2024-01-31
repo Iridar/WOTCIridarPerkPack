@@ -15,11 +15,103 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(IRI_SK_Waylay());
 
+	Templates.AddItem(IRI_SK_TacticalReadiness());
+	Templates.AddItem(PurePassive('IRI_SK_TacticalReadiness_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
 	Templates.AddItem(IRI_SK_ForwardOperator());
 	Templates.AddItem(PurePassive('IRI_SK_ForwardOperator_Passive', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ForwardOperator", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
 
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_SK_TacticalReadiness()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_TurnStartActionPoints	Effect;
+	local X2AbilityTrigger_EventListener	Trigger;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_TacticalReadiness');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.Hostility = eHostility_Neutral;
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_TacticalAdvance";
+	
+	SetHidden(Template);
+
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	
+	Trigger = new class'X2AbilityTrigger_EventListener';	
+	Trigger.ListenerData.EventID = 'AbilityActivated';
+	Trigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	Trigger.ListenerData.Filter = eFilter_Unit;
+	Trigger.ListenerData.Priority = 50;
+	Trigger.ListenerData.EventFn = OnHunkerDown_TriggerEventListener;
+	Template.AbilityTriggers.AddItem(Trigger);
+	
+	Effect = new class'X2Effect_TurnStartActionPoints';
+	Effect.EffectAddedFn = none;
+	Effect.EffectTickedFn = TacticalReadiness_EffectTicked;
+	Effect.ActionPointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
+	Effect.NumActionPoints = 1;
+	Effect.DuplicateResponse = eDupe_Ignore;
+	Effect.BuildPersistentEffect(2, false, true, false, eGameRule_PlayerTurnBegin);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+	
+	Template.AdditionalAbilities.AddItem('IRI_SK_TacticalReadiness_Passive');
+
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	return Template;
+}
+
+static private function bool TacticalReadiness_EffectTicked(X2Effect_Persistent PersistentEffect, const out EffectAppliedData ApplyEffectParameters, XComGameState_Effect kNewEffectState, XComGameState NewGameState, bool FirstApplication)
+{
+	return false;
+}
+
+static private function EventListenerReturn OnHunkerDown_TriggerEventListener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Unit	UnitState;
+	local XComGameState_Unit	NewUnitState;
+	local XComGameState_Unit	OldUnitState;
+    local XComGameState_Ability	AbilityState;
+
+	if (GameState.GetContext() == none || GameState.GetContext().InterruptionStatus == eInterruptionStatus_Interrupt)
+		return ELR_NoInterrupt;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none)
+		return ELR_NoInterrupt;
+
+	NewUnitState = XComGameState_Unit(GameState.GetGameStateForObjectID(UnitState.ObjectID));
+	if (NewUnitState == none)
+		return ELR_NoInterrupt;
+
+	OldUnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitState.ObjectID,, GameState.HistoryIndex - 1));
+	if (OldUnitState == none)
+		return ELR_NoInterrupt;
+
+	`AMLOG(UnitState.GetFullName() @ "was hunkered:" @ OldUnitState.IsHunkeredDown() @ "is hunkered:" @ NewUnitState.IsHunkeredDown());
+
+	if (!OldUnitState.IsHunkeredDown() && NewUnitState.IsHunkeredDown())
+	{
+		AbilityState = XComGameState_Ability(CallbackData);
+		if (AbilityState != none)
+		{
+			`AMLOG("Triggering");
+			AbilityState.AbilityTriggerAgainstSingleTarget(UnitState.GetReference(), false);
+		}
+	}
+
+	return ELR_NoInterrupt;
 }
 
 static private function X2AbilityTemplate IRI_SK_ForwardOperator()
