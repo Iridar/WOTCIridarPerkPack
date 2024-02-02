@@ -388,6 +388,9 @@
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Action_ForceUnitVisiblity_CS.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Condition_SuperConcealedActivation.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Effect_GN_CollateralDamage.uc">
       <SubType>Content</SubType>
     </Content>

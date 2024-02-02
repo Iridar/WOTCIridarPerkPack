@@ -1,4 +1,16 @@
 ; ==========================================================
+;							REAPER
+; ----------------------------------------------------------
+
+
+[IRI_RP_Takedown X2AbilityTemplate]
+LocFriendlyName="Takedown"
+LocLongDescription="Slash all enemies in the target area."
+LocHelpText="Slash all enemies in the target area."
+LocPromotionPopupText="<bullet/> <Ability:IRI_RN_ZephyrStrike_Radius_Tiles/> tile radius.<br/><bullet/> <Ability:SelfCooldown/> turn cooldown."
+LocFlyOverText="Takedown"
+
+; ==========================================================
 ;							RANGER
 ; ----------------------------------------------------------
 

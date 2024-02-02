@@ -34,10 +34,136 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_SP_ScoutingProtocol());
 	Templates.AddItem(IRI_SP_ConstantReadiness());
 
+	// Reaper
+	Templates.AddItem(IRI_RP_Takedown());
+
 	// AWC
 	Templates.AddItem(PurePassive('IRI_AWC_MedicinePouch', "img:///UILibrary_PerkIcons.UIPerk_item_medikit", true /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_RP_Takedown()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_ApplyWeaponDamage		WeaponDamageEffect;
+	local X2AbilityToHitCalc_StandardMelee  StandardMelee;
+
+	Template = class'X2Ability_RangerAbilitySet'.static.AddSwordSliceAbility('IRI_RP_Takedown');
+
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_evervigilant";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+
+	StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
+	StandardMelee.bHitsAreCrits = true;
+	StandardMelee.BuiltInHitMod = `GetConfigInt("IRI_RP_Takedown_AimBonus");
+	Template.AbilityToHitCalc = StandardMelee;
+
+	Template.AbilityTargetEffects.Length = 0;
+
+	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
+	WeaponDamageEffect.bIgnoreBaseDamage = true;
+	WeaponDamageEffect.bAllowWeaponUpgrade = false;
+	WeaponDamageEffect.bAllowFreeKill = false;
+	WeaponDamageEffect.EnvironmentalDamageAmount = 1;
+	WeaponDamageEffect.EffectDamageValue = `GetConfigDamage("IRI_RP_Takedown_Damage");
+	Template.AddTargetEffect(WeaponDamageEffect);
+
+	Template.bAllowBonusWeaponEffects = false;
+	Template.bSkipMoveStop = false;
+
+	Template.AbilityShooterConditions.AddItem(new class'X2Condition_SuperConcealedActivation');
+
+	Template.ConcealmentRule = eConceal_KillShot;
+
+	// Doing hackity hacks to allow approaching the target for the melee strike without being detected.
+	// This runs first and will zero out target's sight radius.
+	Template.BuildInterruptGameStateFn = Takedown_BuildInterruptGameState;
+
+	// This runs afterwards and will restore the sight radius.
+	Template.BuildNewGameStateFn = Takedown_BuildGameState;
+
+	return Template;
+}
+
+static private function XComGameState Takedown_BuildInterruptGameState(XComGameStateContext Context, int InterruptStep, EInterruptionStatus InterruptionStatus)
+{
+	local XComGameStateContext_Ability AbilityContext;
+	local XComGameState NewGameState;
+	local int MovingUnitIndex, NumMovementTiles;
+	local XComGameState_Unit TargetUnit;
+	local float SightRadius;
+
+	AbilityContext = XComGameStateContext_Ability(Context);
+	`assert(AbilityContext != None);
+
+	if (AbilityContext.InputContext.MovementPaths.Length == 0) //No movement - use the trivial case in TypicalAbility_BuildInterruptGameState
+	{
+		return TypicalAbility_BuildInterruptGameState(Context, InterruptStep, InterruptionStatus);
+	}
+	else //Movement - MoveAbility_BuildInterruptGameState can handle
+	{
+		NewGameState = class'X2Ability_DefaultAbilitySet'.static.MoveAbility_BuildInterruptGameState(Context, InterruptStep, InterruptionStatus);
+		if (NewGameState == none && InterruptionStatus == eInterruptionStatus_Interrupt)
+		{
+			//  all movement has processed interruption, now allow the ability to be interrupted for the attack
+			for(MovingUnitIndex = 0; MovingUnitIndex < AbilityContext.InputContext.MovementPaths.Length; ++MovingUnitIndex)
+			{
+				NumMovementTiles = Max(NumMovementTiles, AbilityContext.InputContext.MovementPaths[MovingUnitIndex].MovementTiles.Length);
+			}
+			//  only interrupt when movement is completed, and not again afterward
+			if(InterruptStep == (NumMovementTiles - 1))			
+			{
+				NewGameState = `XCOMHISTORY.CreateNewGameState(true, AbilityContext);
+				AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
+
+				// Iridar: zero out sight radius.
+				TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', AbilityContext.InputContext.PrimaryTarget.ObjectID));
+				if (TargetUnit != none)
+				{
+
+					SightRadius = TargetUnit.GetCurrentStat(eStat_SightRadius);
+					TargetUnit.SetUnitFloatValue('IRI_RP_Takedown_SightRadius', SightRadius, eCleanup_BeginTurn);
+					TargetUnit.SetCurrentStat(eStat_SightRadius, 0);
+				}
+
+				//  setup game state as though movement is fully completed so that the unit state's location is up to date
+				class'X2Ability_DefaultAbilitySet'.static.MoveAbility_FillOutGameState(NewGameState, false); //Do not apply costs at this time.
+				AbilityContext.SetInterruptionStatus(InterruptionStatus);
+				AbilityContext.ResultContext.InterruptionStep = InterruptStep;
+			}
+		}
+		return NewGameState;
+	}
+}
+
+// Same as TypicalMoveEndAbility_BuildGameState, but that one moves first, attacks second, we do it other way around.
+static private function XComGameState Takedown_BuildGameState(XComGameStateContext Context)
+{
+	local XComGameState NewGameState;
+	local XComGameState_Unit TargetUnit;
+	local UnitValue SightRadius;
+	local XComGameStateContext_Ability AbilityContext;
+
+	NewGameState = `XCOMHISTORY.CreateNewGameState(true, Context);
+
+	class'X2Ability_DefaultAbilitySet'.static.MoveAbility_FillOutGameState(NewGameState, false); //Do not apply costs at this time.
+
+	TypicalAbility_FillOutGameState(NewGameState);
+
+	// Iridar: restore sight radius.
+	AbilityContext = XComGameStateContext_Ability(Context);
+	TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit != none)
+	{
+		if (TargetUnit.GetUnitValue('IRI_RP_Takedown_SightRadius', SightRadius))
+		{
+			// Get current stat in case the unit has some kind of funny ability like "sight radius reduced on damage".
+			TargetUnit.SetCurrentStat(eStat_SightRadius, TargetUnit.GetCurrentStat(eStat_SightRadius) + SightRadius.fValue);
+		}
+	}
+
+	return NewGameState;
 }
 
 static private function X2AbilityTemplate IRI_SP_ConstantReadiness()
