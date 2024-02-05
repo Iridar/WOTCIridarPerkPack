@@ -61,6 +61,8 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 
 	Template.AbilityTargetEffects.Length = 0;
 
+	// TODO: Fix spinny rifle at the end of run?
+
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamageEffect.bIgnoreBaseDamage = true;
 	WeaponDamageEffect.bAllowWeaponUpgrade = false;
@@ -75,6 +77,11 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 	Template.AbilityShooterConditions.AddItem(new class'X2Condition_SuperConcealedActivation');
 
 	Template.ConcealmentRule = eConceal_KillShot;
+
+	// Just a standard wide shot
+	Template.CinescriptCameraType = "IRI_TM_SoulShot";
+
+	SetFireAnim(Template, 'FF_ReaperTakedown');
 
 	// Doing hackity hacks to allow approaching the target for the melee strike without being detected.
 	// This runs first and will zero out target's sight radius.

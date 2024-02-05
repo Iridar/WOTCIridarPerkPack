@@ -123,6 +123,12 @@
     <Content Include="ContentForCook\BountyHunter\IRITerminatePerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\ClassRework\IRIReaperTakedown.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\ClassRework\IRIReaperTakedownPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\ClassRework\IRIZephyrStrikePerk.upk">
       <SubType>Content</SubType>
     </Content>
