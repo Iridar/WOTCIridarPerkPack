@@ -5,9 +5,9 @@
 
 [IRI_RP_Takedown X2AbilityTemplate]
 LocFriendlyName="Takedown"
-LocLongDescription="Slash all enemies in the target area."
-LocHelpText="Slash all enemies in the target area."
-LocPromotionPopupText="<bullet/> <Ability:IRI_RN_ZephyrStrike_Radius_Tiles/> tile radius.<br/><bullet/> <Ability:SelfCooldown/> turn cooldown."
+LocLongDescription="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the Reaper is not revealed. Takedown can be used to silently knock out a group of civilians. Can be used <Ability:IRI_RP_TakedownCharges/> time(s) after entering Shadow."
+LocHelpText="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the Reaper is not revealed."
+LocPromotionPopupText="<Bullet/> Enemies that take cover can be hit by Takedown only from tiles they would be flanked from.<br/><Bullet/> Takedown has <Ability:IRI_RP_TakedownCharges/> charge(s), refreshed whenever the Reaper enters Shadow."
 LocFlyOverText="Takedown"
 
 ; ==========================================================

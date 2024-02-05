@@ -267,6 +267,9 @@
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Condition_UnitValueSource.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_Charges.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_ClearUnitValue.uc">
       <SubType>Content</SubType>
     </Content>
@@ -412,7 +415,13 @@
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2Effect_TacticalAdvance.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2MeleePathingPawn_Takedown.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2TargetingMethod_RN_Intercept.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackClassRework\Classes\X2TargetingMethod_Takedown.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackFoxcom\Classes\X2Ability_Foxcom.uc">

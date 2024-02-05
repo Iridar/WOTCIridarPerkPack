@@ -5,6 +5,7 @@ var privatewrite config bool bLWOTC;
 var private SkeletalMeshSocket ShadowTeleportSocket;
 var private SkeletalMeshSocket SoulShotFireSocket;
 var private SkeletalMeshSocket SoulShotHitSocket;
+var private SkeletalMeshSocket InvenRHandCopySocket;
 
 static function OnPreCreateTemplates()
 {
@@ -18,6 +19,7 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 	NewSockets.AddItem(default.ShadowTeleportSocket);
 	NewSockets.AddItem(default.SoulShotHitSocket);
 	NewSockets.AddItem(default.SoulShotFireSocket);
+	NewSockets.AddItem(default.InvenRHandCopySocket);
 
 	Pawn.Mesh.AppendSockets(NewSockets, true);
 
@@ -85,6 +87,19 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_HomingMine_Shred":
 		OutString = BHColor(`GetConfigDamage("IRI_BH_HomingMine_Damage").Shred);
 		return true;
+
+	// ======================================================================================================================
+	//												REAPER TAGS
+	// ----------------------------------------------------------------------------------------------------------------------
+
+	case "IRI_RP_Takedown_Damage":
+		OutString = string(`GetConfigDamage("IRI_RP_Takedown_Damage").Crit);
+		return true;
+
+	case "IRI_RP_TakedownCharges":
+		OutString = string(`GetConfigInt(InString));
+		return true;
+		
 
 	// ======================================================================================================================
 	//												SKIRMISHER TAGS
@@ -467,6 +482,7 @@ static event OnPostTemplatesCreated()
 {
 	Skirmisher_ThunderLance_PatchOverrideicons();
 	Ranger_TacticalAdvance_PatchAbilityCosts();
+	Reaper_PatchShadow();
 	CopyAbilityLocalization('IRI_TM_Aftershock', 'Reverberation');
 	
 	//local X2SoldierClassTemplateManager	ClassMgr;
@@ -502,6 +518,32 @@ static event OnPostTemplatesCreated()
     }
 	
 	*/
+}
+
+static private function Reaper_PatchShadow()
+{
+	local X2AbilityTemplateManager			AbilityMgr;
+	local X2AbilityTemplate					AbilityTemplate;
+	local X2Effect_Charges					SetCharges;
+
+	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+
+	SetCharges = new class'X2Effect_Charges';
+	SetCharges.AbilityName = 'IRI_RP_Takedown';
+	SetCharges.Charges = `GetConfigInt("IRI_RP_TakedownCharges");
+	SetCharges.bSetCharges = true;
+
+	AbilityTemplate = AbilityMgr.FindAbilityTemplate('Shadow');
+	if (AbilityTemplate != none)	
+	{
+		AbilityTemplate.AddTargetEffect(SetCharges);
+	}
+
+	AbilityTemplate = AbilityMgr.FindAbilityTemplate('DistractionShadow');
+	if (AbilityTemplate != none)	
+	{
+		AbilityTemplate.AddTargetEffect(SetCharges);
+	}
 }
 
 static private function Ranger_TacticalAdvance_PatchAbilityCosts()
@@ -1375,4 +1417,11 @@ defaultproperties
 		RelativeRotation=(Roll=-16384, Yaw=16384)
 	End Object
 	SoulShotHitSocket = DefaultSoulShotHitSocket;
+
+	Begin Object Class=SkeletalMeshSocket Name=DefaultInvenRHandCopySocket
+		SocketName = "IRI_R_Hand"
+		BoneName = "Inven_R_Hand"
+	End Object
+	InvenRHandCopySocket = DefaultInvenRHandCopySocket;
+	
 }
