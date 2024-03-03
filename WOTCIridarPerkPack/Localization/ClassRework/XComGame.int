@@ -5,10 +5,18 @@
 
 [IRI_RP_Takedown X2AbilityTemplate]
 LocFriendlyName="Takedown"
-LocLongDescription="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the Reaper is not revealed. Takedown can be used to silently knock out a group of civilians. Can be used <Ability:IRI_RP_TakedownCharges/> time(s) after entering Shadow."
-LocHelpText="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the Reaper is not revealed."
-LocPromotionPopupText="<Bullet/> Enemies that take cover can be hit by Takedown only from tiles they would be flanked from.<br/><Bullet/> Takedown has <Ability:IRI_RP_TakedownCharges/> charge(s), refreshed whenever the Reaper enters Shadow."
+LocLongDescription="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the <Ability:ClassName/> is not revealed. Takedown can also be used to silently knock out a group of civilians. Can be used <Ability:IRI_RP_TakedownCharges/> time(s) after entering Shadow."
+LocHelpText="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the <Ability:ClassName/> is not revealed."
+LocPromotionPopupText="<Bullet/> Enemies that take cover can be hit by Takedown only from tiles they would be flanked from.<br/><Bullet/> Takedown has <Ability:IRI_RP_TakedownCharges/> charge(s), refreshed whenever the <Ability:ClassName/> enters Shadow."
 LocFlyOverText="Takedown"
+
+[IRI_RP_WoundingShot X2AbilityTemplate]
+LocFriendlyName="Wounding Shot"
+LocLongDescription="Fire a shot while in Shadow, causing the target to bleed and reducing their Mobility by <Ability:IRI_RP_WoundingShot_MobilityMultiplier/>%. Reveals the <Ability:ClassName/>."
+LocHelpText="Fire a shot while in Shadow, causing the target to bleed and reducing their Mobility by <Ability:IRI_RP_WoundingShot_MobilityMultiplier/>%. Reveals the <Ability:ClassName/>."
+LocPromotionPopupText="<Bullet/> Bleeding and the mobility penalty last for <Ability:IRI_RP_WoundingShot_BleedDuration/> turns.<br/><bullet/> Bleeding deals <Ability:IRI_RP_WoundingShot_BleedDamage/> damage per turn."
+LocFlyOverText="Wounding Shot"
+
 
 ; ==========================================================
 ;							RANGER

@@ -17,3 +17,8 @@ IRI_BH_HomingMine_Effect_Desc = "Shots that target this unit are guaranteed to h
 
 IRI_TM_Concentration_EffectTitle = "Concentration"
 IRI_TM_Concentration_EffectDesc = "When this unit dies, the Templar that applied this effect will generate a point of Focus."
+
+;	====================================================
+;						REAPER
+
+IRI_RP_WoundingShot_MobilityPenaltyLoc = "Mobility reduced by <Ability:IRI_RP_WoundingShot_MobilityMultiplier/>%."

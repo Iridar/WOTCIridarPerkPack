@@ -36,11 +36,53 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Reaper
 	Templates.AddItem(IRI_RP_Takedown());
+	Templates.AddItem(IRI_RP_WoundingShot());
 
 	// AWC
 	Templates.AddItem(PurePassive('IRI_AWC_MedicinePouch', "img:///UILibrary_PerkIcons.UIPerk_item_medikit", true /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_RP_WoundingShot()
+{
+	local X2AbilityTemplate				Template;
+	local X2Condition_UnitProperty		ConcealedCondition;
+	local X2Effect_PersistentStatChange	StatChange;
+	local X2Effect_Persistent			BleedEffect;
+
+	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_RP_WoundingShot', false, false, false);
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BurstFire"; // TODO: Icon
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	//Template.bShowActivation = true;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY;
+
+	ConcealedCondition = new class'X2Condition_UnitProperty';
+	ConcealedCondition.ExcludeFriendlyToSource = false;
+	ConcealedCondition.IsSuperConcealed = true;
+	Template.AbilityShooterConditions.AddItem(ConcealedCondition);
+
+	BleedEffect = class'X2StatusEffects'.static.CreateBleedingStatusEffect(`GetConfigInt("IRI_RP_WoundingShot_BleedDuration"), `GetConfigInt("IRI_RP_WoundingShot_BleedDamage"));
+	BleedEffect.WatchRule = eGameRule_PlayerTurnEnd;
+	Template.AddTargetEffect(BleedEffect);
+
+	StatChange = new class'X2Effect_PersistentStatChange';
+	StatChange.EffectName = 'IRI_RP_WoundingShot_MobilityPenalty';
+	StatChange.BuildPersistentEffect(3, false, false, false, eGameRule_PlayerTurnEnd);
+	StatChange.SetDisplayInfo(ePerkBuff_Penalty, Template.LocFriendlyName, `GetLocalizedString("IRI_RP_WoundingShot_MobilityPenaltyLoc"), Template.IconImage, true,, Template.AbilitySourceName);
+	StatChange.DuplicateResponse = eDupe_Ignore;
+	StatChange.AddPersistentStatChange(eStat_Mobility, `GetConfigFloat("IRI_RP_WoundingShot_MobilityMultiplier"), MODOP_PostMultiplication);
+	Template.AddTargetEffect(StatChange);
+
+	// TODO: Change Blood Trail to dealing increased damage to "or bleeding targets".
+
+	Template.AddShooterEffect(new class'X2Effect_BreakUnitConcealment');
+	Template.SuperConcealmentLoss = 0;
+	Template.ConcealmentRule = eConceal_Always;
+
+	return Template;
 }
 
 static private function X2AbilityTemplate IRI_RP_Takedown()
@@ -51,8 +93,9 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 
 	Template = class'X2Ability_RangerAbilitySet'.static.AddSwordSliceAbility('IRI_RP_Takedown');
 
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_evervigilant";
+	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_evervigilant"; // TODO: Icon
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
 
 	StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
 	StandardMelee.bHitsAreCrits = true;
@@ -81,6 +124,8 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 
 	Template.bAllowBonusWeaponEffects = false;
 	Template.bSkipMoveStop = false;
+
+	// TODO: Fail on non units
 
 	Template.AbilityShooterConditions.AddItem(new class'X2Condition_SuperConcealedActivation');
 

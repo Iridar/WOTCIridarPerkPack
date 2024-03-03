@@ -97,7 +97,13 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 		return true;
 
 	case "IRI_RP_TakedownCharges":
+	case "IRI_RP_WoundingShot_BleedDuration":
+	case "IRI_RP_WoundingShot_BleedDamage":
 		OutString = string(`GetConfigInt(InString));
+		return true;
+
+	case "IRI_RP_WoundingShot_MobilityMultiplier":
+		OutString = string(int(100 - `GetConfigFloat(InString) * 100));
 		return true;
 		
 
@@ -186,7 +192,7 @@ static private function string TruncateFloat(float value)
 	local float TempFloat, TestFloat;
 
 	TempFloat = value;
-	for (i=0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 	{
 		TempFloat *= 10.0;
 	}

@@ -71,9 +71,6 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 														   optional bool Unsorted = false)
 {
 	local array<TTile>               TargetTiles; // Array of tiles occupied by the target; these tiles can be attacked by melee.
-	local TTile                      TargetTile;
-	local array<TTile>               AdjacentTiles;	// Array of tiles adjacent to Target Tiles; the attacking unit can move to these tiles to attack.
-	local array<TTile>               AllAdjacentTiles;
 	local array<TTile>               DirectlyAdjacentTiles;
 	local TTile                      AdjacentTile;
 	local XComGameState_Unit         TargetUnit;
@@ -82,7 +79,6 @@ private function bool SelectAttackTile(XComGameState_Unit ChasingUnitState,
 	local X2GameRulesetVisibilityManager	VisibilityMgr;
 	local GameRulesCache_VisibilityInfo		VisibilityInfo;
 	local XComWorldData						World;
-	local float								SightRadiusUnitsSq;
 
 	TargetUnit = XComGameState_Unit(TargetState);
 	if (TargetUnit == none)
