@@ -126,6 +126,7 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 	Template.bSkipMoveStop = false;
 
 	// TODO: Fail on non units
+	// TODO: Fix bug where running through enemy vision still reveals the reaper
 
 	Template.AbilityShooterConditions.AddItem(new class'X2Condition_SuperConcealedActivation');
 
