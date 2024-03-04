@@ -139,94 +139,111 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 
 	// Doing hackity hacks to allow approaching the target for the melee strike without being detected.
 	// This runs first and will zero out target's sight radius.
-	Template.BuildInterruptGameStateFn = Takedown_BuildInterruptGameState;
+	//Template.BuildInterruptGameStateFn = Takedown_BuildInterruptGameState;
 
 	// This runs afterwards and will restore the sight radius.
-	Template.BuildNewGameStateFn = Takedown_BuildGameState;
-
+	//Template.BuildNewGameStateFn = Takedown_BuildGameState;
 	Template.BuildVisualizationFn = Takedown_BuildVisualization;
+
+	Template.AddAbilityEventListener('AbilityActivated', OnTakedownActivated, ELD_Immediate, eFilter_Unit);
+	Template.AddAbilityEventListener('AbilityActivated', OnTakedownActivated_OSS, ELD_OnStateSubmitted, eFilter_Unit);
 
 	return Template;
 }
 
-static private function XComGameState Takedown_BuildInterruptGameState(XComGameStateContext Context, int InterruptStep, EInterruptionStatus InterruptionStatus)
+static private function EventListenerReturn OnTakedownActivated_OSS(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
 {
-	local XComGameStateContext_Ability AbilityContext;
-	local XComGameState NewGameState;
-	local int MovingUnitIndex, NumMovementTiles;
-	local XComGameState_Unit TargetUnit;
-	local float SightRadius;
+	local XComGameState_Unit			TargetUnit;
+    local XComGameStateContext_Ability	AbilityContext;
+	local UnitValue						SightRadius;
+	local XComGameState_Unit			SourceUnit;
+	local XComGameState					NewGameState;
 
-	AbilityContext = XComGameStateContext_Ability(Context);
-	`assert(AbilityContext != None);
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+	if (AbilityContext == none || AbilityContext.InputContext.AbilityTemplateName != 'IRI_RP_Takedown' || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+		return ELR_NoInterrupt;
 
-	if (AbilityContext.InputContext.MovementPaths.Length == 0) //No movement - use the trivial case in TypicalAbility_BuildInterruptGameState
+	if (AbilityContext.InputContext.MovementPaths.Length == 0)
+		return ELR_NoInterrupt;
+
+	SourceUnit = XComGameState_Unit(EventSource);
+	if (SourceUnit == none)
+			return ELR_NoInterrupt;
+
+	if (!IsOnFinalTileInPath(SourceUnit, AbilityContext))
+		return ELR_NoInterrupt;
+
+	TargetUnit = XComGameState_Unit(GameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit == none)
 	{
-		return TypicalAbility_BuildInterruptGameState(Context, InterruptStep, InterruptionStatus);
+		TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+		if (TargetUnit == none)
+			return ELR_NoInterrupt;
 	}
-	else //Movement - MoveAbility_BuildInterruptGameState can handle
+
+	if (TargetUnit.GetUnitValue('IRI_RP_Takedown_SightRadius', SightRadius))
 	{
-		NewGameState = class'X2Ability_DefaultAbilitySet'.static.MoveAbility_BuildInterruptGameState(Context, InterruptStep, InterruptionStatus);
-		if (NewGameState == none && InterruptionStatus == eInterruptionStatus_Interrupt)
-		{
-			//  all movement has processed interruption, now allow the ability to be interrupted for the attack
-			for(MovingUnitIndex = 0; MovingUnitIndex < AbilityContext.InputContext.MovementPaths.Length; ++MovingUnitIndex)
-			{
-				NumMovementTiles = Max(NumMovementTiles, AbilityContext.InputContext.MovementPaths[MovingUnitIndex].MovementTiles.Length);
-			}
-			//  only interrupt when movement is completed, and not again afterward
-			if(InterruptStep == (NumMovementTiles - 1))			
-			{
-				NewGameState = `XCOMHISTORY.CreateNewGameState(true, AbilityContext);
-				AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
-
-				// Iridar: zero out sight radius.
-				TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', AbilityContext.InputContext.PrimaryTarget.ObjectID));
-				if (TargetUnit != none)
-				{
-
-					SightRadius = TargetUnit.GetCurrentStat(eStat_SightRadius);
-					TargetUnit.SetUnitFloatValue('IRI_RP_Takedown_SightRadius', SightRadius, eCleanup_BeginTurn);
-					TargetUnit.SetCurrentStat(eStat_SightRadius, 0);
-				}
-
-				//  setup game state as though movement is fully completed so that the unit state's location is up to date
-				class'X2Ability_DefaultAbilitySet'.static.MoveAbility_FillOutGameState(NewGameState, false); //Do not apply costs at this time.
-				AbilityContext.SetInterruptionStatus(InterruptionStatus);
-				AbilityContext.ResultContext.InterruptionStep = InterruptStep;
-			}
-		}
-		return NewGameState;
+		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState();
+		TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(TargetUnit.Class, TargetUnit.ObjectID));
+		// Get current stat in case the unit has some kind of funny ability like "sight radius reduced on damage".
+		TargetUnit.SetCurrentStat(eStat_SightRadius, TargetUnit.GetCurrentStat(eStat_SightRadius) + SightRadius.fValue);
+		`GAMERULES.SubmitGameState(NewGameState);
 	}
+
+	return ELR_NoInterrupt;
 }
 
-// Same as TypicalMoveEndAbility_BuildGameState, but that one moves first, attacks second, we do it other way around.
-static private function XComGameState Takedown_BuildGameState(XComGameStateContext Context)
+static private function bool IsOnFinalTileInPath(const XComGameState_Unit MovingUnit, const XComGameStateContext_Ability AbilityContext)
 {
-	local XComGameState NewGameState;
-	local XComGameState_Unit TargetUnit;
-	local UnitValue SightRadius;
-	local XComGameStateContext_Ability AbilityContext;
+    local PathingInputData MovementPath;
+    
+    foreach AbilityContext.InputContext.MovementPaths(MovementPath)
+    {
+        if (MovementPath.MovingUnitRef.ObjectID == MovingUnit.ObjectID && MovementPath.MovementTiles.Length > 0)
+        {
+            return MovementPath.MovementTiles[MovementPath.MovementTiles.Length - 1] == MovingUnit.TileLocation;
+        }
+    }
+    return false;
+}
 
-	NewGameState = `XCOMHISTORY.CreateNewGameState(true, Context);
+static private function EventListenerReturn OnTakedownActivated(Object EventData, Object EventSource, XComGameState NewGameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Unit			TargetUnit;
+    local XComGameStateContext_Ability	AbilityContext;
+	local UnitValue						SightRadius;
 
-	class'X2Ability_DefaultAbilitySet'.static.MoveAbility_FillOutGameState(NewGameState, false); //Do not apply costs at this time.
+	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
 
-	TypicalAbility_FillOutGameState(NewGameState);
+	if (AbilityContext == none || AbilityContext.InputContext.AbilityTemplateName != 'IRI_RP_Takedown')
+		return ELR_NoInterrupt;
 
-	// Iridar: restore sight radius.
-	AbilityContext = XComGameStateContext_Ability(Context);
-	TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', AbilityContext.InputContext.PrimaryTarget.ObjectID));
-	if (TargetUnit != none)
+	if (AbilityContext.InputContext.MovementPaths.Length == 0)
+		return ELR_NoInterrupt;
+
+	TargetUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (TargetUnit == none)
 	{
-		if (TargetUnit.GetUnitValue('IRI_RP_Takedown_SightRadius', SightRadius))
+		TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+		if (TargetUnit != none)
 		{
-			// Get current stat in case the unit has some kind of funny ability like "sight radius reduced on damage".
-			TargetUnit.SetCurrentStat(eStat_SightRadius, TargetUnit.GetCurrentStat(eStat_SightRadius) + SightRadius.fValue);
+			TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(TargetUnit.Class, TargetUnit.ObjectID));
+		}
+		else
+		{
+			return ELR_NoInterrupt;
 		}
 	}
 
-	return NewGameState;
+	// Record unit's sight radius, if we haven't already
+	if (!TargetUnit.GetUnitValue('IRI_RP_Takedown_SightRadius', SightRadius))
+	{
+		TargetUnit.SetUnitFloatValue('IRI_RP_Takedown_SightRadius', TargetUnit.GetCurrentStat(eStat_SightRadius), eCleanup_BeginTurn);
+	}
+	// Then zero it out
+	TargetUnit.SetCurrentStat(eStat_SightRadius, 0);
+
+	return ELR_NoInterrupt;
 }
 
 // Same, just doesn't rotate the target.
