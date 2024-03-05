@@ -36,6 +36,8 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	// Reaper
 	Templates.AddItem(IRI_RP_Takedown());
+	Templates.AddItem(IRI_RP_TakedownCiv());
+
 	Templates.AddItem(IRI_RP_WoundingShot());
 
 	// AWC
@@ -54,10 +56,15 @@ static private function X2AbilityTemplate IRI_RP_WoundingShot()
 	Template = class'X2Ability_WeaponCommon'.static.Add_StandardShot('IRI_RP_WoundingShot', false, false, false);
 
 	// Icon Setup
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Mitzruti_BurstFire"; // TODO: Icon
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_WoundingShot";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	//Template.bShowActivation = true;
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SQUADDIE_PRIORITY;
+
+	Template.bDisplayInUITacticalText = true;
+	Template.bDisplayInUITooltip = true;
+	Template.bDontDisplayInAbilitySummary = false;
+	Template.bHideOnClassUnlock = false;
 
 	ConcealedCondition = new class'X2Condition_UnitProperty';
 	ConcealedCondition.ExcludeFriendlyToSource = false;
@@ -76,8 +83,6 @@ static private function X2AbilityTemplate IRI_RP_WoundingShot()
 	StatChange.AddPersistentStatChange(eStat_Mobility, `GetConfigFloat("IRI_RP_WoundingShot_MobilityMultiplier"), MODOP_PostMultiplication);
 	Template.AddTargetEffect(StatChange);
 
-	// TODO: Change Blood Trail to dealing increased damage to "or bleeding targets".
-
 	Template.AddShooterEffect(new class'X2Effect_BreakUnitConcealment');
 	Template.SuperConcealmentLoss = 0;
 	Template.ConcealmentRule = eConceal_Always;
@@ -90,10 +95,11 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 	local X2AbilityTemplate					Template;
 	local X2Effect_ApplyWeaponDamage		WeaponDamageEffect;
 	local X2AbilityToHitCalc_StandardMelee  StandardMelee;
+	local X2Condition_UnitProperty			UnitProperty;
 
 	Template = class'X2Ability_RangerAbilitySet'.static.AddSwordSliceAbility('IRI_RP_Takedown');
 
-	Template.IconImage = "img:///UILibrary_PerkIcons.UIPerk_evervigilant"; // TODO: Icon
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Takedown";
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_LIEUTENANT_PRIORITY;
 
@@ -112,8 +118,6 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 
 	AddCharges(Template, `GetConfigInt("IRI_RP_TakedownCharges"));
 
-	// TODO: Fix spinny rifle at the end of run?
-
 	WeaponDamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	WeaponDamageEffect.bIgnoreBaseDamage = true;
 	WeaponDamageEffect.bAllowWeaponUpgrade = false;
@@ -123,48 +127,86 @@ static private function X2AbilityTemplate IRI_RP_Takedown()
 	Template.AddTargetEffect(WeaponDamageEffect);
 
 	Template.bAllowBonusWeaponEffects = false;
-	Template.bSkipMoveStop = false;
-
-	// TODO: Fail on non units
-	// TODO: Fix bug where running through enemy vision still reveals the reaper
+	
+	// Standard melee conditions + fail on non-units.
+	Template.AbilityTargetConditions.Length = 0;
+	UnitProperty = new class'X2Condition_UnitProperty';
+	UnitProperty.FailOnNonUnits = true;
+	UnitProperty.ExcludeAlive = false;
+	UnitProperty.ExcludeDead = true;
+	UnitProperty.ExcludeFriendlyToSource = true;
+	UnitProperty.ExcludeHostileToSource = false;
+	UnitProperty.TreatMindControlledSquadmateAsHostile = true;
+	Template.AbilityTargetConditions.AddItem(UnitProperty);
+	Template.AbilityTargetConditions.AddItem(default.MeleeVisibilityCondition);
 
 	Template.AbilityShooterConditions.AddItem(new class'X2Condition_SuperConcealedActivation');
-
-	Template.ConcealmentRule = eConceal_KillShot;
 
 	// Just a standard wide shot
 	Template.CinescriptCameraType = "IRI_TM_SoulShot";
 
 	SetFireAnim(Template, 'FF_ReaperTakedown');
 
-	// Doing hackity hacks to allow approaching the target for the melee strike without being detected.
-	// This runs first and will zero out target's sight radius.
-	//Template.BuildInterruptGameStateFn = Takedown_BuildInterruptGameState;
-
-	// This runs afterwards and will restore the sight radius.
-	//Template.BuildNewGameStateFn = Takedown_BuildGameState;
+	// Let concealment be dealt with by the vision
+	Template.ConcealmentRule = eConceal_AlwaysEvenWithObjective;
+	Template.SuperConcealmentLoss = 0;
+	Template.bSkipMoveStop = false;
 	Template.BuildVisualizationFn = Takedown_BuildVisualization;
+	Template.DamagePreviewFn = Takedown_DamagePreview;
 
+	// Hackity hacks to allow for killing units in melee without losing concealment.
 	Template.AddAbilityEventListener('AbilityActivated', OnTakedownActivated, ELD_Immediate, eFilter_Unit);
 	Template.AddAbilityEventListener('AbilityActivated', OnTakedownActivated_OSS, ELD_OnStateSubmitted, eFilter_Unit);
+
+	Template.AdditionalAbilities.AddItem('IRI_RP_TakedownCiv');
 
 	return Template;
 }
 
+static private function bool Takedown_DamagePreview(XComGameState_Ability AbilityState, StateObjectReference TargetRef, out WeaponDamageValue MinDamagePreview, out WeaponDamageValue MaxDamagePreview, out int AllowsShield)
+{
+	local XComGameState_Unit SourceUnit;
+
+	MinDamagePreview = `GetConfigDamage("IRI_RP_Takedown_Damage");
+	MinDamagePreview = `GetConfigDamage("IRI_RP_Takedown_Damage");
+	MinDamagePreview.Damage = MinDamagePreview.Crit;
+	
+	SourceUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityState.OwnerStateObject.ObjectID));
+	if (SourceUnit != none && SourceUnit.HasSoldierAbility('Executioner'))
+	{
+		MinDamagePreview.Damage += MinDamagePreview.Damage;
+	}
+
+	MaxDamagePreview = MinDamagePreview;
+	return true;
+}
+
 static private function EventListenerReturn OnTakedownActivated_OSS(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
 {
-	local XComGameState_Unit			TargetUnit;
+	
     local XComGameStateContext_Ability	AbilityContext;
-	local UnitValue						SightRadius;
 	local XComGameState_Unit			SourceUnit;
-	local XComGameState					NewGameState;
+	local bool							bMultiTargets;
+	local StateObjectReference			UnitRef;
 
 	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
-	if (AbilityContext == none || AbilityContext.InputContext.AbilityTemplateName != 'IRI_RP_Takedown' || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
 		return ELR_NoInterrupt;
 
 	if (AbilityContext.InputContext.MovementPaths.Length == 0)
 		return ELR_NoInterrupt;
+
+	if (AbilityContext.InputContext.AbilityTemplateName != 'IRI_RP_Takedown')
+	{
+		if (AbilityContext.InputContext.AbilityTemplateName == 'IRI_RP_TakedownCiv')
+		{
+			bMultiTargets = true;
+		}
+		else
+		{
+			return ELR_NoInterrupt;
+		}
+	}
 
 	SourceUnit = XComGameState_Unit(EventSource);
 	if (SourceUnit == none)
@@ -173,12 +215,33 @@ static private function EventListenerReturn OnTakedownActivated_OSS(Object Event
 	if (!IsOnFinalTileInPath(SourceUnit, AbilityContext))
 		return ELR_NoInterrupt;
 
-	TargetUnit = XComGameState_Unit(GameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (bMultiTargets)
+	{
+		foreach AbilityContext.InputContext.MultiTargets(UnitRef)
+		{
+			RestoreUnitSightRadius(UnitRef.ObjectID, GameState);
+		}
+	}
+	else
+	{
+		RestoreUnitSightRadius(AbilityContext.InputContext.PrimaryTarget.ObjectID, GameState);
+	}
+
+	return ELR_NoInterrupt;
+}
+
+static private function RestoreUnitSightRadius(const int UnitObjectID, XComGameState GameState)
+{
+	local XComGameState_Unit	TargetUnit;
+	local UnitValue				SightRadius;
+	local XComGameState			NewGameState;
+
+	TargetUnit = XComGameState_Unit(GameState.GetGameStateForObjectID(UnitObjectID));
 	if (TargetUnit == none)
 	{
-		TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+		TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitObjectID));
 		if (TargetUnit == none)
-			return ELR_NoInterrupt;
+			return;
 	}
 
 	if (TargetUnit.GetUnitValue('IRI_RP_Takedown_SightRadius', SightRadius))
@@ -189,8 +252,6 @@ static private function EventListenerReturn OnTakedownActivated_OSS(Object Event
 		TargetUnit.SetCurrentStat(eStat_SightRadius, TargetUnit.GetCurrentStat(eStat_SightRadius) + SightRadius.fValue);
 		`GAMERULES.SubmitGameState(NewGameState);
 	}
-
-	return ELR_NoInterrupt;
 }
 
 static private function bool IsOnFinalTileInPath(const XComGameState_Unit MovingUnit, const XComGameStateContext_Ability AbilityContext)
@@ -209,29 +270,60 @@ static private function bool IsOnFinalTileInPath(const XComGameState_Unit Moving
 
 static private function EventListenerReturn OnTakedownActivated(Object EventData, Object EventSource, XComGameState NewGameState, Name EventID, Object CallbackData)
 {
-	local XComGameState_Unit			TargetUnit;
     local XComGameStateContext_Ability	AbilityContext;
-	local UnitValue						SightRadius;
+	local bool							bMultiTargets;
+	local StateObjectReference			UnitRef;
 
 	AbilityContext = XComGameStateContext_Ability(NewGameState.GetContext());
 
-	if (AbilityContext == none || AbilityContext.InputContext.AbilityTemplateName != 'IRI_RP_Takedown')
+	if (AbilityContext == none)
 		return ELR_NoInterrupt;
 
 	if (AbilityContext.InputContext.MovementPaths.Length == 0)
 		return ELR_NoInterrupt;
 
-	TargetUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+	if (AbilityContext.InputContext.AbilityTemplateName != 'IRI_RP_Takedown')
+	{
+		if (AbilityContext.InputContext.AbilityTemplateName == 'IRI_RP_TakedownCiv')
+		{
+			bMultiTargets = true;
+		}
+		else
+		{
+			return ELR_NoInterrupt;
+		}
+	}
+
+	if (bMultiTargets)
+	{
+		foreach AbilityContext.InputContext.MultiTargets(UnitRef)
+		{
+			RemoveUnitSightRadius(UnitRef.ObjectID, NewGameState);
+		}
+	}
+	else
+	{
+		RemoveUnitSightRadius(AbilityContext.InputContext.PrimaryTarget.ObjectID, NewGameState);
+	}
+	return ELR_NoInterrupt;
+}
+
+static private function RemoveUnitSightRadius(const int UnitObjectID, XComGameState NewGameState)
+{
+	local XComGameState_Unit	TargetUnit;
+	local UnitValue				SightRadius;
+
+	TargetUnit = XComGameState_Unit(NewGameState.GetGameStateForObjectID(UnitObjectID));
 	if (TargetUnit == none)
 	{
-		TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(AbilityContext.InputContext.PrimaryTarget.ObjectID));
+		TargetUnit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitObjectID));
 		if (TargetUnit != none)
 		{
 			TargetUnit = XComGameState_Unit(NewGameState.ModifyStateObject(TargetUnit.Class, TargetUnit.ObjectID));
 		}
 		else
 		{
-			return ELR_NoInterrupt;
+			return;
 		}
 	}
 
@@ -242,8 +334,6 @@ static private function EventListenerReturn OnTakedownActivated(Object EventData
 	}
 	// Then zero it out
 	TargetUnit.SetCurrentStat(eStat_SightRadius, 0);
-
-	return ELR_NoInterrupt;
 }
 
 // Same, just doesn't rotate the target.
@@ -799,6 +889,366 @@ static private function Takedown_BuildVisualization(XComGameState VisualizeGameS
 		JoinActions.SetName("Join");
 	}
 }
+
+
+
+static private function X2AbilityTemplate IRI_RP_TakedownCiv()
+{
+	local X2AbilityTemplate						Template;
+	local X2AbilityMultiTarget_Radius           MultiTargetRadius;
+	local X2AbilityCost_ActionPoints			ActionPointCost;
+	local X2Condition_UnitProperty				Condition;
+	local X2Effect_Persistent					UnconsciousEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RP_TakedownCiv');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_TakedownCiv";
+
+	Template.bDisplayInUITacticalText = false;
+	Template.bDisplayInUITooltip = false;
+	Template.bDontDisplayInAbilitySummary = true;
+	Template.bHideOnClassUnlock = true;
+	
+	// Costs
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bConsumeAllPoints = true;
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = new class'X2AbilityTarget_Cursor';
+	Template.TargetingMethod = class'X2TargetingMethod_PathTarget';
+
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	MultiTargetRadius = new class'X2AbilityMultiTarget_Radius';
+	MultiTargetRadius.fTargetRadius = `TILESTOMETERS(`GetConfigFloat("IRI_RP_TakedownCiv_Radius_Tiles"));
+	MultiTargetRadius.bExcludeSelfAsTargetIfWithinRadius = true;
+	MultiTargetRadius.bUseWeaponRadius = false;
+	MultiTargetRadius.bIgnoreBlockingCover = true;
+	MultiTargetRadius.NumTargetsRequired = 1; //At least someone must be in range --Iridar: the cake is a lie.
+	Template.AbilityMultiTargetStyle = MultiTargetRadius;
+
+	// Shootder conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Multi Target Conditions
+	Condition = new class'X2Condition_UnitProperty';
+	Condition.ExcludeCivilian = false;
+	Condition.ExcludeNonCivilian = true;
+	Condition.ExcludeAlive = false;
+	Condition.ExcludeDead = true;
+	Condition.ExcludeHostileToSource = false;
+	Condition.ExcludeFriendlyToSource = false;
+	Template.AbilityTargetConditions.AddItem(Condition);
+
+	// Effects
+	UnconsciousEffect = class'X2StatusEffects'.static.CreateUnconsciousStatusEffect();
+	UnconsciousEffect.VisualizationFn = AdditionalUnconsciousVisualization;
+	Template.AddMultiTargetEffect(UnconsciousEffect);
+	Template.bAllowBonusWeaponEffects = true;
+
+	Template.bFriendlyFireWarning = false;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.bSkipExitCoverWhenFiring = false;
+	Template.AbilityConfirmSound = "TacticalUI_SwordConfirm";
+	Template.BuildNewGameStateFn = TypicalMoveEndAbility_BuildGameState;
+	Template.BuildInterruptGameStateFn = TypicalMoveEndAbility_BuildInterruptGameState;
+	Template.BuildVisualizationFn = TakedownCiv_BuildVisualization;
+
+	Template.BuildAffectedVisualizationSyncFn = class'X2Ability_DefaultAbilitySet'.static.Knockout_BuildAffectedVisualizationSync;
+
+	//Template.ActivationSpeech = 'Reaper';
+	Template.Hostility = eHostility_Offensive;
+
+	Template.ConcealmentRule = eConceal_AlwaysEvenWithObjective;
+	Template.SuperConcealmentLoss = 0;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.MeleeLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+static private function AdditionalUnconsciousVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
+{
+	local bool bTriggeredByFireAction;
+
+	if( EffectApplyResult != 'AA_Success' )
+	{
+		return;
+	}
+	if (XComGameState_Unit(ActionMetadata.StateObject_NewState) == none)
+		return;
+
+	class'X2Action_ApplyDamageSpacer'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext(), false, ActionMetadata.LastActionAdded);
+
+	class'X2StatusEffects'.static.UnconsciousVisualization(VisualizeGameState, ActionMetadata, EffectApplyResult);
+}
+
+// Copypasted from Chimera Squad ability Crowd Control
+static private function TakedownCiv_BuildVisualization(XComGameState VisualizeGameState)
+{
+	local XComGameStateHistory			History;
+	local XComGameStateVisualizationMgr VisualizationMgr;
+	local XComGameStateContext_Ability  Context;
+	local X2AbilityTemplate             AbilityTemplate;
+	local StateObjectReference          InteractingUnitRef;
+	local XComGameState_Unit			MultiTargetUnit, HellionUnitNewState;
+	local X2VisualizerInterface			TargetVisualizerInterface;
+	local EffectResults					MultiTargetResult;
+	local X2Effect                      TargetEffect;
+	local name                          ResultName, ApplyResult;
+	local bool                          TargetGotAnyEffects;
+	local X2Camera_Cinescript           CinescriptCamera;
+	local Actor							TargetVisualizer;
+	local int							EffectIndex, MultiTargetIndex;
+	local TTile							TargetTile, BestTile;
+	local array<TTile>					MeleeTiles;
+	//local bool							bFinisherAnimation, bAlternateAnimation;
+
+	local VisualizationActionMetadata		EmptyMetadata;
+	local VisualizationActionMetadata		SourceMetadata;
+	local VisualizationActionMetadata		TargetMetadata;
+
+	local X2Action_PlayAnimation			BeginAnimAction;
+	local X2Action_PlayAnimation			SettleAnimAction;
+	local X2Action_PlaySoundAndFlyOver		SoundAndFlyover;
+	local X2Action_ForceUnitVisiblity_CS	UnitVisibilityAction;
+	local X2Action_ExitCover				ExitCoverAction;
+	local X2Action_EnterCover				EnterCoverAction;
+	local X2Action_StartCinescriptCamera	CinescriptStartAction;
+	local X2Action_EndCinescriptCamera		CinescriptEndAction;
+	local X2Action_Fire_Faceoff_CS			FireFaceoffAction;
+	local X2Action_ApplyDamageSpacer		ApplyWeaponDamageAction;	
+	local X2Action_MarkerNamed				JoinActions;
+	local array<X2Action>					FoundActions;
+	local array<name>						AnimationOverrides;
+
+	History = `XCOMHISTORY;
+	VisualizationMgr = `XCOMVISUALIZATIONMGR;
+
+	Context = XComGameStateContext_Ability(VisualizeGameState.GetContext());
+	AbilityTemplate = class'XComGameState_Ability'.static.GetMyTemplateManager().FindAbilityTemplate(Context.InputContext.AbilityTemplateName);
+	AbilityTemplate.CinescriptCameraType = "IRI_RN_ZephyrStrike_Camera"; // Iridar:Hack, but Firaxis does it, and we set it back afterwards anyway.
+
+	//Configure the visualization track for the shooter
+	InteractingUnitRef = Context.InputContext.SourceObject;
+	SourceMetadata = EmptyMetadata;
+	SourceMetadata.StateObject_OldState = History.GetGameStateForObjectID(InteractingUnitRef.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+	SourceMetadata.StateObject_NewState = VisualizeGameState.GetGameStateForObjectID(InteractingUnitRef.ObjectID);
+	SourceMetadata.VisualizeActor = History.GetVisualizer(InteractingUnitRef.ObjectID);
+	HellionUnitNewState = XComGameState_Unit(SourceMetadata.StateObject_NewState);
+
+	if (Context.InputContext.MovementPaths.Length > 0)
+	{
+		ExitCoverAction = X2Action_ExitCover(class'X2Action_ExitCover'.static.AddToVisualizationTree(SourceMetadata, Context));
+		ExitCoverAction.bSkipExitCoverVisualization = AbilityTemplate.bSkipExitCoverWhenFiring;
+
+		class'X2VisualizerHelpers'.static.ParsePath(Context, SourceMetadata, AbilityTemplate.bSkipMoveStop);
+	}
+
+	// Add a Camera Action to the Shooter's Metadata.  Minor hack: To create a CinescriptCamera the AbilityTemplate 
+	// must have a camera type.  So manually set one here, use it, then restore.
+	CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
+	CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	CinescriptStartAction.CinescriptCamera = CinescriptCamera;
+
+	// Exit Cover
+	ExitCoverAction = X2Action_ExitCover(class'X2Action_ExitCover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	ExitCoverAction.bSkipExitCoverVisualization = true;
+	
+	//PlayAnimation, start of crowd control
+	BeginAnimAction = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	BeginAnimAction.Params.AnimName = 'FF_ReaperTakedownCivStart';
+	BeginAnimAction.Params.PlayRate = BeginAnimAction.GetNonCriticalAnimationSpeed();
+
+	//Shooter Effects
+	for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityShooterEffects.Length; ++EffectIndex)
+	{
+		AbilityTemplate.AbilityShooterEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, SourceMetadata, Context.FindShooterEffectApplyResult(AbilityTemplate.AbilityShooterEffects[EffectIndex]));
+	}
+
+	//Shooter Flyover
+	if (AbilityTemplate.ActivationSpeech != '')
+	{
+		SoundAndFlyOver = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		SoundAndFlyOver.SetSoundAndFlyOverParameters(None, "", AbilityTemplate.ActivationSpeech, eColor_Good);
+	}
+
+	// Add an action to pop the last CinescriptCamera off the camera stack.
+	CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	CinescriptEndAction.CinescriptCamera = CinescriptCamera;
+
+	AbilityTemplate.CinescriptCameraType = "IRI_RN_ZephyrStrike_Camera_Target";
+
+	//PerkStart, Wait to start until the soldier tells us to
+	class'X2Action_AbilityPerkStart'.static.AddToVisualizationTree(SourceMetadata, Context, false, BeginAnimAction);
+
+	//Handle each multi-target	
+	for (MultiTargetIndex = 0; MultiTargetIndex < Context.InputContext.MultiTargets.Length; ++MultiTargetIndex)
+	{
+		MultiTargetUnit = XComGameState_Unit(VisualizeGameState.GetGameStateForObjectID(Context.InputContext.MultiTargets[MultiTargetIndex].ObjectID));
+		if (MultiTargetUnit == None)
+			continue;
+
+		MultiTargetResult = Context.ResultContext.MultiTargetEffectResults[MultiTargetIndex];
+
+		//Hellion cant attack itself
+		if (MultiTargetUnit.ObjectID == InteractingUnitRef.ObjectID)
+			continue;
+
+		//Don't visit targets which got no effect
+		TargetGotAnyEffects = false;
+		foreach MultiTargetResult.ApplyResults(ResultName)
+		{
+			if (ResultName == 'AA_Success')
+			{
+				TargetGotAnyEffects = true;
+				break;
+			}
+		}
+		if (!TargetGotAnyEffects)
+			continue;
+
+		//bFinisherAnimation = (MultiTargetIndex == Context.InputContext.MultiTargets.Length - 1);
+		//bAlternateAnimation = ((MultiTargetIndex % 2) != 0);
+
+		// Target Information
+		TargetVisualizer = History.GetVisualizer(MultiTargetUnit.ObjectID);
+		TargetMetadata = EmptyMetadata;
+		TargetMetadata.StateObject_OldState = History.GetGameStateForObjectID(MultiTargetUnit.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
+		TargetMetadata.StateObject_NewState = MultiTargetUnit;
+		TargetMetadata.VisualizeActor = TargetVisualizer;
+
+		//Find BestTile to stand on for punch
+		TargetTile = MultiTargetUnit.TileLocation;		
+		class'Helpers'.static.FindAvailableNeighborTile(TargetTile, BestTile);
+		class'Helpers'.static.FindTilesForMeleeAttack(MultiTargetUnit, MeleeTiles);
+		if (MeleeTiles.Length > 0)
+		{
+			BestTile = MeleeTiles[0];
+		}
+
+		//Teleport to and face target
+		UnitVisibilityAction = X2Action_ForceUnitVisiblity_CS(class'X2Action_ForceUnitVisiblity_CS'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		UnitVisibilityAction.bMatchToCustomTile = true;
+		UnitVisibilityAction.bMatchFacingToCustom = true;
+		UnitVisibilityAction.CustomTileLocation = BestTile;
+		UnitVisibilityAction.CustomTileFacingTile = TargetTile;
+		UnitVisibilityAction.TargetActor = TargetMetadata.VisualizeActor;
+
+		// Add an action to pop the previous CinescriptCamera off the camera stack.
+		//CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		//CinescriptEndAction.CinescriptCamera = CinescriptCamera;
+		//CinescriptEndAction.bForceEndImmediately = true;
+
+		// Add an action to push a new CinescriptCamera onto the camera stack.
+		CinescriptCamera = class'X2Camera_Cinescript'.static.CreateCinescriptCameraForAbility(Context);
+		CinescriptCamera.TargetObjectIdOverride = MultiTargetUnit.ObjectID;
+		CinescriptStartAction = X2Action_StartCinescriptCamera(class'X2Action_StartCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		CinescriptStartAction.CinescriptCamera = CinescriptCamera;
+
+		// Add a custom Fire action to the shooter Metadata.		
+		FireFaceoffAction = X2Action_Fire_Faceoff_CS(class'X2Action_Fire_Faceoff_CS'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		FireFaceoffAction.SetFireParameters(Context.IsResultContextMultiHit(MultiTargetIndex), MultiTargetUnit.ObjectID, false);
+		FireFaceoffAction.vTargetLocation = TargetVisualizer.Location;
+		FireFaceoffAction.FireAnimBlendTime = 0.0f;
+		FireFaceoffAction.bEnableRMATranslation = false;
+		FireFaceoffAction.AnimationOverride = 'FF_ReaperTakedownCivShort'; //TakedownCiv_GetAnimationOverride(AnimationOverrides);
+		
+		//Target Effects
+		for (EffectIndex = 0; EffectIndex < AbilityTemplate.AbilityMultiTargetEffects.Length; ++EffectIndex)
+		{
+			TargetEffect = AbilityTemplate.AbilityMultiTargetEffects[EffectIndex];
+			ApplyResult = Context.FindMultiTargetEffectApplyResult(TargetEffect, MultiTargetIndex);
+
+			// Target effect visualization
+			AbilityTemplate.AbilityMultiTargetEffects[EffectIndex].AddX2ActionsForVisualization(VisualizeGameState, TargetMetadata, ApplyResult);
+
+			// Source effect visualization
+			AbilityTemplate.AbilityMultiTargetEffects[EffectIndex].AddX2ActionsForVisualizationSource(VisualizeGameState, SourceMetadata, ApplyResult);
+		}
+
+		TargetVisualizerInterface = X2VisualizerInterface(TargetVisualizer);
+		if (TargetVisualizerInterface != none)
+		{
+			//Allow the visualizer to do any custom processing based on the new game state. For example, units will create a death action when they reach 0 HP.
+			TargetVisualizerInterface.BuildAbilityEffectsVisualization(VisualizeGameState, TargetMetadata);
+		}
+
+		ApplyWeaponDamageAction = X2Action_ApplyDamageSpacer(VisualizationMgr.GetNodeOfType(VisualizationMgr.BuildVisTree, class'X2Action_ApplyDamageSpacer', TargetVisualizer));
+		if (ApplyWeaponDamageAction != None)
+		{
+			VisualizationMgr.DisconnectAction(ApplyWeaponDamageAction);
+			VisualizationMgr.ConnectAction(ApplyWeaponDamageAction, VisualizationMgr.BuildVisTree, false, FireFaceoffAction);
+		}
+
+		// Add an action to pop the last CinescriptCamera off the camera stack.
+		CinescriptEndAction = X2Action_EndCinescriptCamera(class'X2Action_EndCinescriptCamera'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+		CinescriptEndAction.CinescriptCamera = CinescriptCamera;
+	}
+	
+	//Teleport to our Starting Location
+	UnitVisibilityAction = X2Action_ForceUnitVisiblity_CS(class'X2Action_ForceUnitVisiblity_CS'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	UnitVisibilityAction.bMatchToCustomTile = true;
+	UnitVisibilityAction.CustomTileLocation = HellionUnitNewState.TileLocation;
+	UnitVisibilityAction.bMatchFacingToCustom = true;
+	UnitVisibilityAction.CustomTileFacingTile = TargetTile; // Face the last target
+
+	//PlayAnimation, end of crowd control
+	SettleAnimAction = X2Action_PlayAnimation(class'X2Action_PlayAnimation'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	SettleAnimAction.Params.AnimName = 'FF_ReaperTakedownCivFinish';
+	//SettleAnimAction.Params.StartOffsetTime = 1.3f;
+	SettleAnimAction.Params.PlayRate = BeginAnimAction.GetNonCriticalAnimationSpeed();
+	SettleAnimAction.Params.BlendTime = 0.0f;
+	
+	// Perk End
+	class'X2Action_AbilityPerkEnd'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded);
+
+	//Enter Cover (but skip animation)
+	EnterCoverAction = X2Action_EnterCover(class'X2Action_EnterCover'.static.AddToVisualizationTree(SourceMetadata, Context, false, SourceMetadata.LastActionAdded));
+	EnterCoverAction.bSkipEnterCover = true;
+
+	// Join
+	VisualizationMgr.GetAllLeafNodes(VisualizationMgr.BuildVisTree, FoundActions);
+
+	if (VisualizationMgr.BuildVisTree.ChildActions.Length > 0)
+	{
+		JoinActions = X2Action_MarkerNamed(class'X2Action_MarkerNamed'.static.AddToVisualizationTree(SourceMetadata, Context, false, none, FoundActions));
+		JoinActions.SetName("Join");
+	}
+
+	AbilityTemplate.CinescriptCameraType = "";
+}
+
+static private function name TakedownCiv_GetAnimationOverride(out array<name> AnimationOverrides)
+{
+	local name OverrideAnimation;
+
+	if (AnimationOverrides.Length == 0)
+	{
+		//AnimationOverrides.AddItem('FF_ZephyrStrikeA'); // Same stab as B, but without a step-in.
+		AnimationOverrides.AddItem('FF_ReaperTakedownCiv');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeC');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeD');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeE');
+		AnimationOverrides.AddItem('FF_ZephyrStrikeF');
+		//AnimationOverrides.AddItem('FF_ZephyrStrikeG'); // Rising part of the Cross Strike doesn't look too good
+	}
+
+	OverrideAnimation = AnimationOverrides[Rand(AnimationOverrides.Length)];
+
+	AnimationOverrides.RemoveItem(OverrideAnimation);
+
+	return OverrideAnimation;
+}
+
+
 
 static private function X2AbilityTemplate IRI_SP_ConstantReadiness()
 {
