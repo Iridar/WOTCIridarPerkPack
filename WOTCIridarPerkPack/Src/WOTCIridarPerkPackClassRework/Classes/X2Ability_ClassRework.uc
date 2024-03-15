@@ -976,8 +976,6 @@ static private function X2AbilityTemplate IRI_RP_TakedownCiv()
 
 static private function AdditionalUnconsciousVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
 {
-	local bool bTriggeredByFireAction;
-
 	if( EffectApplyResult != 'AA_Success' )
 	{
 		return;
@@ -1027,7 +1025,7 @@ static private function TakedownCiv_BuildVisualization(XComGameState VisualizeGa
 	local X2Action_ApplyDamageSpacer		ApplyWeaponDamageAction;	
 	local X2Action_MarkerNamed				JoinActions;
 	local array<X2Action>					FoundActions;
-	local array<name>						AnimationOverrides;
+	local X2Action_AddRecentSpeech			RecentSpeech;
 
 	History = `XCOMHISTORY;
 	VisualizationMgr = `XCOMVISUALIZATIONMGR;
@@ -1124,6 +1122,11 @@ static private function TakedownCiv_BuildVisualization(XComGameState VisualizeGa
 		TargetMetadata.StateObject_OldState = History.GetGameStateForObjectID(MultiTargetUnit.ObjectID, eReturnType_Reference, VisualizeGameState.HistoryIndex - 1);
 		TargetMetadata.StateObject_NewState = MultiTargetUnit;
 		TargetMetadata.VisualizeActor = TargetVisualizer;
+
+		// Prevents the target from playing the death scream voice line.
+		// Doesn't seem to work for the very last target, but suppose that's alright.
+		RecentSpeech = X2Action_AddRecentSpeech(class'X2Action_AddRecentSpeech'.static.AddToVisualizationTree(TargetMetadata, Context, false, TargetMetadata.LastActionAdded));
+		RecentSpeech.RecentSpeech = 'DeathScream';
 
 		//Find BestTile to stand on for punch
 		TargetTile = MultiTargetUnit.TileLocation;		

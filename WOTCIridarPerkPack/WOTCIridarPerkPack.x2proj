@@ -237,6 +237,9 @@
     <Content Include="ReadMe_rus.txt">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_AddRecentSpeech.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_ApplyMITV.uc">
       <SubType>Content</SubType>
     </Content>
