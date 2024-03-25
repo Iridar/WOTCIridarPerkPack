@@ -4,9 +4,9 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 {
 	local XComGameState_Unit	SourceUnit;
 	//local XComGameState_Unit	TargetUnit;
-	local XComGameStateHistory	History;
-	local XComGameState_Effect	EffectState;
-	local StateObjectReference	EffectRef;
+	//local XComGameStateHistory	History;
+	//local XComGameState_Effect	EffectState;
+	//local StateObjectReference	EffectRef;
 	
 	SourceUnit = XComGameState_Unit(kSource);
 	if (SourceUnit == none)
@@ -18,19 +18,23 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 	}
 
 	// Check if the source unit is already applying this effect to any target
-	History = `XCOMHISTORY;
-
-	foreach SourceUnit.AppliedEffects(EffectRef)
+	if (SourceUnit.AppliedEffectNames.Find('IRI_TM_Concentration_Effect') != INDEX_NONE)
 	{
-		EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
-		if (EffectState == none || EffectState.bRemoved)
-			continue;
-
-		if (EffectState.GetX2Effect().EffectName == 'IRI_TM_Concentration_Effect')
-		{
-			return 'AA_DuplicateEffectIgnored';
-		}
+		return 'AA_DuplicateEffectIgnored';
 	}
+
+	//History = `XCOMHISTORY;
+	//foreach SourceUnit.AppliedEffects(EffectRef)
+	//{
+	//	EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
+	//	if (EffectState == none || EffectState.bRemoved)
+	//		continue;
+	//
+	//	if (EffectState.GetX2Effect().EffectName == 'IRI_TM_Concentration_Effect')
+	//	{
+	//		return 'AA_DuplicateEffectIgnored';
+	//	}
+	//}
 
 	//TargetUnit = XComGameState_Unit(kTarget);
 	//if (TargetUnit == none)

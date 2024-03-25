@@ -146,6 +146,8 @@ defaultproperties
 	EffectRemovedVisualizationFn = ConcentrationEffectRemovedVisualization
 	bRemoveWhenTargetDies = true
 	bRemoveWhenSourceDies = true
+
+	// This effect name is expected by the Class Rework mod. Don't change.
 	EffectName = "IRI_TM_Concentration_Effect"
 	DuplicateResponse = eDupe_Allow
 }

@@ -79,9 +79,11 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	
 	if (UnitState != none && TargetState != none)
 	{
+		//`LOG("Target State:" @ TargetState.GetFullName(),, 'IRITEST');
 		// ADDED BY IRIDAR: crit against psionics.
 		if (TargetState.IsPsionic())
 		{
+			//`LOG("Target is psionic, forcing crit",, 'IRITEST');
 			Result = eHit_Crit;
 		}
 		// END OF ADDED

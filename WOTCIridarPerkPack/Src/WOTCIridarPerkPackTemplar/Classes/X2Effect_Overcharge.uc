@@ -32,7 +32,7 @@ static private function EventListenerReturn AbilityActivated_Listener(Object Eve
 	if (AbilityContext == none || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
 		return ELR_NoInterrupt;
 
-	SupportedAbilities = `GetConfigArrayName("IRI_TM_Overcharge_SupportedAbilities");
+	SupportedAbilities = `GetConfigArrayName("IRI_TM_Overdraw_SupportedAbilities");
 	if (SupportedAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) == INDEX_NONE)
 		return ELR_NoInterrupt;
 		

@@ -93,9 +93,6 @@
     <Content Include="Config\Templar\XComGameData.ini">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Config\Templar\XComGameData_CharacterStats.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\Templar\XComGameData_SoldierSkills.ini">
       <SubType>Content</SubType>
     </Content>
@@ -160,6 +157,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\Templar\IRIAstralGraspSpiritDeathPerk.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ContentForCook\Templar\IRIInvert.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ContentForCook\Templar\IRIObelisk.upk">

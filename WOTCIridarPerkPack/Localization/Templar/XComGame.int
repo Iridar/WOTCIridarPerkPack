@@ -1,30 +1,30 @@
-[IRI_TM_SoulShot X2AbilityTemplate]
-LocFriendlyName="Soul Shot"
-LocLongDescription="A ranged version of Rend that can miss."
-LocHelpText="A ranged version of Rend that can miss."
-LocPromotionPopupText="<Bullet/> Soul Shot triggers Momentum, and generates Focus on kills, same as Rend."
-
 [IRI_TM_Rend X2AbilityTemplate]
 LocFriendlyName="Rend"
-LocLongDescription="A psionic melee attack that cannot miss. Triggers Momentum, and generates Focus on kills."
-LocHelpText="A psionic melee attack that cannot miss. Triggers Momentum, and generates Focus on kills."
+LocLongDescription="A psionic melee attack that cannot miss and triggers Momentum. Generates Focus on kills."
+LocHelpText="A psionic melee attack that cannot miss and triggers Momentum. Generates Focus on kills."
 LocPromotionPopupText="<Bullet/> Using Rend to kill enemies is the Templar's primary method for generating Focus.<br/><Bullet/> After casting Rend, the Templar will gain Momentum, allowing them one movement action. Use this to return to cover after attacking."
+
+[IRI_TM_Volt X2AbilityTemplate]
+LocFriendlyName="Volt"
+LocLongDescription="Ranged psionic attack that does not cost an action point to use and ignores armor. Deals critical damage to psionic units. Costs 1 Focus. Jumps to another nearby enemy when used at 2 Focus."
+LocHelpText="Ranged psionic attack. Does not cost action points and ignores armor. Deals critical damage to psionic units. Can hit a second enemy when used at 2 Focus."
+LocPromotionPopupText="<Bullet/> Volt has no cooldown and does not cost any Action Points, only Focus.<br/><Bullet/> Use Volt to soften up enemies before killing them with Rend to regain Focus."
 
 [IRI_TM_TemplarFocus X2AbilityTemplate]
 LocFriendlyName="Focus"
 LocLongDescription="Gain Focus during missions by killing enemies with Rend. Focus can be spent on powerful abilities. Most abilities that cost Focus do not cost action points."
 LocPromotionPopupText=""
 
-[IRI_TM_Volt X2AbilityTemplate]
-LocFriendlyName="Volt"
-LocLongDescription="Ranged psionic attack. Deals critical damage to psionic units. Costs 1 Focus. Jumps to another nearby enemy when used at 2 Focus."
-LocHelpText="Ranged psionic attack. Deals critical damage to psionic units. Costs 1 Focus. Jumps to another nearby enemy when used at 2 Focus."
-LocPromotionPopupText="<Bullet/> Volt has no cooldown and does not cost any Action Points, only Focus."
+[IRI_TM_Aftershock X2AbilityTemplate]
+LocFriendlyName="Aftershock"
+LocLongDescription="Targets struck by Volt will be easier to hit, increasing your squad's aim by +<Ability:RECOILAIMBONUS/> against the target."
+LocHelpText="Targets struck by Volt will be easier to hit."
+LocPromotionPopupText="<Bullet/> Aftershock will last for 2 turns.<br/><Bullet/> Aftershock will affect all of the units hit by Volt if it hits more than one enemy.<br/>"
 
 [IRI_TM_Amplify X2AbilityTemplate]
 LocFriendlyName="Amplify"
-LocLongDescription="Mark a single target with a Psionic lens, causing them to take an additional <Ability:AmplifyDamageMult/>% base damage from the next single-target attack. Does not end turn, can be used with the Momentum action point."
-LocHelpText="Mark a target, causing them to take additional damage from the next single-target attack. Does not end turn, can be used with the Momentum action point."
+LocLongDescription="Mark a target with a Psionic lens, causing them to take additional <Ability:AmplifyDamageMult/>% base damage from the next attack. Does not end turn, can be used with the Momentum action point."
+LocHelpText="Mark a target, causing them to take +<Ability:AmplifyDamageMult/>% base damage from the next attack. Does not end turn, can be used with the Momentum action point."
 LocHitMessage="Amplified"
 LocPromotionPopupText="<Bullet/> Amplify has no cooldown, so you can cast Amplify once, then use Rend, then use Amplify again with the Momentum action point."
 
@@ -34,26 +34,45 @@ LocLongDescription="Empowered version of Parry that reflects the next incoming s
 LocHelpText="Reflect the next attack made against you during the enemy turn back at the attacker, preventing all damage. Reflecting an attack costs 1 Focus."
 LocFlyoverText="Reflected!"
 LocPromotionPopupText="<Bullet/> Reflect will prevent damage from both melee and ranged attacks.<br/><Bullet/> Reflect will use the action granted by Momentum.<br/><Bullet/> Avoiding the damage of the enemy attack is guaranteed, but hitting the enemy with the reflected attack is not. The chance depends on the <Ability:ClassName/>'s Aim and ignores enemy cover Defense."
-
+	
 [IRI_TM_ReflectShot X2AbilityTemplate]
 LocFriendlyName="Reflect"
 LocLongDescription="Empowered version of Parry that reflects the next incoming shot back at the attacker. Reflecting an attack costs 1 Focus."
 LocHelpText="Reflect the next attack made against you during the enemy turn back at the attacker, preventing all damage. Reflecting an attack costs 1 Focus."
 
-[IRI_TM_Overcharge X2AbilityTemplate]
-LocFriendlyName="Overcharge"
+[IRI_TM_SoulShot X2AbilityTemplate]
+LocFriendlyName="Soul Shot"
+LocLongDescription="A ranged version of Rend that can miss."
+LocHelpText="A ranged version of Rend that can miss."
+LocPromotionPopupText="<Bullet/> Soul Shot triggers Momentum, and generates Focus on kills, same as Rend."
+
+[IRI_TM_Overdraw X2AbilityTemplate]
+LocFriendlyName="Overdraw"
 LocLongDescription="Rend and Soul Shot generate a point of Focus even when they don't kill the target."
 LocHelpText="Rend and Soul Shot generate a point of Focus even when they don't kill the target."
-LocFlyoverText="Overcharge"
-LocPromotionPopupText="<Bullet/> Killing an enemy with Rend and Soult Shot still generates only one point of Focus."
+LocFlyoverText="Overdraw"
+LocPromotionPopupText="<Bullet/> Killing an enemy with Rend and Soul Shot still generates only one point of Focus."
+
+[IRI_TM_Concentration X2AbilityTemplate]
+LocFriendlyName="Contemplation"
+LocLongDescription="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
+LocHelpText="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
+LocPromotionPopupText="<Bullet/> A new mark cannot be applied until the old one is removed.<br/><Bullet/> No additional Focus is generated if the <Ability:ClassName/> themselves kills a marked enemy." 
+LocFlyoverText="Contemplation"
+
+[IRI_TM_Invert X2AbilityTemplate]
+LocFriendlyName="Invert"
+LocLongDescription="Switch locations with another unit. Does not end turn. Can be used with the Momentum action point."
+LocHelpText="Switch locations with another unit. Does not end turn. Can be used with the Momentum action point."
+LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown."
+
+[IonicStorm X2AbilityTemplate]
+LocFriendlyName="Ionic Storm"
+LocLongDescription="Summon lightning to strike all nearby enemies with Volt. Affected area increases with Focus level. Costs all Focus, but generates Focus on kills."
+LocHelpText="Summon lightning to strike all nearby enemies with Volt. Affected area increases with Focus level. Costs all Focus, but generates Focus on kills."
+LocPromotionPopupText="<Bullet/> Ionic Storm deals critical damage to Psionic units, same as Volt.<br/><Bullet/> Ionic Storm has a <Ability:SelfCooldown/> turn cooldown.<br/>"
 
 
-
-[IRI_TM_Stunstrike X2AbilityTemplate]
-LocFriendlyName="Stun Strike"
-LocLongDescription="Strike an enemy with Psionic force, knocking them back in the direction of the attack. Costs 1 Focus."
-LocHelpText="Knock an enemy back in the direction of the attack. Costs 1 Focus."
-LocPromotionPopupText="<Bullet/> Stun Strike has a <Ability:STUNSTRIKEHITCHANCE/>% chance to hit, increased by <Ability:STUNSTRIKEFOCUSHITCHANCE/>% for each Focus level.<br/><Bullet/> Stun Strike has a <Ability:STUNSTRIKEDISORIENTCHANCE/>% chance to disorient the target for each Focus level.<br/><Bullet/> Stun Strike does not end the Templar's turn, but has a <Ability:SelfCooldown/> turn cooldown.<br/>" 
 
 
 [IRI_TM_AstralGrasp X2AbilityTemplate]
@@ -67,12 +86,7 @@ LocFriendlyName="Disembodied Spirit"
 LocLongDescription="Spirit Echo can take only psionic damage."
 LocHelpText="Spirit Echo can take and psionic damage."
 
-[IRI_TM_Concentration X2AbilityTemplate]
-LocFriendlyName="Concentration"
-LocLongDescription="Your psionic abilities that do not cost Focus mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
-LocHelpText="Your psionic abilities that do not cost Focus mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
-LocPromotionPopupText="<Bullet/> A new mark cannot be applied until the old one is removed.<br/><Bullet/> No additional Focus is generated if the <Ability:ClassName/> themselves kills a marked enemy." 
-LocFlyoverText="Concentration"
+
 
 [IRI_TM_SpectralStride X2AbilityTemplate]
 LocFriendlyName="Spectral Stride"
@@ -81,11 +95,7 @@ LocHelpText="Target ally gains the ability to walk through obstacles and jump to
 LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown.<br/>" 
 LocFlyoverText="Spectral Stride"
 
-[IRI_TM_Aftershock X2AbilityTemplate]
-LocFriendlyName="Aftershock"
-LocLongDescription="Targets struck by Volt will be easier to hit, increasing your squad's aim by +<Ability:RECOILAIMBONUS/> against the target."
-LocHelpText="Targets struck by Volt will be easier to hit."
-LocPromotionPopupText="<Bullet/> Aftershock will last for 2 turns.<br/><Bullet/> Aftershock will affect all of the units hit by Volt if it jumps multiple times.<br/>"
+
 
 [IRI_TM_Siphon X2AbilityTemplate]
 LocFriendlyName="Siphon"
