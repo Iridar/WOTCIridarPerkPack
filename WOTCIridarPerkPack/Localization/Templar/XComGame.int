@@ -66,13 +66,22 @@ LocLongDescription="Switch locations with another unit. Does not end turn. Can b
 LocHelpText="Switch locations with another unit. Does not end turn. Can be used with the Momentum action point."
 LocPromotionPopupText="<Bullet/> <Ability:SelfCooldown/> turn cooldown."
 
-[IonicStorm X2AbilityTemplate]
+[IRI_TM_Ghost X2AbilityTemplate]
+LocFriendlyName="Ghost"
+LocLongDescription="As a free action, spend <Ability:IRI_TM_Ghost_FocusCost/> Focus to summon a Ghost from the body of a fallen organic unit. The Ghost starts with <Ability:IRI_TM_Ghost_InitialActions/> action points and <Ability:IRI_TM_Ghost_InitialFocus/> Focus, can use all of the Templar's abilities, and it can phase through walls and jump to heights. It is immune to most environmental and mental effects, but has only 1 HP and it will expire at start of the next turn or if hit by an attack."
+LocHelpText="Summon a duplicate Templar from the body of an organic unit. Costs <Ability:IRI_TM_Ghost_FocusCost/> Focus. Free action."
+LocPromotionPopupText="<Bullet/> Ghosts can gain and spend Focus and have access to all of the Templar's abilities, but not items or equipment. They cannot hack or otherwise interact with objects.<br/><Bullet/> Ghosts start with <Ability:IRI_TM_Ghost_InitialFocus/> Focus and <Ability:IRI_TM_Ghost_InitialActions/> action points.<br/><Bullet/> Ghosts are immune to environmental and mental effects, but they will disappear if they are hit by an attack.<br/><Bullet/> Ghost must be cast on a corpse of an organic enemy, and cannot be cast on the same corpse twice.<br/><Bullet/> Ghost has a <Ability:SelfCooldown/> turn cooldown.<br/>"
+
+[IRI_TM_GhostKill X2AbilityTemplate]
+LocFriendlyName="Ghost Expired"
+LocFlyoverText="Ghost Expired"
+
+
+[IRI_TM_IonicStorm X2AbilityTemplate]
 LocFriendlyName="Ionic Storm"
-LocLongDescription="Summon lightning to strike all nearby enemies with Volt. Affected area increases with Focus level. Costs all Focus, but generates Focus on kills."
-LocHelpText="Summon lightning to strike all nearby enemies with Volt. Affected area increases with Focus level. Costs all Focus, but generates Focus on kills."
-LocPromotionPopupText="<Bullet/> Ionic Storm deals critical damage to Psionic units, same as Volt.<br/><Bullet/> Ionic Storm has a <Ability:SelfCooldown/> turn cooldown.<br/>"
-
-
+LocLongDescription="Summon lightning to strike all nearby enemies with Volt. When used at 2 Focus, affected area is increased and enemies are hit twice. Costs all Focus, but generates Focus on kills. Triggers Momentum."
+LocHelpText="Summon all nearby enemies with Volt. Costs all Focus, but generates Focus on kills. Triggers Momentum."
+LocPromotionPopupText="<Bullet/> Ionic Storm's radius increases at higher Focus levels.<br/><Bullet/> Ionic Storm ignores armor and deals critical damage to Psionic units, same as Volt.<br/><Bullet/> Use Ionic Storm to kill enemies and immediately refund the Focus cost.<br/><Bullet/> Ionic Storm has a <Ability:SelfCooldown/> turn cooldown.<br/>"
 
 
 [IRI_TM_AstralGrasp X2AbilityTemplate]

@@ -159,6 +159,9 @@
     <Content Include="ContentForCook\Templar\IRIAstralGraspSpiritDeathPerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\Templar\IRIGhost.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\Templar\IRIInvert.upk">
       <SubType>Content</SubType>
     </Content>
@@ -511,6 +514,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Concentration.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_IsGhostShooter.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_ObeliskVolt.uc">
       <SubType>Content</SubType>
     </Content>
@@ -535,6 +541,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_Amplify.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_TM_SpawnGhost.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Obelisk.uc">
       <SubType>Content</SubType>
     </Content>
@@ -542,6 +551,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Reflect.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_SetTemplarFocus.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Siphon.uc">

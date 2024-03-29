@@ -132,6 +132,9 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_TM_Obelisk_Duration":
 	case "IRI_TM_Obelisk_FocusCost":
 	case "IRI_TM_Obelisk_Volt_Distance_Tiles":
+	case "IRI_TM_Ghost_FocusCost":
+	case "IRI_TM_Ghost_InitialFocus":
+	case "IRI_TM_Ghost_InitialActions":
 		OutString = TMColor(`GetConfigInt(InString));
 		return true;
 
@@ -490,6 +493,9 @@ static event OnPostTemplatesCreated()
 	Ranger_TacticalAdvance_PatchAbilityCosts();
 	Reaper_PatchShadow();
 	CopyAbilityLocalization('IRI_TM_Aftershock', 'Reverberation');
+	CopyAbilityLocalization('IRI_TM_Ghost_FocusKillTracker', 'FocusKillTracker');
+	
+	
 	
 	//local X2SoldierClassTemplateManager	ClassMgr;
 	//local X2SoldierClassTemplate		ClassTemplate;
