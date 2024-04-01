@@ -15,6 +15,10 @@ LocFriendlyName="Focus"
 LocLongDescription="Gain Focus during missions by killing enemies with Rend. Focus can be spent on powerful abilities. Most abilities that cost Focus do not cost action points."
 LocPromotionPopupText=""
 
+
+
+
+
 [IRI_TM_Aftershock X2AbilityTemplate]
 LocFriendlyName="Aftershock"
 LocLongDescription="Targets struck by Volt will be easier to hit, increasing your squad's aim by +<Ability:RECOILAIMBONUS/> against the target."
@@ -53,12 +57,12 @@ LocHelpText="Rend and Soul Shot generate a point of Focus even when they don't k
 LocFlyoverText="Overdraw"
 LocPromotionPopupText="<Bullet/> Killing an enemy with Rend and Soul Shot still generates only one point of Focus."
 
-[IRI_TM_Concentration X2AbilityTemplate]
-LocFriendlyName="Contemplation"
+[IRI_TM_Seal X2AbilityTemplate]
+LocFriendlyName="Seal"
 LocLongDescription="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
 LocHelpText="Your abilities mark enemies. When an ally kills a marked enemy, you generate a point of Focus. Only one target can be marked at a time."
 LocPromotionPopupText="<Bullet/> A new mark cannot be applied until the old one is removed.<br/><Bullet/> No additional Focus is generated if the <Ability:ClassName/> themselves kills a marked enemy." 
-LocFlyoverText="Contemplation"
+LocFlyoverText="Seal"
 
 [IRI_TM_Invert X2AbilityTemplate]
 LocFriendlyName="Invert"

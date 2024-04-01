@@ -493,7 +493,7 @@ static event OnPostTemplatesCreated()
 	Ranger_TacticalAdvance_PatchAbilityCosts();
 	Reaper_PatchShadow();
 	CopyAbilityLocalization('IRI_TM_Aftershock', 'Reverberation');
-	CopyAbilityLocalization('IRI_TM_Ghost_FocusKillTracker', 'FocusKillTracker');
+	CopyAbilityLocalization('IRI_TM_FocusKillTracker', 'FocusKillTracker');
 	
 	
 	

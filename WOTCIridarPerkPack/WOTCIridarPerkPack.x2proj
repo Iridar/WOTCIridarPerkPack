@@ -511,7 +511,7 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Character_AstralGrasp.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Concentration.uc">
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_Seal.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_IsGhostShooter.uc">
@@ -535,7 +535,7 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_AstralGrasp_OverrideDeathAction.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Concentration.uc">
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Seal.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_Amplify.uc">

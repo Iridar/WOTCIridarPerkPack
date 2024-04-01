@@ -11,17 +11,18 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_Aftershock());
 	Templates.AddItem(IRI_TM_SoulShot());
 	Templates.AddItem(IRI_TM_TemplarFocus());
+	Templates.AddItem(IRI_TM_FocusKillTracker());
+	
 	Templates.AddItem(IRI_TM_Amplify());
 	Templates.AddItem(IRI_TM_Reflect());
 	Templates.AddItem(IRI_TM_ReflectShot());
 	Templates.AddItem(IRI_TM_Overdraw());
-	Templates.AddItem(PurePassive('IRI_TM_Concentration', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
+	Templates.AddItem(PurePassive('IRI_TM_Seal', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
 	Templates.AddItem(IRI_TM_Invert());
 	Templates.AddItem(IRI_TM_Ghost());
 	Templates.AddItem(IRI_TM_GhostInit());
 	Templates.AddItem(IRI_TM_GhostKill());
-	Templates.AddItem(IRI_TM_Ghost_FocusKillTracker());
-	
+
 	Templates.AddItem(IRI_TM_IonicStorm()); 
 	Templates.AddItem(IRI_TM_SpectralStride());
 	Templates.AddItem(IRI_TM_ArcWave());
@@ -373,42 +374,6 @@ static function X2AbilityTemplate IRI_TM_GhostInit()
 	return Template;
 }
 
-static function X2AbilityTemplate IRI_TM_Ghost_FocusKillTracker()
-{
-	local X2AbilityTemplate					Template;
-	local X2AbilityTrigger_EventListener	EventTrigger;
-	local X2Effect_ModifyTemplarFocus		FocusEffect;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Ghost_FocusKillTracker');
-
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_templarFocus";
-	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
-	Template.Hostility = eHostility_Neutral;
-	Template.bIsPassive = true;
-
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SelfTarget;
-	
-	EventTrigger = new class'X2AbilityTrigger_EventListener';
-	EventTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
-	EventTrigger.ListenerData.EventID = 'KillMail';
-	EventTrigger.ListenerData.Filter = eFilter_Unit;
-	EventTrigger.ListenerData.EventFn = class'XComGameState_Ability'.static.FocusKillTracker_Listener;
-	Template.AbilityTriggers.AddItem(EventTrigger);
-
-	FocusEffect = new class'X2Effect_ModifyTemplarFocus';
-	FocusEffect.TargetConditions.AddItem(new class'X2Condition_IsGhostShooter');
-	Template.AddTargetEffect(FocusEffect);
-
-	Template.bSkipFireAction = true;
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.MergeVisualizationFn = DesiredVisualizationBlock_MergeVisualization;
-
-	return Template;
-}
-
 // Same as original, except we don't kill Ghost for running out of Focus.
 static function X2AbilityTemplate IRI_TM_GhostKill()
 {
@@ -509,7 +474,7 @@ static private function X2AbilityTemplate IRI_TM_Rend(optional name TemplateName
 	WeaponDamageEffect.DamageTypes.AddItem('Melee');
 	Template.AddTargetEffect(WeaponDamageEffect);
 
-	Template.AddTargetEffect(CreateConcentrationEffect());
+	Template.AddTargetEffect(CreateSealEffect());
 
 	return Template;
 }
@@ -525,7 +490,7 @@ static function X2AbilityTemplate IRI_TM_ArcWave()
 	Template = IRI_TM_Rend('IRI_TM_ArcWave');
 
 	// Icon Setup
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailableOrNoTargets;
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Arcwave";
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	//Template.OverrideAbilities.AddItem('IRI_TM_Rend');
@@ -552,7 +517,7 @@ static function X2AbilityTemplate IRI_TM_ArcWave()
 	Template.AbilityMultiTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
 
 	// State and Viz
-	// TODO: Apply arc wave fixes from MrNice's mod
+	// TODO: Apply arc wave fixes from MrNice's mod Ability Interaction Fixes
 	Template.bSkipMoveStop = false;
 	Template.bFrameEvenWhenUnitIsHidden = true;
 	Template.CustomFireAnim = 'FF_ArcWave_MeleeA';
@@ -729,8 +694,8 @@ static function array<X2Effect> CreateVoltEffects()
 
 	ReturnArray.AddItem(HitModEffect);
 
-	// Effect - Concentration
-	ReturnArray.AddItem(CreateConcentrationEffect());
+	// Effect - Seal
+	ReturnArray.AddItem(CreateSealEffect());
 
 	return ReturnArray;
 }
@@ -815,7 +780,7 @@ static private function X2AbilityTemplate IRI_TM_Amplify()
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
-	Template.AddTargetEffect(CreateConcentrationEffect());
+	Template.AddTargetEffect(CreateSealEffect());
 
 	return Template;
 }
@@ -956,7 +921,7 @@ static private function X2AbilityTemplate IRI_TM_ReflectShot()
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
-	Template.AddTargetEffect(CreateConcentrationEffect());
+	Template.AddTargetEffect(CreateSealEffect());
 
 	return Template;
 }
@@ -1035,7 +1000,7 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 	// Trigger Momentum
 	Template.PostActivationEvents.AddItem('RendActivated');
 
-	Template.AddTargetEffect(CreateConcentrationEffect());
+	Template.AddTargetEffect(CreateSealEffect());
 	
 	//AddSiphonEffects(Template);
 
@@ -1654,26 +1619,37 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	return Template;
 }
 
-static private function X2Effect CreateConcentrationEffect()
+static private function X2Effect CreateSealEffect()
 {
-	local X2Effect_Concentration ConcentrationEffect;
+	local X2Effect_Seal									SealEffect;
+	local X2Condition_AbilityProperty					AbilityCondition;
+	//local X2Condition_UnitEffectsWithAbilitySource	EffectCondition;
 
-	ConcentrationEffect = new class'X2Effect_Concentration';
-	ConcentrationEffect.BuildPersistentEffect(1, true);
+	SealEffect = new class'X2Effect_Seal';
+	SealEffect.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd); // Lasts until "any player's" turn end.
+
+	// Balancing: one enemy can be marked only by one Templar at a time.
+	SealEffect.DuplicateResponse = eDupe_Ignore;
+
 	// TODO: Icon
-	ConcentrationEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Concentration_EffectTitle"), `GetLocalizedString("IRI_TM_Concentration_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_WitchHunt", true,, 'eAbilitySource_Psionic');
+	SealEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Seal_EffectTitle"), `GetLocalizedString("IRI_TM_Seal_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_WitchHunt", true,, 'eAbilitySource_Psionic');
 
-	ConcentrationEffect.TargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+	// Can't apply the effect if we're missing the Seal ability
+	AbilityCondition = new class'X2Condition_AbilityProperty';
+	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_TM_Seal');
+	SealEffect.TargetConditions.AddItem(AbilityCondition);
 
-	// Can't apply the effect if we're already applying it to any unit
-	// Can't apply the effect if we're missing the Concentration ability
-	ConcentrationEffect.TargetConditions.AddItem(new class'X2Condition_Concentration');
+	SealEffect.TargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
 
-	ConcentrationEffect.VFXTemplateName = "IRIVolt.PS_Concentration_Persistent";
-	ConcentrationEffect.VFXSocket = 'FX_Chest'; // FX_Head
-	ConcentrationEffect.VFXSocketsArrayName = 'BoneSocketActor';
+	//EffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	//EffectCondition.AddExcludeEffect(class'X2Effect_Seal'.default.EffectName, 'AA_DuplicateEffectIgnored');
+	//SealEffect.TargetConditions.AddItem(EffectCondition);
 
-	return ConcentrationEffect;
+	SealEffect.VFXTemplateName = "IRIVolt.PS_Concentration_Persistent";
+	SealEffect.VFXSocket = 'FX_Chest'; // FX_Head
+	SealEffect.VFXSocketsArrayName = 'BoneSocketActor';
+
+	return SealEffect;
 }
 
 static private function X2AbilityTemplate IRI_TM_Overdraw()
@@ -1823,7 +1799,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
-	Template.AddTargetEffect(CreateConcentrationEffect());
+	Template.AddTargetEffect(CreateSealEffect());
 
 	return Template;
 }
@@ -2141,7 +2117,7 @@ static private function X2AbilityTemplate IRI_TM_TemplarFocus()
 
 	Template.AddTargetEffect(FocusEffect);
 
-	Template.AdditionalAbilities.AddItem('FocusKillTracker');
+	Template.AdditionalAbilities.AddItem('IRI_TM_FocusKillTracker');
 
 	Template.bIsPassive = true;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
@@ -2151,9 +2127,89 @@ static private function X2AbilityTemplate IRI_TM_TemplarFocus()
 	return Template;
 }
 
+// Similar to original, but is allowed to trigger for Ghost and does not give Focus for multi-target kills.
+static function X2AbilityTemplate IRI_TM_FocusKillTracker()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityTrigger_EventListener	EventTrigger;
 
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_FocusKillTracker');
 
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_templarFocus";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	Template.Hostility = eHostility_Neutral;
+	Template.bIsPassive = true;
 
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	
+	EventTrigger = new class'X2AbilityTrigger_EventListener';
+	EventTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	EventTrigger.ListenerData.EventID = 'KillMail';
+	EventTrigger.ListenerData.Filter = eFilter_Unit;
+	EventTrigger.ListenerData.EventFn = class'XComGameState_Ability'.static.FocusKillTracker_Listener;
+	Template.AbilityTriggers.AddItem(EventTrigger);
+
+	Template.AddTargetEffect(new class'X2Effect_ModifyTemplarFocus');
+
+	Template.bSkipFireAction = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.MergeVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.DesiredVisualizationBlock_MergeVisualization;
+
+	return Template;
+}
+
+static private function EventListenerReturn FocusKillTracker_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameStateContext			FindContext;
+	local int							VisualizeIndex;
+	local XComGameStateHistory			History;
+	local XComGameState_Ability			AbilityState;
+	local XComGameState_Unit			KilledUnit;
+	local array<name>					AllowedMultiTargetKillAbilities;
+
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+	if (AbilityContext == None || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+		return ELR_NoInterrupt;
+	
+	if (class'X2Ability_TemplarAbilitySet'.default.FocusKillAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) == INDEX_NONE)
+		return ELR_NoInterrupt;
+
+	KilledUnit = XComGameState_Unit(EventData);
+	if (KilledUnit == none)
+		return ELR_NoInterrupt;
+
+	// Only primary target kills are allowed
+	if (AbilityContext.InputContext.PrimaryTarget.ObjectID != KilledUnit.ObjectID)
+	{
+		// Except for some specific abilities like Ionic Storm.
+		AllowedMultiTargetKillAbilities = `GetConfigArrayName("IRI_TM_FocusKillTracker_AllowedMultiTargetKillAbilities");
+		if (AllowedMultiTargetKillAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) == INDEX_NONE)
+		{
+			return ELR_NoInterrupt;
+		}
+	}
+
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+	
+	History = `XCOMHISTORY;
+	VisualizeIndex = GameState.HistoryIndex;
+	FindContext = AbilityContext;
+	while (FindContext.InterruptionHistoryIndex > -1)
+	{
+		FindContext = History.GetGameStateFromHistory(FindContext.InterruptionHistoryIndex).GetContext();
+		VisualizeIndex = FindContext.AssociatedState.HistoryIndex;
+	}
+	
+	AbilityState.AbilityTriggerAgainstSingleTarget(AbilityState.OwnerStateObject, false, VisualizeIndex);
+	
+	return ELR_NoInterrupt;
+}
 
 
 
