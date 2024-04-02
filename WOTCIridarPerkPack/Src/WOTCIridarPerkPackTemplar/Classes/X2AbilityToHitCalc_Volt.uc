@@ -1,6 +1,5 @@
 class X2AbilityToHitCalc_Volt extends X2AbilityToHitCalc_StandardAim;
 
-
 function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarget kTarget, bool bIsPrimaryTarget, const out AbilityResultContext ResultContext, out EAbilityHitResult Result, out ArmorMitigationResults ArmorMitigated, out int HitChance)
 {
 	local int i, RandRoll, Current, ModifiedHitChance;
@@ -16,6 +15,20 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 	local string LogMsg;
 	local ETeam CurrentPlayerTeam;
 	local ShotBreakdown m_ShotBreakdown;
+
+	// Don't modify primary target hit calculation for ArcWave'd Rend and Soul Shot.
+	if (bIsPrimaryTarget)
+	{
+		switch (kAbility.GetMyTemplateName())
+		{
+		case 'IRI_TM_ArcWave':
+		case 'IRI_TM_SoulShot_ArcWave':
+			super.InternalRollForAbilityHit(kAbility, kTarget, bIsPrimaryTarget, ResultContext, Result, ArmorMitigated, HitChance);
+			return;
+		default:
+			break;
+		}
+	}
 
 	History = `XCOMHISTORY;
 
@@ -51,7 +64,8 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 		}
 	}
 
-	HitChance = GetHitChance(kAbility, kTarget, m_ShotBreakdown, true);
+	HitChance = GetHitChance_Volt(kAbility, kTarget, m_ShotBreakdown, true); // Iridar - use a custom GetHitChance function.
+
 	RandRoll = `SYNC_RAND_TYPED(100, ESyncRandType_Generic);
 	Result = eHit_Miss;
 
@@ -76,18 +90,17 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 
 	UnitState = XComGameState_Unit(History.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
 	TargetState = XComGameState_Unit(History.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
+
+	// Iridar - force crits against psionic units
+	if (TargetState != none && TargetState.IsPsionic())
+	{
+		Result = eHit_Crit;
+		return;
+	}
+	// Iridar - end
 	
 	if (UnitState != none && TargetState != none)
 	{
-		//`LOG("Target State:" @ TargetState.GetFullName(),, 'IRITEST');
-		// ADDED BY IRIDAR: crit against psionics.
-		if (TargetState.IsPsionic())
-		{
-			//`LOG("Target is psionic, forcing crit",, 'IRITEST');
-			Result = eHit_Crit;
-		}
-		// END OF ADDED
-
 		foreach UnitState.AffectedByEffects(EffectRef)
 		{
 			EffectState = XComGameState_Effect(History.GetGameStateForObjectID(EffectRef.ObjectID));
@@ -177,9 +190,66 @@ function InternalRollForAbilityHit(XComGameState_Ability kAbility, AvailableTarg
 }
 
 
+protected function int GetHitChance(XComGameState_Ability kAbility, AvailableTarget kTarget, optional out ShotBreakdown m_ShotBreakdown, optional bool bDebugLog = false)
+{
+	local XComGameState_Unit TargetState;
+	local ShotBreakdown EmptyShotBreakdown;
+
+	// Pretend to not make changes for these two abilities.
+	// This function will be called for these two abilities only for primary targets.
+	switch (kAbility.GetMyTemplateName())
+	{
+	case 'IRI_TM_ArcWave':
+	case 'IRI_TM_SoulShot_ArcWave':
+		return super.GetHitChance(kAbility, kTarget, m_ShotBreakdown, bDebugLog);
+	default:
+		break;
+	}
+
+	//  reset shot breakdown
+	m_ShotBreakdown = EmptyShotBreakdown;
+
+	// We're guaranteed hit.
+	super(X2AbilityToHitCalc).AddModifier(100, kAbility.GetMyTemplate().LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+
+	TargetState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
+	if (TargetState != none && TargetState.IsPsionic())
+	{
+		// And guaranteed crit against psionics.
+		super(X2AbilityToHitCalc).AddModifier(100, kAbility.GetMyTemplate().LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+	}
+
+	FinalizeHitChance(m_ShotBreakdown, bDebugLog);
+
+	return m_ShotBreakdown.FinalHitChance;
+}
+
+// Used for everything that is NOT primary target of Arc Wave'd Rend and Soul Shot.
+private function int GetHitChance_Volt(XComGameState_Ability kAbility, AvailableTarget kTarget, optional out ShotBreakdown m_ShotBreakdown, optional bool bDebugLog = false)
+{
+	local XComGameState_Unit TargetState;
+	local ShotBreakdown EmptyShotBreakdown;
+
+	//  reset shot breakdown
+	m_ShotBreakdown = EmptyShotBreakdown;
+
+	// We're guaranteed hit.
+	super(X2AbilityToHitCalc).AddModifier(100, kAbility.GetMyTemplate().LocFriendlyName, m_ShotBreakdown, eHit_Success, bDebugLog);
+
+	TargetState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(kTarget.PrimaryTarget.ObjectID));
+	if (TargetState != none && TargetState.IsPsionic())
+	{
+		// And guaranteed crit against psionics.
+		super(X2AbilityToHitCalc).AddModifier(100, kAbility.GetMyTemplate().LocFriendlyName, m_ShotBreakdown, eHit_Crit, bDebugLog);
+	}
+
+	FinalizeHitChance(m_ShotBreakdown, bDebugLog);
+
+	return m_ShotBreakdown.FinalHitChance;
+}
+
 defaultproperties
 {
 	bGuaranteedHit = true
-	// Hacky, but allows to achieve the desired behavior, in that it should be critting only against psionics
-	bAllowCrit = false 
+	bAllowCrit = false
 }

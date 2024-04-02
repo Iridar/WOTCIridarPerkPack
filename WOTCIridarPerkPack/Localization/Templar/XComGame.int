@@ -81,6 +81,28 @@ LocFriendlyName="Ghost Expired"
 LocFlyoverText="Ghost Expired"
 
 
+[IRI_TM_ArcWave_Trigger X2AbilityTemplate]
+LocFriendlyName="Surge"
+LocLongDescription="Spending Focus charges your shard gauntlets, causing your next Rend or Soul Shot to generate a psionic wave that will hit other enemies near the target with Volt."
+LocHelpText="Spending Focus causes your next Rend or Soul Shot to hit other enemies near the target with Volt."
+LocPromotionPopupText="<Bullet/><br/> The Surge wave has all the same properties as Volt. For example, it will apply Aftershock and deal critical damage to psionic enemies.<Bullet/> Killing an enemy with Surge does not generate Focus."
+
+[IRI_TM_ArcWave_Passive X2AbilityTemplate]
+LocFriendlyName="Surge"
+LocLongDescription="Spending Focus charges your shard gauntlets, causing your next Rend or Soul Shot to generate a psionic wave that will hit other enemies near the target with Volt."
+LocHelpText="Spending Focus causes your next Rend or Soul Shot to hit other enemies near the target with Volt."
+
+[IRI_TM_ArcWave X2AbilityTemplate]
+LocFriendlyName="Rend Asunder"
+LocLongDescription="A Surge-powered psionic melee attack that cannot miss, triggers Momentum and generates a psionic wave that will hit other enemies near the target with Volt. Generates Focus if it kills the primary target."
+LocHelpText="A psionic melee attack that cannot miss, triggers Momentum and hits other nearby enemies with Volt. Generates Focus if the primary target is killed."
+
+[IRI_TM_SoulShot_ArcWave X2AbilityTemplate]
+LocFriendlyName="Soul Blast"
+LocLongDescription="A Surge-powered ranged psionic attack. Triggers Momentum and generates a psionic wave that will hit other enemies near the target with Volt. Generates Focus if it kills the primary target."
+LocHelpText="A ranged psionic attack. Triggers Momentum and hits other nearby enemies with Volt. Generates Focus if the primary target is killed."
+
+
 [IRI_TM_IonicStorm X2AbilityTemplate]
 LocFriendlyName="Ionic Storm"
 LocLongDescription="Summon lightning to strike all nearby enemies with Volt. When used at 2 Focus, affected area is increased and enemies are hit twice. Costs all Focus, but generates Focus on kills. Triggers Momentum."

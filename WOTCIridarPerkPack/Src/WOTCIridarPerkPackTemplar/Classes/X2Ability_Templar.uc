@@ -2,6 +2,10 @@ class X2Ability_Templar extends X2Ability;
 
 var private localized string strSiphonEffectDesc;
 
+/*
+TODO: Check tree positions.
+*/
+
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
@@ -26,6 +30,10 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_IonicStorm()); 
 	Templates.AddItem(IRI_TM_SpectralStride());
 	Templates.AddItem(IRI_TM_ArcWave());
+	Templates.AddItem(IRI_TM_SoulShot_ArcWave());
+
+	Templates.AddItem(PurePassive('IRI_TM_ArcWave_Passive', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
+	Templates.AddItem(IRI_TM_ArcWave_Trigger());
 
 	// Unused stuff.
 	//Templates.AddItem(IRI_TM_Stunstrike());
@@ -451,9 +459,6 @@ static private function X2AbilityTemplate IRI_TM_Rend(optional name TemplateName
 
 	Template = class'X2Ability_TemplarAbilitySet'.static.Rend(TemplateName);
 
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideIfOtherAvailable;
-	Template.HideIfAvailable.AddItem('IRI_TM_ArcWave');
-
 	//StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
 	//StandardMelee.bGuaranteedHit = true;
 	//StandardMelee.bAllowCrit = false;
@@ -476,7 +481,21 @@ static private function X2AbilityTemplate IRI_TM_Rend(optional name TemplateName
 
 	Template.AddTargetEffect(CreateSealEffect());
 
+	Template.OverrideAbilityAvailabilityFn = Rend_OverrideAbilityAvailability;
+
 	return Template;
+}
+
+// Hide Rend if Arc Wave is primed.
+static private function Rend_OverrideAbilityAvailability(out AvailableAction Action, XComGameState_Ability AbilityState, XComGameState_Unit OwnerState)
+{
+	if (!OwnerState.HasSoldierAbility('IRI_TM_ArcWave'))
+		return;
+
+	if (!OwnerState.IsUnitAffectedByEffectName('IRI_TM_Surge_Effect'))
+		return;
+	
+	Action.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
 }
 
 static function X2AbilityTemplate IRI_TM_ArcWave()
@@ -486,16 +505,22 @@ static function X2AbilityTemplate IRI_TM_ArcWave()
 	local array<X2Effect>					VoltEffects;
 	local X2Effect							VoltEffect;
 	local X2Condition_UnitEffects			EffectCondition;
+	local X2AbilityToHitCalc_Volt			StandardMelee;
+	local X2Effect_RemoveEffects			RemoveEffect;
 
 	Template = IRI_TM_Rend('IRI_TM_ArcWave');
 
 	// Icon Setup
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailableOrNoTargets;
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Arcwave";
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	//Template.OverrideAbilities.AddItem('IRI_TM_Rend');
 
 	// Targeting and Triggering
+
+	// Use custom hit calc that forces crits against psionic multi-targets
+	StandardMelee = new class'X2AbilityToHitCalc_Volt';
+	StandardMelee.bMeleeAttack = true; // Side effect: gives bonus damage against sectoids when they're hit by the wave indirectly.
+	Template.AbilityToHitCalc = StandardMelee;
+
 	Template.TargetingMethod = class'X2TargetingMethod_ArcWave';
 	Template.ActionFireClass = class'X2Action_Fire_Wave';
 
@@ -511,7 +536,6 @@ static function X2AbilityTemplate IRI_TM_ArcWave()
 	EffectCondition = new class'X2Condition_UnitEffects';
 	EffectCondition.AddRequireEffect('IRI_TM_Surge_Effect', 'AA_MissingRequiredEffect');
 	Template.AbilityShooterConditions.AddItem(EffectCondition);
-	
 
 	// Multi Target Conditions
 	Template.AbilityMultiTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
@@ -538,19 +562,167 @@ static function X2AbilityTemplate IRI_TM_ArcWave()
 	{
 		Template.AddMultiTargetEffect(VoltEffect);
 	}
+	RemoveEffect = new class'X2Effect_RemoveEffects';
+	RemoveEffect.EffectNamesToRemove.AddItem('IRI_TM_Surge_Effect');
+	Template.AddShooterEffect(RemoveEffect);
+
+	Template.OverrideAbilityAvailabilityFn = ArcWave_OverrideAbilityAvailability;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	
+	return Template;
+}
+// Show Arc Wave if Arc Wave is primed.
+static private function ArcWave_OverrideAbilityAvailability(out AvailableAction Action, XComGameState_Ability AbilityState, XComGameState_Unit OwnerState)
+{
+	if (!OwnerState.IsUnitAffectedByEffectName('IRI_TM_Surge_Effect'))
+		return;
+	
+	Action.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+}
+
+static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityMultiTarget_Radius		RadiusMultiTarget;
+	local array<X2Effect>					VoltEffects;
+	local X2Effect							VoltEffect;
+	local X2Condition_UnitEffects			EffectCondition;
+	local X2AbilityToHitCalc_Volt			StandardAim;
+	local X2Effect_RemoveEffects			RemoveEffect;
+
+	Template = IRI_TM_SoulShot('IRI_TM_SoulShot_ArcWave');
+
+	// TODO: Icon?
+
+	// Icon Setup
+	
+	// Targeting and Triggering
+
+	// Use custom hit calc that forces crits against psionic multi-targets
+	StandardAim = new class'X2AbilityToHitCalc_Volt';
+	StandardAim.bAllowCrit = true;
+	StandardAim.BuiltInHitMod = `GetConfigInt('IRI_TM_SoulShot_ToHitBonus');
+	Template.AbilityToHitCalc = StandardAim;
+
+	// TODO: These?
+	//Template.TargetingMethod = class'X2TargetingMethod_ArcWave';
+	//Template.ActionFireClass = class'X2Action_Fire_Wave';
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.fTargetRadius = `GetConfigFloat("IRI_TM_ArcWave_SoulShot_RadiusMeters");
+	RadiusMultiTarget.bExcludeSelfAsTargetIfWithinRadius = true;
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	// Shooter Condition
+	EffectCondition = new class'X2Condition_UnitEffects';
+	EffectCondition.AddRequireEffect('IRI_TM_Surge_Effect', 'AA_MissingRequiredEffect');
+	Template.AbilityShooterConditions.AddItem(EffectCondition);
+
+	// Multi Target Effects
+	VoltEffects = CreateVoltEffects();
+	foreach VoltEffects(VoltEffect)
+	{
+		Template.AddMultiTargetEffect(VoltEffect);
+	}
+
+	RemoveEffect = new class'X2Effect_RemoveEffects';
+	RemoveEffect.EffectNamesToRemove.AddItem('IRI_TM_Surge_Effect');
+	Template.AddShooterEffect(RemoveEffect);
+
+	Template.OverrideAbilityAvailabilityFn = ArcWave_OverrideAbilityAvailability;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
 	
 	return Template;
 }
 
+
+static function X2AbilityTemplate IRI_TM_ArcWave_Trigger()
+{
+	local X2AbilityTemplate					Template;
+	local X2Effect_Persistent				SurgeEffect;
+	local X2AbilityTrigger_EventListener	EventListener;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_ArcWave_Trigger');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Arcwave";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	SetHidden(Template);
+
+	// Targeting and Triggering
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityToHitCalc = default.DeadEye;
+
+	EventListener = new class'X2AbilityTrigger_EventListener';
+	EventListener.ListenerData.EventID = 'AbilityActivated';
+	EventListener.ListenerData.Filter = eFilter_Unit;
+	EventListener.ListenerData.Deferral = ELD_OnStateSubmitted;
+	EventListener.ListenerData.EventFn = ArcWave_Trigger_Listener;
+	Template.AbilityTriggers.AddItem(EventListener);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// TOOD: And add some VFX 
+	SurgeEffect = new class'X2Effect_Persistent';
+	SurgeEffect.BuildPersistentEffect(1, true);
+	SurgeEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,, Template.AbilitySourceName);
+	SurgeEffect.EffectName = 'IRI_TM_Surge_Effect';
+	Template.AddShooterEffect(SurgeEffect);
+
+	// State and Viz
+	Template.bSkipFireAction = true;
+	Template.bShowActivation = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	Template.AdditionalAbilities.AddItem('IRI_TM_ArcWave');
+	Template.AdditionalAbilities.AddItem('IRI_TM_SoulShot_ArcWave');
+	Template.AdditionalAbilities.AddItem('IRI_TM_ArcWave_Passive');
+	
+	return Template;
+}
+
+static private function EventListenerReturn ArcWave_Trigger_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameState_Unit				UnitState;
+	local XComGameState_Ability				AbilityState;
+	local XComGameState_Effect_TemplarFocus	FocusState;
+	local XComGameState_Effect_TemplarFocus	OldFocusState;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none)
+		return ELR_NoInterrupt;
+
+	FocusState = UnitState.GetTemplarFocusEffectState();
+	if (FocusState == none)
+		return ELR_NoInterrupt;
+
+	OldFocusState = XComGameState_Effect_TemplarFocus(`XCOMHISTORY.GetGameStateForObjectID(FocusState.ObjectID,, GameState.HistoryIndex - 1));
+	if (OldFocusState == none)
+		return ELR_NoInterrupt;
+
+	if (OldFocusState.FocusLevel > FocusState.FocusLevel)
+	{
+		AbilityState = XComGameState_Ability(CallbackData);
+		if (AbilityState != none)
+		{
+			AbilityState.AbilityTriggerAgainstSingleTarget(AbilityState.OwnerStateObject, false);
+		}
+	}
+	return ELR_NoInterrupt;
+}
+
+
+
 static private function X2AbilityTemplate IRI_TM_Volt()
 {
 	local X2AbilityTemplate				Template;
-	local X2Condition_UnitProperty		TargetCondition;
 	local X2AbilityCost_ActionPoints	ActionCost;
 	local array<X2Effect>				VoltEffects;
 	local X2Effect						VoltEffect;
-	local X2Effect_Persistent			SurgeEffect;
-	local X2Condition_AbilityProperty	AbilityCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Volt');
 
@@ -584,18 +756,8 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 	Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
 	//	NOTE: visibility is NOT required for multi targets as it is required between each target (handled by multi target class)
 
-	TargetCondition = new class'X2Condition_UnitProperty';
-	TargetCondition.ExcludeAlive = false;
-	TargetCondition.ExcludeDead = true;
-	TargetCondition.ExcludeFriendlyToSource = true;
-	TargetCondition.ExcludeHostileToSource = false;
-	TargetCondition.TreatMindControlledSquadmateAsHostile = true;
-	TargetCondition.FailOnNonUnits = false;
-	TargetCondition.ExcludeCivilian = true;
-	TargetCondition.ExcludeCosmetic = true;
-	TargetCondition.ExcludeRobotic = false;
-	Template.AbilityTargetConditions.AddItem(TargetCondition);
-	Template.AbilityMultiTargetConditions.AddItem(TargetCondition);
+	Template.AbilityTargetConditions.AddItem(default.LivingHostileTargetProperty);
+	Template.AbilityMultiTargetConditions.AddItem(default.LivingHostileTargetProperty);
 
 	// Ability Effects
 	VoltEffects = CreateVoltEffects();
@@ -604,16 +766,6 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 		Template.AddTargetEffect(VoltEffect);
 		Template.AddMultiTargetEffect(VoltEffect);
 	}
-
-	SurgeEffect = new class'X2Effect_Persistent';
-	SurgeEffect.BuildPersistentEffect(1, true);
-	SurgeEffect.SetDisplayInfo(ePerkBuff_Bonus, "Surge", "Next Rend or Soul Shot will apply Volt's damage in the area near the primary target.", "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Recoil", true,, 'eAbilitySource_Psionic');
-	SurgeEffect.EffectName = 'IRI_TM_Surge_Effect';
-	AbilityCondition = new class'X2Condition_AbilityProperty';
-	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_TM_ArcWave');
-	SurgeEffect.TargetConditions.AddItem(AbilityCondition);
-
-	Template.AddShooterEffect(SurgeEffect);
 
 	// State and Viz
 	Template.CustomFireAnim = 'HL_Volt';
@@ -629,16 +781,11 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
 	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
 
-	Template.DamagePreviewFn = class'X2Ability_TemplarAbilitySet'.static.VoltDamagePreview;
-
-	
-
 	return Template;
 }
 
 static function array<X2Effect> CreateVoltEffects()
 {
-	local X2Condition_UnitProperty		TargetCondition;
 	local X2Effect_ApplyWeaponDamage	DamageEffect;
 	local X2Effect_ToHitModifier		HitModEffect;
 	local X2Condition_AbilityProperty	AbilityCondition;
@@ -646,23 +793,10 @@ static function array<X2Effect> CreateVoltEffects()
 	local array<X2Effect>				ReturnArray;
 
 	// Effect - non-psionic
-	TargetCondition = new class'X2Condition_UnitProperty';
-	TargetCondition.ExcludePsionic = true;
 	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
 	DamageEffect.bIgnoreBaseDamage = true;
 	DamageEffect.DamageTag = 'IRI_TM_Volt';
 	DamageEffect.bIgnoreArmor = true;
-	DamageEffect.TargetConditions.AddItem(TargetCondition);
-	ReturnArray.AddItem(DamageEffect);
-
-	// Effect - psionic
-	TargetCondition = new class'X2Condition_UnitProperty';
-	TargetCondition.ExcludeNonPsionic = true;
-	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
-	DamageEffect.bIgnoreBaseDamage = true;
-	DamageEffect.DamageTag = 'IRI_TM_Volt_Psi';
-	DamageEffect.bIgnoreArmor = true;
-	DamageEffect.TargetConditions.AddItem(TargetCondition);
 	ReturnArray.AddItem(DamageEffect);
 
 	// Effect - Aftershock
@@ -926,7 +1060,7 @@ static private function X2AbilityTemplate IRI_TM_ReflectShot()
 	return Template;
 }
 
-static private function X2AbilityTemplate IRI_TM_SoulShot()
+static private function X2AbilityTemplate IRI_TM_SoulShot(optional name TemplateName = 'IRI_TM_SoulShot')
 {
 	local X2AbilityTemplate                 Template;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
@@ -934,11 +1068,12 @@ static private function X2AbilityTemplate IRI_TM_SoulShot()
 	local X2Condition_Visibility            TargetVisibilityCondition;
 	local X2AbilityToHitCalc_StandardAim	StandardAim;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_SoulShot');
+	`CREATE_X2ABILITY_TEMPLATE(Template, TemplateName);
 
 	// Icon Setup
 	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_SoulShot";
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.OverrideAbilityAvailabilityFn = Rend_OverrideAbilityAvailability;
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CORPORAL_PRIORITY;
 
@@ -2148,7 +2283,7 @@ static function X2AbilityTemplate IRI_TM_FocusKillTracker()
 	EventTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
 	EventTrigger.ListenerData.EventID = 'KillMail';
 	EventTrigger.ListenerData.Filter = eFilter_Unit;
-	EventTrigger.ListenerData.EventFn = class'XComGameState_Ability'.static.FocusKillTracker_Listener;
+	EventTrigger.ListenerData.EventFn = FocusKillTracker_Listener;
 	Template.AbilityTriggers.AddItem(EventTrigger);
 
 	Template.AddTargetEffect(new class'X2Effect_ModifyTemplarFocus');
