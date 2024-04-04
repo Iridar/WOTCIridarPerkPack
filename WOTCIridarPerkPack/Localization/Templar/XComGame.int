@@ -102,6 +102,19 @@ LocFriendlyName="Soul Blast"
 LocLongDescription="A Surge-powered ranged psionic attack. Triggers Momentum and generates a psionic wave that will hit other enemies near the target with Volt. Generates Focus if it kills the primary target."
 LocHelpText="A ranged psionic attack. Triggers Momentum and hits other nearby enemies with Volt. Generates Focus if the primary target is killed."
 
+[IRI_TM_Deflect X2AbilityTemplate]
+LocFriendlyName="Deflect"
+LocLongDescription="As a free action, consume <Ability:IRI_TM_Deflect_FocusCost/> Focus to deflect the next attack directed at the <Ability:ClassName/>, preventing all damage."
+LocHelpText="Deflect the next attack directed at the <Ability:ClassName/>. Free action."
+LocPromotionPopupText="<Bullet/> Once used, Deflect will remain active indefinitely, until an attack is deflected.<br/><Bullet/> Deflect activates after Reflect and Parry."
+LocFlyoverText="Deflect"
+
+[IRI_TM_Deflect_Passive X2AbilityTemplate]
+LocFriendlyName="Deflect"
+LocLongDescription="Deflect the next attack directed at the <Ability:ClassName/>."
+LocHelpText="Deflect the next attack directed at the <Ability:ClassName/>."
+LocFlyoverText="Deflect"
+
 
 [IRI_TM_IonicStorm X2AbilityTemplate]
 LocFriendlyName="Ionic Storm"

@@ -135,6 +135,8 @@ static private function X2AbilityTemplate IRI_SK_ForwardOperator()
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTargetStyle = default.SelfTarget;
 
+	// TODO :Specifically for if you want to give xcom units action points, if you are ending your turn with the action that makes enemies scamper, the action points are given too late and the turn ends
+
 	AbilityTrigger = new class'X2AbilityTrigger_EventListener';
 	AbilityTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
 	AbilityTrigger.ListenerData.EventID = 'ScamperEnd';

@@ -532,6 +532,9 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_AstralGrasp_OverrideDeathAction.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_TM_Deflect.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Seal.uc">
       <SubType>Content</SubType>
     </Content>

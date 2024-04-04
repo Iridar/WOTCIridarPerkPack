@@ -135,6 +135,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_TM_Ghost_FocusCost":
 	case "IRI_TM_Ghost_InitialFocus":
 	case "IRI_TM_Ghost_InitialActions":
+	case "IRI_TM_Deflect_FocusCost":
 		OutString = TMColor(`GetConfigInt(InString));
 		return true;
 

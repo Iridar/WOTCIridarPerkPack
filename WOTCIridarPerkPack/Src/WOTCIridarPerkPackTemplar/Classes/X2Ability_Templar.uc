@@ -27,6 +27,9 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_GhostInit());
 	Templates.AddItem(IRI_TM_GhostKill());
 
+	Templates.AddItem(IRI_TM_Deflect());
+	Templates.AddItem(IRI_TM_Deflect_Passive());
+
 	Templates.AddItem(IRI_TM_IonicStorm()); 
 	Templates.AddItem(IRI_TM_SpectralStride());
 	Templates.AddItem(IRI_TM_ArcWave());
@@ -49,6 +52,86 @@ static function array<X2DataTemplate> CreateTemplates()
 	//Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_TM_Deflect_Passive()
+{
+	local X2AbilityTemplate						Template;
+	local X2Effect_Persistent                   Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Deflect_Passive');
+
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_deflectshot";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	SetHidden(Template);
+
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+
+	Effect = new class'X2Effect_IRI_TM_Deflect';
+	Effect.BuildPersistentEffect(1, true, false);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	Template.bSkipFireAction = true;
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_Deflect()
+{
+	local X2AbilityTemplate				Template;
+	local X2Effect_SetUnitValue			ParryUnitValue;
+	local X2AbilityCost_ActionPoints	ActionPointCost;
+	local X2AbilityCost_Focus			FocusCost;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Deflect');
+
+	
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
+	
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Parry";
+
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+ 	Template.AddShooterEffectExclusions();
+
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bFreeCost = true;
+	ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	FocusCost = new class'X2AbilityCost_Focus';
+	FocusCost.FocusAmount = `GetConfigInt("IRI_TM_Deflect_FocusCost");
+	Template.AbilityCosts.AddItem(FocusCost);
+
+	ParryUnitValue = new class'X2Effect_SetUnitValue';
+	ParryUnitValue.NewValueToSet = 1;
+	ParryUnitValue.UnitName = 'IRI_TM_Deflect';
+	ParryUnitValue.CleanupType = eCleanup_BeginTactical;
+	Template.AddShooterEffect(ParryUnitValue);
+
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	Template.Hostility = eHostility_Defensive;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = none;;
+	Template.bShowActivation = true;
+	Template.bSkipFireAction = true;
+	
+	Template.AdditionalAbilities.AddItem('IRI_TM_Deflect_Passive');
+
+	return Template;
 }
 
 static function X2AbilityTemplate IRI_TM_IonicStorm()
@@ -622,8 +705,11 @@ static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
 	VoltEffects = CreateVoltEffects();
 	foreach VoltEffects(VoltEffect)
 	{
+		VoltEffect.bApplyOnMiss = true;
 		Template.AddMultiTargetEffect(VoltEffect);
 	}
+
+	// TODO: Handle missing
 
 	RemoveEffect = new class'X2Effect_RemoveEffects';
 	RemoveEffect.EffectNamesToRemove.AddItem('IRI_TM_Surge_Effect');
@@ -631,8 +717,41 @@ static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
 
 	Template.OverrideAbilityAvailabilityFn = ArcWave_OverrideAbilityAvailability;
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	//Template.ModifyNewContextFn = SoulShot_ArcWave_ModifyActivatedAbilityContext;
 	
 	return Template;
+}
+
+static private function SoulShot_ArcWave_ModifyActivatedAbilityContext(XComGameStateContext Context)
+{
+	local XComGameState_Ability			AbilityState;
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameStateHistory			History;
+	local vector						NewLocation;
+	local AvailableTarget				Target;
+	
+	AbilityContext = XComGameStateContext_Ability(Context);
+	if (AbilityContext == none || AbilityContext.IsResultContextHit())
+		return;
+
+	History = `XCOMHISTORY;
+	AbilityState = XComGameState_Ability(History.GetGameStateForObjectID(AbilityContext.InputContext.AbilityRef.ObjectID));
+	NewLocation = class'X2Ability'.static.FindOptimalMissLocation(AbilityContext, false);
+
+	`LOG("Mofying context for: " @ AbilityState.GetMyTemplateName() @ "at location:" @ NewLocation @ "Total locations:" @ AbilityContext.InputContext.TargetLocations.Length @ AbilityContext.ResultContext.ProjectileHitLocations.Length,, 'IRI_Scatter');
+	
+	AbilityState.GatherAdditionalAbilityTargetsForLocation(NewLocation, Target);
+	AbilityContext.InputContext.MultiTargets = Target.AdditionalTargets;
+
+	AbilityContext.InputContext.TargetLocations.Length = 0;
+	AbilityContext.InputContext.TargetLocations.AddItem(NewLocation);
+
+	AbilityContext.ResultContext.ProjectileHitLocations.Length = 0;
+	AbilityContext.ResultContext.ProjectileHitLocations.AddItem(NewLocation);
+
+	// To Hit Calc is done before this function runs, so we have to re-roll multi target hit results.
+	AbilityContext.ResultContext.MultiTargetHitResults.Length = 0;
+	AbilityState.GetMyTemplate().AbilityToHitCalc.RollForAbilityHit(AbilityState, Target, AbilityContext.ResultContext);
 }
 
 
