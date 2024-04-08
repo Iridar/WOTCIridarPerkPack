@@ -83,13 +83,13 @@ LocFlyoverText="Ghost Expired"
 
 [IRI_TM_ArcWave_Trigger X2AbilityTemplate]
 LocFriendlyName="Surge"
-LocLongDescription="Spending Focus charges your shard gauntlets, causing your next Rend or Soul Shot to generate a psionic wave that will hit other enemies near the target with Volt."
+LocLongDescription="Spending Focus charges your <Ability:IRI_BoundWeaponName/>, causing your next Rend or Soul Shot to generate a psionic wave that will hit other enemies near the target with Volt."
 LocHelpText="Spending Focus causes your next Rend or Soul Shot to hit other enemies near the target with Volt."
 LocPromotionPopupText="<Bullet/><br/> The Surge wave has all the same properties as Volt. For example, it will apply Aftershock and deal critical damage to psionic enemies.<Bullet/> Killing an enemy with Surge does not generate Focus."
 
 [IRI_TM_ArcWave_Passive X2AbilityTemplate]
 LocFriendlyName="Surge"
-LocLongDescription="Spending Focus charges your shard gauntlets, causing your next Rend or Soul Shot to generate a psionic wave that will hit other enemies near the target with Volt."
+LocLongDescription="Spending Focus charges your <Ability:IRI_BoundWeaponName/>, causing your next Rend or Soul Shot to generate a psionic wave that will hit other enemies near the target with Volt."
 LocHelpText="Spending Focus causes your next Rend or Soul Shot to hit other enemies near the target with Volt."
 
 [IRI_TM_ArcWave X2AbilityTemplate]
@@ -115,6 +115,13 @@ LocLongDescription="Deflect the next attack directed at the <Ability:ClassName/>
 LocHelpText="Deflect the next attack directed at the <Ability:ClassName/>."
 LocFlyoverText="Deflect"
 
+
+[IRI_TM_Overload X2AbilityTemplate]
+LocFriendlyName="Arc Overload"
+LocLongDescription="When at maximum Focus, activate to overload your <Ability:IRI_BoundWeaponName/> until the end of the turn. While overloaded, killing an enemy with Volt will grant an action point."
+LocHelpText="Overload your <Ability:IRI_BoundWeaponName/> until the end of the turn. While overloaded, killing an enemy with Volt will grant an action point."
+LocPromotionPopupText="<Bullet/> Overload can be triggered by any ability that applies Volt, such as Surge.<br/><Bullet/> <Ability:SelfCooldown/> turn cooldown."
+LocFlyoverText="Arc Overload"
 
 [IRI_TM_IonicStorm X2AbilityTemplate]
 LocFriendlyName="Ionic Storm"

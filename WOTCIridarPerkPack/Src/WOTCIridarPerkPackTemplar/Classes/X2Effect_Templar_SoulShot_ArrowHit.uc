@@ -12,7 +12,7 @@ simulated function AddX2ActionsForVisualization(XComGameState VisualizeGameState
 	if (EffectApplyResult == 'AA_Success' && UnitState != none && UnitState.IsDead())
 	{
 		EffectAction = X2Action_PlayEffect(class'X2Action_PlayEffect'.static.AddToVisualizationTree(ActionMetadata, VisualizeGameState.GetContext()));
-		EffectAction.EffectName = "IRISoulShotPerk2.PS_Arrow_Persistent";
+		EffectAction.EffectName = "IRISoulShot2.PS_Arrow_Persistent";
 		EffectAction.AttachToUnit = true;
 		EffectAction.AttachToSocketName = 'IRI_SoulBow_Arrow_Hit';
 		EffectAction.AttachToSocketsArrayName = 'BoneSocketActor';

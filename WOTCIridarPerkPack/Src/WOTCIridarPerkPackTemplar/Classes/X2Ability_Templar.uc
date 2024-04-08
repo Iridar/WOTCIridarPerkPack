@@ -3,55 +3,111 @@ class X2Ability_Templar extends X2Ability;
 var private localized string strSiphonEffectDesc;
 
 /*
-TODO: Check tree positions.
+TODO: Check ability icons
 */
 
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
+	// Squaddie
 	Templates.AddItem(IRI_TM_Rend());
 	Templates.AddItem(IRI_TM_Volt()); 
-	Templates.AddItem(IRI_TM_Aftershock());
-	Templates.AddItem(IRI_TM_SoulShot());
 	Templates.AddItem(IRI_TM_TemplarFocus());
 	Templates.AddItem(IRI_TM_FocusKillTracker());
-	
+
+	// Corporal
+	Templates.AddItem(IRI_TM_Aftershock());
 	Templates.AddItem(IRI_TM_Amplify());
+
+	// Sergeant
 	Templates.AddItem(IRI_TM_Reflect());
 	Templates.AddItem(IRI_TM_ReflectShot());
-	Templates.AddItem(IRI_TM_Overdraw());
-	Templates.AddItem(PurePassive('IRI_TM_Seal', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
-	Templates.AddItem(IRI_TM_Invert());
-	Templates.AddItem(IRI_TM_Ghost());
-	Templates.AddItem(IRI_TM_GhostInit());
-	Templates.AddItem(IRI_TM_GhostKill());
+	Templates.AddItem(IRI_TM_SoulShot());
 
+	// Lieutenant
+	Templates.AddItem(IRI_TM_Overdraw());
+	Templates.AddItem(PurePassive('IRI_TM_Seal', "img:///IRIPerkPackUI.UIPerk_Seal", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
+
+	// Captain
 	Templates.AddItem(IRI_TM_Deflect());
 	Templates.AddItem(IRI_TM_Deflect_Passive());
-
-	Templates.AddItem(IRI_TM_IonicStorm()); 
 	Templates.AddItem(IRI_TM_SpectralStride());
+	Templates.AddItem(IRI_TM_Invert());
+
+	// Major
+	Templates.AddItem(PurePassive('IRI_TM_ArcWave_Passive', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_arcwave", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
+	Templates.AddItem(IRI_TM_ArcWave_Trigger());
 	Templates.AddItem(IRI_TM_ArcWave());
 	Templates.AddItem(IRI_TM_SoulShot_ArcWave());
 
-	Templates.AddItem(PurePassive('IRI_TM_ArcWave_Passive', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/)); // TODO: Icon
-	Templates.AddItem(IRI_TM_ArcWave_Trigger());
-
+	// Colonel
+	Templates.AddItem(IRI_TM_IonicStorm()); 
+	Templates.AddItem(IRI_TM_Overload());
+	Templates.AddItem(IRI_TM_Ghost());
+	Templates.AddItem(IRI_TM_GhostInit());
+	Templates.AddItem(IRI_TM_GhostKill());
+	
 	// Unused stuff.
 	//Templates.AddItem(IRI_TM_Stunstrike());
-	
 	//Templates.AddItem(IRI_TM_Siphon());
-	//
 	//Templates.AddItem(IRI_TM_Obelisk());
 	//Templates.AddItem(IRI_TM_Obelisk_Volt()); 
-	//
 	//Templates.AddItem(IRI_TM_AstralGrasp());
 	//Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
 	//Templates.AddItem(IRI_TM_AstralGrasp_SpiritStun());
 	//Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
+}
+
+static private function X2AbilityTemplate IRI_TM_Overload()
+{
+	local X2AbilityTemplate				Template;
+	local X2Effect_Persistent			Effect;
+	local X2AbilityCost_ActionPoints	ActionPointCost;
+	local X2AbilityCost_Focus			FocusCost;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Overload');
+
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_overload";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_COLONEL_PRIORITY;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+ 	Template.AddShooterEffectExclusions();
+
+	// Costs
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bFreeCost = true;
+	ActionPointCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	FocusCost = new class'X2AbilityCost_Focus';
+	FocusCost.FocusAmount = `GetConfigInt("IRI_TM_Overload_FocusCost");
+	FocusCost.bFreeCost = true;
+	Template.AbilityCosts.AddItem(FocusCost);
+	AddCooldown(Template, `GetConfigInt('IRI_TM_Overload_Cooldown'));
+
+	// Dummy effect which is checked for by a Volt effect
+	Effect = new class'X2Effect_Overload';
+	Effect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnEnd);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	// State and Viz
+	Template.Hostility = eHostility_Neutral;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+
+	return Template;
 }
 
 static private function X2AbilityTemplate IRI_TM_Deflect_Passive()
@@ -93,9 +149,10 @@ static private function X2AbilityTemplate IRI_TM_Deflect()
 
 	
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_ShowIfAvailable;
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CAPTAIN_PRIORITY;
 	
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Parry";
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_deflectshot";
 
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTargetStyle = default.SelfTarget;
@@ -150,6 +207,7 @@ static function X2AbilityTemplate IRI_TM_IonicStorm()
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_IonicStorm";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_COLONEL_PRIORITY;
 	
 	// Costs
 	ConsumeAllFocusCost = new class'X2AbilityCost_Focus';
@@ -331,6 +389,7 @@ static function X2AbilityTemplate IRI_TM_Ghost()
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
 	Template.HideErrors.AddItem('AA_UnitIsWrongType');
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Ghost";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_COLONEL_PRIORITY;
 	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -675,9 +734,8 @@ static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
 
 	Template = IRI_TM_SoulShot('IRI_TM_SoulShot_ArcWave');
 
-	// TODO: Icon?
-
 	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_SoulShot_ArcWave";
 	
 	// Targeting and Triggering
 
@@ -718,6 +776,8 @@ static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
 	Template.OverrideAbilityAvailabilityFn = ArcWave_OverrideAbilityAvailability;
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
 	//Template.ModifyNewContextFn = SoulShot_ArcWave_ModifyActivatedAbilityContext;
+
+	SetFireAnim(Template, 'HL_SoulShot_ArcWave');
 	
 	return Template;
 }
@@ -760,6 +820,7 @@ static function X2AbilityTemplate IRI_TM_ArcWave_Trigger()
 	local X2AbilityTemplate					Template;
 	local X2Effect_Persistent				SurgeEffect;
 	local X2AbilityTrigger_EventListener	EventListener;
+	local X2Condition_UnitEffects			UnitEffects;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_ArcWave_Trigger');
 
@@ -783,7 +844,12 @@ static function X2AbilityTemplate IRI_TM_ArcWave_Trigger()
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
 	Template.AddShooterEffectExclusions();
 
+	UnitEffects = new class'X2Condition_UnitEffects';
+	UnitEffects.AddExcludeEffect('IRI_TM_Surge_Effect', 'AA_DuplicateEffectIgnored');
+	Template.AbilityShooterConditions.AddItem(UnitEffects);
+
 	// TOOD: And add some VFX 
+	// And/or a status icon?
 	SurgeEffect = new class'X2Effect_Persistent';
 	SurgeEffect.BuildPersistentEffect(1, true);
 	SurgeEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,, Template.AbilitySourceName);
@@ -905,11 +971,15 @@ static private function X2AbilityTemplate IRI_TM_Volt()
 
 static function array<X2Effect> CreateVoltEffects()
 {
-	local X2Effect_ApplyWeaponDamage	DamageEffect;
-	local X2Effect_ToHitModifier		HitModEffect;
-	local X2Condition_AbilityProperty	AbilityCondition;
-	local X2AbilityTag                  AbilityTag;
-	local array<X2Effect>				ReturnArray;
+	local X2Effect_ApplyWeaponDamage		DamageEffect;
+	local X2Effect_ToHitModifier			HitModEffect;
+	local X2Condition_AbilityProperty		AbilityCondition;
+	local X2AbilityTag						AbilityTag;
+	local array<X2Effect>					ReturnArray;
+	//local X2Effect_GrantActionPoints		OverloadEffect;
+	//local X2Condition_UnitEffectsOnSource	EffectCondition;
+	//local X2Condition_UnitProperty			UnitProperty;
+	//local X2Effect_Flyover					FlyoverEffect;
 
 	// Effect - non-psionic
 	DamageEffect = new class'X2Effect_ApplyWeaponDamage';
@@ -950,6 +1020,36 @@ static function array<X2Effect> CreateVoltEffects()
 	// Effect - Seal
 	ReturnArray.AddItem(CreateSealEffect());
 
+	// Effect - Overload
+	//OverloadEffect = new class'X2Effect_GrantActionPointsToShooter';
+	//OverloadEffect.NumActionPoints = 1;
+	//OverloadEffect.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
+	//
+	//EffectCondition = new class'X2Condition_UnitEffectsOnSource';
+	//EffectCondition.AddRequireEffect('IRI_TM_Overload_Effect', 'AA_MissingRequiredEffect');
+	//OverloadEffect.TargetConditions.AddItem(EffectCondition);
+	//
+	//UnitProperty = new class'X2Condition_UnitProperty';
+	//UnitProperty.ExcludeAlive = true;
+	//UnitProperty.ExcludeDead = false;
+	//UnitProperty.ExcludeFriendlyToSource = true;
+	//UnitProperty.ExcludeHostileToSource = false;
+	//UnitProperty.FailOnNonUnits = true;
+	//OverloadEffect.TargetConditions.AddItem(UnitProperty);
+	//
+	//ReturnArray.AddItem(OverloadEffect);
+	//
+	//// TODO: These effects need to be applied by a KillMail triggered ability, otherwise the AP is granted before the ability cost is applied. PostAbilityCostPaid might not be good enough, but worth a test.
+	//// Effect - Overload Flyover
+	//FlyoverEffect = new class'X2Effect_Flyover';
+	//FlyoverEffect.AbilityName = 'IRI_TM_Overload';
+	//FlyoverEffect.bPlayOnSource = true;
+	//FlyoverEffect.Voiceline = 'Reaper';
+	//
+	//FlyoverEffect.TargetConditions.AddItem(UnitProperty);
+	//FlyoverEffect.TargetConditions.AddItem(EffectCondition);
+	//ReturnArray.AddItem(FlyoverEffect);
+
 	return ReturnArray;
 }
 
@@ -980,6 +1080,7 @@ static private function X2AbilityTemplate IRI_TM_Amplify()
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Amplify";
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CORPORAL_PRIORITY;
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -1053,6 +1154,7 @@ static private function X2AbilityTemplate IRI_TM_Reflect()
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.OverrideAbilityAvailabilityFn = Reflect_OverrideAbilityAvailability;
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ReflectShot";
+	//Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SERGEANT_PRIORITY; // Shown near Parry
 
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -1179,6 +1281,12 @@ static private function X2AbilityTemplate IRI_TM_ReflectShot()
 	return Template;
 }
 
+
+// Initially I implemented Soul Shot as an ability that works via perk content and uses a perk weapon,
+// but it turned out abiliities like that don't render their projectile when they miss.
+// Since this iteration of Soul Shot has gameplay niche of "ranged Rend that can miss",
+// this was kind of a big deal, so I reworked it to add its socket, animations and projectile elements
+// to Shard Gauntlets via various DLC hooks.
 static private function X2AbilityTemplate IRI_TM_SoulShot(optional name TemplateName = 'IRI_TM_SoulShot')
 {
 	local X2AbilityTemplate                 Template;
@@ -1194,7 +1302,7 @@ static private function X2AbilityTemplate IRI_TM_SoulShot(optional name Template
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.OverrideAbilityAvailabilityFn = Rend_OverrideAbilityAvailability;
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CORPORAL_PRIORITY;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_SERGEANT_PRIORITY;
 
 	// Targeting and Triggering
 	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
@@ -1285,6 +1393,7 @@ static private function X2AbilityTemplate IRI_TM_Invert()
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Invert";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CAPTAIN_PRIORITY;
 	
 	// Targeting and Triggering
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -1341,7 +1450,281 @@ static private function X2AbilityTemplate IRI_TM_Invert()
 	return Template;
 }
 
+static private function X2AbilityTemplate IRI_TM_SpectralStride()
+{
+	local X2AbilityTemplate				Template;
+	//local X2Condition_UnitEffects		EffectsCondition;
+	//local X2Condition_UnitProperty		UnitPropertyCondition;
+	local X2AbilityCost_ActionPoints	ActionCost;
+	local X2Effect_SpectralStride		SpectralStride;
+	local X2Effect_AdditionalAnimSets	AnimEffect;
 
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_SpectralStride');
+
+	// Icon Setup
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_SpectralStride";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CAPTAIN_PRIORITY;
+
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	//Template.AbilityTargetStyle = default.SingleTargetWithSelf;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	// Costs
+	ActionCost = new class'X2AbilityCost_ActionPoints';
+	ActionCost.iNumPoints = 1;
+	ActionCost.bFreeCost = true;
+	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
+	Template.AbilityCosts.AddItem(ActionCost);
+	
+	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
+
+	// Shooter Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	//Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
+	//
+	//UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	//UnitPropertyCondition.ExcludeDead = true;
+	//UnitPropertyCondition.ExcludeHostileToSource = true;
+	//UnitPropertyCondition.ExcludeFriendlyToSource = false;
+	//UnitPropertyCondition.FailOnNonUnits = true;
+	////UnitPropertyCondition.ExcludeRobotic = true;
+	//Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
+	//
+	//EffectsCondition = new class'X2Condition_UnitEffects';
+	//EffectsCondition.AddExcludeEffect(class'X2Effect_SpectralStride'.default.EffectName, 'AA_DuplicateEffectIgnored');
+	//Template.AbilityTargetConditions.AddItem(EffectsCondition);
+
+	// Effects
+	SpectralStride = new class'X2Effect_SpectralStride';
+	SpectralStride.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	SpectralStride.AddTraversalChange( eTraversal_Phasing, true );
+	SpectralStride.AddTraversalChange( eTraversal_JumpUp, true );
+	SpectralStride.bRemoveWhenTargetDies = true;
+	SpectralStride.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(SpectralStride);
+
+	AnimEffect = new class'X2Effect_AdditionalAnimSets';
+	AnimEffect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
+	AnimEffect.AddAnimSetWithPath("IRISpectralStride.AS_SpectralStride_Target");
+	AnimEffect.bRemoveWhenTargetDies = true;
+	Template.AddTargetEffect(AnimEffect);
+
+	// State and Viz
+	Template.bShowActivation = true;
+	Template.CinescriptCameraType = "IRI_TM_SpectralStride";
+	Template.bFrameEvenWhenUnitIsHidden = true;
+	SetFireAnim(Template, 'HL_SpectralStride');
+	Template.ActivationSpeech = 'Exchange';
+	Template.Hostility = eHostility_Neutral;
+	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
+
+	return Template;
+}
+
+static private function X2Effect CreateSealEffect()
+{
+	local X2Effect_Seal									SealEffect;
+	local X2Condition_AbilityProperty					AbilityCondition;
+	//local X2Condition_UnitEffectsWithAbilitySource	EffectCondition;
+
+	SealEffect = new class'X2Effect_Seal';
+	SealEffect.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd); // Lasts until "any player's" turn end.
+
+	// Balancing: one enemy can be marked only by one Templar at a time.
+	SealEffect.DuplicateResponse = eDupe_Ignore;
+
+	// TODO: Icon
+	SealEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Seal_EffectTitle"), `GetLocalizedString("IRI_TM_Seal_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_WitchHunt", true,, 'eAbilitySource_Psionic');
+
+	// Can't apply the effect if we're missing the Seal ability
+	AbilityCondition = new class'X2Condition_AbilityProperty';
+	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_TM_Seal');
+	SealEffect.TargetConditions.AddItem(AbilityCondition);
+
+	SealEffect.TargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
+
+	//EffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
+	//EffectCondition.AddExcludeEffect(class'X2Effect_Seal'.default.EffectName, 'AA_DuplicateEffectIgnored');
+	//SealEffect.TargetConditions.AddItem(EffectCondition);
+
+	SealEffect.VFXTemplateName = "IRIVolt.PS_Concentration_Persistent";
+	SealEffect.VFXSocket = 'FX_Chest'; // FX_Head
+	SealEffect.VFXSocketsArrayName = 'BoneSocketActor';
+
+	return SealEffect;
+}
+
+static private function X2AbilityTemplate IRI_TM_Overdraw()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_Overcharge	Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Overdraw');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Overdraw";
+
+	SetPassive(Template);
+	SetHidden(Template);
+	Template.bUniqueSource = true;
+
+	Effect = new class'X2Effect_Overcharge';
+	Effect.BuildPersistentEffect(1, true);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	return Template;
+}
+
+
+static private function X2AbilityTemplate IRI_TM_TemplarFocus()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_TemplarFocus	FocusEffect;
+	local array<StatChange>		StatChanges;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_TemplarFocus');
+
+	// Icon Setup
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_InnerFocus";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	Template.Hostility = eHostility_Neutral;
+	
+	// Targeting and Triggering
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+
+	// Effects
+	FocusEffect = new class'X2Effect_TemplarFocus';
+	FocusEffect.BuildPersistentEffect(1, true, false);
+	FocusEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, false, , Template.AbilitySourceName);
+	FocusEffect.EffectSyncVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
+	FocusEffect.VisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
+	FocusEffect.bDisplayInSpecialDamageMessageUI = false;
+
+	//	focus 0
+	StatChanges.Length = 0; // Settle down, compiler
+	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
+	//	focus 1
+	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
+	//	focus 2
+	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
+
+	Template.AddTargetEffect(FocusEffect);
+
+	Template.AdditionalAbilities.AddItem('IRI_TM_FocusKillTracker');
+
+	Template.bIsPassive = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.bSkipFireAction = true;
+
+	return Template;
+}
+
+// Similar to original, but is allowed to trigger for Ghost and does not give Focus for multi-target kills.
+static function X2AbilityTemplate IRI_TM_FocusKillTracker()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityTrigger_EventListener	EventTrigger;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_FocusKillTracker');
+
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_InnerFocus";
+	Template.AbilitySourceName = 'eAbilitySource_Psionic';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
+	Template.Hostility = eHostility_Neutral;
+	Template.bIsPassive = true;
+
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	
+	EventTrigger = new class'X2AbilityTrigger_EventListener';
+	EventTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
+	EventTrigger.ListenerData.EventID = 'KillMail';
+	EventTrigger.ListenerData.Filter = eFilter_Unit;
+	EventTrigger.ListenerData.EventFn = FocusKillTracker_Listener;
+	Template.AbilityTriggers.AddItem(EventTrigger);
+
+	Template.AddTargetEffect(new class'X2Effect_ModifyTemplarFocus');
+
+	Template.bSkipFireAction = true;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.MergeVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.DesiredVisualizationBlock_MergeVisualization;
+
+	return Template;
+}
+
+static private function EventListenerReturn FocusKillTracker_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
+{
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComGameStateContext			FindContext;
+	local int							VisualizeIndex;
+	local XComGameStateHistory			History;
+	local XComGameState_Ability			AbilityState;
+	local XComGameState_Unit			KilledUnit;
+	local array<name>					AllowedMultiTargetKillAbilities;
+
+	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
+	if (AbilityContext == None || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
+		return ELR_NoInterrupt;
+	
+	if (class'X2Ability_TemplarAbilitySet'.default.FocusKillAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) == INDEX_NONE)
+		return ELR_NoInterrupt;
+
+	KilledUnit = XComGameState_Unit(EventData);
+	if (KilledUnit == none)
+		return ELR_NoInterrupt;
+
+	// Only primary target kills are allowed
+	if (AbilityContext.InputContext.PrimaryTarget.ObjectID != KilledUnit.ObjectID)
+	{
+		// Except for some specific abilities like Ionic Storm.
+		AllowedMultiTargetKillAbilities = `GetConfigArrayName("IRI_TM_FocusKillTracker_AllowedMultiTargetKillAbilities");
+		if (AllowedMultiTargetKillAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) == INDEX_NONE)
+		{
+			return ELR_NoInterrupt;
+		}
+	}
+
+	AbilityState = XComGameState_Ability(CallbackData);
+	if (AbilityState == none)
+		return ELR_NoInterrupt;
+	
+	History = `XCOMHISTORY;
+	VisualizeIndex = GameState.HistoryIndex;
+	FindContext = AbilityContext;
+	while (FindContext.InterruptionHistoryIndex > -1)
+	{
+		FindContext = History.GetGameStateFromHistory(FindContext.InterruptionHistoryIndex).GetContext();
+		VisualizeIndex = FindContext.AssociatedState.HistoryIndex;
+	}
+	
+	AbilityState.AbilityTriggerAgainstSingleTarget(AbilityState.OwnerStateObject, false, VisualizeIndex);
+	
+	return ELR_NoInterrupt;
+}
+
+
+// ======================================================================================================================================
 
 static function X2AbilityTemplate IRI_TM_Obelisk()
 {
@@ -1788,148 +2171,6 @@ static private function X2Condition CreateUnitValueCondition(const name ValueNam
 	return UnitValue;
 }
 
-
-static private function X2AbilityTemplate IRI_TM_SpectralStride()
-{
-	local X2AbilityTemplate				Template;
-	//local X2Condition_UnitEffects		EffectsCondition;
-	//local X2Condition_UnitProperty		UnitPropertyCondition;
-	local X2AbilityCost_ActionPoints	ActionCost;
-	local X2Effect_SpectralStride		SpectralStride;
-	local X2Effect_AdditionalAnimSets	AnimEffect;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_SpectralStride');
-
-	// Icon Setup
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Amplify";
-	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
-
-	// Targeting and Triggering
-	Template.AbilityToHitCalc = default.DeadEye;
-	//Template.AbilityTargetStyle = default.SingleTargetWithSelf;
-	Template.AbilityTargetStyle = default.SelfTarget;
-	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
-
-	// Costs
-	ActionCost = new class'X2AbilityCost_ActionPoints';
-	ActionCost.iNumPoints = 1;
-	ActionCost.bFreeCost = true;
-	ActionCost.AllowedTypes.AddItem(class'X2CharacterTemplateManager'.default.MomentumActionPoint);
-	Template.AbilityCosts.AddItem(ActionCost);
-	
-	Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus');
-
-	// Shooter Conditions
-	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
-	Template.AddShooterEffectExclusions();
-
-	// Target Conditions
-	//Template.AbilityTargetConditions.AddItem(default.GameplayVisibilityCondition);
-	//
-	//UnitPropertyCondition = new class'X2Condition_UnitProperty';
-	//UnitPropertyCondition.ExcludeDead = true;
-	//UnitPropertyCondition.ExcludeHostileToSource = true;
-	//UnitPropertyCondition.ExcludeFriendlyToSource = false;
-	//UnitPropertyCondition.FailOnNonUnits = true;
-	////UnitPropertyCondition.ExcludeRobotic = true;
-	//Template.AbilityTargetConditions.AddItem(UnitPropertyCondition);
-	//
-	//EffectsCondition = new class'X2Condition_UnitEffects';
-	//EffectsCondition.AddExcludeEffect(class'X2Effect_SpectralStride'.default.EffectName, 'AA_DuplicateEffectIgnored');
-	//Template.AbilityTargetConditions.AddItem(EffectsCondition);
-
-	// Effects
-	SpectralStride = new class'X2Effect_SpectralStride';
-	SpectralStride.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
-	SpectralStride.AddTraversalChange( eTraversal_Phasing, true );
-	SpectralStride.AddTraversalChange( eTraversal_JumpUp, true );
-	SpectralStride.bRemoveWhenTargetDies = true;
-	SpectralStride.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
-	Template.AddTargetEffect(SpectralStride);
-
-	AnimEffect = new class'X2Effect_AdditionalAnimSets';
-	AnimEffect.BuildPersistentEffect(1, false,,, eGameRule_PlayerTurnEnd);
-	AnimEffect.AddAnimSetWithPath("IRISpectralStride.AS_SpectralStride_Target");
-	AnimEffect.bRemoveWhenTargetDies = true;
-	Template.AddTargetEffect(AnimEffect);
-
-	// State and Viz
-	Template.bShowActivation = true;
-	Template.CinescriptCameraType = "IRI_TM_SpectralStride";
-	Template.bFrameEvenWhenUnitIsHidden = true;
-	SetFireAnim(Template, 'HL_SpectralStride');
-	Template.ActivationSpeech = 'Exchange';
-	Template.Hostility = eHostility_Neutral;
-	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
-	
-	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
-	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
-	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotLostSpawnIncreasePerUse;
-
-	return Template;
-}
-
-static private function X2Effect CreateSealEffect()
-{
-	local X2Effect_Seal									SealEffect;
-	local X2Condition_AbilityProperty					AbilityCondition;
-	//local X2Condition_UnitEffectsWithAbilitySource	EffectCondition;
-
-	SealEffect = new class'X2Effect_Seal';
-	SealEffect.BuildPersistentEffect(1, false, true, true, eGameRule_PlayerTurnEnd); // Lasts until "any player's" turn end.
-
-	// Balancing: one enemy can be marked only by one Templar at a time.
-	SealEffect.DuplicateResponse = eDupe_Ignore;
-
-	// TODO: Icon
-	SealEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Seal_EffectTitle"), `GetLocalizedString("IRI_TM_Seal_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_WitchHunt", true,, 'eAbilitySource_Psionic');
-
-	// Can't apply the effect if we're missing the Seal ability
-	AbilityCondition = new class'X2Condition_AbilityProperty';
-	AbilityCondition.OwnerHasSoldierAbilities.AddItem('IRI_TM_Seal');
-	SealEffect.TargetConditions.AddItem(AbilityCondition);
-
-	SealEffect.TargetConditions.AddItem(default.LivingHostileUnitDisallowMindControlProperty);
-
-	//EffectCondition = new class'X2Condition_UnitEffectsWithAbilitySource';
-	//EffectCondition.AddExcludeEffect(class'X2Effect_Seal'.default.EffectName, 'AA_DuplicateEffectIgnored');
-	//SealEffect.TargetConditions.AddItem(EffectCondition);
-
-	SealEffect.VFXTemplateName = "IRIVolt.PS_Concentration_Persistent";
-	SealEffect.VFXSocket = 'FX_Chest'; // FX_Head
-	SealEffect.VFXSocketsArrayName = 'BoneSocketActor';
-
-	return SealEffect;
-}
-
-static private function X2AbilityTemplate IRI_TM_Overdraw()
-{
-	local X2AbilityTemplate		Template;
-	local X2Effect_Overcharge	Effect;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Overdraw');
-
-	// Icon Setup
-	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_Overcharge";
-
-	SetPassive(Template);
-	SetHidden(Template);
-	Template.bUniqueSource = true;
-
-	Effect = new class'X2Effect_Overcharge';
-	Effect.BuildPersistentEffect(1, true);
-	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
-	Template.AddTargetEffect(Effect);
-
-	return Template;
-}
-
-
 // Somewhat complicated ability. Explained in steps:
 // 1. Use Astral Grasp on the target organic.
 // 2. X2Effect_AstralGrasp will spawn a copy of the enemy unit (spirit/ghost) on a tile near the shooter,
@@ -2306,12 +2547,6 @@ static private function EventListenerReturn AstralGrasp_SpiritDeath_EventListene
 	return ELR_NoInterrupt;
 }
 
-
-
-
-
-
-
 /*
 static private function AftershockEffectRemovedVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
 {
@@ -2334,139 +2569,6 @@ static private function AftershockEffectRemovedVisualization(XComGameState Visua
 	EffectAction.AttachToSocketName = 'FX_Chest';
 }
 */
-static private function X2AbilityTemplate IRI_TM_TemplarFocus()
-{
-	local X2AbilityTemplate		Template;
-	local X2Effect_TemplarFocus	FocusEffect;
-	local array<StatChange>		StatChanges;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_TemplarFocus');
-
-	// Icon Setup
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_InnerFocus";
-	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
-	Template.Hostility = eHostility_Neutral;
-	
-	// Targeting and Triggering
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SelfTarget;
-	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
-
-	// Effects
-	FocusEffect = new class'X2Effect_TemplarFocus';
-	FocusEffect.BuildPersistentEffect(1, true, false);
-	FocusEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, false, , Template.AbilitySourceName);
-	FocusEffect.EffectSyncVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
-	FocusEffect.VisualizationFn = class'X2Ability_TemplarAbilitySet'.static.FocusEffectVisualization;
-	FocusEffect.bDisplayInSpecialDamageMessageUI = false;
-
-	//	focus 0
-	StatChanges.Length = 0; // Settle down, compiler
-	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
-	//	focus 1
-	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
-	//	focus 2
-	FocusEffect.AddNextFocusLevel(StatChanges, 0, 0);
-
-	Template.AddTargetEffect(FocusEffect);
-
-	Template.AdditionalAbilities.AddItem('IRI_TM_FocusKillTracker');
-
-	Template.bIsPassive = true;
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.bSkipFireAction = true;
-
-	return Template;
-}
-
-// Similar to original, but is allowed to trigger for Ghost and does not give Focus for multi-target kills.
-static function X2AbilityTemplate IRI_TM_FocusKillTracker()
-{
-	local X2AbilityTemplate					Template;
-	local X2AbilityTrigger_EventListener	EventTrigger;
-
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_FocusKillTracker');
-
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_templarFocus";
-	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
-	Template.Hostility = eHostility_Neutral;
-	Template.bIsPassive = true;
-
-	Template.AbilityToHitCalc = default.DeadEye;
-	Template.AbilityTargetStyle = default.SelfTarget;
-	
-	EventTrigger = new class'X2AbilityTrigger_EventListener';
-	EventTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
-	EventTrigger.ListenerData.EventID = 'KillMail';
-	EventTrigger.ListenerData.Filter = eFilter_Unit;
-	EventTrigger.ListenerData.EventFn = FocusKillTracker_Listener;
-	Template.AbilityTriggers.AddItem(EventTrigger);
-
-	Template.AddTargetEffect(new class'X2Effect_ModifyTemplarFocus');
-
-	Template.bSkipFireAction = true;
-	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
-	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.MergeVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.DesiredVisualizationBlock_MergeVisualization;
-
-	return Template;
-}
-
-static private function EventListenerReturn FocusKillTracker_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
-{
-	local XComGameStateContext_Ability	AbilityContext;
-	local XComGameStateContext			FindContext;
-	local int							VisualizeIndex;
-	local XComGameStateHistory			History;
-	local XComGameState_Ability			AbilityState;
-	local XComGameState_Unit			KilledUnit;
-	local array<name>					AllowedMultiTargetKillAbilities;
-
-	AbilityContext = XComGameStateContext_Ability(GameState.GetContext());
-	if (AbilityContext == None || AbilityContext.InterruptionStatus == eInterruptionStatus_Interrupt)
-		return ELR_NoInterrupt;
-	
-	if (class'X2Ability_TemplarAbilitySet'.default.FocusKillAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) == INDEX_NONE)
-		return ELR_NoInterrupt;
-
-	KilledUnit = XComGameState_Unit(EventData);
-	if (KilledUnit == none)
-		return ELR_NoInterrupt;
-
-	// Only primary target kills are allowed
-	if (AbilityContext.InputContext.PrimaryTarget.ObjectID != KilledUnit.ObjectID)
-	{
-		// Except for some specific abilities like Ionic Storm.
-		AllowedMultiTargetKillAbilities = `GetConfigArrayName("IRI_TM_FocusKillTracker_AllowedMultiTargetKillAbilities");
-		if (AllowedMultiTargetKillAbilities.Find(AbilityContext.InputContext.AbilityTemplateName) == INDEX_NONE)
-		{
-			return ELR_NoInterrupt;
-		}
-	}
-
-	AbilityState = XComGameState_Ability(CallbackData);
-	if (AbilityState == none)
-		return ELR_NoInterrupt;
-	
-	History = `XCOMHISTORY;
-	VisualizeIndex = GameState.HistoryIndex;
-	FindContext = AbilityContext;
-	while (FindContext.InterruptionHistoryIndex > -1)
-	{
-		FindContext = History.GetGameStateFromHistory(FindContext.InterruptionHistoryIndex).GetContext();
-		VisualizeIndex = FindContext.AssociatedState.HistoryIndex;
-	}
-	
-	AbilityState.AbilityTriggerAgainstSingleTarget(AbilityState.OwnerStateObject, false, VisualizeIndex);
-	
-	return ELR_NoInterrupt;
-}
-
-
-
 
 // Unfinished and unused
 // No visible projectile? Because of no damage effect?

@@ -4,6 +4,7 @@ var privatewrite config bool bLWOTC;
 
 var private SkeletalMeshSocket ShadowTeleportSocket;
 var private SkeletalMeshSocket SoulShotFireSocket;
+var private SkeletalMeshSocket SoulShotWeaponSocket;
 var private SkeletalMeshSocket SoulShotHitSocket;
 var private SkeletalMeshSocket InvenRHandCopySocket;
 
@@ -1124,37 +1125,37 @@ static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments,
 /// This function gets called when the weapon archetype is initialized.
 static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, optional XComGameState_Item ItemState = none)
 {
-	/*
-	local XComGameState_Unit	UnitState;
-	local X2WeaponTemplate		WeaponTemplate;
-	local XComContentManager	Content;
+	local XComContentManager			Content;
+	local X2UnifiedProjectile			Projectile;
+	local X2UnifiedProjectileElement	Element;
 
     if (ItemState == none) 
 	{	
 		ItemState = XComGameState_Item(`XCOMHISTORY.GetGameStateForObjectID(WeaponArchetype.ObjectID));
-		`AMLOG("WARNING :: Had to reach into History to get Item State.");
 	}
 	if (ItemState == none)
 		return;
 
-	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ItemState.OwnerStateObject.ObjectID));
-	if (UnitState == none || UnitState.GetMyTemplate().bIsCosmetic) 
-		return;
+	// Add Soul Shot projectiles and animations.
+	if (ItemState.GetWeaponCategory() == 'gauntlet') // Templar Shard Gauntlet
+	{
+		Content = `CONTENT;
+		Weapon.CustomUnitPawnAnimsets.AddItem(AnimSet(Content.RequestGameArchetype("IRISoulShot2.Anims.AS_SoulShot")));
 
-	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-	if (WeaponTemplate == none)
-		return;
-	
-	// Do stuff
-	Content = `CONTENT;
-	Weapon.CustomUnitPawnAnimsets.AddItem(AnimSet(Content.RequestGameArchetype("IRISparkHeavyWeapons.Anims.AS_Heavy_Spark")));
-	
-	Weapon.DefaultSocket = '';
-	
-	Weapon.WeaponFireAnimSequenceName = 'FF_FireLAC_MK2';
-	
-	SkeletalMeshComponent(Weapon.Mesh).AnimSets.AddItem(AnimSet(Content.RequestGameArchetype("IRI_MECRockets.Anims.AS_OrdnanceLauncher_MG_Rockets")));
-	*/
+		Projectile = X2UnifiedProjectile(Content.RequestGameArchetype("IRISoulShot2.Archetypes.PJ_SoulBow"));
+		foreach Projectile.ProjectileElements(Element)
+		{
+			`AMLOG("Adding projectile elements into array:" @ Weapon.DefaultProjectileTemplate.ProjectileElements.Length);
+			Weapon.DefaultProjectileTemplate.ProjectileElements.AddItem(Element);
+		}
+
+		Projectile = X2UnifiedProjectile(Content.RequestGameArchetype("IRISoulShot2.Archetypes.PJ_SoulBow_ArcWave"));
+		foreach Projectile.ProjectileElements(Element)
+		{
+			Weapon.DefaultProjectileTemplate.ProjectileElements.AddItem(Element);
+		}
+	}
+
 }
 /// End Issue #245
 
@@ -1230,7 +1231,21 @@ static function bool CanWeaponApplyUpgrade(XComGameState_Item WeaponState, X2Wea
 /// and rescale existing sockets.
 static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
 {
-	return;
+	local SkeletalMeshSocket NewSocket;
+	local SkeletalMeshSocket ExistingSocket;
+
+	// For Soul Shot
+	if (ItemState.GetWeaponCategory() == 'gauntlet')
+	{
+		foreach SkeletalMeshComponent(Weapon.Mesh).Sockets(ExistingSocket)
+		{
+			NewSocket = new class'SkeletalMeshSocket';
+			NewSocket.SocketName = 'IRI_SoulBow_Fire';
+			NewSocket.BoneName = ExistingSocket.BoneName;
+			NewSockets.AddItem(NewSocket);
+			return;
+		}
+	}
 }
 /// End Issue #281
 
@@ -1423,6 +1438,13 @@ defaultproperties
 	End Object
 	SoulShotFireSocket = DefaultSoulShotFireSocket;
 
+	Begin Object Class=SkeletalMeshSocket Name=DefaultSoulShotWeaponSocket
+		SocketName = "IRI_SoulBow_Fire"
+		BoneName = "GauntletRootL"
+	End Object
+	SoulShotWeaponSocket = DefaultSoulShotWeaponSocket;
+	
+
 	// For playing the "arrow stuck in body" particle effect when hit by the soul bow
 	Begin Object Class=SkeletalMeshSocket Name=DefaultSoulShotHitSocket
 		SocketName = "IRI_SoulBow_Arrow_Hit"
@@ -1438,3 +1460,4 @@ defaultproperties
 	InvenRHandCopySocket = DefaultInvenRHandCopySocket;
 	
 }
+

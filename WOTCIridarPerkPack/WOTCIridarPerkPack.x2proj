@@ -180,9 +180,6 @@
     <Content Include="ContentForCook\Templar\IRISoulShot2.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="ContentForCook\Templar\IRISoulShotPerk2.upk">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="ContentForCook\Templar\IRISpectralStride.upk">
       <SubType>Content</SubType>
     </Content>
@@ -280,6 +277,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_Flyover.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_GrantActionPointsToShooter.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Effect_ReliableWorldDamage.uc">
@@ -533,6 +533,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_IRI_TM_Deflect.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Overload.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Effect_Seal.uc">
