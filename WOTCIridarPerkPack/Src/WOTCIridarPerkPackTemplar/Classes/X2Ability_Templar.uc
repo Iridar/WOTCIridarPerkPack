@@ -11,14 +11,14 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<X2DataTemplate> Templates;
 
 	// Squaddie
-	Templates.AddItem(IRI_TM_Rend());
+	Templates.AddItem(IRI_TM_Rend()); // TODO: Different icon?
 	Templates.AddItem(IRI_TM_Volt()); 
 	Templates.AddItem(IRI_TM_TemplarFocus());
 	Templates.AddItem(IRI_TM_FocusKillTracker());
 
 	// Corporal
 	Templates.AddItem(IRI_TM_Aftershock());
-	Templates.AddItem(IRI_TM_Amplify());
+	Templates.AddItem(IRI_TM_Amplify()); // TODO: Different icon?
 
 	// Sergeant
 	Templates.AddItem(IRI_TM_Reflect());
@@ -26,7 +26,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_SoulShot());
 
 	// Lieutenant
-	Templates.AddItem(IRI_TM_Overdraw());
+	Templates.AddItem(IRI_TM_Overdraw()); // TODO: Different icon?
 	Templates.AddItem(PurePassive('IRI_TM_Seal', "img:///IRIPerkPackUI.UIPerk_Seal", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
 
 	// Captain
@@ -95,6 +95,8 @@ static private function X2AbilityTemplate IRI_TM_Overload()
 	FocusCost.bFreeCost = true;
 	Template.AbilityCosts.AddItem(FocusCost);
 	AddCooldown(Template, `GetConfigInt('IRI_TM_Overload_Cooldown'));
+	
+	// TODO: Animation and VFX for this.
 
 	// Dummy effect which is checked for by a Volt effect
 	Effect = new class'X2Effect_Overload';
@@ -110,6 +112,9 @@ static private function X2AbilityTemplate IRI_TM_Overload()
 	return Template;
 }
 
+// Using a separate ability to always apply the Deflect Effect, because removing the effect after it has deflected an attack is a PITA.
+// TODO: Might need to do it anyway, triggering an event with no gamestate for a listener with ELD_OSS to remove the effect looks like the way to go.
+// This is needed for VFX to play on the Templar while deflect is active. 
 static private function X2AbilityTemplate IRI_TM_Deflect_Passive()
 {
 	local X2AbilityTemplate						Template;
@@ -144,14 +149,13 @@ static private function X2AbilityTemplate IRI_TM_Deflect()
 	local X2Effect_SetUnitValue			ParryUnitValue;
 	local X2AbilityCost_ActionPoints	ActionPointCost;
 	local X2AbilityCost_Focus			FocusCost;
+	local X2Condition_UnitValue			UnitValueCondition;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Deflect');
 
-	
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CAPTAIN_PRIORITY;
-	
 	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_deflectshot";
 
 	Template.AbilityToHitCalc = default.DeadEye;
@@ -160,6 +164,10 @@ static private function X2AbilityTemplate IRI_TM_Deflect()
 
 	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
  	Template.AddShooterEffectExclusions();
+
+	UnitValueCondition = new class'X2Condition_UnitValue';
+	UnitValueCondition.AddCheckValue('IRI_TM_Deflect', 0, eCheck_Exact,,, 'AA_DuplicateEffectIgnored');
+	Template.AbilityShooterConditions.AddItem(UnitValueCondition);
 
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.iNumPoints = 1;
@@ -601,11 +609,13 @@ static private function X2AbilityTemplate IRI_TM_Rend(optional name TemplateName
 
 	Template = class'X2Ability_TemplarAbilitySet'.static.Rend(TemplateName);
 
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Rend_New";
+
 	//StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
 	//StandardMelee.bGuaranteedHit = true;
 	//StandardMelee.bAllowCrit = false;
 	//Template.AbilityToHitCalc = StandardMelee;
-
+	
 	//AddSiphonEffects(Template);
 	
 	// Remove Ghost Focus cost for using Rend.
@@ -1109,8 +1119,8 @@ static private function X2AbilityTemplate IRI_TM_Amplify()
 	AmplifyEffect = new class'X2Effect_IRI_Amplify';
 	AmplifyEffect.BuildPersistentEffect(1, true, true);
 	AmplifyEffect.bRemoveWhenTargetDies = true;
-	AmplifyEffect.BonusDamageMult = class'X2Ability_TemplarAbilitySet'.default.AmplifyBonusDamageMult;
-	AmplifyEffect.MinBonusDamage = class'X2Ability_TemplarAbilitySet'.default.AmplifyMinBonusDamage;
+	AmplifyEffect.BonusDamageMult = `GetConfigFloat("IRI_TM_Amplify_DamageMult");
+	AmplifyEffect.MinBonusDamage = `GetConfigInt("IRI_TM_Amplify_MinDamageBonus");
 	
 	AbilityTag = X2AbilityTag(`XEXPANDCONTEXT.FindTag("Ability"));
 	AbilityTag.ParseObj = AmplifyEffect;
@@ -1428,7 +1438,7 @@ static private function X2AbilityTemplate IRI_TM_Invert()
 	UnitCondition.TreatMindControlledSquadmateAsHostile = false;
 	UnitCondition.FailOnNonUnits = true;
 	UnitCondition.ExcludeLargeUnits = true;
-	UnitCondition.ExcludeTurret = true;
+	UnitCondition.ExcludeTurret = true; // hue hue hue, but no
 	Template.AbilityTargetConditions.AddItem(UnitCondition);
 	Template.AbilityTargetConditions.AddItem(class'X2Ability_TemplarAbilitySet'.static.InvertAndExchangeEffectsCondition());
 
@@ -1577,7 +1587,7 @@ static private function X2AbilityTemplate IRI_TM_Overdraw()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Overdraw";
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_VoidConduit";
 
 	SetPassive(Template);
 	SetHidden(Template);

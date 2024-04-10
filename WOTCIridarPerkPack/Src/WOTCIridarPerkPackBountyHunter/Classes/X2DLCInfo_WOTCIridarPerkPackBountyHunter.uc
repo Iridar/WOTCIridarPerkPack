@@ -137,7 +137,13 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_TM_Ghost_InitialFocus":
 	case "IRI_TM_Ghost_InitialActions":
 	case "IRI_TM_Deflect_FocusCost":
+	case "IRI_TM_Amplify_MinDamageBonus":
+	case "IRI_TM_SoulShot_ToHitBonus":
 		OutString = TMColor(`GetConfigInt(InString));
+		return true;
+
+	case "IRI_TM_Amplify_DamageMult":
+		OutString = TMColor(GetPercentValue(InString));
 		return true;
 
 	case "IRI_TM_SiphonedEffects":

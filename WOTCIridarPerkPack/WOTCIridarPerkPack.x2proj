@@ -90,9 +90,6 @@
     <Content Include="Config\Templar\XComGame.ini">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Config\Templar\XComGameData.ini">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Config\Templar\XComGameData_SoldierSkills.ini">
       <SubType>Content</SubType>
     </Content>

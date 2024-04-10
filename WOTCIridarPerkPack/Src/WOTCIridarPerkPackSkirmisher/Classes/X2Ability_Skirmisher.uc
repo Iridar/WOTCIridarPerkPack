@@ -135,8 +135,6 @@ static private function X2AbilityTemplate IRI_SK_ForwardOperator()
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTargetStyle = default.SelfTarget;
 
-	// TODO :Specifically for if you want to give xcom units action points, if you are ending your turn with the action that makes enemies scamper, the action points are given too late and the turn ends
-
 	AbilityTrigger = new class'X2AbilityTrigger_EventListener';
 	AbilityTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
 	AbilityTrigger.ListenerData.EventID = 'ScamperEnd';
@@ -172,9 +170,13 @@ static private function X2AbilityTemplate IRI_SK_ForwardOperator()
 	ThisTurnCondition = new class'X2Condition_ThisUnitTurn';
 	ThisTurnCondition.bReverseCondition = true;
 
+	// TODO: Make this work if a pod is pulled with the final action of the Skirmisher with nobody else in the squad having actions, which gives the AP and then ends the turn.
+	// Just removing the condition makes it work properly, so I'll have to find a way to not apply this effect if the unit's turn has not ended.
+	// As a stupid workaround, triggering a PostActivationEvent to then remove the interrupt effect from the unit if it's still their turn might work.
+
 	InterruptEffect = new class'X2Effect_SkirmisherInterrupt_Fixed';
 	InterruptEffect.BuildPersistentEffect(1, false, , , eGameRule_PlayerTurnBegin);
-	InterruptEffect.TargetConditions.AddItem(ThisTurnCondition);
+	//InterruptEffect.TargetConditions.AddItem(ThisTurnCondition);
 	Template.AddShooterEffect(InterruptEffect);
 
 	// State and Viz
