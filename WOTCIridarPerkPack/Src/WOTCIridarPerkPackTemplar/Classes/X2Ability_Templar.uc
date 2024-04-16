@@ -119,7 +119,7 @@ static private function X2AbilityTemplate IRI_TM_Deflect_Passive()
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_TM_Deflect_Passive');
 
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_deflectshot";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Deflect_New";
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	SetHidden(Template);
 
@@ -129,7 +129,7 @@ static private function X2AbilityTemplate IRI_TM_Deflect_Passive()
 
 	Effect = new class'X2Effect_IRI_TM_Deflect';
 	Effect.BuildPersistentEffect(1, true, false);
-	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Effect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, "img:///IRIPerkPackUI.Status_Deflect", Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
 	Template.bSkipFireAction = true;
@@ -153,7 +153,7 @@ static private function X2AbilityTemplate IRI_TM_Deflect()
 	Template.AbilitySourceName = 'eAbilitySource_Psionic';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_AlwaysShow;
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.CLASS_CAPTAIN_PRIORITY;
-	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_deflectshot";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_Deflect_New";
 
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTargetStyle = default.SelfTarget;
@@ -777,7 +777,7 @@ static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
 
 	Template.OverrideAbilityAvailabilityFn = ArcWave_OverrideAbilityAvailability;
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
-	Template.ModifyNewContextFn = SoulShot_ArcWave_ModifyActivatedAbilityContext;
+	Template.ModifyNewContextFn = SoulShot_ArcWave_ModifyActivatedAbilityContext; // Requires to update multi targets when missing
 
 	SetFireAnim(Template, 'HL_SoulShot_ArcWave');
 	
