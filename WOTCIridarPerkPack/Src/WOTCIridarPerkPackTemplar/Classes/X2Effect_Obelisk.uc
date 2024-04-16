@@ -1,6 +1,6 @@
 class X2Effect_Obelisk extends X2Effect_Pillar;
 
-// TODO: Apply Pillar Fix
+// Needs doing: Apply Pillar Fix (there is no pillar fix, it's buggedddddd)
 
 function int GetStartingNumTurns(const out EffectAppliedData ApplyEffectParameters)
 {

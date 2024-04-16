@@ -13,7 +13,7 @@ function Init(XComGameState_Unit InUnitState, XComGameState_Ability InAbilitySta
 	SightRangeUnits = `METERSTOUNITS(UnitState.GetCurrentStat(eStat_SightRadius));
 }
 
-// TODO: This needs to get the reachable tile cache, then filter out tiles from where the enemy cannot be seen.
+// ScootAndShoot not finished: This needs to get the reachable tile cache, then filter out tiles from where the enemy cannot be seen.
 simulated function UpdateMeleeTarget(XComGameState_BaseObject Target)
 {
 	local X2AbilityTemplate AbilityTemplate;

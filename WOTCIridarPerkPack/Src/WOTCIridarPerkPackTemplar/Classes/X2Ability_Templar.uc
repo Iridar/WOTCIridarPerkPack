@@ -2,23 +2,19 @@ class X2Ability_Templar extends X2Ability;
 
 var private localized string strSiphonEffectDesc;
 
-/*
-TODO: Check ability icons
-*/
-
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
 	// Squaddie
-	Templates.AddItem(IRI_TM_Rend()); // TODO: Different icon?
+	Templates.AddItem(IRI_TM_Rend());
 	Templates.AddItem(IRI_TM_Volt()); 
 	Templates.AddItem(IRI_TM_TemplarFocus());
 	Templates.AddItem(IRI_TM_FocusKillTracker());
 
 	// Corporal
 	Templates.AddItem(IRI_TM_Aftershock());
-	Templates.AddItem(IRI_TM_Amplify()); // TODO: Different icon?
+	Templates.AddItem(IRI_TM_Amplify());
 
 	// Sergeant
 	Templates.AddItem(IRI_TM_Reflect());
@@ -26,7 +22,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_TM_SoulShot());
 
 	// Lieutenant
-	Templates.AddItem(IRI_TM_Overdraw()); // TODO: Different icon?
+	Templates.AddItem(IRI_TM_Overdraw());
 	Templates.AddItem(PurePassive('IRI_TM_Seal', "img:///IRIPerkPackUI.UIPerk_Seal", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
 
 	// Captain
@@ -108,6 +104,7 @@ static private function X2AbilityTemplate IRI_TM_Overload()
 	Template.Hostility = eHostility_Neutral;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	// Not interruptible.
 
 	return Template;
 }
@@ -693,8 +690,7 @@ static function X2AbilityTemplate IRI_TM_ArcWave()
 	Template.AbilityMultiTargetConditions.AddItem(default.LivingHostileUnitOnlyProperty);
 
 	// State and Viz
-	// TODO: Apply arc wave fixes from MrNice's mod Ability Interaction Fixes
-	Template.bSkipMoveStop = false;
+	Template.bSkipMoveStop = true;
 	Template.bFrameEvenWhenUnitIsHidden = true;
 	Template.CustomFireAnim = 'FF_ArcWave_MeleeA';
 	Template.CustomFireKillAnim = 'FF_ArcWave_MeleeKillA';
@@ -754,8 +750,6 @@ static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
 	StandardAim.bAllowCrit = true;
 	StandardAim.BuiltInHitMod = `GetConfigInt('IRI_TM_SoulShot_ToHitBonus');
 	Template.AbilityToHitCalc = StandardAim;
-
-	// TODO: These?
 	//Template.TargetingMethod = class'X2TargetingMethod_ArcWave';
 	//Template.ActionFireClass = class'X2Action_Fire_Wave';
 
@@ -777,15 +771,13 @@ static private function X2AbilityTemplate IRI_TM_SoulShot_ArcWave()
 		Template.AddMultiTargetEffect(VoltEffect);
 	}
 
-	// TODO: Handle missing
-
 	RemoveEffect = new class'X2Effect_RemoveEffects';
 	RemoveEffect.EffectNamesToRemove.AddItem('IRI_TM_Surge_Effect');
 	Template.AddShooterEffect(RemoveEffect);
 
 	Template.OverrideAbilityAvailabilityFn = ArcWave_OverrideAbilityAvailability;
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_NeverShow;
-	//Template.ModifyNewContextFn = SoulShot_ArcWave_ModifyActivatedAbilityContext;
+	Template.ModifyNewContextFn = SoulShot_ArcWave_ModifyActivatedAbilityContext;
 
 	SetFireAnim(Template, 'HL_SoulShot_ArcWave');
 	
@@ -1049,7 +1041,6 @@ static function array<X2Effect> CreateVoltEffects()
 	//
 	//ReturnArray.AddItem(OverloadEffect);
 	//
-	//// TODO: These effects need to be applied by a KillMail triggered ability, otherwise the AP is granted before the ability cost is applied. PostAbilityCostPaid might not be good enough, but worth a test.
 	//// Effect - Overload Flyover
 	//FlyoverEffect = new class'X2Effect_Flyover';
 	//FlyoverEffect.AbilityName = 'IRI_TM_Overload';
@@ -1280,7 +1271,7 @@ static private function X2AbilityTemplate IRI_TM_ReflectShot()
 	Template.Hostility = eHostility_Offensive;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.BuildInterruptGameStateFn = none; // TypicalAbility_BuildInterruptGameState; // This shouldn't be interruptible.
 	Template.MergeVisualizationFn = class'X2Ability_TemplarAbilitySet'.static.ReflectShotMergeVisualization;
 	
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
@@ -1536,7 +1527,7 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
-	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.BuildInterruptGameStateFn = none; //TypicalAbility_BuildInterruptGameState; // Shouldn't be interruptible.
 	
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
@@ -1557,8 +1548,7 @@ static private function X2Effect CreateSealEffect()
 	// Balancing: one enemy can be marked only by one Templar at a time.
 	SealEffect.DuplicateResponse = eDupe_Ignore;
 
-	// TODO: Icon
-	SealEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Seal_EffectTitle"), `GetLocalizedString("IRI_TM_Seal_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_WitchHunt", true,, 'eAbilitySource_Psionic');
+	SealEffect.SetDisplayInfo(ePerkBuff_Penalty, `GetLocalizedString("IRI_TM_Seal_EffectTitle"), `GetLocalizedString("IRI_TM_Seal_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_Seal", true,, 'eAbilitySource_Psionic');
 
 	// Can't apply the effect if we're missing the Seal ability
 	AbilityCondition = new class'X2Condition_AbilityProperty';
@@ -1756,7 +1746,7 @@ static function X2AbilityTemplate IRI_TM_Obelisk()
 	Template.AbilityToHitCalc = default.DeadEye;
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 
-	// TODO: Add visible range requirement
+	// Needs doing: Add visible range requirement
 	Template.TargetingMethod = class'X2TargetingMethod_Pillar';
 
 	Cursor = new class'X2AbilityTarget_Cursor';
@@ -1769,7 +1759,7 @@ static function X2AbilityTemplate IRI_TM_Obelisk()
 
 	// Costs
 
-	// TODO: DEBUG ONLY
+	// Needs doing (only debug)
 //FocusCost = new class'X2AbilityCost_Focus';
 //FocusCost.FocusAmount = `GetConfigInt('IRI_TM_Obelisk_FocusCost');
 //Template.AbilityCosts.AddItem(FocusCost);
@@ -1987,9 +1977,10 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	if (ObeliskState == none)
 		return;
 
-	// TODO: Custom exit cover action
-	// TODO: Vold casted twice on an enemy attack that killed the Templar??
-	// TODO: Alter Aftershock effect so it doesn't pop in so suddenly. Or maybe that's Projectile Hit effect.
+	// Needs doing
+	// Custom exit cover action
+	// Vold casted twice on an enemy attack that killed the Templar??
+	// Alter Aftershock effect so it doesn't pop in so suddenly. Or maybe that's Projectile Hit effect.
 
 	bGoodAbility = SourceUnit.IsFriendlyToLocalPlayer();
 
@@ -2011,9 +2002,9 @@ static private function ObeliskVolt_BuildVisualization(XComGameState VisualizeGa
 	//FlyoverAction = X2Action_PlaySoundAndFlyOver(class'X2Action_PlaySoundAndFlyOver'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, ExitCover.ParentActions));
     //FlyoverAction.SetSoundAndFlyOverParameters(None, AbilityTemplate.LocFlyOverText, '', bGoodAbility ? eColor_Good : eColor_Bad, AbilityTemplate.IconImage);
 
-	// TODO: Figure out why this flyover plays only once.
+	// Needs doing: Figure out why this flyover plays only once.
 	FlyoverAction = X2Action_PlayFlyover(class'X2Action_PlayFlyover'.static.AddToVisualizationTree(ActionMetaData, AbilityContext, false,, CommonParents));
-	FlyoverAction.ActorRef.ObjectID = SourceUnit.ObjectID; // TODO: Maybe put Obelisk's object ID here.
+	FlyoverAction.ActorRef.ObjectID = SourceUnit.ObjectID; // Needs doing: Maybe put Obelisk's object ID here.
 	FlyoverAction.FlyoverMessage = AbilityTemplate.LocFlyOverText;
 	FlyoverAction.FlyoverIcon = AbilityTemplate.IconImage;
 	FlyoverAction.FlyoverLocation = ObeliskFiringLocation;
@@ -2229,7 +2220,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp()
 	// Costs
 //Template.AbilityCosts.AddItem(new class'X2AbilityCost_Focus'); DEBUG ONLY
 
-// TODO: Handle cases:
+// Needs doing: Handle cases:
 // 1. Grasp the spirit and kill the spirit
 // 2. Grasp the spirit and kill the body
 // 3. Grasp the spirit and let it expire

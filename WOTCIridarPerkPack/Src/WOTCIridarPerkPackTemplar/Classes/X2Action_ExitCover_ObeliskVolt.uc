@@ -100,7 +100,7 @@ simulated state Executing
 		`assert(AbilityTemplate != none);
 
 		// dkaplan: hacky, but we need to address this more properly in the future anyways;  
-		// TODO: replace the template type lookup with an alternate template property setting, perhaps an alternate value to FrameAbilityCameraType
+		// Needs doing: replace the template type lookup with an alternate template property setting, perhaps an alternate value to FrameAbilityCameraType
 		if(AbilityContext.ShouldFrameAbility() && AbilityTemplate.DataName != 'LostAttack' )
 		{
 			FramingCamera = new class'X2Camera_FrameAbility';
@@ -262,7 +262,7 @@ Begin:
 				Unit.IdleStateMachine.GoDormant();
 			}
 
-			//@TODO - jbouscher/rmcfall/jwatson - is left hand IK still applied? If so, is it still controlled this way or is it part of the animation controller?
+			//@ - jbouscher/rmcfall/jwatson - is left hand IK still applied? If so, is it still controlled this way or is it part of the animation controller?
 			UnitPawn.EnableLeftHandIK(true);
 
 			//Based on the unit's current cover state, this sets UseCoverDirectionIndex and UsePeekSide to determine which exit cover animation to use. This function also

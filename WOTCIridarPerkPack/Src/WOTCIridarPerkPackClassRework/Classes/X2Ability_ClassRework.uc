@@ -17,8 +17,10 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_RN_TacticalAdvance());
 	Templates.AddItem(PurePassive('IRI_RN_TacticalAdvance_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(IRI_RN_Intercept());
+	Templates.AddItem(IRI_TM_Intercept());
 	Templates.AddItem(IRI_RN_Intercept_Return());
 	Templates.AddItem(IRI_RN_Intercept_Attack());
+	Templates.AddItem(IRI_TM_Intercept_Attack());
 
 	Templates.AddItem(IRI_RN_SurpriseAttack());
 	Templates.AddItem(PurePassive('IRI_RN_SurpriseAttack_Passive', "img:///UILibrary_PerkIcons.UIPerk_shadowstrike", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
@@ -37,7 +39,6 @@ static function array<X2DataTemplate> CreateTemplates()
 	// Reaper
 	Templates.AddItem(IRI_RP_Takedown());
 	Templates.AddItem(IRI_RP_TakedownCiv());
-
 	Templates.AddItem(IRI_RP_WoundingShot());
 
 	// AWC
@@ -1720,7 +1721,7 @@ static private function OrdnancePouchPurchased(XComGameState NewGameState, XComG
 //							SHARPSHOOTER
 // --------------------------------------------------------
 
-
+// This ability is unfinished, search for ScootAndShoot keyword.
 static private function X2AbilityTemplate IRI_SH_ScootAndShoot()
 {
 	local X2AbilityTemplate							Template;
@@ -2225,7 +2226,7 @@ static private function X2AbilityTemplate IRI_RN_SurpriseAttack()
 	return Template;
 }
 
-static private function X2AbilityTemplate IRI_RN_Intercept()
+static private function X2AbilityTemplate CreateInterceptAbility(const name TemplateName)
 {
 	local X2AbilityTemplate				Template;
 	local X2Effect_RN_Intercept			InterceptEffect;
@@ -2236,7 +2237,7 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 	local array<name>                   SkipExclusions;
 	local X2Effect_ReserveOverwatchPoints	ReserveOverwatchPoints;
 
-	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_RN_Intercept');
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'TemplateName');
 
 	// Icon Properties
 	Template.AbilitySourceName = 'eAbilitySource_Standard';
@@ -2307,8 +2308,7 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = class'X2Ability_DefaultAbilitySet'.static.OverwatchAbility_BuildVisualization;
 
-	Template.AdditionalAbilities.AddItem('IRI_RN_Intercept_Return');
-	Template.AdditionalAbilities.AddItem('IRI_RN_Intercept_Attack');
+	
 
 	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.NonAggressiveChosenActivationIncreasePerUse;
 	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentNormalLoss;
@@ -2316,6 +2316,56 @@ static private function X2AbilityTemplate IRI_RN_Intercept()
 
 	return Template;
 }
+
+static private function X2AbilityTemplate IRI_RN_Intercept()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_RN_Intercept	InterceptEffect;
+
+	Template = CreateInterceptAbility('IRI_RN_Intercept');
+
+	InterceptEffect = new class'X2Effect_RN_Intercept';
+	InterceptEffect.TriggerEventName = 'AbilityActivated';
+	InterceptEffect.bAllowCoveringFire = true;
+	InterceptEffect.bInterceptMovementOnly = true;
+	InterceptEffect.bAllowInterrupt = true;
+	InterceptEffect.bAllowNonInterrupt_IfNonInterruptible = true; // First place to check if there are ANY issues with this ability.
+	InterceptEffect.bMoveAfterAttack = true;
+	InterceptEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
+	InterceptEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddShooterEffect(InterceptEffect);
+
+	Template.AdditionalAbilities.AddItem('IRI_RN_Intercept_Return');
+	Template.AdditionalAbilities.AddItem('IRI_RN_Intercept_Attack');
+
+	return Template;
+}
+
+static private function X2AbilityTemplate IRI_TM_Intercept()
+{
+	local X2AbilityTemplate		Template;
+	local X2Effect_RN_Intercept	InterceptEffect;
+
+	Template = CreateInterceptAbility('IRI_TM_Intercept');
+
+	InterceptEffect = new class'X2Effect_RN_Intercept';
+	InterceptEffect.TriggerEventName = 'AbilityActivated';
+	InterceptEffect.bAllowCoveringFire = true;
+	InterceptEffect.bInterceptMovementOnly = true;
+	InterceptEffect.InterceptAttackAbilityName = 'IRI_TM_Intercept_Attack';
+	InterceptEffect.bAllowInterrupt = true;
+	InterceptEffect.bAllowNonInterrupt_IfNonInterruptible = true; // First place to check if there are ANY issues with this ability.
+	InterceptEffect.bMoveAfterAttack = true;
+	InterceptEffect.BuildPersistentEffect(1, false, true, false, eGameRule_PlayerTurnBegin);
+	InterceptEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddShooterEffect(InterceptEffect);
+
+	Template.AdditionalAbilities.AddItem('IRI_RN_Intercept_Return');
+	Template.AdditionalAbilities.AddItem('IRI_TM_Intercept_Attack');
+
+	return Template;
+}
+
 
 
 static private function X2AbilityTemplate IRI_RN_Intercept_Return()
@@ -2443,6 +2493,45 @@ static private function X2AbilityTemplate IRI_RN_Intercept_Attack()
 	//	ToHicCalc will automatically remove the penalty if we Intercept while concealed.
 	StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
 	StandardMelee.bReactionFire = true;
+	Template.AbilityToHitCalc = StandardMelee;
+
+	//	Remove cinematic camera, it looks super bad when target is moving.
+	Template.CinescriptCameraType = "";
+
+	Template.bUniqueSource = true;
+
+	//	Must be interruptible, otherwise will deal damage even if the intercepting unit is killed by enemy reaction fire.
+	//Template.BuildInterruptGameStateFn = none;
+
+	return Template;
+}
+static private function X2AbilityTemplate IRI_TM_Intercept_Attack()
+{
+	local X2AbilityTemplate					Template;
+	local X2AbilityToHitCalc_StandardMelee  StandardMelee;
+	local X2AbilityCost_ReserveActionPoints	ReserveAPCost;
+	
+	Template = class'X2Ability_RangerAbilitySet'.static.AddSwordSliceAbility('IRI_TM_Intercept_Attack');
+	ResetMeleeShooterConditions(Template);
+
+	//	Remove the end-of-move trigger to fix the bug where it would override Sword Slice's sometimes.
+	Template.AbilityTriggers.Length = 0;
+	Template.AbilityTriggers.AddItem(new class'X2AbilityTrigger_Placeholder');
+	
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_RN_Intercept";
+	SetHidden(Template);
+
+	//Template.AbilityCosts.Length = 0;
+	ReserveAPCost = new class'X2AbilityCost_ReserveActionPoints';
+	ReserveAPCost.iNumPoints = 1;
+	ReserveAPCost.AllowedTypes.AddItem('iri_intercept_ap');
+	Template.AbilityCosts.AddItem(ReserveAPCost);
+
+	//	Suffers reaction fire penalties.
+	//	ToHicCalc will automatically remove the penalty if we Intercept while concealed.
+	StandardMelee = new class'X2AbilityToHitCalc_StandardMelee';
+	StandardMelee.bReactionFire = true;
+	StandardMelee.bGuaranteedHit = true; // Only difference is that Templar's Intercept is guaranteed hit.
 	Template.AbilityToHitCalc = StandardMelee;
 
 	//	Remove cinematic camera, it looks super bad when target is moving.

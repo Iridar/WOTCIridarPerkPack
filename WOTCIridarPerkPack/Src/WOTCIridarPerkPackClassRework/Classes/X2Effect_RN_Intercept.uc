@@ -7,6 +7,9 @@ var bool bAllowNonInterrupt;		//	[...] during non-Interrupt stage.
 var bool bAllowNonInterrupt_IfNonInterruptible;	// [...] during non-Interrupt stage, but only for abilities that don't have a BuildInterruptGameStateFn
 var bool bInterceptMovementOnly;	//	Whether the soldier is allowed to Intercept only enemy movement.
 var bool bAllowCoveringFire;		//	If bInterceptMovementOnly, allow to Intercept all kinds of ability activations, if the soldier has the covering fire ability.
+var name InterceptAttackAbilityName;
+
+// TODO: Debug Intercet. 
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
@@ -156,7 +159,7 @@ static private function EventListenerReturn Intercept_Listener(Object EventData,
 	}
 
 	//	Grab the Reference to the ability we want to Intercept with. Exit Listener if the soldier doesn't have this ability, which shouldn't really happen.
-	AbilityRef = UnitState.FindAbility('IRI_RN_Intercept_Attack');
+	AbilityRef = UnitState.FindAbility(InterceptEffect.InterceptAttackAbilityName);
 	if (AbilityRef.ObjectID == 0) 
 	{
 		`AMLOG("EXIT :: no Intercept Abiltiy");
@@ -531,4 +534,5 @@ defaultproperties
 	EffectName = "IRI_RN_Intercept_Effect"
 	TriggerEventName = "UnitMoveFinished"
 	bMoveAfterAttack = true
+	InterceptAttackAbilityName = "IRI_RN_Intercept_Attack"
 }

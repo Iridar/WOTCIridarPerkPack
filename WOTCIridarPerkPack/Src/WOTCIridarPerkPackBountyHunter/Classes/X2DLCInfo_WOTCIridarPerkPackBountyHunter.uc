@@ -502,7 +502,7 @@ static event OnPostTemplatesCreated()
 	Reaper_PatchShadow();
 	CopyAbilityLocalization('IRI_TM_Aftershock', 'Reverberation');
 	CopyAbilityLocalization('IRI_TM_FocusKillTracker', 'FocusKillTracker');
-	
+	Templar_PatchMeditationPreparation();
 	
 	
 	//local X2SoldierClassTemplateManager	ClassMgr;
@@ -538,6 +538,23 @@ static event OnPostTemplatesCreated()
     }
 	
 	*/
+}
+
+// Allows Mentally Awake to work with the new Templar Focus passive.
+static private function Templar_PatchMeditationPreparation()
+{
+	local X2AbilityTemplateManager				AbilityMgr;
+	local X2AbilityTemplate						AbilityTemplate;
+	local X2AbilityTrigger_OnAbilityActivated	ActivationTrigger;
+
+	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+	AbilityTemplate = AbilityMgr.FindAbilityTemplate('MeditationPreparation');
+	if (AbilityTemplate == none)	
+		return;
+
+	ActivationTrigger = new class'X2AbilityTrigger_OnAbilityActivated';
+	ActivationTrigger.SetListenerData('IRI_TM_TemplarFocus');
+	AbilityTemplate.AbilityTriggers.AddItem(ActivationTrigger);
 }
 
 static private function Reaper_PatchShadow()

@@ -502,12 +502,6 @@
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Action_PlaySound.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2CharacterTemplate_AstralGrasp.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Character_AstralGrasp.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\WOTCIridarPerkPackTemplar\Classes\X2Condition_IsGhostShooter.uc">
       <SubType>Content</SubType>
     </Content>
