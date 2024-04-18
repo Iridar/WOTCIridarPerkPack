@@ -92,7 +92,7 @@ static private function X2AbilityTemplate IRI_TM_Overload()
 	Template.AbilityCosts.AddItem(FocusCost);
 	AddCooldown(Template, `GetConfigInt('IRI_TM_Overload_Cooldown'));
 	
-	// TODO: Animation and VFX for this.
+	// Needs doing: missing persistent VFX, activation animation and VFX
 
 	// Dummy effect which is checked for by a Volt effect
 	Effect = new class'X2Effect_Overload';
@@ -101,6 +101,7 @@ static private function X2AbilityTemplate IRI_TM_Overload()
 	Template.AddTargetEffect(Effect);
 
 	// State and Viz
+	SetFireAnim(Template, 'HL_SpectralStride');
 	Template.Hostility = eHostility_Neutral;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
@@ -140,6 +141,7 @@ static private function X2AbilityTemplate IRI_TM_Deflect_Passive()
 	return Template;
 }
 
+// Needs doing: missing activation animation and VFX
 static private function X2AbilityTemplate IRI_TM_Deflect()
 {
 	local X2AbilityTemplate				Template;
@@ -182,14 +184,16 @@ static private function X2AbilityTemplate IRI_TM_Deflect()
 	ParryUnitValue.CleanupType = eCleanup_BeginTactical;
 	Template.AddShooterEffect(ParryUnitValue);
 
+	
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";
 	Template.bFrameEvenWhenUnitIsHidden = true;
 	Template.Hostility = eHostility_Defensive;
 	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
 	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
 	Template.BuildInterruptGameStateFn = none;;
-	Template.bShowActivation = true;
-	Template.bSkipFireAction = true;
+	Template.bShowActivation = false;
+	Template.bSkipFireAction = false;
+	SetFireAnim(Template, 'HL_Lens');
 	
 	Template.AdditionalAbilities.AddItem('IRI_TM_Deflect_Passive');
 
@@ -850,15 +854,19 @@ static function X2AbilityTemplate IRI_TM_ArcWave_Trigger()
 	UnitEffects.AddExcludeEffect('IRI_TM_Surge_Effect', 'AA_DuplicateEffectIgnored');
 	Template.AbilityShooterConditions.AddItem(UnitEffects);
 
-	// TOOD: And add some VFX 
-	// And/or a status icon?
 	SurgeEffect = new class'X2Effect_Persistent';
 	SurgeEffect.BuildPersistentEffect(1, true);
 	SurgeEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,, Template.AbilitySourceName);
 	SurgeEffect.EffectName = 'IRI_TM_Surge_Effect';
+	SurgeEffect.VisualizationFn = Surge_EffectVisualization;
+	SurgeEffect.VFXTemplateName = "IRISpectralStride.PS_Surge_Persistent";
+	SurgeEffect.VFXSocket = 'CIN_Root';
+	SurgeEffect.VFXSocketsArrayName = 'BoneSocketActor';
+	SurgeEffect.DuplicateResponse = eDupe_Ignore;
 	Template.AddShooterEffect(SurgeEffect);
 
 	// State and Viz
+	//SetFireAnim(Template, 'HL_IRI_Surge');
 	Template.bSkipFireAction = true;
 	Template.bShowActivation = true;
 	Template.Hostility = eHostility_Neutral;
@@ -870,6 +878,11 @@ static function X2AbilityTemplate IRI_TM_ArcWave_Trigger()
 	Template.AdditionalAbilities.AddItem('IRI_TM_ArcWave_Passive');
 	
 	return Template;
+}
+
+static private function Surge_EffectVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
+{
+	// TODO: Play activation animation
 }
 
 static private function EventListenerReturn ArcWave_Trigger_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
@@ -1451,6 +1464,8 @@ static private function X2AbilityTemplate IRI_TM_Invert()
 	return Template;
 }
 
+
+// Needs doing: visual effect kicks in too late, after animation fully plays
 static private function X2AbilityTemplate IRI_TM_SpectralStride()
 {
 	local X2AbilityTemplate				Template;
@@ -1518,10 +1533,10 @@ static private function X2AbilityTemplate IRI_TM_SpectralStride()
 	Template.AddTargetEffect(AnimEffect);
 
 	// State and Viz
-	Template.bShowActivation = true;
-	Template.CinescriptCameraType = "IRI_TM_SpectralStride";
+	Template.bShowActivation = false;
+	Template.CinescriptCameraType = "Templar_VoidConduit"; //"IRI_TM_SpectralStride";
 	Template.bFrameEvenWhenUnitIsHidden = true;
-	SetFireAnim(Template, 'HL_SpectralStride');
+	SetFireAnim(Template, 'HL_VoidConduit');
 	Template.ActivationSpeech = 'Exchange';
 	Template.Hostility = eHostility_Neutral;
 	Template.AbilityConfirmSound = "TacticalUI_ActivateAbility";

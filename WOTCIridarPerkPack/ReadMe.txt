@@ -1,3 +1,12 @@
+
+"IRIAstralGrasp",
+"IRIAstralGraspPerk",
+"IRIAstralGraspSpirit",
+"IRIAstralGraspSpiritDeathPerk",
+"IRIPredatorStrikePerk",
+"IRISiphon",
+"IRIObelisk",
+
 ================================================== ENGLISH DESCRIPTION ==================================================
 
 [WOTC] Iridar's Perk Pack
