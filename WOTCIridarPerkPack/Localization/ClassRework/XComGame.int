@@ -3,18 +3,18 @@
 ; ----------------------------------------------------------
 
 
-[IRI_RP_Takedown X2AbilityTemplate]
-LocFriendlyName="Takedown"
-LocLongDescription="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the <Ability:ClassName/> is not revealed. Can be used <Ability:IRI_RP_TakedownCharges/> time(s) after entering Shadow. Takedown can also be used to silently knock out a group of civilians."
-LocHelpText="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the <Ability:ClassName/> is not revealed."
-LocPromotionPopupText="<Bullet/> Enemies that take cover can be hit by Takedown only from tiles they would be flanked from.<br/><Bullet/> Takedown has <Ability:IRI_RP_TakedownCharges/> charge(s), refreshed whenever the <Ability:ClassName/> enters Shadow.<br/><Bullet/> Taking down civilians does not cost a charge."
-LocFlyOverText="Takedown"
-
-[IRI_RP_TakedownCiv X2AbilityTemplate]
-LocFriendlyName="Takedown Civilians"
-LocLongDescription="While in Shadow, knock out a group of civilians in the target area."
-LocHelpText="While in Shadow, knock out a group of civilians in the target area."
-LocFlyOverText="Takedown"
+; [IRI_RP_Takedown X2AbilityTemplate]
+; LocFriendlyName="Takedown"
+; LocLongDescription="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the <Ability:ClassName/> is not revealed. Can be used <Ability:IRI_RP_TakedownCharges/> time(s) after entering Shadow. Takedown can also be used to silently knock out a group of civilians."
+; LocHelpText="While in Shadow, deliver a flanking critical strike with a knife, dealing 6 damage. If this attack kills the target, the <Ability:ClassName/> is not revealed."
+; LocPromotionPopupText="<Bullet/> Enemies that take cover can be hit by Takedown only from tiles they would be flanked from.<br/><Bullet/> Takedown has <Ability:IRI_RP_TakedownCharges/> charge(s), refreshed whenever the <Ability:ClassName/> enters Shadow.<br/><Bullet/> Taking down civilians does not cost a charge."
+; LocFlyOverText="Takedown"
+; 
+; [IRI_RP_TakedownCiv X2AbilityTemplate]
+; LocFriendlyName="Takedown Civilians"
+; LocLongDescription="While in Shadow, knock out a group of civilians in the target area."
+; LocHelpText="While in Shadow, knock out a group of civilians in the target area."
+; LocFlyOverText="Takedown"
 
 
 [IRI_RP_WoundingShot X2AbilityTemplate]
@@ -196,4 +196,5 @@ LocPromotionPopupText="<Bullet/> Non-offensive actions like Reload can still be 
 LocFriendlyName="Medicine Pouch"
 LocHelpText="Gain a dedicated slot for a medikit or another similar item."
 LocLongDescription="Gain a dedicated slot for a medikit or another similar item."
-LocPromotionPopupText="<Bullet/> Medicine Pouch does not bypass the rule of one healing item per soldier."
+LocPromotionPopupText="<Bullet/> Medicine Pouch does not allow carrying more than one healing item per soldier."
+

@@ -4,22 +4,22 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
-	Templates.AddItem(IRI_SK_PredatorStrike());
-	Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
-
-	Templates.AddItem(IRI_SK_ThunderLance());
-	Templates.AddItem(IRI_SK_ThunderLance_Passive());
-
-	Templates.AddItem(IRI_SK_KineticArmor());
-	Templates.AddItem(PurePassive('IRI_SK_KineticArmor_Passive', "img:///UILibrary_XPACK_Common.UIPerk_bond_brotherskeeper", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-
-	Templates.AddItem(IRI_SK_Waylay());
-
-	Templates.AddItem(IRI_SK_TacticalReadiness());
-	Templates.AddItem(PurePassive('IRI_SK_TacticalReadiness_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	// Templates.AddItem(IRI_SK_PredatorStrike());
+	// Templates.AddItem(IRI_SK_PredatorStrike_RevealNearestEnemy());
+	// 
+	// Templates.AddItem(IRI_SK_ThunderLance());
+	// Templates.AddItem(IRI_SK_ThunderLance_Passive());
+	// 
+	// Templates.AddItem(IRI_SK_KineticArmor());
+	// Templates.AddItem(PurePassive('IRI_SK_KineticArmor_Passive', "img:///UILibrary_XPACK_Common.UIPerk_bond_brotherskeeper", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	// 
+	// Templates.AddItem(IRI_SK_Waylay());
+	// 
+	// Templates.AddItem(IRI_SK_TacticalReadiness());
+	// Templates.AddItem(PurePassive('IRI_SK_TacticalReadiness_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
 	Templates.AddItem(IRI_SK_ForwardOperator());
-	Templates.AddItem(PurePassive('IRI_SK_ForwardOperator_Passive', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ForwardOperator", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(IRI_SK_ForwardOperator_Passive());
 
 
 	return Templates;
@@ -116,12 +116,11 @@ static private function EventListenerReturn OnHunkerDown_TriggerEventListener(Ob
 
 static private function X2AbilityTemplate IRI_SK_ForwardOperator()
 {
-	local X2AbilityTemplate					Template;
-	local X2AbilityTrigger_EventListener	AbilityTrigger;
-	//local array<name>						SkipExclusions;
-	local X2Condition_UnitProperty			UnitProperty;
-	local X2Effect_GrantActionPoints		ActionPointEffect;
-	local X2Condition_ThisUnitTurn			ThisTurnCondition;
+	local X2AbilityTemplate						Template;
+	local X2AbilityTrigger_EventListener		AbilityTrigger;
+	//local array<name>							SkipExclusions;
+	local X2Condition_UnitProperty				UnitProperty;
+	local X2Condition_ThisUnitTurn				ThisTurnCondition;
 	local X2Effect_SkirmisherInterrupt_Fixed	InterruptEffect;
 
 	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_ForwardOperator');
@@ -137,8 +136,9 @@ static private function X2AbilityTemplate IRI_SK_ForwardOperator()
 
 	AbilityTrigger = new class'X2AbilityTrigger_EventListener';
 	AbilityTrigger.ListenerData.Deferral = ELD_OnStateSubmitted;
-	AbilityTrigger.ListenerData.EventID = 'ScamperEnd';
+	AbilityTrigger.ListenerData.EventID = 'ProcessReflexMove';
 	AbilityTrigger.ListenerData.Filter = eFilter_None;
+	// AbilityTrigger.ListenerData.Priority = 90;
 	AbilityTrigger.ListenerData.EventFn = class'XComGameState_Ability'.static.AbilityTriggerEventListener_Self;
 	Template.AbilityTriggers.AddItem(AbilityTrigger);
 
@@ -157,26 +157,12 @@ static private function X2AbilityTemplate IRI_SK_ForwardOperator()
 	// Cost and Cooldown
 	AddCooldown(Template, 1);
 
-	// Effects
-
-	// When it's this unit's turn, give action point immediately.
-	ActionPointEffect = new class'X2Effect_GrantActionPoints';
-	ActionPointEffect.NumActionPoints = 1;
-	ActionPointEffect.PointType = class'X2CharacterTemplateManager'.default.StandardActionPoint;
-	ActionPointEffect.TargetConditions.AddItem(new class'X2Condition_ThisUnitTurn');
-	Template.AddTargetEffect(ActionPointEffect);
-
-	// Otherwise interrupt the turn.
+	// Iinterrupt the turn if it's not this unit's turn.
 	ThisTurnCondition = new class'X2Condition_ThisUnitTurn';
 	ThisTurnCondition.bReverseCondition = true;
-
-	// TODO: Make this work if a pod is pulled with the final action of the Skirmisher with nobody else in the squad having actions, which gives the AP and then ends the turn.
-	// Just removing the condition makes it work properly, so I'll have to find a way to not apply this effect if the unit's turn has not ended.
-	// As a stupid workaround, triggering a PostActivationEvent to then remove the interrupt effect from the unit if it's still their turn might work.
-
 	InterruptEffect = new class'X2Effect_SkirmisherInterrupt_Fixed';
 	InterruptEffect.BuildPersistentEffect(1, false, , , eGameRule_PlayerTurnBegin);
-	//InterruptEffect.TargetConditions.AddItem(ThisTurnCondition);
+	InterruptEffect.TargetConditions.AddItem(ThisTurnCondition);
 	Template.AddShooterEffect(InterruptEffect);
 
 	// State and Viz
@@ -192,6 +178,33 @@ static private function X2AbilityTemplate IRI_SK_ForwardOperator()
 
 	return Template;
 }
+
+static function X2AbilityTemplate IRI_SK_ForwardOperator_Passive()
+{
+	local X2AbilityTemplate				Template;
+	local X2Effect_SK_ForwardOperator	OperatorEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_SK_ForwardOperator_Passive');
+	Template.IconImage = "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_ForwardOperator";
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	SetHidden(Template);
+
+	Template.AbilityToHitCalc = default.DeadEye;
+	Template.AbilityTargetStyle = default.SelfTarget;
+	Template.AbilityTriggers.AddItem(default.UnitPostBeginPlayTrigger);
+
+	OperatorEffect = new class'X2Effect_SK_ForwardOperator';
+	OperatorEffect.BuildPersistentEffect(1, true, false, false);
+	OperatorEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true, , Template.AbilitySourceName);
+	Template.AddTargetEffect(OperatorEffect);
+
+	Template.ActivationSpeech = 'ForwardOperator';
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	//  NOTE: No visualization on purpose!
+
+	return Template;
+}
+
 
 static private function X2AbilityTemplate IRI_SK_Waylay()
 {
@@ -349,6 +362,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 
 	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
 	StandardAim.bIndirectFire = true;
+	StandardAim.bGuaranteedHit = true;
 	StandardAim.bAllowCrit = false;
 	Template.AbilityToHitCalc = StandardAim;
 

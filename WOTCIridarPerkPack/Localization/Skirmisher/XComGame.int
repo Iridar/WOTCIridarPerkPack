@@ -43,13 +43,6 @@ LocLongDescription="Overwatch gains an additional shot and is not removed by dam
 LocPromotionPopupText="<Bullet/> Trigger an ambush with a squadmate to devastate the enemy with Waylay."
 LocFlyOverText="Waylay"
 
-[IRI_SK_ForwardOperator X2AbilityTemplate]
-LocFriendlyName="Forward Operator"
-LocLongDescription="When a new group of enemies is revealed, immediately gain an action. Triggers once per turn."
-LocHelpText="When a new group of enemies is revealed, immediately gain an action. Triggers once per turn."
-LocPromotionPopupText="<Bullet/> Forward Operator allows the Skirmisher to better handle enemies that surprise the squad.<br/><Bullet/> Forward Operator can activate during enemy turn."
-LocFlyOverText="Forward Operator"
-
 [IRI_SK_TacticalReadiness X2AbilityTemplate]
 LocFriendlyName="Tactical Readiness"
 LocLongDescription="Using Hunker Down grants an extra action point at the start of your next turn."
@@ -58,7 +51,14 @@ LocPromotionPopupText="<Bullet/> Use Tactical Readiness to prepare for a breach 
 LocFlyOverText="Tactical Readiness"
 
 [IRI_SK_TacticalReadiness_Passive X2AbilityTemplate]
-LocFriendlyName="Forward Operator"
+LocFriendlyName="Tactical Readiness"
 LocLongDescription="Using Hunker Down grants an extra action point at the start of your next turn."
 LocHelpText="Using Hunker Down grants an extra action point at the start of your next turn."
 
+
+[IRI_SK_ForwardOperator X2AbilityTemplate]
+LocFriendlyName="Forward Operator"
+LocLongDescription="When a new group of enemies is revealed, immediately gain an action. Triggers once per turn."
+LocHelpText="When a new group of enemies is revealed, immediately gain an action. Triggers once per turn."
+LocPromotionPopupText="<Bullet/> Forward Operator allows the <Ability:ClassName/> to better handle enemies that surprise the squad.<br/><Bullet/> Forward Operator can activate during enemy turn.<br/><Bullet/> Forward Operator will activate even if the <Ability:ClassName/> was not the one to reveal enemies."
+LocFlyOverText="Forward Operator"

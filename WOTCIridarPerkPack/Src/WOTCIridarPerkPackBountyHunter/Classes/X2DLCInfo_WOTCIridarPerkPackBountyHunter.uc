@@ -10,7 +10,7 @@ var private SkeletalMeshSocket InvenRHandCopySocket;
 
 static function OnPreCreateTemplates()
 {
-	default.bLWOTC = class'Help'.static.IsModActive('LongWarOfTheChosen');
+	default.bLWOTC = class'Help'.static.IsModActive('LongWarOfTheChosen') || class'Help'.static.IsModActive('LWAimRolls');
 }
 
 static function string DLCAppendSockets(XComUnitPawn Pawn)
@@ -499,7 +499,9 @@ static event OnPostTemplatesCreated()
 {
 	Skirmisher_ThunderLance_PatchOverrideicons();
 	Ranger_TacticalAdvance_PatchAbilityCosts();
-	Reaper_PatchShadow();
+
+	// Reaper_PatchShadow(); // Needed for Takedown
+
 	CopyAbilityLocalization('IRI_TM_Aftershock', 'Reverberation');
 	CopyAbilityLocalization('IRI_TM_FocusKillTracker', 'FocusKillTracker');
 	Templar_PatchMeditationPreparation();

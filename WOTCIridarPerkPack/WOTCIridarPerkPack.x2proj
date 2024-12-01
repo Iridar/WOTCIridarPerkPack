@@ -132,9 +132,6 @@
     <Content Include="ContentForCook\IRIPerkPackUI.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="ContentForCook\Skirmisher\IRIPredatorStrikePerk.upk">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="ContentForCook\Skirmisher\IRISkirmisher.upk">
       <SubType>Content</SubType>
     </Content>
@@ -464,6 +461,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_SkirmisherInterrupt_Fixed.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_SK_ForwardOperator.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Effect_ThunderLance.uc">

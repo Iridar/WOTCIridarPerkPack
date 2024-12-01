@@ -9,8 +9,10 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
-	Templates.AddItem(CreateSlotTemplate());
-
+	if (default.UseSlot != eInvSlot_Unknown)
+	{
+		Templates.AddItem(CreateSlotTemplate());
+	}
 	return Templates;
 }
 

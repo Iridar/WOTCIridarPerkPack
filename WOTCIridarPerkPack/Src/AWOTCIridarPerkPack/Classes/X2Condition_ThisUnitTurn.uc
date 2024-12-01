@@ -4,12 +4,14 @@ var bool bReverseCondition;
 
 event name CallMeetsCondition(XComGameState_BaseObject kTarget) 
 {
-	local XComGameState_Unit	UnitState;
+	local XComGameState_Unit UnitState;
 	
 	UnitState = XComGameState_Unit(kTarget);
 	
 	if (UnitState == none)
 		return 'AA_NotAUnit';
+
+	`LOG("Current controlling player is:" @ `TACTICALRULES.GetCachedUnitActionPlayerRef().ObjectID,, 'IRITEST');
 
 	if (bReverseCondition)
 	{

@@ -9,7 +9,7 @@ var bool bInterceptMovementOnly;	//	Whether the soldier is allowed to Intercept 
 var bool bAllowCoveringFire;		//	If bInterceptMovementOnly, allow to Intercept all kinds of ability activations, if the soldier has the covering fire ability.
 var name InterceptAttackAbilityName;
 
-// TODO: Debug Intercet. 
+// Needs doing: this may or may not be buggy and needs rigorous testing.
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {

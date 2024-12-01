@@ -4,42 +4,42 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
-	// Sharpshooter
-	Templates.AddItem(IRI_SH_SteadyHands());
-	Templates.AddItem(PurePassive('IRI_SH_SteadyHands_Passive', "img:///UILibrary_PerkIcons.UIPerk_steadyhands", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(IRI_SH_Standoff());
-	Templates.AddItem(IRI_SH_Standoff_Shot());
-	Templates.AddItem(IRI_SH_ScootAndShoot());
-	
-
-	// Ranger
-	Templates.AddItem(IRI_RN_ZephyrStrike());
-	Templates.AddItem(IRI_RN_TacticalAdvance());
-	Templates.AddItem(PurePassive('IRI_RN_TacticalAdvance_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-	Templates.AddItem(IRI_RN_Intercept());
-	Templates.AddItem(IRI_TM_Intercept());
-	Templates.AddItem(IRI_RN_Intercept_Return());
-	Templates.AddItem(IRI_RN_Intercept_Attack());
-	Templates.AddItem(IRI_TM_Intercept_Attack());
-
-	Templates.AddItem(IRI_RN_SurpriseAttack());
-	Templates.AddItem(PurePassive('IRI_RN_SurpriseAttack_Passive', "img:///UILibrary_PerkIcons.UIPerk_shadowstrike", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
-
-	// Grenadier
-	Templates.AddItem(IRI_GN_OrdnancePouch());
-	Templates.AddItem(IRI_GN_CollateralDamage());
-	Templates.AddItem(IRI_GN_CollateralDamage_Passive());
-
-	// Specialist
-	Templates.AddItem(IRI_SP_AutonomousProtocols());
-	Templates.AddItem(IRI_SP_Overclock());
-	Templates.AddItem(IRI_SP_ScoutingProtocol());
-	Templates.AddItem(IRI_SP_ConstantReadiness());
-
-	// Reaper
-	Templates.AddItem(IRI_RP_Takedown());
-	Templates.AddItem(IRI_RP_TakedownCiv());
-	Templates.AddItem(IRI_RP_WoundingShot());
+	// // Sharpshooter
+	// Templates.AddItem(IRI_SH_SteadyHands());
+	// Templates.AddItem(PurePassive('IRI_SH_SteadyHands_Passive', "img:///UILibrary_PerkIcons.UIPerk_steadyhands", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	// Templates.AddItem(IRI_SH_Standoff());
+	// Templates.AddItem(IRI_SH_Standoff_Shot());
+	// Templates.AddItem(IRI_SH_ScootAndShoot());
+	// 
+	// 
+	// // Ranger
+	// Templates.AddItem(IRI_RN_ZephyrStrike());
+	// Templates.AddItem(IRI_RN_TacticalAdvance());
+	// Templates.AddItem(PurePassive('IRI_RN_TacticalAdvance_Passive', "img:///IRIPerkPackUI.UIPerk_TacticalAdvance", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	// Templates.AddItem(IRI_RN_Intercept());
+	// Templates.AddItem(IRI_TM_Intercept());
+	// Templates.AddItem(IRI_RN_Intercept_Return());
+	// Templates.AddItem(IRI_RN_Intercept_Attack());
+	// Templates.AddItem(IRI_TM_Intercept_Attack());
+	// 
+	// Templates.AddItem(IRI_RN_SurpriseAttack());
+	// Templates.AddItem(PurePassive('IRI_RN_SurpriseAttack_Passive', "img:///UILibrary_PerkIcons.UIPerk_shadowstrike", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	// 
+	// // Grenadier
+	// Templates.AddItem(IRI_GN_OrdnancePouch());
+	// Templates.AddItem(IRI_GN_CollateralDamage());
+	// Templates.AddItem(IRI_GN_CollateralDamage_Passive());
+	// 
+	// // Specialist
+	// Templates.AddItem(IRI_SP_AutonomousProtocols());
+	// Templates.AddItem(IRI_SP_Overclock());
+	// Templates.AddItem(IRI_SP_ScoutingProtocol());
+	// Templates.AddItem(IRI_SP_ConstantReadiness());
+	// 
+	// // Reaper
+	// Templates.AddItem(IRI_RP_Takedown());
+	// Templates.AddItem(IRI_RP_TakedownCiv());
+	// Templates.AddItem(IRI_RP_WoundingShot());
 
 	// AWC
 	Templates.AddItem(PurePassive('IRI_AWC_MedicinePouch', "img:///UILibrary_PerkIcons.UIPerk_item_medikit", true /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));

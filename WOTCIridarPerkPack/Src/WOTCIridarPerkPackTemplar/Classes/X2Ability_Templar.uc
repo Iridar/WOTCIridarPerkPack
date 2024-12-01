@@ -6,53 +6,55 @@ static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
 
-	// Squaddie
-	Templates.AddItem(IRI_TM_Rend());
-	Templates.AddItem(IRI_TM_Volt()); 
-	Templates.AddItem(IRI_TM_TemplarFocus());
-	Templates.AddItem(IRI_TM_FocusKillTracker());
-
-	// Corporal
-	Templates.AddItem(IRI_TM_Aftershock());
-	Templates.AddItem(IRI_TM_Amplify());
-
-	// Sergeant
-	Templates.AddItem(IRI_TM_Reflect());
-	Templates.AddItem(IRI_TM_ReflectShot());
 	Templates.AddItem(IRI_TM_SoulShot());
 
-	// Lieutenant
-	Templates.AddItem(IRI_TM_Overdraw());
-	Templates.AddItem(PurePassive('IRI_TM_Seal', "img:///IRIPerkPackUI.UIPerk_Seal", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
-
-	// Captain
-	Templates.AddItem(IRI_TM_Deflect());
-	Templates.AddItem(IRI_TM_Deflect_Passive());
-	Templates.AddItem(IRI_TM_SpectralStride());
-	Templates.AddItem(IRI_TM_Invert());
-
-	// Major
-	Templates.AddItem(PurePassive('IRI_TM_ArcWave_Passive', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_arcwave", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
-	Templates.AddItem(IRI_TM_ArcWave_Trigger());
-	Templates.AddItem(IRI_TM_ArcWave());
-	Templates.AddItem(IRI_TM_SoulShot_ArcWave());
-
-	// Colonel
-	Templates.AddItem(IRI_TM_IonicStorm()); 
-	Templates.AddItem(IRI_TM_Overload());
-	Templates.AddItem(IRI_TM_Ghost());
-	Templates.AddItem(IRI_TM_GhostInit());
-	Templates.AddItem(IRI_TM_GhostKill());
-	
-	// Unused stuff.
-	//Templates.AddItem(IRI_TM_Stunstrike());
-	//Templates.AddItem(IRI_TM_Siphon());
-	//Templates.AddItem(IRI_TM_Obelisk());
-	//Templates.AddItem(IRI_TM_Obelisk_Volt()); 
-	//Templates.AddItem(IRI_TM_AstralGrasp());
-	//Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
-	//Templates.AddItem(IRI_TM_AstralGrasp_SpiritStun());
-	//Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
+	// // Squaddie
+	// Templates.AddItem(IRI_TM_Rend());
+	// Templates.AddItem(IRI_TM_Volt()); 
+	// Templates.AddItem(IRI_TM_TemplarFocus());
+	// Templates.AddItem(IRI_TM_FocusKillTracker());
+	// 
+	// // Corporal
+	// Templates.AddItem(IRI_TM_Aftershock());
+	// Templates.AddItem(IRI_TM_Amplify());
+	// 
+	// // Sergeant
+	// Templates.AddItem(IRI_TM_Reflect());
+	// Templates.AddItem(IRI_TM_ReflectShot());
+	// 
+	// 
+	// // Lieutenant
+	// Templates.AddItem(IRI_TM_Overdraw());
+	// Templates.AddItem(PurePassive('IRI_TM_Seal', "img:///IRIPerkPackUI.UIPerk_Seal", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
+	// 
+	// // Captain
+	// Templates.AddItem(IRI_TM_Deflect());
+	// Templates.AddItem(IRI_TM_Deflect_Passive());
+	// Templates.AddItem(IRI_TM_SpectralStride());
+	// Templates.AddItem(IRI_TM_Invert());
+	// 
+	// // Major
+	// Templates.AddItem(PurePassive('IRI_TM_ArcWave_Passive', "img:///UILibrary_XPACK_Common.PerkIcons.UIPerk_arcwave", false /*cross class*/, 'eAbilitySource_Psionic', true /*display in UI*/));
+	// Templates.AddItem(IRI_TM_ArcWave_Trigger());
+	// Templates.AddItem(IRI_TM_ArcWave());
+	// Templates.AddItem(IRI_TM_SoulShot_ArcWave());
+	// 
+	// // Colonel
+	// Templates.AddItem(IRI_TM_IonicStorm()); 
+	// Templates.AddItem(IRI_TM_Overload());
+	// Templates.AddItem(IRI_TM_Ghost());
+	// Templates.AddItem(IRI_TM_GhostInit());
+	// Templates.AddItem(IRI_TM_GhostKill());
+	// 
+	// // Unused stuff.
+	// //Templates.AddItem(IRI_TM_Stunstrike());
+	// //Templates.AddItem(IRI_TM_Siphon());
+	// //Templates.AddItem(IRI_TM_Obelisk());
+	// //Templates.AddItem(IRI_TM_Obelisk_Volt()); 
+	// //Templates.AddItem(IRI_TM_AstralGrasp());
+	// //Templates.AddItem(IRI_TM_AstralGrasp_Spirit());
+	// //Templates.AddItem(IRI_TM_AstralGrasp_SpiritStun());
+	// //Templates.AddItem(IRI_TM_AstralGrasp_SpiritDeath());
 
 	return Templates;
 }
@@ -111,7 +113,7 @@ static private function X2AbilityTemplate IRI_TM_Overload()
 }
 
 // Using a separate ability to always apply the Deflect Effect, because removing the effect after it has deflected an attack is a PITA.
-// TODO: Might need to do it anyway, triggering an event with no gamestate for a listener with ELD_OSS to remove the effect looks like the way to go.
+// Needs doing: might need to do it anyway, triggering an event with no gamestate for a listener with ELD_OSS to remove the effect looks like the way to go.
 // This is needed for VFX to play on the Templar while deflect is active. 
 static private function X2AbilityTemplate IRI_TM_Deflect_Passive()
 {
@@ -882,7 +884,7 @@ static function X2AbilityTemplate IRI_TM_ArcWave_Trigger()
 
 static private function Surge_EffectVisualization(XComGameState VisualizeGameState, out VisualizationActionMetadata ActionMetadata, const name EffectApplyResult)
 {
-	// TODO: Play activation animation
+	// Needs doing: Play activation animation
 }
 
 static private function EventListenerReturn ArcWave_Trigger_Listener(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
@@ -1376,7 +1378,8 @@ static private function X2AbilityTemplate IRI_TM_SoulShot(optional name Template
 	// Trigger Momentum
 	Template.PostActivationEvents.AddItem('RendActivated');
 
-	Template.AddTargetEffect(CreateSealEffect());
+
+	// Template.AddTargetEffect(CreateSealEffect());
 	
 	//AddSiphonEffects(Template);
 

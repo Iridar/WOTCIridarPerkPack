@@ -1528,6 +1528,7 @@ static private function X2AbilityTemplate IRI_BH_HomingMineDetonation()
 	// Targeting and Triggering
 	ToHit = new class'X2AbilityToHitCalc_StandardAim';
 	ToHit.bIndirectFire = true;
+	ToHit.bGuaranteedHit = true;
 	Template.AbilityToHitCalc = ToHit;
 
 	Template.AbilityTargetStyle = new class'X2AbilityTarget_Single';
