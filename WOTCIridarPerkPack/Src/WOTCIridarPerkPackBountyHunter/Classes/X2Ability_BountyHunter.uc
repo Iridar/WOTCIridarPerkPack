@@ -187,8 +187,9 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 	Template.AddShooterEffect(ProximityMineEffect);
 
 	// Viz and State
-	//Template.ActionFireClass = class'X2Action_Fire_ThunderLance';
+	//Template.ActionFireClass = class'X2Action_Fire_RifleGrenade';
 	//Template.CustomFireAnim = 'HL_ThunderLance';
+	SetFireAnim(Template, 'FF_FireRifleGrenade');
 	Template.ActivationSpeech = 'ThrowGrenade';
 
 	Template.DamagePreviewFn = class'X2Ability_Grenades'.static.GrenadeDamagePreview;

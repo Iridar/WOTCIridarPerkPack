@@ -111,6 +111,9 @@
     <Content Include="ContentForCook\BountyHunter\IRINothingPersonalPerk.upk">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\BountyHunter\IRIRifleGrenadePerk.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ContentForCook\BountyHunter\IRIShadowTeleportPerk.upk">
       <SubType>Content</SubType>
     </Content>
@@ -307,6 +310,9 @@
     <Content Include="Src\WOTCIridarPerkPack2\Classes\AnimNotify_TriggerHitReaction.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPack2\Classes\X2UnifiedProjectile_RifleGrenade.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPack2\Classes\X2UnifiedProjectile_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>
@@ -320,6 +326,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Action_BountyHunter_ShadowTeleport_ExitCover.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Action_Fire_RifleGrenade.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Condition_BountyHunter_Stealth.uc">

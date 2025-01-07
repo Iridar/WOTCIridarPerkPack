@@ -5,7 +5,7 @@ class X2Action_Fire extends X2Action;
 
 //Cached info for performing the action
 //*************************************
-var protected XGWeapon            WeaponVisualizer;
+var /*protected*/ XGWeapon            WeaponVisualizer;
 //*************************************
 
 //@TODO - rmcfall/jbouscher - base this on some logic provided by the ability, projectile speed, etc.
@@ -19,7 +19,7 @@ var protected XGUnit				TargetUnit;
 var protectedwrite Vector                TargetLocation;
 var public array<Vector>			allHitLocations;
 var public Vector					ProjectileHitLocation;
-var protected Vector				AimAtLocation;
+var /*protected*/ Vector				AimAtLocation;
 var protected XComGameStateHistory  History;
 var protectedwrite int                PrimaryTargetID;
 var protectedwrite bool               bNotifyMultiTargetsAtOnce;

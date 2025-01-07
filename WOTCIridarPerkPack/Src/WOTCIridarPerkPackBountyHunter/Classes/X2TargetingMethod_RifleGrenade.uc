@@ -86,7 +86,7 @@ function Update(float DeltaTime)
 		MarkTargetedActors(CurrentlyMarkedTargets, (!AbilityIsOffensive) ? FiringUnit.GetTeam() : eTeam_None );
 		DrawAOETiles(Tiles);
 
-		MaybeUpdateTargetForUnitOnTile(NewTargetLocation);
+		MaybeUpdateTargetForUnitOnTile(NewTargetLocation, UnitState.GetReference());
 		TargetedLocation = NewTargetLocation;
 		
 		UpdateGrenadePath();
@@ -176,7 +176,7 @@ static private function XComGameState_Unit GetLivingUnitFromHistory(array<StateO
 	return none;
 }
 
-private function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation)
+static final function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const StateObjectReference ShooterRef)
 {
 	local XComWorldData					World;
 	local TTile							TileLocation;
@@ -196,21 +196,29 @@ private function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation)
 		GameUnit = XGUnit(History.GetVisualizer(TargetsOnTile[0].ObjectID));
 		if (GameUnit != none)
 		{
-			VectorLocation = GameUnit.GetShootAtLocation(eHit_Success, UnitState.GetReference());
+			VectorLocation = GameUnit.GetShootAtLocation(eHit_Success, ShooterRef);
 		}
 	}
 }
+/*
+function GetTargetLocations(out array<Vector> TargetLocations)
+{
+	local vector LocTargetLocation;
 
+	LocTargetLocation = GetSplashRadiusCenter();
+	MaybeUpdateTargetForUnitOnTile(LocTargetLocation, UnitState.GetReference());
+
+	TargetLocations.Length = 0;
+	TargetLocations.AddItem(LocTargetLocation);
+}
+*/
 
 function GetGrenadeWeaponInfo(out XComWeapon WeaponEntity, out PrecomputedPathData WeaponPrecomputedPathData)
 {
 	local XComGameState_Item WeaponItem;
-	local X2WeaponTemplate WeaponTemplate;
 	local XGWeapon WeaponVisualizer;
 	
 	WeaponItem = Ability.GetSourceAmmo(); // Use source ammo instead of source weapon
-	
-	WeaponTemplate = X2WeaponTemplate(WeaponItem.GetMyTemplate());
 	WeaponVisualizer = XGWeapon(WeaponItem.GetVisualizer());
 	
 	// Tutorial Band-aid fix for missing visualizer due to cheat GiveItem
@@ -238,30 +246,27 @@ function GetGrenadeWeaponInfo(out XComWeapon WeaponEntity, out PrecomputedPathDa
 
 private function UpdateGrenadePath()
 {
-	UpdateGrenadePathTarget(TargetedLocation);
+	UpdateGrenadePathTarget(GrenadePath, FiringUnit.Location, TargetedLocation);
 }
 
 // Needed to add some vertical shift for the trajectory for a "direct hit" on the targeted unit.
-private function UpdateGrenadePathTarget(const vector PathEndLocation)
+static final function UpdateGrenadePathTarget(XComPrecomputedPath LocGrenadePath, const vector PathStartLocation, const vector PathEndLocation)
 {
-	local vector	PathStartLocation;
 	local float		iKeyframes;
 	local float		i;
 	local float		Delta;
-	local float		HalfDelta;
 	local vector	KeyPosition;
 	local float		VerticalShift;
 	local float		MaxVerticalShift;
 	local float		Distance;
 	
-	PathStartLocation = FiringUnit.Location;
-	iKeyframes = GrenadePath.iNumKeyframes;
+	iKeyframes = LocGrenadePath.iNumKeyframes;
 
 	// These are probably unnecessary
-	GrenadePath.bUseOverrideSourceLocation = true;
-	GrenadePath.OverrideSourceLocation = PathStartLocation;
-	GrenadePath.bUseOverrideTargetLocation = true;
-	GrenadePath.OverrideTargetLocation = PathEndLocation;
+	LocGrenadePath.bUseOverrideSourceLocation = true;
+	LocGrenadePath.OverrideSourceLocation = PathStartLocation;
+	LocGrenadePath.bUseOverrideTargetLocation = true;
+	LocGrenadePath.OverrideTargetLocation = PathEndLocation;
 
 	Distance = VSize(PathEndLocation - PathStartLocation);
 
@@ -280,7 +285,7 @@ private function UpdateGrenadePathTarget(const vector PathEndLocation)
 		
 		KeyPosition.Z += VerticalShift;
 
-		GrenadePath.akKeyframes[i].vLoc = KeyPosition;
+		LocGrenadePath.akKeyframes[i].vLoc = KeyPosition;
 	}
 }
 
