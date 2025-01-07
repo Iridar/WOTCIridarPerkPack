@@ -205,18 +205,19 @@ function FireProjectileInstance(int Index)
 	else
 	{
 		Projectiles[Index].SourceAttachActor = Spawn(class'DynamicPointInSpace', self, , Projectiles[Index].InitialSourceLocation, rotator(Projectiles[Index].InitialTravelDirection));
-
-
 		CreateSkeletalMeshActor = Spawn(class'SkeletalMeshActorSpawnable', self, , Projectiles[Index].InitialSourceLocation, rotator(Projectiles[Index].InitialTravelDirection));
+
+		CreateSkeletalMeshActor.SkeletalMeshComponent.SetSkeletalMesh(GetProjectileSkeletalMesh());
+
 		Projectiles[Index].TargetAttachActor = CreateSkeletalMeshActor;
 
-		if (Projectiles[Index].ProjectileElement.CopyWeaponAppearance && SourceWeapon.m_kGameWeapon != none)
-		{
-			SourceWeapon.m_kGameWeapon.DecorateWeaponMesh(CreateSkeletalMeshActor.SkeletalMeshComponent);
-		}
-		CreateSkeletalMeshActor.SkeletalMeshComponent.SetAnimTreeTemplate(Projectiles[Index].ProjectileElement.AttachAnimTree);
-		CreateSkeletalMeshActor.SkeletalMeshComponent.AnimSets.AddItem(Projectiles[Index].ProjectileElement.AttachAnimSet);
-		CreateSkeletalMeshActor.SkeletalMeshComponent.UpdateAnimations();
+		// if (Projectiles[Index].ProjectileElement.CopyWeaponAppearance && SourceWeapon.m_kGameWeapon != none)
+		// {
+		// 	SourceWeapon.m_kGameWeapon.DecorateWeaponMesh(CreateSkeletalMeshActor.SkeletalMeshComponent);
+		// }
+		// CreateSkeletalMeshActor.SkeletalMeshComponent.SetAnimTreeTemplate(Projectiles[Index].ProjectileElement.AttachAnimTree);
+		// CreateSkeletalMeshActor.SkeletalMeshComponent.AnimSets.AddItem(Projectiles[Index].ProjectileElement.AttachAnimSet);
+		// CreateSkeletalMeshActor.SkeletalMeshComponent.UpdateAnimations();
 
 		CreateProjectileCollision(Projectiles[Index].TargetAttachActor);
 
@@ -248,16 +249,16 @@ function FireProjectileInstance(int Index)
 		Projectiles[Index].GrenadePath.OverrideSourceLocation = Projectiles[Index].InitialSourceLocation;
 
 		Projectiles[Index].GrenadePath.bUseOverrideTargetLocation = true;
-		if (SourceAbility.IsResultContextMiss())
-		{	
+		//if (SourceAbility.IsResultContextMiss())
+		//{	
 			Projectiles[Index].GrenadePath.OverrideTargetLocation = StoredInputContext.TargetLocations[0];
 			AdjustGrenadePath(Projectiles[Index].GrenadePath, StoredInputContext.TargetLocations[0]);
-		}
-		else
-		{
-			Projectiles[Index].GrenadePath.OverrideTargetLocation = TargetVisualizer.GetTargetingFocusLocation();
-			AdjustGrenadePath(Projectiles[Index].GrenadePath, TargetVisualizer.GetTargetingFocusLocation());
-		}
+		//}
+		//else
+		//{
+		//	Projectiles[Index].GrenadePath.OverrideTargetLocation = TargetVisualizer.GetTargetingFocusLocation();
+		//	AdjustGrenadePath(Projectiles[Index].GrenadePath, TargetVisualizer.GetTargetingFocusLocation());
+		//}
 
 		//	=======================================================================================================================================
 		
@@ -504,4 +505,9 @@ private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathE
 
 		GrenadePath.akKeyframes[i].vLoc = KeyPosition;
 	}
+}
+
+private function SkeletalMesh GetProjectileSkeletalMesh()
+{
+	return SkeletalMesh(`CONTENT.RequestGameArchetype("IRIRifleGrenadePerk.SM_RifleGrenade"));
 }
