@@ -231,6 +231,9 @@
     <Content Include="ReadMe_rus.txt">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2AbilityTarget_IncreaseGrenadeRange.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2Action_AddRecentSpeech.uc">
       <SubType>Content</SubType>
     </Content>
@@ -292,6 +295,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2VersionCheck.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\XComPrecomputedPath_CustomPath.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\extra_globals.uci" />
@@ -361,10 +367,19 @@
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_BountyHunter_UnrelentingPressure.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2Effect_RifleGrenade.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2EventListener_BountyHunter.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2MeleePathingPawn_BountyHunter_ShadowTeleport.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2TargetingMethod_BountyHunter_ShadowTeleport.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\X2TargetingMethod_RifleGrenade.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackBountyHunter\Classes\XComGameState_Effect_BountyHunter_BigGameHunter.uc">
@@ -431,9 +446,6 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2AbilityCost_Ammo_ThunderLance.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2AbilityTarget_ThunderLance.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCIridarPerkPackSkirmisher\Classes\X2Ability_Skirmisher.uc">

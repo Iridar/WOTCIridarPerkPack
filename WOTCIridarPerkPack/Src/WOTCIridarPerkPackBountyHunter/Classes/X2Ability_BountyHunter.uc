@@ -40,8 +40,8 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(IRI_BH_UnrelentingPressure());
 
 	// Major
-	Templates.AddItem(IRI_BH_WitchHunt());
-	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+	Templates.AddItem(SetTreePosition(IRI_BH_RifleGrenade(), 5));
+	Templates.AddItem(IRI_BH_RifleGrenade_Passive());
 	Templates.AddItem(PurePassive('IRI_BH_FeelingLucky_Passive', "img:///IRIPerkPackUI.UIPerk_FeelingLucky", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 	Templates.AddItem(IRI_BH_BigGameHunter());
 
@@ -52,11 +52,14 @@ static function array<X2DataTemplate> CreateTemplates()
 	Templates.AddItem(SetTreePosition(IRI_BH_Terminate(), 6));
 	Templates.AddItem(IRI_BH_Terminate_ExtraShot());
 	Templates.AddItem(IRI_BH_Terminate_ExtraShot_SkipFireAction());
-	
 
 	// GTS
 	Templates.AddItem(IRI_BH_Untraceable());
 	Templates.AddItem(PurePassive('IRI_BH_Untraceable_Passive', "img:///IRIPerkPackUI.UIPerk_Untraceable", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
+
+	// Extra
+	Templates.AddItem(IRI_BH_WitchHunt());
+	Templates.AddItem(PurePassive('IRI_BH_WitchHunt_Passive', "img:///IRIPerkPackUI.UIPerk_WitchHunt", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/));
 
 	return Templates;
 }
@@ -74,6 +77,187 @@ static private function SetCrossClass(out X2AbilityTemplate Template)
 	{
 		Template.bCrossClassEligible = true;
 	}
+}
+
+
+/*
+Another Iridar-tier complicated ability. This is essentially a copy of LaunchGrenade, with the following changes:
+
+1. Instead of using a grenade launcher weapon, we're using a PerkContent with a PerkWeapon, 
+based on the Whiplash perk. The only difference from Whiplash weapon is that ours uses a custom Projectile,
+the X2UnifiedProjectile_ThunderLance, which has a delay on its main impact, accomplished via simple Timer.
+
+I haven't found the exact logic responsible for this, but it seems if an ability uses loaded ammo,
+the ammo's (grenade in this case) projectile is fired in addition to the weapon's projectile.
+
+So what we'd normally have is the grapple projectile being fired first, and then then grenade projectile.
+
+2. Custom Targeting Method, based on Rocket Launcher's, but with a custom XComPrecomputedPath_ThunderLance.
+The custom path just simulates the targeting line we normally get when grapple targeting.
+
+Also includes mine/RM's rocket targeting improvements.
+
+3. Custom Fire Action, which does a lot of complicated stuff, see that for more comments.
+*/
+static private function X2AbilityTemplate IRI_BH_RifleGrenade()
+{
+	local X2AbilityTemplate                 Template;
+	local X2AbilityCost_Ammo                AmmoCost;
+	local X2AbilityCost_ActionPoints        ActionPointCost;
+	local X2AbilityToHitCalc_StandardAim    StandardAim;
+	local X2AbilityTarget_Cursor			CursorTarget;
+	local X2AbilityMultiTarget_Radius       RadiusMultiTarget;
+	local X2Condition_UnitProperty          UnitPropertyCondition;
+	local X2Condition_AbilitySourceWeapon   GrenadeCondition, ProximityMineCondition;
+	local X2Effect_ProximityMine            ProximityMineEffect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RifleGrenade');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
+	Template.HideErrors.AddItem('AA_CannotAfford_AmmoCost');
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_GRENADE_PRIORITY;
+	Template.bUseAmmoAsChargesForHUD = true;
+	Template.bDisplayInUITooltip = false;
+	Template.bDisplayInUITacticalText = false;
+
+	// Targeting and Triggering
+	Template.TargetingMethod = class'X2TargetingMethod_RifleGrenade';
+
+	StandardAim = new class'X2AbilityToHitCalc_StandardAim';
+	StandardAim.bIndirectFire = true;
+	StandardAim.bGuaranteedHit = true;
+	StandardAim.bAllowCrit = false;
+	Template.AbilityToHitCalc = StandardAim;
+
+	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
+
+	CursorTarget = new class'X2AbilityTarget_Cursor';
+	CursorTarget.bRestrictToWeaponRange = true;
+	Template.AbilityTargetStyle = CursorTarget;
+
+	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
+	RadiusMultiTarget.bUseWeaponRadius = true;  
+	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = true;
+	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
+
+	// TODO: Fix bounces, make direct hits happen to target's body (carry over Thunder Lance fire action / targeting method)
+	// TODO: make launch anim
+
+	// Costs
+	AmmoCost = new class'X2AbilityCost_Ammo';	
+	AmmoCost.iAmmo = 1;
+	AmmoCost.UseLoadedAmmo = true;
+	Template.AbilityCosts.AddItem(AmmoCost);
+	
+	ActionPointCost = new class'X2AbilityCost_ActionPoints';
+	ActionPointCost.iNumPoints = 1;
+	ActionPointCost.bConsumeAllPoints = true;
+	ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('Salvo');
+	//ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('TotalCombat');
+	Template.AbilityCosts.AddItem(ActionPointCost);
+
+	// Shooder Conditions
+	Template.AbilityShooterConditions.AddItem(default.LivingShooterProperty);
+	Template.AddShooterEffectExclusions();
+
+	// Target Conditions
+	UnitPropertyCondition = new class'X2Condition_UnitProperty';
+	UnitPropertyCondition.ExcludeDead = false;
+	UnitPropertyCondition.ExcludeFriendlyToSource = false;
+	UnitPropertyCondition.ExcludeHostileToSource = false;
+	Template.AbilityMultiTargetConditions.AddItem(UnitPropertyCondition);
+
+	GrenadeCondition = new class'X2Condition_AbilitySourceWeapon';
+	GrenadeCondition.CheckGrenadeFriendlyFire = true;
+	Template.AbilityMultiTargetConditions.AddItem(GrenadeCondition);
+
+	// Effects
+	Template.bRecordValidTiles = true;
+	Template.bUseLaunchedGrenadeEffects = true;
+	Template.bHideAmmoWeaponDuringFire = true;
+
+	ProximityMineEffect = new class'X2Effect_ProximityMine';
+	ProximityMineEffect.BuildPersistentEffect(1, true, false, false);
+	ProximityMineCondition = new class'X2Condition_AbilitySourceWeapon';
+	ProximityMineCondition.MatchGrenadeType = 'ProximityMine';
+	ProximityMineEffect.TargetConditions.AddItem(ProximityMineCondition);
+	Template.AddShooterEffect(ProximityMineEffect);
+
+	// Viz and State
+	//Template.ActionFireClass = class'X2Action_Fire_ThunderLance';
+	//Template.CustomFireAnim = 'HL_ThunderLance';
+	Template.ActivationSpeech = 'ThrowGrenade';
+
+	Template.DamagePreviewFn = class'X2Ability_Grenades'.static.GrenadeDamagePreview;
+
+	//Template.CinescriptCameraType = "Grenadier_GrenadeLauncher";
+
+	Template.bOverrideAim = true;
+	Template.Hostility = eHostility_Offensive;
+	Template.BuildNewGameStateFn = TypicalAbility_BuildGameState;
+	Template.BuildVisualizationFn = TypicalAbility_BuildVisualization;
+	Template.BuildInterruptGameStateFn = TypicalAbility_BuildInterruptGameState;
+	Template.ModifyNewContextFn = RifleGrenade_ModifyActivatedAbilityContext;
+
+	Template.SuperConcealmentLoss = class'X2AbilityTemplateManager'.default.SuperConcealmentStandardShotLoss;
+	Template.ChosenActivationIncreasePerUse = class'X2AbilityTemplateManager'.default.StandardShotChosenActivationIncreasePerUse;
+	Template.LostSpawnIncreasePerUse = class'X2AbilityTemplateManager'.default.GrenadeLostSpawnIncreasePerUse;
+	Template.bFrameEvenWhenUnitIsHidden = true;
+
+	Template.AdditionalAbilities.AddItem('IRI_BH_RifleGrenade_Passive');
+
+	return Template;
+}
+
+// If targeted tile has any units, smuggle the first one as the primary target of the ability
+// so that the TriggerHitReact notify in the firing animation has a target to work with
+static private function RifleGrenade_ModifyActivatedAbilityContext(XComGameStateContext Context)
+{
+	local XComGameStateContext_Ability	AbilityContext;
+	local XComWorldData					World;
+	local TTile							TileLocation;
+	local vector						TargetLocation;
+	local array<StateObjectReference>	TargetsOnTile;
+
+	World = `XWORLD;
+	
+	AbilityContext = XComGameStateContext_Ability(Context);
+
+	TargetLocation = AbilityContext.InputContext.TargetLocations[0];
+
+	World.GetFloorTileForPosition(TargetLocation, TileLocation);
+
+	TargetsOnTile = World.GetUnitsOnTile(TileLocation);
+
+	if (TargetsOnTile.Length > 0)
+	{
+		AbilityContext.InputContext.PrimaryTarget = TargetsOnTile[0];
+	}
+}
+static private function X2AbilityTemplate IRI_BH_RifleGrenade_Passive()
+{
+	local X2AbilityTemplate Template;
+	local X2Effect_RifleGrenade	Effect;
+
+	`CREATE_X2ABILITY_TEMPLATE(Template, 'IRI_BH_RifleGrenade_Passive');
+
+	// Icon Setup
+	Template.AbilitySourceName = 'eAbilitySource_Perk';
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+
+	SetPassive(Template);
+	SetHidden(Template);
+	Template.bUniqueSource = true;
+
+	Effect = new class'X2Effect_RifleGrenade';
+	Effect.BuildPersistentEffect(1, true);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, false,, Template.AbilitySourceName);
+	Template.AddTargetEffect(Effect);
+
+	return Template;
 }
 
 

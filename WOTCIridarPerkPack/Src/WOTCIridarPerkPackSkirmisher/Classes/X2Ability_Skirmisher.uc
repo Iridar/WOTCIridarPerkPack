@@ -339,7 +339,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 	local X2AbilityCost_Ammo                AmmoCost;
 	local X2AbilityCost_ActionPoints        ActionPointCost;
 	local X2AbilityToHitCalc_StandardAim    StandardAim;
-	local X2AbilityTarget_Cursor            CursorTarget;
+	local X2AbilityTarget_IncreaseGrenadeRange CursorTarget;
 	local X2AbilityMultiTarget_Radius       RadiusMultiTarget;
 	local X2Condition_UnitProperty          UnitPropertyCondition;
 	local X2Condition_AbilitySourceWeapon   GrenadeCondition, ProximityMineCondition;
@@ -368,9 +368,9 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance()
 
 	Template.AbilityTriggers.AddItem(default.PlayerInputTrigger);
 	
-	CursorTarget = new class'X2AbilityTarget_ThunderLance';
+	CursorTarget = new class'X2AbilityTarget_IncreaseGrenadeRange';
 	CursorTarget.bRestrictToWeaponRange = true;
-	CursorTarget.IncreaseWeaponRange = 4; // Not sure this value is actually used anywhere
+	CursorTarget.IncreasedRangeTiles = `GetConfigInt("IRI_SK_ThunderLance_RangeIncrase_Tiles");
 	Template.AbilityTargetStyle = CursorTarget;
 
 	RadiusMultiTarget = new class'X2AbilityMultiTarget_Radius';
