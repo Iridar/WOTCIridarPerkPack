@@ -1,26 +1,25 @@
 class X2TargetingMethod_RifleGrenade extends X2TargetingMethod_Grenade;
 
+// This custom targeting method is used for the Rifle Grenade ability.
+// It uses a custom Grenade Path class to remove visual bounces from the previewed trajectory,
+// as well as to raise the trajectory whenever there's a unit at the center of the targeted area.
+// We also mark that unit with a sword crosshair to denote a "direct hit", which does bonus damage under ability's gameplay logic.
+
 var private UITacticalHUD	TacticalHUD;
 var private vector			TargetedLocation;
 
 function Init(AvailableAction InAction, int NewTargetIndex)
 {
-	local XComGameStateHistory History;
 	local XComWeapon WeaponEntity;
 	local PrecomputedPathData WeaponPrecomputedPathData;
 	local float TargetingRange;
 	local X2AbilityTarget_Cursor CursorTarget;
-	local X2AbilityTemplate AbilityTemplate;
 	
 	super(X2TargetingMethod).Init(InAction, NewTargetIndex);
 	
-	History = `XCOMHISTORY;
-	
-	AssociatedPlayerState = XComGameState_Player(History.GetGameStateForObjectID(UnitState.ControllingPlayer.ObjectID));
-	`assert(AssociatedPlayerState != none);
+	AssociatedPlayerState = XComGameState_Player(`XCOMHISTORY.GetGameStateForObjectID(UnitState.ControllingPlayer.ObjectID));
 	
 	// determine our targeting range
-	AbilityTemplate = Ability.GetMyTemplate();
 	TargetingRange = Ability.GetAbilityCursorRangeMeters();
 	
 	// lock the cursor to that range
@@ -41,35 +40,26 @@ function Init(AvailableAction InAction, int NewTargetIndex)
 		WeaponEntity.m_kPawn = FiringUnit.GetPawn();
 	}
 	
-	if (UseGrenadePath())
-	{
-		GrenadePath = `BATTLE.spawn(class'XComPrecomputedPath_CustomPath');
-		XComPrecomputedPath_CustomPath(GrenadePath).UpdateGrenadePathFn = UpdateGrenadePath;
-		GrenadePath.ClearOverrideTargetLocation(); // Clear this flag in case the grenade target location was locked.
-		GrenadePath.ActivatePath(WeaponEntity, FiringUnit.GetTeam(), WeaponPrecomputedPathData);
-	}	
+	// Spawn a custom path here.
+	GrenadePath = `BATTLE.spawn(class'XComPrecomputedPath_CustomPath');
+	XComPrecomputedPath_CustomPath(GrenadePath).UpdateGrenadePathFn = UpdateGrenadePath;
+	GrenadePath.ClearOverrideTargetLocation(); // Clear this flag in case the grenade target location was locked.
+	GrenadePath.ActivatePath(WeaponEntity, FiringUnit.GetTeam(), WeaponPrecomputedPathData);
 	
-	if (!AbilityTemplate.SkipRenderOfTargetingTemplate)
+	// setup the blast emitter
+	ExplosionEmitter = `BATTLE.spawn(class'XComEmitter');
+	if(AbilityIsOffensive)
 	{
-		// setup the blast emitter
-		ExplosionEmitter = `BATTLE.spawn(class'XComEmitter');
-		if(AbilityIsOffensive)
-		{
-			ExplosionEmitter.SetTemplate(ParticleSystem(DynamicLoadObject("UI_Range.Particles.BlastRadius_Shpere", class'ParticleSystem')));
-		}
-		else
-		{
-			ExplosionEmitter.SetTemplate(ParticleSystem(DynamicLoadObject("UI_Range.Particles.BlastRadius_Shpere_Neutral", class'ParticleSystem')));
-		}
-		
-		ExplosionEmitter.LifeSpan = 60 * 60 * 24 * 7; // never die (or at least take a week to do so)
+		ExplosionEmitter.SetTemplate(ParticleSystem(DynamicLoadObject("UI_Range.Particles.BlastRadius_Shpere", class'ParticleSystem')));
 	}
+	else
+	{
+		ExplosionEmitter.SetTemplate(ParticleSystem(DynamicLoadObject("UI_Range.Particles.BlastRadius_Shpere_Neutral", class'ParticleSystem')));
+	}
+	ExplosionEmitter.LifeSpan = 60 * 60 * 24 * 7; // never die (or at least take a week to do so)
 
-	//super.Init(InAction, NewTargetIndex);
 	TacticalHUD = `PRES.GetTacticalHUD();
 }
-
-
 
 function Update(float DeltaTime)
 {
@@ -97,7 +87,7 @@ function Update(float DeltaTime)
 	super(X2TargetingMethod).Update(DeltaTime);
 }
 
-// Adjusted to not care about grenade path
+// Adjusted to not care about grenade path, so that by raising the path's impact point when targeting a unit, we don't also raise the splash radius indicator.
 simulated protected function Vector GetSplashRadiusCenter( bool SkipTileSnap = false )
 {
 	local vector Center;
@@ -200,6 +190,8 @@ static final function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, 
 		}
 	}
 }
+
+// This will make the projectile visible impact the target, but it will also alter where the actual explosion happens, and I'd rather not do that.
 /*
 function GetTargetLocations(out array<Vector> TargetLocations)
 {
@@ -212,37 +204,6 @@ function GetTargetLocations(out array<Vector> TargetLocations)
 	TargetLocations.AddItem(LocTargetLocation);
 }
 */
-
-function GetGrenadeWeaponInfo(out XComWeapon WeaponEntity, out PrecomputedPathData WeaponPrecomputedPathData)
-{
-	local XComGameState_Item WeaponItem;
-	local XGWeapon WeaponVisualizer;
-	
-	WeaponItem = Ability.GetSourceAmmo(); // Use source ammo instead of source weapon
-	WeaponVisualizer = XGWeapon(WeaponItem.GetVisualizer());
-	
-	// Tutorial Band-aid fix for missing visualizer due to cheat GiveItem
-	if (WeaponVisualizer == none)
-	{
-		class'XGItem'.static.CreateVisualizer(WeaponItem);
-		WeaponVisualizer = XGWeapon(WeaponItem.GetVisualizer());
-		WeaponEntity = XComWeapon(WeaponVisualizer.CreateEntity(WeaponItem));
-	
-		if (WeaponEntity != none)
-		{
-			WeaponEntity.m_kPawn = FiringUnit.GetPawn();
-		}
-	}
-	else
-	{
-		WeaponEntity = WeaponVisualizer.GetEntity();
-	}
-	
-	// This won't actually be used since I use my own logic for drawing the path.
-	WeaponPrecomputedPathData.InitialPathTime = 1.0f;
-	WeaponPrecomputedPathData.MaxPathTime = 2.5f;
-	WeaponPrecomputedPathData.MaxNumberOfBounces = 0;
-}
 
 private function UpdateGrenadePath()
 {
@@ -289,18 +250,11 @@ static final function UpdateGrenadePathTarget(XComPrecomputedPath LocGrenadePath
 	}
 }
 
-
 // super.Committed() calls Canceled() too.
-/*
 function Canceled()
 {
 	super.Canceled();
 
-	// unlock the 3d cursor
-	//Cursor.m_fMaxChainedDistance = -1;
-
 	CustomPath.ClearPathGraphics();
-	//XComWeapon(WeaponVisualizer.m_kEntity).bPreviewAim = false;
-
 	CustomPath.Destroy();
-}*/
+}

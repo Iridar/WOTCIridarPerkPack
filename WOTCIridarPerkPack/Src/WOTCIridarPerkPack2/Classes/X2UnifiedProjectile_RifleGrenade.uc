@@ -1,5 +1,9 @@
 class X2UnifiedProjectile_RifleGrenade extends X2UnifiedProjectile;
 
+// This custom projectile is used for the Rifle Grenade visualization.
+// 1. It makes the projectile actually look like a rifle grenade, which I couldn't do via normal means for some reason.
+// 2. It alters the generated grenade path to remove the grenade roll and bouncing from it, and do other adjustments to it.
+
 function FireProjectileInstance(int Index)
 {		
 	//Hit location and hit location modifying vectors
@@ -28,7 +32,7 @@ function FireProjectileInstance(int Index)
 	local XComGameState_Unit ShooterState;
 
 	local SkeletalMeshActorSpawnable CreateSkeletalMeshActor;
-	//local XComAnimNodeBlendDynamic tmpNode;
+	local XComAnimNodeBlendDynamic tmpNode;
 	local CustomAnimParams AnimParams;
 	local AnimSequence FoundAnimSeq;
 	local AnimNodeSequence PlayingSequence;
@@ -207,31 +211,33 @@ function FireProjectileInstance(int Index)
 		Projectiles[Index].SourceAttachActor = Spawn(class'DynamicPointInSpace', self, , Projectiles[Index].InitialSourceLocation, rotator(Projectiles[Index].InitialTravelDirection));
 		CreateSkeletalMeshActor = Spawn(class'SkeletalMeshActorSpawnable', self, , Projectiles[Index].InitialSourceLocation, rotator(Projectiles[Index].InitialTravelDirection));
 
+		// ADDED BY IRIDAR
 		CreateSkeletalMeshActor.SkeletalMeshComponent.SetSkeletalMesh(GetProjectileSkeletalMesh());
+		// END OF ADDED
 
 		Projectiles[Index].TargetAttachActor = CreateSkeletalMeshActor;
 
-		// if (Projectiles[Index].ProjectileElement.CopyWeaponAppearance && SourceWeapon.m_kGameWeapon != none)
-		// {
-		// 	SourceWeapon.m_kGameWeapon.DecorateWeaponMesh(CreateSkeletalMeshActor.SkeletalMeshComponent);
-		// }
-		// CreateSkeletalMeshActor.SkeletalMeshComponent.SetAnimTreeTemplate(Projectiles[Index].ProjectileElement.AttachAnimTree);
-		// CreateSkeletalMeshActor.SkeletalMeshComponent.AnimSets.AddItem(Projectiles[Index].ProjectileElement.AttachAnimSet);
-		// CreateSkeletalMeshActor.SkeletalMeshComponent.UpdateAnimations();
+		if (Projectiles[Index].ProjectileElement.CopyWeaponAppearance && SourceWeapon.m_kGameWeapon != none)
+		{
+			SourceWeapon.m_kGameWeapon.DecorateWeaponMesh(CreateSkeletalMeshActor.SkeletalMeshComponent);
+		}
+		CreateSkeletalMeshActor.SkeletalMeshComponent.SetAnimTreeTemplate(Projectiles[Index].ProjectileElement.AttachAnimTree);
+		CreateSkeletalMeshActor.SkeletalMeshComponent.AnimSets.AddItem(Projectiles[Index].ProjectileElement.AttachAnimSet);
+		CreateSkeletalMeshActor.SkeletalMeshComponent.UpdateAnimations();
 
 		CreateProjectileCollision(Projectiles[Index].TargetAttachActor);
 
 		// literally, the only thing that sets this variable is AbilityGrenade - Josh
 		if (AbilityState.GetMyTemplate().bHideWeaponDuringFire)
 			SourceWeapon.Mesh.SetHidden(true);
-		/*
+
 		tmpNode = XComAnimNodeBlendDynamic(CreateSkeletalMeshActor.SkeletalMeshComponent.Animations.FindAnimNode('BlendDynamic'));
 		if (tmpNode != none)
 		{
 			AnimParams.AnimName = 'NO_Idle';
 			AnimParams.Looping = true;
 			tmpNode.PlayDynamicAnim(AnimParams);
-		}*/
+		}
 	}
 
 	// handy debugging helper, just uncomment this and the declarations at the top
@@ -249,6 +255,9 @@ function FireProjectileInstance(int Index)
 		Projectiles[Index].GrenadePath.OverrideSourceLocation = Projectiles[Index].InitialSourceLocation;
 
 		Projectiles[Index].GrenadePath.bUseOverrideTargetLocation = true;
+
+		// ALTERED BY IRIDAR
+		// This ability can't miss.
 		//if (SourceAbility.IsResultContextMiss())
 		//{	
 			Projectiles[Index].GrenadePath.OverrideTargetLocation = StoredInputContext.TargetLocations[0];
@@ -259,6 +268,7 @@ function FireProjectileInstance(int Index)
 		//	Projectiles[Index].GrenadePath.OverrideTargetLocation = TargetVisualizer.GetTargetingFocusLocation();
 		//	AdjustGrenadePath(Projectiles[Index].GrenadePath, TargetVisualizer.GetTargetingFocusLocation());
 		//}
+		// END OF ALTERED
 
 		//	=======================================================================================================================================
 		
@@ -465,6 +475,7 @@ function FireProjectileInstance(int Index)
 	}
 }
 
+// This is slightly different from the similar function in X2TargetingMethod_RifleGrenade, since we need to adjust time and rotation of each point, which is irrelevant for the preview curve drawn for targeting.
 private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathEndLocation)
 {
 	local float		iKeyframes;
@@ -475,6 +486,7 @@ private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathE
 	local float		MaxVerticalShift;
 	local float		Distance;
 	local vector	PathStartLocation;
+	local float		fTravelTime;
 	
 	iKeyframes = GrenadePath.iNumKeyframes;
 
@@ -486,7 +498,10 @@ private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathE
 	GrenadePath.bUseOverrideTargetLocation = true;
 	GrenadePath.OverrideTargetLocation = PathEndLocation;
 
+	// This ignores trajectory's curvature. Nauseating. 
 	Distance = VSize(PathEndLocation - PathStartLocation);
+
+	fTravelTime = Distance / 1000;
 
 	// 0.1f is an arbitrary "trajectory curvature coefficient". If I was smarter, I'd write an actual function that would calculate realistic trajectory curvature based on speed and free fall acceleration, but this is gewd enuff
 	MaxVerticalShift = Distance * 0.1f; 
@@ -500,13 +515,22 @@ private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathE
 		
 		// This creates a parabolic trajectory. The sin function scales from 0 to 1 at Pi/2 then back to 0 at Pi.
 		VerticalShift = MaxVerticalShift * Sin(Delta * const.Pi);
-		
 		KeyPosition.Z += VerticalShift;
 
 		GrenadePath.akKeyframes[i].vLoc = KeyPosition;
+
+		// Get rid of the mid-flight rotation animation.
+		GrenadePath.akKeyframes[i].rRot = rotator(GrenadePath.akKeyframes[i - 1].vLoc - GrenadePath.akKeyframes[i].vLoc);
+
+		// Adjust time to make projectile travel time scale with distance so it has consistent speed.
+		GrenadePath.akKeyframes[i].fTime = i * fTravelTime / iKeyframes;
+
+		// Add some cosmetic roll to make it look nicer
+		GrenadePath.akKeyframes[i].rRot.Roll += GrenadePath.akKeyframes[i].fTime * 210 * 182; // 210 degrees per second basically
 	}
 }
 
+// For some reason just setting the mesh in the projectile didn't do the trick.
 private function SkeletalMesh GetProjectileSkeletalMesh()
 {
 	return SkeletalMesh(`CONTENT.RequestGameArchetype("IRIRifleGrenadePerk.SM_RifleGrenade"));

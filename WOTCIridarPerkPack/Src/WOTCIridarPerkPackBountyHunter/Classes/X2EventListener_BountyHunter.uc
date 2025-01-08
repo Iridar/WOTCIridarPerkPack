@@ -30,6 +30,8 @@ static private function CHEventListenerTemplate Create_ListenerTemplate()
 	Template.RegisterInStrategy = false;
 
 	Template.AddCHEvent('OnGetItemRange', OnGetItemRange, ELD_Immediate, 50);
+
+	// Unused debugging.
 	//Template.AddCHEvent('OverrideProjectileInstance', OnOverrideProjectileInstance, ELD_Immediate, 50);
 	
 
