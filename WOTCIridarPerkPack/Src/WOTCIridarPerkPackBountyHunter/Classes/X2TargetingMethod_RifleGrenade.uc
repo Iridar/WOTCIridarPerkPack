@@ -255,6 +255,6 @@ function Canceled()
 {
 	super.Canceled();
 
-	CustomPath.ClearPathGraphics();
-	CustomPath.Destroy();
+	GrenadePath.ClearPathGraphics();
+	GrenadePath.Destroy();
 }

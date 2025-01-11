@@ -41,6 +41,8 @@ function FireProjectileInstance(int Index)
 	local bool bDebugImpactEvents;
 	local bool bCollideWithUnits;
 
+	local vector AdjustedHitLocation;
+
 	// Variables for Issue #10
 	local XComLWTuple Tuple;
 
@@ -260,8 +262,10 @@ function FireProjectileInstance(int Index)
 		// This ability can't miss.
 		//if (SourceAbility.IsResultContextMiss())
 		//{	
-			Projectiles[Index].GrenadePath.OverrideTargetLocation = StoredInputContext.TargetLocations[0];
-			AdjustGrenadePath(Projectiles[Index].GrenadePath, StoredInputContext.TargetLocations[0]);
+			AdjustedHitLocation = StoredInputContext.TargetLocations[0];
+			MaybeUpdateTargetForUnitOnTile(AdjustedHitLocation, StoredInputContext.SourceObject, StoredInputContext.PrimaryTarget);
+			Projectiles[Index].GrenadePath.OverrideTargetLocation = AdjustedHitLocation;
+			AdjustGrenadePath(Projectiles[Index].GrenadePath, AdjustedHitLocation);
 		//}
 		//else
 		//{
@@ -535,3 +539,234 @@ private function SkeletalMesh GetProjectileSkeletalMesh()
 {
 	return SkeletalMesh(`CONTENT.RequestGameArchetype("IRIRifleGrenadePerk.SM_RifleGrenade"));
 }
+
+private function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const StateObjectReference ShooterRef, const StateObjectReference TargetRef)
+{
+	local XComWorldData					World;
+	local TTile							TileLocation;
+	local XComGameStateHistory			History;
+	local XGUnit						GameUnit;
+
+	World = `XWORLD;
+
+	TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
+
+	`LOG("Original vector:" @ VectorLocation,, 'IRITEST');
+
+	//	If there's a unit on the tile, or the tile contains a high cover object
+
+	History = `XCOMHISTORY;
+	GameUnit = XGUnit(History.GetVisualizer(TargetRef.ObjectID));
+
+	`LOG("Target unit:" @ XComGameState_Unit(History.GetGameStateForObjectID(TargetRef.ObjectID)).GetFullName(),, 'IRITEST');
+
+	if (GameUnit != none)
+	{
+		VectorLocation = GameUnit.GetShootAtLocation(eHit_Success, ShooterRef);
+
+		`LOG("Adjusted vector:" @ VectorLocation,, 'IRITEST');
+	}
+	
+}
+
+// Was looking to remove the delay between projectile finishing the flight and exploding, but looks like the delay happens after the projectile hits according to this function.
+/*
+state Executing
+{
+	event BeginState(Name PreviousStateName)
+	{		
+		SetupVolley();
+	}
+
+	event EndState(Name PreviousStateName)
+	{
+		
+	}
+
+	simulated event Tick( float fDeltaT )
+	{
+		local int Index, i;
+		local bool bAllProjectilesDone;
+
+		local bool bShouldEnd, bShouldUpdate, bProjectileEffectsComplete, bStruckTarget;
+		local float timeDifferenceForRecoil;
+		local float originalfDeltaT;
+
+		local vector LocationThisTick;
+		local vector LocationLastTick;
+		local float DistanceTravelled;
+
+
+		originalfDeltaT = fDeltaT;
+		bAllProjectilesDone = true; //Set to false if any projectiles are 1. still to be created 2. being created 3. still in flight w. effects
+
+		`LOG("========= Begin Tick ==========, Time:" @ fDeltaT,, 'IRITEST');
+		
+
+		for( Index = 0; Index < Projectiles.Length; ++Index )
+		{
+
+			//Update existing projectiles, fire any projectiles that are pending
+			if( Projectiles[Index].bFired )
+			{
+				Projectiles[ Index ].ActiveTime += fDeltaT;
+
+				`LOG(Index @ "Projectiles[ Index ].ActiveTime:" @ Projectiles[ Index ].ActiveTime @ "waiting to die:" @ Projectiles[ Index ].bWaitingToDie,, 'IRITEST');
+
+				if (!Projectiles[ Index ].bWaitingToDie)
+				{
+					Projectiles[ Index ].AliveTime += fDeltaT;
+				}
+
+				`LOG(Index @ "Projectiles[ Index ].AliveTime:" @ Projectiles[ Index ].AliveTime,, 'IRITEST');
+
+				`LOG("World Time:" @ WorldInfo.TimeSeconds @ "Projectile End time:" @ Projectiles[Index].EndTime @ "Trail Adjustment Time:" @ Projectiles[Index].TrailAdjustmentTime @ "Total:" @ (Projectiles[Index].EndTime + Projectiles[Index].TrailAdjustmentTime),, 'IRITEST');
+
+				// Traveling projectiles should be forcibly deactivated once they've reaced their destination (and the trail has caught up).
+				if(Projectiles[Index].ParticleEffectComponent != None && (Projectiles[Index].ProjectileElement.UseProjectileType == eProjectileType_Traveling) && (WorldInfo.TimeSeconds >= (Projectiles[Index].EndTime + Projectiles[Index].TrailAdjustmentTime)))
+				{
+					`LOG("Killing particle effect component.",, 'IRITEST');
+
+					Projectiles[ Index ].ParticleEffectComponent.OnSystemFinished = none;
+					Projectiles[ Index ].ParticleEffectComponent.DeactivateSystem( );
+					Projectiles[ Index ].ParticleEffectComponent = none;
+				}
+
+				bStruckTarget = StruckTarget(Index, fDeltaT);
+				bShouldEnd = (WorldInfo.TimeSeconds > Projectiles[Index].EndTime - 0.25) && !Projectiles[Index].bWaitingToDie;
+
+				`LOG("bStruckTarget:" @ bStruckTarget @ "bShouldEnd:" @ bShouldEnd,, 'IRITEST');
+
+				bShouldEnd = bShouldEnd || bStruckTarget;
+
+				if (Index == 0 && Projectiles[Index].TargetAttachActor != none)
+				{
+					LocationThisTick = Projectiles[Index].TargetAttachActor.Location;
+					DistanceTravelled = VSize(LocationThisTick - LocationLastTick);
+
+					`LOG("DistanceTravelled:" @ DistanceTravelled,, 'IRITEST');
+
+					if (DistanceTravelled == 0)
+					{
+						`LOG("Didn't travel, killing projectile.",, 'IRITEST');
+						bShouldEnd = true;
+					}
+
+					LocationLastTick = LocationThisTick;
+				}
+
+				bShouldUpdate = Projectiles[Index].ProjectileElement.bAttachToSource || Projectiles[Index].ProjectileElement.bAttachToTarget ||
+					((Projectiles[Index].ProjectileElement.UseProjectileType == eProjectileType_RangedConstant) && (!Projectiles[Index].bConstantComplete));
+
+				bProjectileEffectsComplete = (Projectiles[ Index ].ParticleEffectComponent == none || Projectiles[ Index ].ParticleEffectComponent.HasCompleted( ));
+
+				`LOG("bShouldUpdate:" @ bShouldUpdate @ "bProjectileEffectsComplete:" @ bProjectileEffectsComplete,, 'IRITEST');
+
+				if (bShouldEnd)
+				{
+					//The projectile has reached its destination / conclusion. Begin the destruction process.
+					EndProjectileInstance( Index, fDeltaT );
+					`LOG("Ending projectile instance.",, 'IRITEST');
+				}
+
+				if (ProjectileShouldImpact(Index))
+				{
+					`LOG("Projectile should impact. bShouldEnd:" @ bShouldEnd @ "Waiting to die:" @ Projectiles[Index].bWaitingToDie,, 'IRITEST');
+
+					if(bShouldEnd)
+					{
+						`LOG("Doing main impact.",, 'IRITEST');
+
+						DoMainImpact(Index, fDeltaT, bStruckTarget); //Impact(s) that should play when the shot "reaches the target"
+					}
+					else if (!Projectiles[Index].bWaitingToDie)
+					{
+						`LOG("Doing transit impact.",, 'IRITEST');
+
+						DoTransitImpact(Index, fDeltaT); //Impact(s) that should play while the shot is in transit
+					}					
+				}
+
+				ProcessReturn( Index );
+
+				`LOG("bShouldEnd:" @ bShouldEnd @ "bShouldUpdate:" @ bShouldUpdate @ "bStruckTarget:" @ bStruckTarget,, 'IRITEST');
+
+				if (!bShouldEnd || bShouldUpdate || bStruckTarget)
+				{
+					`LOG("Updating projectile instance",, 'IRITEST');
+
+					//The projectile is in flight or a mode that wants continued position updates after ending
+					UpdateProjectileDistances( Index, fDeltaT );
+				}
+
+				// always update the trail
+				UpdateProjectileTrail( Index );
+
+				bAllProjectilesDone = bAllProjectilesDone && bProjectileEffectsComplete && Projectiles[Index].bWaitingToDie;
+
+				`LOG("bAllProjectilesDone:" @ bAllProjectilesDone @ "bProjectileEffectsComplete:" @ bProjectileEffectsComplete @ "Time exceeded:" @ (WorldInfo.TimeSeconds > (Projectiles[Index].EndTime + Projectiles[Index].TrailAdjustmentTime + 10.0)),, 'IRITEST');
+
+				// A fallback to catch bad projectile effects that are lasting too long (except for the constants)
+				if (!bProjectileEffectsComplete && (WorldInfo.TimeSeconds > (Projectiles[Index].EndTime + Projectiles[Index].TrailAdjustmentTime + 10.0)) && (Projectiles[Index].ProjectileElement.UseProjectileType != eProjectileType_RangedConstant))
+				{
+					`LOG("Killing projectile effects.",, 'IRITEST');
+					Projectiles[ Index ].ParticleEffectComponent.OnSystemFinished = none;
+					Projectiles[ Index ].ParticleEffectComponent.DeactivateSystem( );
+					Projectiles[ Index ].ParticleEffectComponent = none;
+					//`RedScreen("Projectile " $ Index  $ " vfx for weapon " $ FireAction.SourceItemGameState.GetMyTemplateName() $ " still hasn't completed after 10 seconds past expected completion time");
+				}
+
+				//DebugParamsOut( Index );
+			}
+			//Adding Recoil from firing Chang You 2015-6-14
+			else if(!Projectiles[Index].bRecoilFromFiring)
+			{
+				//start moving the aim to the missed position to simulate recoil
+				if(WorldInfo.TimeSeconds >= Projectiles[Index].StartTime - 0.1f)
+				{
+					//if the first shot is too early, we need to readjust all the following shots to a later time.
+					if(bFirstShotInVolley)
+					{
+						timeDifferenceForRecoil = Projectiles[Index].StartTime - WorldInfo.TimeSeconds;
+						for( i = 0; i < Projectiles.Length; ++i )
+						{
+							Projectiles[i].StartTime += 0.1f - Max(timeDifferenceForRecoil, 0.0f);
+						}
+						bFirstShotInVolley = false;
+					}
+					RecoilFromFiringProjectile(Index);
+					Projectiles[Index].bRecoilFromFiring = true;
+				}
+				bAllProjectilesDone = false;
+			}
+			else if( WorldInfo.TimeSeconds >= Projectiles[Index].StartTime )
+			{
+				`LOG("Firing projectile instance.",, 'IRITEST');
+				bAllProjectilesDone = false;
+				FireProjectileInstance(Index);
+				--Index; // reprocess this projectile to do all the updates so that lifetime accumulators and timers are in reasonable sync
+			}
+			else
+			{
+				//If there are unfired projectiles...
+				bAllProjectilesDone = false;
+			}
+		}
+
+		if( bSetupVolley && bAllProjectilesDone )
+		{		
+			`LOG("All projectiles done, processing destruction.",, 'IRITEST');
+			for( Index = 0; Index < Projectiles.Length; ++Index )
+			{
+				Projectiles[ Index ].SourceAttachActor.Destroy( );
+				Projectiles[ Index ].TargetAttachActor.Destroy( );
+			}
+			Destroy( );
+		}
+
+		`LOG("--------- End Tick ------------",, 'IRITEST');
+	}
+
+Begin:
+}
+*/

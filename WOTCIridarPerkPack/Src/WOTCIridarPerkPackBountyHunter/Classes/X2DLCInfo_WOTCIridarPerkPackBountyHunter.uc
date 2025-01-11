@@ -7,6 +7,8 @@ var private SkeletalMeshSocket SoulShotFireSocket;
 var private SkeletalMeshSocket SoulShotWeaponSocket;
 var private SkeletalMeshSocket SoulShotHitSocket;
 var private SkeletalMeshSocket InvenRHandCopySocket;
+var private SkeletalMeshSocket RifleGrenadeLeftSocket;
+var private SkeletalMeshSocket RifleGrenadeRightSocket;
 
 static function OnPreCreateTemplates()
 {
@@ -21,6 +23,8 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 	NewSockets.AddItem(default.SoulShotHitSocket);
 	NewSockets.AddItem(default.SoulShotFireSocket);
 	NewSockets.AddItem(default.InvenRHandCopySocket);
+	NewSockets.AddItem(default.RifleGrenadeLeftSocket);
+	NewSockets.AddItem(default.RifleGrenadeRightSocket);
 
 	Pawn.Mesh.AppendSockets(NewSockets, true);
 
@@ -828,6 +832,21 @@ defaultproperties
 		BoneName = "Inven_R_Hand"
 	End Object
 	InvenRHandCopySocket = DefaultInvenRHandCopySocket;
+
+	Begin Object Class=SkeletalMeshSocket Name=DefaultRifleGrenadeLeftSocket
+		SocketName="IRI_RifleGrenade_Left"
+		BoneName="Inven_L_Hand"
+		RelativeLocation=(X=77.274796,Y=0.000000,Z=4.246314)
+		RelativeRotation=(Pitch=16384,Yaw=0,Roll=0)
+	End Object
+	RifleGrenadeLeftSocket = DefaultRifleGrenadeLeftSocket;
 	
+	Begin Object Class=SkeletalMeshSocket Name=DefaultRifleGrenadeRightSocket
+		SocketName="IRI_RifleGrenade_Right"
+		BoneName="Inven_R_Hand"
+		RelativeLocation=(X=77.274796,Y=0.000000,Z=4.246314)
+		RelativeRotation=(Pitch=16384,Yaw=0,Roll=0)
+	End Object
+	RifleGrenadeRightSocket = DefaultRifleGrenadeRightSocket;
 }
 
