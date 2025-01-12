@@ -52,12 +52,14 @@ private function HideAttachedGrenadeMesh()
 	local X2UnifiedProjectile PatchProjectileVolley;
 	local bool bPatchedSomething;
 
-	`LOG("Iterating over:" @ PatchProjectileVolleys.Length @ "projectile volleys",, 'IRITEST');
+	//`LOG("Iterating over:" @ PatchProjectileVolleys.Length @ "projectile volleys",, 'IRITEST');
 
 	foreach PatchProjectileVolleys(PatchProjectileVolley)
 	{
-		HideAttachedGrenadeMeshForProjectile(PatchProjectileVolley);
-		bPatchedSomething = true;
+		if (HideAttachedGrenadeMeshForProjectile(PatchProjectileVolley))
+		{
+			bPatchedSomething = true;
+		}
 	}
 
 	if (!bPatchedSomething)
@@ -74,18 +76,18 @@ private function HideAttachedGrenadeMesh()
 // So whenever a unit launches a projectile with this ability, we check if it has a mesh attached to it, and nuke it if it does.
 
 // There's also a cosmetic fire weapon volley notify for the vektor rifle so there's a shot sound / muzzle flash. Have to remove the actual projectile fired, though.
-private function HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile NewProjectile)
+private function bool HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile NewProjectile)
 {
+	local bool bProjectileStillAlive;
 	local int i;
 
 	//`LOG("Projectile element comment:" @ NewProjectile.Projectiles[i].ProjectileElement.Comment,, 'IRITEST');
-
-	`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ PathName(NewProjectile.ObjectArchetype) @ "Context target location:" @ NewProjectile.AbilityContextTargetLocation,, 'IRITEST');
+	//`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ PathName(NewProjectile.ObjectArchetype) @ "Context target location:" @ NewProjectile.AbilityContextTargetLocation @ "Num projectiles:" @ NewProjectile.Projectiles.Length @ "Has Projectile Element:" @ NewProjectile.Projectiles[0].ProjectileElement != none @ "Setup Volley:" @ NewProjectile.bSetupVolley,, 'IRITEST');
 
 	if (NewProjectile.VolleyNotify.bCosmeticVolley) // This is the cosmetic vektor rifle shot.
 	{
 		for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
-		{
+		{	
 			// Allow Vektor rifle firing to play.
 			if (NewProjectile.Projectiles[i].ProjectileElement.FireSound != none)
 				continue;
@@ -99,13 +101,24 @@ private function HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile NewPro
 			if (InStr(NewProjectile.Projectiles[i].ProjectileElement.Comment, "Sound") != INDEX_NONE)
 				continue;
 
-			if (!NewProjectile.Projectiles[i].bFired || NewProjectile.Projectiles[i].ParticleEffectComponent == none)
+			if (!NewProjectile.Projectiles[i].bFired)
+			{
+				bProjectileStillAlive = true;
 				continue;
-				
-			NewProjectile.Projectiles[i].ParticleEffectComponent.OnSystemFinished = none;
-			NewProjectile.Projectiles[i].ParticleEffectComponent.DeactivateSystem( );
-			WorldInfo.MyEmitterPool.OnParticleSystemFinished(NewProjectile.Projectiles[i].ParticleEffectComponent);
-			NewProjectile.Projectiles[i].ParticleEffectComponent = none;
+			}
+
+			if (!NewProjectile.Projectiles[i].bWaitingToDie)
+			{
+				bProjectileStillAlive = true;
+			}
+
+			if (NewProjectile.Projectiles[i].ParticleEffectComponent != none)
+			{
+				NewProjectile.Projectiles[i].ParticleEffectComponent.OnSystemFinished = none;
+				NewProjectile.Projectiles[i].ParticleEffectComponent.DeactivateSystem( );
+				WorldInfo.MyEmitterPool.OnParticleSystemFinished(NewProjectile.Projectiles[i].ParticleEffectComponent);
+				NewProjectile.Projectiles[i].ParticleEffectComponent = none;
+			}
 
 			// But kill tracer or bullet distortion.
 			NewProjectile.EndProjectileInstance(i, 0);
@@ -114,27 +127,37 @@ private function HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile NewPro
 	else
 	{
 		for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
-		{
-			if (NewProjectile.Projectiles[i].TargetAttachActor == none)
-				continue;
-
+		{	
 			if (!NewProjectile.Projectiles[i].bFired)
+			{
+				bProjectileStillAlive = true;
 				continue;
-			
-			// Hide the attached mesh, if any.
-			SkeletalMeshActor(NewProjectile.Projectiles[i].TargetAttachActor).SkeletalMeshComponent.SetHidden(true);
-			//NewProjectile.Projectiles[i].TargetAttachActor.Destroy();
-				
-			// Remove the playing particle effect, if any. It has the smoke trail and I'd love to leave it, but it also has a small spinny grenade launcher projectile for some reason.
-			// Yes, even thrown hand grenades have it. Yes, it's stupid.
-			NewProjectile.Projectiles[i].ParticleEffectComponent.OnSystemFinished = none;
-			NewProjectile.Projectiles[i].ParticleEffectComponent.DeactivateSystem( );
-			WorldInfo.MyEmitterPool.OnParticleSystemFinished(NewProjectile.Projectiles[i].ParticleEffectComponent);
-			NewProjectile.Projectiles[i].ParticleEffectComponent = none;
+			}
 
-			// NewProjectile.EndProjectileInstance(i, 0);
+			if (!NewProjectile.Projectiles[i].bWaitingToDie)
+			{
+				bProjectileStillAlive = true;
+			}
+
+			if (NewProjectile.Projectiles[i].TargetAttachActor != none)
+			{
+				// Hide the attached mesh, if any.
+				SkeletalMeshActor(NewProjectile.Projectiles[i].TargetAttachActor).SkeletalMeshComponent.SetHidden(true);
+				//NewProjectile.Projectiles[i].TargetAttachActor.Destroy();
+				
+				// Remove the playing particle effect, if any. It has the smoke trail and I'd love to leave it, but it also has a small spinny grenade launcher projectile for some reason.
+				// Yes, even thrown hand grenades have it. Yes, it's stupid.
+				NewProjectile.Projectiles[i].ParticleEffectComponent.OnSystemFinished = none;
+				NewProjectile.Projectiles[i].ParticleEffectComponent.DeactivateSystem( );
+				WorldInfo.MyEmitterPool.OnParticleSystemFinished(NewProjectile.Projectiles[i].ParticleEffectComponent);
+				NewProjectile.Projectiles[i].ParticleEffectComponent = none;
+
+				// NewProjectile.EndProjectileInstance(i, 0);
+			}
 		}
 	}
+
+	return bProjectileStillAlive;
 }
 
 
@@ -142,10 +165,11 @@ function CompleteAction()
 {
 	super.CompleteAction();
 
-	`LOG("Action over, clearing timer",, 'IRITEST');
+	if (self.IsTimerActive(nameof(HideAttachedGrenadeMesh)))
+	{
+		`LOG("Action over, clearing timer",, 'IRITEST');
 
-	// TODO: Figure out why this happens.
-
-	// Clear time once the action completes just in case.
-	self.ClearTimer(nameof(HideAttachedGrenadeMesh));
+		// Clear time once the action completes just in case.
+		self.ClearTimer(nameof(HideAttachedGrenadeMesh));
+	}
 }
