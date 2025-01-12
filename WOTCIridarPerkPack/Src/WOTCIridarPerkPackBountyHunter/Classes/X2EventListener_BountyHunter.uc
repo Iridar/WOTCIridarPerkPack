@@ -1,5 +1,7 @@
 class X2EventListener_BountyHunter extends X2EventListener;
 
+// TODO: Delete this file.
+
 /*
 static function array<X2DataTemplate> CreateTemplates()
 {

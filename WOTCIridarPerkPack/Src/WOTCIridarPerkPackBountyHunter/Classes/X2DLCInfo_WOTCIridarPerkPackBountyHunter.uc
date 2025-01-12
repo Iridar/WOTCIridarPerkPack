@@ -7,8 +7,6 @@ var private SkeletalMeshSocket SoulShotFireSocket;
 var private SkeletalMeshSocket SoulShotWeaponSocket;
 var private SkeletalMeshSocket SoulShotHitSocket;
 var private SkeletalMeshSocket InvenRHandCopySocket;
-var private SkeletalMeshSocket RifleGrenadeLeftSocket;
-var private SkeletalMeshSocket RifleGrenadeRightSocket;
 
 static function OnPreCreateTemplates()
 {
@@ -23,12 +21,29 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 	NewSockets.AddItem(default.SoulShotHitSocket);
 	NewSockets.AddItem(default.SoulShotFireSocket);
 	NewSockets.AddItem(default.InvenRHandCopySocket);
-	NewSockets.AddItem(default.RifleGrenadeLeftSocket);
-	NewSockets.AddItem(default.RifleGrenadeRightSocket);
 
 	Pawn.Mesh.AppendSockets(NewSockets, true);
 
 	return "";
+}
+
+static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
+{
+	local SkeletalMeshSocket NewSocket;
+	local SkeletalMeshSocket ExistingSocket;
+
+	// For Soul Shot
+	if (ItemState.GetWeaponCategory() == 'gauntlet')
+	{
+		foreach SkeletalMeshComponent(Weapon.Mesh).Sockets(ExistingSocket)
+		{
+			NewSocket = new class'SkeletalMeshSocket';
+			NewSocket.SocketName = 'IRI_SoulBow_Fire';
+			NewSocket.BoneName = ExistingSocket.BoneName;
+			NewSockets.AddItem(NewSocket);
+			return;
+		}
+	}
 }
 
 // Bounty Hunter - Rifle Grenade - must be assigned to a weapon, otherwise fails to work, but game's own logic reassigns it to grenades.
@@ -727,76 +742,6 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 }
 /// End Issue #245
 
-/// Start Issue #281
-/// <summary>
-/// Called from XGWeapon.CreateEntity
-/// Allows DLC/Mods to append sockets to weapons
-/// NOTE: To create new sockets from script you need to unconst SocketName and BoneName in SkeletalMeshSocket
-/// </summary>
-/// HL-Docs: feature:DLCAppendWeaponSockets; issue:281; tags:pawns
-/// Allows mods to add, move and rescale sockets on the skeletal mesh of any weapon, which can be used to position visual weapon attachments,
-/// using different position/scale of the same attachment's skeletal mesh for different weapons. Example use:
-/// ```unrealscript
-/// static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
-/// {
-/// 	local SkeletalMeshSocket    Socket;
-///     local vector                RelativeLocation;
-/// 	local rotator				RelativeRotation;
-/// 	local vector				RelativeScale;   
-/// 	
-/// 	if (ItemState != none)
-/// 	{
-/// 		Socket = new class'SkeletalMeshSocket';
-/// 
-/// 		Socket.SocketName = 'NewSocket';
-/// 		Socket.BoneName = 'root';
-/// 
-/// 		//	Location offsets are in Unreal Units; 1 unit is roughly equal to a centimeter.
-/// 		RelativeLocation.X = 5;
-/// 		RelativeLocation.Y = 10;
-/// 		RelativeLocation.Z = 15;
-/// 		Socket.RelativeLocation = RelativeLocation;
-/// 
-/// 		//	Socket rotation is recorded as an int value [-65535; 65535], which corresponds with [-360 degrees; 360 degrees]
-/// 		//	If we want to specify the rotation in degrees, the value must be converted using DegToUnrRot, a const in the Object class.
-/// 		RelativeRotation.Pitch = 5 * DegToUnrRot;	//	Pitch of five degrees.
-/// 		RelativeRotation.Yaw = 10 * DegToUnrRot;
-/// 		RelativeRotation.Roll = 15 * DegToUnrRot;
-/// 		Socket.RelativeRotation = RelativeRotation;
-/// 
-/// 		//	Scaling a socket will scale any mesh attached to it.
-/// 		RelativeScale.X = 0.25f;
-/// 		RelativeScale.Y = 0.5f;
-/// 		RelativeScale.Z = 1.0f;
-/// 		Socket.RelativeScale = RelativeScale;
-/// 
-/// 		NewSockets.AddItem(Socket);
-/// 	}
-/// }
-/// ```
-///
-/// Sockets that have the name of an existing socket will replace the original socket. This can be used to move, rotate,
-/// and rescale existing sockets.
-static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets, XComWeapon Weapon, XComGameState_Item ItemState)
-{
-	local SkeletalMeshSocket NewSocket;
-	local SkeletalMeshSocket ExistingSocket;
-
-	// For Soul Shot
-	if (ItemState.GetWeaponCategory() == 'gauntlet')
-	{
-		foreach SkeletalMeshComponent(Weapon.Mesh).Sockets(ExistingSocket)
-		{
-			NewSocket = new class'SkeletalMeshSocket';
-			NewSocket.SocketName = 'IRI_SoulBow_Fire';
-			NewSocket.BoneName = ExistingSocket.BoneName;
-			NewSockets.AddItem(NewSocket);
-			return;
-		}
-	}
-}
-/// End Issue #281
-
 defaultproperties
 {
 	Begin Object Class=SkeletalMeshSocket Name=DefaultShadowTeleportSocket
@@ -832,21 +777,5 @@ defaultproperties
 		BoneName = "Inven_R_Hand"
 	End Object
 	InvenRHandCopySocket = DefaultInvenRHandCopySocket;
-
-	Begin Object Class=SkeletalMeshSocket Name=DefaultRifleGrenadeLeftSocket
-		SocketName="IRI_RifleGrenade_Left"
-		BoneName="Inven_L_Hand"
-		RelativeLocation=(X=77.274796,Y=0.000000,Z=4.246314)
-		RelativeRotation=(Pitch=16384,Yaw=0,Roll=0)
-	End Object
-	RifleGrenadeLeftSocket = DefaultRifleGrenadeLeftSocket;
-	
-	Begin Object Class=SkeletalMeshSocket Name=DefaultRifleGrenadeRightSocket
-		SocketName="IRI_RifleGrenade_Right"
-		BoneName="Inven_R_Hand"
-		RelativeLocation=(X=77.274796,Y=0.000000,Z=4.246314)
-		RelativeRotation=(Pitch=16384,Yaw=0,Roll=0)
-	End Object
-	RifleGrenadeRightSocket = DefaultRifleGrenadeRightSocket;
 }
 

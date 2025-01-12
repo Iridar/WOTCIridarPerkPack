@@ -150,10 +150,12 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 	AmmoCost = new class'X2AbilityCost_Ammo';	
 	AmmoCost.iAmmo = 1;
 	AmmoCost.UseLoadedAmmo = true;
+AmmoCost.bFreeCost = true; // TODO DEBUG ONLY
 	Template.AbilityCosts.AddItem(AmmoCost);
 	
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.iNumPoints = 1;
+ActionPointCost.bFreeCost = true; // TODO DEBUG ONLY
 	ActionPointCost.bConsumeAllPoints = true;
 	ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('Salvo');
 	//ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('TotalCombat');

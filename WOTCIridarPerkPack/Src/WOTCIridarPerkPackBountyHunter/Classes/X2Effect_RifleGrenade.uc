@@ -37,7 +37,100 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 
 	// Used to override spawning of the second grenade projectile caused by the cosmetic Fire Weapon Volley notify.
 	EventMgr.RegisterForEvent(EffectObj, 'OverrideProjectileInstance', OnOverrideProjectileInstance, ELD_Immediate,, ,, EffectObj);	
+
+	// Socket management
+	EventMgr.RegisterForEvent(EffectObj, 'OverrideWeaponScale', OnOverrideWeaponScale, ELD_Immediate, 0, ,, EffectObj);	
 }
+
+static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
+{
+    local XComUnitPawn			UnitPawn;
+    local XComLWTuple			Tuple;
+    local float					fWeaponScale;
+    local XComGameState_Item	ItemState;
+	local SkeletalMeshSocket	Socket;
+	local SkeletalMeshSocket	NewSocket;
+	local XGWeapon				GameWeapon;
+	local XComWeapon			Weapon;
+	local SkeletalMeshComponent	SkelMeshComp;
+	local array<SkeletalMeshSocket>	NewSockets;
+
+    UnitPawn = XComUnitPawn(EventSource);
+	if (UnitPawn == none)
+		return ELR_NoInterrupt;
+
+    Tuple = XComLWTuple(EventData);
+	if (Tuple == none)
+		return ELR_NoInterrupt;
+
+	ItemState = XComGameState_Item(Tuple.Data[2].o);
+	if (ItemState == none)
+		return ELR_NoInterrupt;
+
+	if (ItemState.InventorySlot != eInvSlot_PrimaryWeapon)
+		return ELR_NoInterrupt;
+
+	GameWeapon = XGWeapon(ItemState.GetVisualizer());
+	if (GameWeapon == none)
+		return ELR_NoInterrupt;
+
+	Weapon = GameWeapon.GetEntity();
+	if (Weapon == none)
+		return ELR_NoInterrupt;
+
+	SkelMeshComp = SkeletalMeshComponent(Weapon.Mesh);
+	if (SkelMeshComp == none)
+		return ELR_NoInterrupt;
+
+	if (Tuple.Data[0].b)
+	{
+		fWeaponScale = Tuple.Data[1].f; // Weapon scale overridden by prior listeners in mods
+	}
+	else
+	{
+		fWeaponScale = UnitPawn.WeaponScale; // Uses default weapon scale for gender
+	}
+
+	foreach SkelMeshComp.Sockets(Socket)
+	{
+		if (Socket.SocketName == 'gun_fire')
+		{
+			NewSocket = new class'SkeletalMeshSocket';
+			NewSocket.SocketName = 'IRI_RifleGrenade_Left';
+			NewSocket.BoneName = 'Inven_L_Hand';
+
+			NewSocket.RelativeLocation = Socket.RelativeLocation;
+			NewSocket.RelativeLocation.X += 12.5;
+			NewSocket.RelativeLocation *= fWeaponScale;
+
+			NewSocket.RelativeRotation.Pitch = 16384;
+			
+			NewSockets.AddItem(NewSocket);
+
+
+
+			NewSocket = new class'SkeletalMeshSocket';
+			NewSocket.SocketName = 'IRI_RifleGrenade_Right';
+			NewSocket.BoneName = 'Inven_R_Hand';
+
+			NewSocket.RelativeLocation = Socket.RelativeLocation;
+			NewSocket.RelativeLocation.X += 12.5;
+			NewSocket.RelativeLocation *= fWeaponScale;
+
+			NewSocket.RelativeRotation.Pitch = 16384;
+			
+			NewSockets.AddItem(NewSocket);
+
+			UnitPawn.Mesh.AppendSockets(NewSockets, true);
+			break;
+			//`LOG("Weapon" @ ItemState.GetMyTemplateName() @ "has socket:" @ Socket.SocketName @ Socket.BoneName @ Socket.RelativeLocation @ "Weapon Scale:" @ fWeaponScale,, 'IRITEST');
+		}
+	}
+
+
+    return ELR_NoInterrupt;
+}
+
 
 static private function EventListenerReturn OnOverrideProjectileInstance(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
 {

@@ -276,3 +276,51 @@ If you don't attack for a turn, Nightfall's cooldown is additionally reduced by 
 
 [i]This ability simply lets you use Nightfall more often, especially it increases the likelihood that it will cooldown completely while you're moving between engagements on a large map.[/i]
 
+
+
+---
+
+TODO: Restore this
+
+{
+    "sfStandalone": [
+        "IRIBountyHunter",
+		"IRIShadowTeleportPerk",
+		"IRINothingPersonalPerk",
+		"IRINamedShotPerk",
+		"IRISoulShot2",
+		"IRIVolt",
+		"IRITerminatePerk",
+		"IRIHomingMinePerkBH",
+		"IRIThunderLancePerk",
+		"IRIPerkPackUI",
+		"IRIZephyrStrikePerkOnly",
+		"IRIReflect",
+		"IRISpectralStride",
+		"IRIAmplify",
+		"IRIRend",
+		"IRIReaperTakedownPerk",
+		"IRIInvert",
+		"IRIGhost",
+		"IRIRifleGrenadePerk"
+    ]
+}
+
+
+[Engine.ScriptPackages]
++NonNativePackages=AWOTCIridarPerkPack
++NonNativePackages=WOTCIridarPerkPack2
++NonNativePackages=WOTCIridarPerkPackFoxcom
++NonNativePackages=WOTCIridarPerkPackBountyHunter
++NonNativePackages=WOTCIridarPerkPackSkirmisher
++NonNativePackages=WOTCIridarPerkPackTemplar
++NonNativePackages=WOTCIridarPerkPackClassRework
+
+[UnrealEd.EditorEngine]
++ModEditPackages=AWOTCIridarPerkPack
++ModEditPackages=WOTCIridarPerkPack2
++ModEditPackages=WOTCIridarPerkPackFoxcom
++ModEditPackages=WOTCIridarPerkPackBountyHunter
++ModEditPackages=WOTCIridarPerkPackSkirmisher
++ModEditPackages=WOTCIridarPerkPackTemplar
++ModEditPackages=WOTCIridarPerkPackClassRework
