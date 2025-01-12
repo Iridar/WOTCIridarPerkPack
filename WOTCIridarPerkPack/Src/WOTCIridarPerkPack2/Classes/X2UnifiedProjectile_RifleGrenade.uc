@@ -542,14 +542,14 @@ private function SkeletalMesh GetProjectileSkeletalMesh()
 
 private function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const StateObjectReference ShooterRef, const StateObjectReference TargetRef)
 {
-	local XComWorldData					World;
-	local TTile							TileLocation;
+	//local XComWorldData					World;
+	//local TTile							TileLocation;
 	local XComGameStateHistory			History;
 	local XGUnit						GameUnit;
 
-	World = `XWORLD;
+	//World = `XWORLD;
 
-	TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
+	//TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
 
 	`LOG("Original vector:" @ VectorLocation,, 'IRITEST');
 

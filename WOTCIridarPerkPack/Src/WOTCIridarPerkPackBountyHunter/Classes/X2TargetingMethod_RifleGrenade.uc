@@ -192,18 +192,16 @@ static final function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, 
 }
 
 // This will make the projectile visible impact the target, but it will also alter where the actual explosion happens, and I'd rather not do that.
-/*
+
 function GetTargetLocations(out array<Vector> TargetLocations)
 {
-	local vector LocTargetLocation;
+	//local vector LocTargetLocation;
 
-	LocTargetLocation = GetSplashRadiusCenter();
-	MaybeUpdateTargetForUnitOnTile(LocTargetLocation, UnitState.GetReference());
+	super.GetTargetLocations(TargetLocations);
 
-	TargetLocations.Length = 0;
-	TargetLocations.AddItem(LocTargetLocation);
+	`LOG("Target Location from Targeting Method:" @ TargetLocations[0],, 'IRITEST');
 }
-*/
+
 
 private function UpdateGrenadePath()
 {
