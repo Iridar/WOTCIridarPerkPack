@@ -6,16 +6,15 @@ var private array<X2UnifiedProjectile> PatchProjectileVolleys;
 // This custom fire action is used for the Rifle Grenade ability.
 // It's responsible for hiding the grenade projectile that is launched alongside the rifle grenade projectile,
 // which is something that seems to be happening automatically for all "launch grenade" types of abilities.
+// As well as hiding the projectile fired by the vektor rifle, which is done intentionally to produce muzzle flash / firing sound / shell ejection.
 
 // TODO: Make rifle grenade visually impact units when targeting them directly. - done this already?
-// TODO: Figure out why first explosion happens in the wrong place. Seems not to be caused by targeting method.
 // TODO: Ensure projectile code compat with laser/coil vektor
 
 /*
 function Init()
 {
 	super.Init();
-
 }
 */
 
@@ -29,19 +28,19 @@ function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 		return;
 
 	strPathName = PathName(NewProjectile.ObjectArchetype);
-	`LOG("Fire Action adding projectile volley:" @ strPathName,, 'IRITEST');
+	//`LOG("Fire Action adding projectile volley:" @ strPathName,, 'IRITEST');
 	if (strPathName == "" || strPathName ==  "IRIBountyHunter.Archetypes.PJ_RifleGrenade")
 		return;
 
 	PatchProjectileVolleys.AddItem(NewProjectile);
 
-	`LOG("It's added, current length:" @ PatchProjectileVolleys.Length,, 'IRITEST');
+	//`LOG("It's added, current length:" @ PatchProjectileVolleys.Length,, 'IRITEST');
 
 	if (!bHasSetTimer)
 	{
-		// Have to do this on a timer, as the attached meshes are not created immediately.
-		// Trying to optimize patching also didn't work, so I'll just brute force it.
-		// Start the looped timer when projectiles are added and keep it running until all projectiles are done flying.
+		// Start the looped timer when projectiles are added and keep it running until all projectiles are fired and patched.
+		// Have to do this on a timer, as the projectiles are not fired immediately, and until they are, attached meshes and PFX don't exist.
+		
 		self.SetTimer(0.01f, true, nameof(HideAttachedGrenadeMesh));
 		bHasSetTimer = true;
 	}
@@ -64,7 +63,7 @@ private function HideAttachedGrenadeMesh()
 
 	if (!bPatchedSomething)
 	{
-		`LOG("Projectile patching done, clearing timer",, 'IRITEST');
+		//`LOG("Projectile patching done, clearing timer",, 'IRITEST');
 
 		self.ClearTimer(nameof(HideAttachedGrenadeMesh));
 	}
@@ -78,16 +77,19 @@ private function HideAttachedGrenadeMesh()
 // There's also a cosmetic fire weapon volley notify for the vektor rifle so there's a shot sound / muzzle flash. Have to remove the actual projectile fired, though.
 private function bool HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile NewProjectile)
 {
-	local bool bProjectileStillAlive;
+	local bool bWaitingForProjectilesToFire;
+	local bool bPatchedProjectile;
 	local int i;
 
 	//`LOG("Projectile element comment:" @ NewProjectile.Projectiles[i].ProjectileElement.Comment,, 'IRITEST');
 	//`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ PathName(NewProjectile.ObjectArchetype) @ "Context target location:" @ NewProjectile.AbilityContextTargetLocation @ "Num projectiles:" @ NewProjectile.Projectiles.Length @ "Has Projectile Element:" @ NewProjectile.Projectiles[0].ProjectileElement != none @ "Setup Volley:" @ NewProjectile.bSetupVolley,, 'IRITEST');
-
+	
 	if (NewProjectile.VolleyNotify.bCosmeticVolley) // This is the cosmetic vektor rifle shot.
 	{
 		for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
 		{	
+			NewProjectile.Projectiles[i].InitialTargetLocation = self.TargetLocation;
+
 			// Allow Vektor rifle firing to play.
 			if (NewProjectile.Projectiles[i].ProjectileElement.FireSound != none)
 				continue;
@@ -103,14 +105,12 @@ private function bool HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile N
 
 			if (!NewProjectile.Projectiles[i].bFired)
 			{
-				bProjectileStillAlive = true;
+				bWaitingForProjectilesToFire = true;
 				continue;
 			}
 
-			if (!NewProjectile.Projectiles[i].bWaitingToDie)
-			{
-				bProjectileStillAlive = true;
-			}
+			if (NewProjectile.Projectiles[i].bWaitingToDie)
+				continue;
 
 			if (NewProjectile.Projectiles[i].ParticleEffectComponent != none)
 			{
@@ -122,22 +122,26 @@ private function bool HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile N
 
 			// But kill tracer or bullet distortion.
 			NewProjectile.EndProjectileInstance(i, 0);
+
+			bPatchedProjectile = true;
 		}
 	}
-	else
+	else // This is the flying hand grenade projectile.
 	{
 		for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
 		{	
+			// Something in the logic bugs out, and the first use of the ability for the soldier has the grenade explosion happen not where it should.
+			// Hard set it to the correct vector.
+			NewProjectile.Projectiles[i].InitialTargetLocation = self.TargetLocation; 
+
 			if (!NewProjectile.Projectiles[i].bFired)
 			{
-				bProjectileStillAlive = true;
+				bWaitingForProjectilesToFire = true;
 				continue;
 			}
 
-			if (!NewProjectile.Projectiles[i].bWaitingToDie)
-			{
-				bProjectileStillAlive = true;
-			}
+			if (NewProjectile.Projectiles[i].bWaitingToDie)
+				continue;
 
 			if (NewProjectile.Projectiles[i].TargetAttachActor != none)
 			{
@@ -153,11 +157,14 @@ private function bool HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile N
 				NewProjectile.Projectiles[i].ParticleEffectComponent = none;
 
 				// NewProjectile.EndProjectileInstance(i, 0);
+				bPatchedProjectile = true;
 			}
 		}
 	}
 
-	return bProjectileStillAlive;
+	//`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ `ShowVar(bWaitingForProjectilesToFire) @ `ShowVar(bPatchedProjectile),, 'IRITEST');
+
+	return bWaitingForProjectilesToFire || !bPatchedProjectile;
 }
 
 
@@ -165,9 +172,11 @@ function CompleteAction()
 {
 	super.CompleteAction();
 
+	//`LOG("Action over",, 'IRITEST');
+
 	if (self.IsTimerActive(nameof(HideAttachedGrenadeMesh)))
 	{
-		`LOG("Action over, clearing timer",, 'IRITEST');
+		//`LOG("Action over, clearing timer",, 'IRITEST');
 
 		// Clear time once the action completes just in case.
 		self.ClearTimer(nameof(HideAttachedGrenadeMesh));
