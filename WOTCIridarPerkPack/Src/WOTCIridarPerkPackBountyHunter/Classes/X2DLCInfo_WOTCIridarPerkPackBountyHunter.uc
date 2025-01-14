@@ -6,7 +6,7 @@ var private SkeletalMeshSocket ShadowTeleportSocket;
 var private SkeletalMeshSocket SoulShotFireSocket;
 var private SkeletalMeshSocket SoulShotWeaponSocket;
 var private SkeletalMeshSocket SoulShotHitSocket;
-var private SkeletalMeshSocket InvenRHandCopySocket;
+var private SkeletalMeshSocket InvenRHandCopySocket; // Used by Rifle Grenade and something else.
 
 static function OnPreCreateTemplates()
 {

@@ -11,12 +11,16 @@ var private array<X2UnifiedProjectile> PatchProjectileVolleys;
 // TODO: Make rifle grenade visually impact units when targeting them directly. - done this already?
 // TODO: Ensure projectile code compat with laser/coil vektor
 
-/*
+
 function Init()
 {
 	super.Init();
+
+	// This will make the grenade explosion happen higher if the grenade impacts a unit.
+	class'X2TargetingMethod_RifleGrenade'.static.MaybeUpdateTargetForUnitOnTile(TargetLocation, AbilityContext.InputContext.SourceObject);
+	AimAtLocation = TargetLocation;
 }
-*/
+
 
 function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 {

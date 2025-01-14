@@ -42,6 +42,7 @@ function FireProjectileInstance(int Index)
 	local bool bCollideWithUnits;
 
 	local vector AdjustedHitLocation;
+	local vector InitialFiringLocation;
 
 	// Variables for Issue #10
 	local XComLWTuple Tuple;
@@ -265,7 +266,10 @@ function FireProjectileInstance(int Index)
 			AdjustedHitLocation = StoredInputContext.TargetLocations[0];
 			MaybeUpdateTargetForUnitOnTile(AdjustedHitLocation, StoredInputContext.SourceObject, StoredInputContext.PrimaryTarget);
 			Projectiles[Index].GrenadePath.OverrideTargetLocation = AdjustedHitLocation;
-			AdjustGrenadePath(Projectiles[Index].GrenadePath, AdjustedHitLocation);
+
+			SkeletalMeshComponent(SourceWeapon.Mesh).GetSocketWorldLocationAndRotation('gun_fire', InitialFiringLocation);
+
+			AdjustGrenadePath(Projectiles[Index].GrenadePath, InitialFiringLocation, AdjustedHitLocation);
 		//}
 		//else
 		//{
@@ -480,7 +484,7 @@ function FireProjectileInstance(int Index)
 }
 
 // This is slightly different from the similar function in X2TargetingMethod_RifleGrenade, since we need to adjust time and rotation of each point, which is irrelevant for the preview curve drawn for targeting.
-private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathEndLocation)
+private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathStartLocation, vector PathEndLocation)
 {
 	local float		iKeyframes;
 	local float		i;
@@ -489,12 +493,12 @@ private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathE
 	local float		VerticalShift;
 	local float		MaxVerticalShift;
 	local float		Distance;
-	local vector	PathStartLocation;
+	//local vector	PathStartLocation;
 	local float		fTravelTime;
 	
 	iKeyframes = GrenadePath.iNumKeyframes;
 
-	PathStartLocation = GrenadePath.akKeyframes[0].vLoc;
+	//PathStartLocation = GrenadePath.akKeyframes[0].vLoc;
 
 	// These are probably unnecessary
 	GrenadePath.bUseOverrideSourceLocation = true;
@@ -530,7 +534,7 @@ private function AdjustGrenadePath(XComPrecomputedPath GrenadePath, vector PathE
 		GrenadePath.akKeyframes[i].fTime = i * fTravelTime / iKeyframes;
 
 		// Add some cosmetic roll to make it look nicer
-		GrenadePath.akKeyframes[i].rRot.Roll += GrenadePath.akKeyframes[i].fTime * 210 * 182; // 210 degrees per second basically
+		GrenadePath.akKeyframes[i].rRot.Roll -= GrenadePath.akKeyframes[i].fTime * 360 * 182; // 360 degrees per second basically
 	}
 }
 
@@ -551,20 +555,20 @@ private function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const
 
 	//TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
 
-	`LOG("Original vector:" @ VectorLocation,, 'IRITEST');
+	//`LOG("Original vector:" @ VectorLocation,, 'IRITEST');
 
 	//	If there's a unit on the tile, or the tile contains a high cover object
 
 	History = `XCOMHISTORY;
 	GameUnit = XGUnit(History.GetVisualizer(TargetRef.ObjectID));
 
-	`LOG("Target unit:" @ XComGameState_Unit(History.GetGameStateForObjectID(TargetRef.ObjectID)).GetFullName(),, 'IRITEST');
+	//`LOG("Target unit:" @ XComGameState_Unit(History.GetGameStateForObjectID(TargetRef.ObjectID)).GetFullName(),, 'IRITEST');
 
 	if (GameUnit != none)
 	{
 		VectorLocation = GameUnit.GetShootAtLocation(eHit_Success, ShooterRef);
 
-		`LOG("Adjusted vector:" @ VectorLocation,, 'IRITEST');
+		//`LOG("Adjusted vector:" @ VectorLocation,, 'IRITEST');
 	}
 	
 }

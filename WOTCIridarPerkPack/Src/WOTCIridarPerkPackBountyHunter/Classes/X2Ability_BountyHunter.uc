@@ -196,7 +196,7 @@ ActionPointCost.bFreeCost = true; // TODO DEBUG ONLY
 
 	Template.DamagePreviewFn = class'X2Ability_Grenades'.static.GrenadeDamagePreview;
 
-	//Template.CinescriptCameraType = "Grenadier_GrenadeLauncher";
+	Template.CinescriptCameraType = "Grenadier_GrenadeLauncher";
 
 	Template.bOverrideAim = true;
 	Template.Hostility = eHostility_Offensive;

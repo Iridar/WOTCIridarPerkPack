@@ -95,6 +95,9 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 	{
 		if (Socket.SocketName == 'gun_fire')
 		{
+			//`LOG("Weapon" @ ItemState.GetMyTemplateName() @ "has socket:" @ Socket.SocketName @ Socket.BoneName @ Socket.RelativeLocation @ "Weapon Scale:" @ fWeaponScale,, 'IRITEST');
+
+			// Socket Left
 			NewSocket = new class'SkeletalMeshSocket';
 			NewSocket.SocketName = 'IRI_RifleGrenade_Left';
 			NewSocket.BoneName = 'Inven_L_Hand';
@@ -103,12 +106,12 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 			NewSocket.RelativeLocation.X += 12.5;
 			NewSocket.RelativeLocation *= fWeaponScale;
 
-			NewSocket.RelativeRotation.Pitch = 16384;
+			NewSocket.RelativeRotation.Roll = 16384;
+			NewSocket.RelativeRotation.Yaw = 16384;
 			
 			NewSockets.AddItem(NewSocket);
 
-
-
+			// Socket Right
 			NewSocket = new class'SkeletalMeshSocket';
 			NewSocket.SocketName = 'IRI_RifleGrenade_Right';
 			NewSocket.BoneName = 'Inven_R_Hand';
@@ -117,13 +120,14 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 			NewSocket.RelativeLocation.X += 12.5;
 			NewSocket.RelativeLocation *= fWeaponScale;
 
-			NewSocket.RelativeRotation.Pitch = 16384;
+			NewSocket.RelativeRotation.Roll = 16384;
+			NewSocket.RelativeRotation.Yaw = 16384;
 			
 			NewSockets.AddItem(NewSocket);
 
+			// Add, exit
 			UnitPawn.Mesh.AppendSockets(NewSockets, true);
 			break;
-			//`LOG("Weapon" @ ItemState.GetMyTemplateName() @ "has socket:" @ Socket.SocketName @ Socket.BoneName @ Socket.RelativeLocation @ "Weapon Scale:" @ fWeaponScale,, 'IRITEST');
 		}
 	}
 
