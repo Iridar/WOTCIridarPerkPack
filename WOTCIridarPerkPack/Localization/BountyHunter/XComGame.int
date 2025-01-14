@@ -47,6 +47,17 @@ LocHelpText="Your <Ability:IRI_BoundWeaponName/> gains Squadsight, allowing you 
 LocPromotionPopupText="<bullet/> Squadsight attacks benefit from Dead of Night."
 LocFlyOverText="Night Watch"
 
+[IRI_BH_RifleGrenade_Passive X2AbilityTemplate]
+LocFriendlyName="Rifle Grenades"
+LocLongDescription="You can launch grenades from the barrel of your <Ability:WeaponName/>, increasing their range by <Ability:IRI_BH_RifleGrenade_RangeIncrase_Tiles/> tiles and causing them to deal +<Ability:IRI_BH_RifleGrenade_DamageBonusPercent/> bonus damage to the target at the center of the explosion. Launching a Rifle Grenade costs 1 ammo."
+LocHelpText="You can launch grenades from the barrel of your <Ability:WeaponName/>, increasing their range by <Ability:IRI_BH_RifleGrenade_RangeIncrase_Tiles/> tiles and causing them to deal +<Ability:IRI_BH_RifleGrenade_DamageBonusPercent/> bonus damage to the target at the center of the explosion. Launching a Rifle Grenade costs 1 ammo."
+LocPromotionPopupText="<bullet/> Bonus damage on a direct hit is added both against units and destructible objects."
+
+[IRI_BH_RifleGrenade X2AbilityTemplate]
+LocFriendlyName="Rifle Grenades"
+LocLongDescription="You can launch grenades from the barrel of your <Ability:WeaponName/>, increasing their range by <Ability:IRI_BH_RifleGrenade_RangeIncrase_Tiles/> tiles and causing them to deal +<Ability:IRI_BH_RifleGrenade_DamageBonusPercent/> bonus damage to the target at the center of the explosion. Launching a Rifle Grenade costs 1 ammo."
+LocHelpText="You can launch grenades from the barrel of your <Ability:WeaponName/>, increasing their range by <Ability:IRI_BH_RifleGrenade_RangeIncrase_Tiles/> tiles and causing them to deal +<Ability:IRI_BH_RifleGrenade_DamageBonusPercent/> bonus damage to the target at the center of the explosion. Launching a Rifle Grenade costs 1 ammo."
+LocPromotionPopupText="<bullet/> Bonus damage on a direct hit is added both against units and destructible objects."
 
 
 [IRI_BH_ShadowTeleport X2AbilityTemplate]

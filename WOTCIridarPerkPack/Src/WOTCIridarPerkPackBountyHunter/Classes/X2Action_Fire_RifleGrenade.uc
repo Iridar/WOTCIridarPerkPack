@@ -8,19 +8,16 @@ var private array<X2UnifiedProjectile> PatchProjectileVolleys;
 // which is something that seems to be happening automatically for all "launch grenade" types of abilities.
 // As well as hiding the projectile fired by the vektor rifle, which is done intentionally to produce muzzle flash / firing sound / shell ejection.
 
-// TODO: Make rifle grenade visually impact units when targeting them directly. - done this already?
-// TODO: Ensure projectile code compat with laser/coil vektor
-
-
 function Init()
 {
 	super.Init();
 
-	// This will make the grenade explosion happen higher if the grenade impacts a unit.
+	// Used to make the grenade explosion happen higher if the grenade impacts a unit,
+	// and to make the projectile impact the target rather than target's tile.
+	// Incidentally, force assigning this to projectiles also fixes a bug that first grenade launch has the grenade explode in the wrong place for some reason.
 	class'X2TargetingMethod_RifleGrenade'.static.MaybeUpdateTargetForUnitOnTile(TargetLocation, AbilityContext.InputContext.SourceObject);
 	AimAtLocation = TargetLocation;
 }
-
 
 function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 {
@@ -59,7 +56,7 @@ private function HideAttachedGrenadeMesh()
 
 	foreach PatchProjectileVolleys(PatchProjectileVolley)
 	{
-		if (HideAttachedGrenadeMeshForProjectile(PatchProjectileVolley))
+		if (HideAttachedMesh_AndKillPFX_ForProjectile(PatchProjectileVolley))
 		{
 			bPatchedSomething = true;
 		}
@@ -79,7 +76,7 @@ private function HideAttachedGrenadeMesh()
 // So whenever a unit launches a projectile with this ability, we check if it has a mesh attached to it, and nuke it if it does.
 
 // There's also a cosmetic fire weapon volley notify for the vektor rifle so there's a shot sound / muzzle flash. Have to remove the actual projectile fired, though.
-private function bool HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile NewProjectile)
+private function bool HideAttachedMesh_AndKillPFX_ForProjectile(X2UnifiedProjectile NewProjectile)
 {
 	local bool bWaitingForProjectilesToFire;
 	local bool bPatchedProjectile;
@@ -88,82 +85,42 @@ private function bool HideAttachedGrenadeMeshForProjectile(X2UnifiedProjectile N
 	//`LOG("Projectile element comment:" @ NewProjectile.Projectiles[i].ProjectileElement.Comment,, 'IRITEST');
 	//`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ PathName(NewProjectile.ObjectArchetype) @ "Context target location:" @ NewProjectile.AbilityContextTargetLocation @ "Num projectiles:" @ NewProjectile.Projectiles.Length @ "Has Projectile Element:" @ NewProjectile.Projectiles[0].ProjectileElement != none @ "Setup Volley:" @ NewProjectile.bSetupVolley,, 'IRITEST');
 	
-	if (NewProjectile.VolleyNotify.bCosmeticVolley) // This is the cosmetic vektor rifle shot.
-	{
-		for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
-		{	
-			NewProjectile.Projectiles[i].InitialTargetLocation = self.TargetLocation;
+	for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
+	{	
+		NewProjectile.Projectiles[i].InitialTargetLocation = self.TargetLocation;
 
-			// Allow Vektor rifle firing to play.
-			if (NewProjectile.Projectiles[i].ProjectileElement.FireSound != none)
-				continue;
-
-			if (InStr(NewProjectile.Projectiles[i].ProjectileElement.Comment, "Muzzle") != INDEX_NONE)
-				continue;
-
-			if (InStr(NewProjectile.Projectiles[i].ProjectileElement.Comment, "Shell") != INDEX_NONE)
-				continue;
-
-			if (InStr(NewProjectile.Projectiles[i].ProjectileElement.Comment, "Sound") != INDEX_NONE)
-				continue;
-
-			if (!NewProjectile.Projectiles[i].bFired)
-			{
-				bWaitingForProjectilesToFire = true;
-				continue;
-			}
-
-			if (NewProjectile.Projectiles[i].bWaitingToDie)
-				continue;
-
-			if (NewProjectile.Projectiles[i].ParticleEffectComponent != none)
-			{
-				NewProjectile.Projectiles[i].ParticleEffectComponent.OnSystemFinished = none;
-				NewProjectile.Projectiles[i].ParticleEffectComponent.DeactivateSystem( );
-				WorldInfo.MyEmitterPool.OnParticleSystemFinished(NewProjectile.Projectiles[i].ParticleEffectComponent);
-				NewProjectile.Projectiles[i].ParticleEffectComponent = none;
-			}
-
-			// But kill tracer or bullet distortion.
-			NewProjectile.EndProjectileInstance(i, 0);
-
-			bPatchedProjectile = true;
+		if (!NewProjectile.Projectiles[i].bFired)
+		{
+			bWaitingForProjectilesToFire = true;
+			continue;
 		}
-	}
-	else // This is the flying hand grenade projectile.
-	{
-		for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
-		{	
-			// Something in the logic bugs out, and the first use of the ability for the soldier has the grenade explosion happen not where it should.
-			// Hard set it to the correct vector.
-			NewProjectile.Projectiles[i].InitialTargetLocation = self.TargetLocation; 
 
-			if (!NewProjectile.Projectiles[i].bFired)
-			{
-				bWaitingForProjectilesToFire = true;
-				continue;
-			}
+		if (NewProjectile.Projectiles[i].bWaitingToDie)
+			continue;
 
-			if (NewProjectile.Projectiles[i].bWaitingToDie)
-				continue;
+		// Allow muzzle flash to play
+		if (InStr(NewProjectile.Projectiles[i].ProjectileElement.Comment, "Muzzle") != INDEX_NONE)
+			continue;
 
-			if (NewProjectile.Projectiles[i].TargetAttachActor != none)
-			{
-				// Hide the attached mesh, if any.
-				SkeletalMeshActor(NewProjectile.Projectiles[i].TargetAttachActor).SkeletalMeshComponent.SetHidden(true);
-				//NewProjectile.Projectiles[i].TargetAttachActor.Destroy();
-				
-				// Remove the playing particle effect, if any. It has the smoke trail and I'd love to leave it, but it also has a small spinny grenade launcher projectile for some reason.
-				// Yes, even thrown hand grenades have it. Yes, it's stupid.
-				NewProjectile.Projectiles[i].ParticleEffectComponent.OnSystemFinished = none;
-				NewProjectile.Projectiles[i].ParticleEffectComponent.DeactivateSystem( );
-				WorldInfo.MyEmitterPool.OnParticleSystemFinished(NewProjectile.Projectiles[i].ParticleEffectComponent);
-				NewProjectile.Projectiles[i].ParticleEffectComponent = none;
+		// Allow shell ejection to play
+		if (InStr(NewProjectile.Projectiles[i].ProjectileElement.Comment, "Shell") != INDEX_NONE)
+			continue;
 
-				// NewProjectile.EndProjectileInstance(i, 0);
-				bPatchedProjectile = true;
-			}
+		if (NewProjectile.Projectiles[i].ParticleEffectComponent != none)
+		{
+			NewProjectile.Projectiles[i].ParticleEffectComponent.OnSystemFinished = none;
+			NewProjectile.Projectiles[i].ParticleEffectComponent.DeactivateSystem( );
+			WorldInfo.MyEmitterPool.OnParticleSystemFinished(NewProjectile.Projectiles[i].ParticleEffectComponent);
+			NewProjectile.Projectiles[i].ParticleEffectComponent = none;
 		}
+
+		if (NewProjectile.Projectiles[i].TargetAttachActor != none)
+		{
+			// Hide the attached mesh, if any.
+			SkeletalMeshActor(NewProjectile.Projectiles[i].TargetAttachActor).SkeletalMeshComponent.SetHidden(true);
+		}
+
+		bPatchedProjectile = true;
 	}
 
 	//`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ `ShowVar(bWaitingForProjectilesToFire) @ `ShowVar(bPatchedProjectile),, 'IRITEST');

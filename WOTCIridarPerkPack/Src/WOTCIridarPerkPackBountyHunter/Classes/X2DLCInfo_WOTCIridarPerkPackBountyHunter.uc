@@ -103,6 +103,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_BurstFire_NumShots":
 	case "IRI_BH_Untraceable_CooldownReduction":
 	case "IRI_BH_HomingMine_Charges":
+	case "IRI_BH_RifleGrenade_RangeIncrase_Tiles":
 		OutString = BHColor(`GetConfigInt(InString));
 		return true;
 
@@ -112,6 +113,7 @@ static function bool AbilityTagExpandHandler_CH(string InString, out string OutS
 	case "IRI_BH_NightRounds_CritBonus":
 	case "IRI_BH_Headhunter_CritBonus":
 	case "IRI_BH_Nightmare_CritBonus":
+	case "IRI_BH_RifleGrenade_DamageBonusPercent":
 		OutString = BHColor(`GetConfigInt(InString) $ "%");
 		return true;
 

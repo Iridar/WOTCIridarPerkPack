@@ -234,6 +234,9 @@
     <Content Include="ReadMe_rus.txt">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\AWOTCIridarPerkPack\Classes\X2AbilityCost_Ammo_WeaponSlot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\AWOTCIridarPerkPack\Classes\X2AbilityTarget_IncreaseGrenadeRange.uc">
       <SubType>Content</SubType>
     </Content>

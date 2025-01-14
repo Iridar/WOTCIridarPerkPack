@@ -1,18 +1,27 @@
 class X2Effect_RifleGrenade extends X2Effect_Persistent;
 
-function float GetPreDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) 
+function float GetPostDefaultAttackingDamageModifier_CH(XComGameState_Effect EffectState, XComGameState_Unit SourceUnit, Damageable Target, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters, float CurrentDamage, X2Effect_ApplyWeaponDamage WeaponDamageEffect, XComGameState NewGameState) 
 { 
-	if (NewGameState != none) // So it doesn't affect damage preview
-	{
-		if (ApplyEffectParameters.AbilityInputContext.AbilityTemplateName == 'IRI_BH_RifleGrenade' &&
-			ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID == ApplyEffectParameters.TargetStateObjectRef.ObjectID)
-		{
-			return `GetConfigFloat("IRI_BH_RifleGrenade_DamageBonusPercent") * CurrentDamage; 
-		}
-	}
-	return 0.0f;
+	local XComGameState_BaseObject TargtObj;
+
+	if (NewGameState == none) // So it doesn't affect damage preview
+		return 0.0f;
+
+	if (ApplyEffectParameters.AbilityInputContext.AbilityTemplateName != 'IRI_BH_RifleGrenade')
+		return 0.0f;
+	
+	TargtObj = XComGameState_BaseObject(Target);
+	if (TargtObj == none)
+		return 0.0f;
+
+	// Boost damage against primary target only.
+	if (ApplyEffectParameters.AbilityInputContext.PrimaryTarget.ObjectID != TargtObj.ObjectID)
+		return 0.0f; 
+	
+	return `GetConfigFloat("IRI_BH_RifleGrenade_DamageBonusPercent") * CurrentDamage; 
 }
 
+/*
 function int GetExtraArmorPiercing(XComGameState_Effect EffectState, XComGameState_Unit Attacker, Damageable TargetDamageable, XComGameState_Ability AbilityState, const out EffectAppliedData ApplyEffectParameters) 
 {
 	if (ApplyEffectParameters.AbilityInputContext.AbilityTemplateName == 'IRI_BH_RifleGrenade' &&
@@ -21,7 +30,7 @@ function int GetExtraArmorPiercing(XComGameState_Effect EffectState, XComGameSta
 		return 999; 
 	}
 	return 0; 
-}
+}*/
 
 function RegisterForEvents(XComGameState_Effect EffectGameState)
 {
@@ -42,7 +51,7 @@ function RegisterForEvents(XComGameState_Effect EffectGameState)
 	EventMgr.RegisterForEvent(EffectObj, 'OverrideWeaponScale', OnOverrideWeaponScale, ELD_Immediate, 0, ,, EffectObj);	
 }
 
-static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackObject)
+static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Object EventSource, XComGameState GameState, Name EventID, Object CallbackData)
 {
     local XComUnitPawn			UnitPawn;
     local XComLWTuple			Tuple;
@@ -54,6 +63,14 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 	local XComWeapon			Weapon;
 	local SkeletalMeshComponent	SkelMeshComp;
 	local array<SkeletalMeshSocket>	NewSockets;
+	// local bool					bLeftHandSocketFound;
+	// local array<name>			BoneNames;
+	// local name					BoneName;
+	local XComGameState_Effect	EffectState;
+
+	EffectState = XComGameState_Effect(CallbackData);
+	if (EffectState == none)
+		return ELR_NoInterrupt;
 
     UnitPawn = XComUnitPawn(EventSource);
 	if (UnitPawn == none)
@@ -65,6 +82,9 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 
 	ItemState = XComGameState_Item(Tuple.Data[2].o);
 	if (ItemState == none)
+		return ELR_NoInterrupt;
+
+	if (EffectState.ApplyEffectParameters.TargetStateObjectRef.ObjectID != ItemState.OwnerStateObject.ObjectID)
 		return ELR_NoInterrupt;
 
 	if (ItemState.InventorySlot != eInvSlot_PrimaryWeapon)
@@ -90,6 +110,46 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 	{
 		fWeaponScale = UnitPawn.WeaponScale; // Uses default weapon scale for gender
 	}
+
+	// // Doesn't work, idk why.
+	// // Check existence of the left_hand socket which is needed for the animation.
+	// // MG Vektor apparently doesn't have one.
+	// // May as well catch all other weapons.
+	// foreach SkelMeshComp.Sockets(Socket)
+	// {
+	// 	if (Socket.SocketName == 'left_hand')
+	// 	{
+	// 		bLeftHandSocketFound = true;
+	// 		break;
+	// 	}
+	// }
+	// if (!bLeftHandSocketFound)
+	// {
+	// 	SkelMeshComp.GetBoneNames(BoneNames);
+	// 	foreach BoneNames(BoneName)
+	// 	{
+	// 		// Find the root bone.
+	// 		if (SkelMeshComp.GetParentBone(BoneName) == 'None')
+	// 		{
+	// 			NewSocket = new class'SkeletalMeshSocket';
+	// 			NewSocket.SocketName = 'left_hand';
+	// 			NewSocket.BoneName = BoneName;
+	// 
+	// 			NewSocket.RelativeLocation.X = 17.493999f;
+	// 			NewSocket.RelativeLocation.Y = -4.717000f;
+	// 			NewSocket.RelativeLocation.Z = -0.941000f;
+	// 
+	// 			NewSocket.RelativeRotation.Pitch = 2730;
+	// 			NewSocket.RelativeRotation.Yaw = 10012;
+	// 			NewSocket.RelativeRotation.Roll = -13289;
+	// 		
+	// 			NewSockets.AddItem(NewSocket);
+	// 
+	// 			`LOG("Adding left hand socket to bone:" @ BoneName,, 'IRITEST');
+	// 			break;
+	// 		}
+	// 	}
+	// }
 
 	foreach SkelMeshComp.Sockets(Socket)
 	{
@@ -183,7 +243,7 @@ static private function EventListenerReturn OnOverrideProjectileInstance(Object 
 		}
 	}
 
-	`LOG("Spawn projectile:" @ strPathName,, 'IRITEST');
+	//`LOG("Spawn projectile:" @ strPathName,, 'IRITEST');
 
 	return ELR_NoInterrupt;
 }

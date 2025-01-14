@@ -81,23 +81,46 @@ static private function SetCrossClass(out X2AbilityTemplate Template)
 
 
 /*
-Another Iridar-tier complicated ability. This is essentially a copy of LaunchGrenade, with the following changes:
+Based on Thunder Lance, but with significant changes.
 
-1. Instead of using a grenade launcher weapon, we're using a PerkContent with a PerkWeapon, 
-based on the Whiplash perk. The only difference from Whiplash weapon is that ours uses a custom Projectile,
-the X2UnifiedProjectile_ThunderLance, which has a delay on its main impact, accomplished via simple Timer.
+So we're using a Perk Weapon - which is an invisible vektor rifle - as a grenade launcher.
+The ability itself doesn't need to be attached to the vektor rifle,
+existing game's logic automatically pulls relevant stats from grenades.
 
-I haven't found the exact logic responsible for this, but it seems if an ability uses loaded ammo,
-the ammo's (grenade in this case) projectile is fired in addition to the weapon's projectile.
+The custom targeting method has a custom grenade path which updates the end of the path
+based on whether there's a unit on the targeted tile or not,
+and also marks the target with a crosshair icon to denote a "direct hit", which deals more damage.
 
-So what we'd normally have is the grapple projectile being fired first, and then then grenade projectile.
+Custom Fire Action has a lot of logic to override the behavior of the launched projectiles.
+It appears that when a grenade launching ability fires any volley in its animation,
+in addition to the launcher's projectile, the game also launches the projectile of the grenade weapon,
+and they fly in parallel.
 
-2. Custom Targeting Method, based on Rocket Launcher's, but with a custom XComPrecomputedPath_ThunderLance.
-The custom path just simulates the targeting line we normally get when grapple targeting.
+I don't need that projectile to be visible, so it is hidden via override logic in the fire action. 
+I still need the projectile to exist to produce the grenade explosion, so it is just hidden.
 
-Also includes mine/RM's rocket targeting improvements.
+Rifle Grenade also has a passive with a custom X2Effect with a bunch of event listeners.
 
-3. Custom Fire Action, which does a lot of complicated stuff, see that for more comments.
+There is also a second "fire weapon volley" notify in the animation which produces a cosmetic shot from the vektor rifle
+to add weapon's firing sound and muzzle flash to the rifle grenade launch.
+
+That notify *also* spawns the grenade projectile, the second one now. This one is not needed at all,
+so the event listener in the effect kills it before it can even spawn.
+
+Another listener in the effect is responsible for updating positions of sockets that are used by the animation to attach the rifle grenade's model
+as the soldier pulls it out and puts it on the rifle. Since different vektor rifles will have different barrel lengths,
+and soldiers of different genders will have weapons of different scales, and there are mods that can rescale weapons,
+the position of the sockets used in the animation must be dynamic, so the event listener updates their positions
+based on the position of the weapon's gun_fire socket.
+
+The ability also uses a custom X2UnifiedProjectile to override the grenade's trajectory so it doesn't bounce and rotates in flight the way I wanted.
+
+The custom animation is also super complicated, where the actual vector rifle is juggled between soldier's right and left hands
+as they put the grenade on the rifle's barrel, which is just a cosmetic spawned mesh that gets hidden at the moment of the shot.
+
+The actual vektor rifle plays its fire weapon animation (which doesn't work) and a cosmetic fire weapon volley, 
+but the real weapon used by the ability is the invisible perk weapon vektor rifle,
+which is also used for the left hand IK purposes.
 */
 static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 {
@@ -117,11 +140,15 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
 	Template.eAbilityIconBehaviorHUD = eAbilityIconBehavior_HideSpecificErrors;
 	Template.HideErrors.AddItem('AA_CannotAfford_AmmoCost');
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_RifleGrenade";
 	Template.ShotHUDPriority = class'UIUtilities_Tactical'.const.STANDARD_GRENADE_PRIORITY;
 	Template.bUseAmmoAsChargesForHUD = true;
 	Template.bDisplayInUITooltip = false;
 	Template.bDisplayInUITacticalText = false;
+
+	// TODO: Fix left hand in the animation.
+	// TODO: Check logs
+	// TODO: Check all persisten effects for (1, true)
 
 	// Targeting and Triggering
 	Template.TargetingMethod = class'X2TargetingMethod_RifleGrenade';
@@ -143,19 +170,21 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 	RadiusMultiTarget.bUseWeaponBlockingCoverFlag = true;
 	Template.AbilityMultiTargetStyle = RadiusMultiTarget;
 
-	// TODO: Fix bounces, make direct hits happen to target's body (carry over Thunder Lance fire action / targeting method)
-	// TODO: make launch anim
-
 	// Costs
 	AmmoCost = new class'X2AbilityCost_Ammo';	
 	AmmoCost.iAmmo = 1;
 	AmmoCost.UseLoadedAmmo = true;
-AmmoCost.bFreeCost = true; // TODO DEBUG ONLY
+	Template.AbilityCosts.AddItem(AmmoCost);
+
+	// So it costs Vektor Rifle ammo too.
+	AmmoCost = new class'X2AbilityCost_Ammo_WeaponSlot';	
+	AmmoCost.iAmmo = 1;
+	AmmoCost.UseLoadedAmmo = false;
+	X2AbilityCost_Ammo_WeaponSlot(AmmoCost).InvSlot = eInvSlot_PrimaryWeapon;
 	Template.AbilityCosts.AddItem(AmmoCost);
 	
 	ActionPointCost = new class'X2AbilityCost_ActionPoints';
 	ActionPointCost.iNumPoints = 1;
-ActionPointCost.bFreeCost = true; // TODO DEBUG ONLY
 	ActionPointCost.bConsumeAllPoints = true;
 	ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('Salvo');
 	//ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('TotalCombat');
@@ -190,12 +219,10 @@ ActionPointCost.bFreeCost = true; // TODO DEBUG ONLY
 
 	// Viz and State
 	Template.ActionFireClass = class'X2Action_Fire_RifleGrenade';
-	//Template.CustomFireAnim = 'HL_ThunderLance';
 	SetFireAnim(Template, 'FF_FireRifleGrenade');
 	Template.ActivationSpeech = 'ThrowGrenade';
 
 	Template.DamagePreviewFn = class'X2Ability_Grenades'.static.GrenadeDamagePreview;
-
 	Template.CinescriptCameraType = "Grenadier_GrenadeLauncher";
 
 	Template.bOverrideAim = true;
@@ -224,20 +251,36 @@ static private function RifleGrenade_ModifyActivatedAbilityContext(XComGameState
 	local TTile							TileLocation;
 	local vector						TargetLocation;
 	local array<StateObjectReference>	TargetsOnTile;
+	local array<Actor>					ActorsOnTile;
+	local array<TilePosPair>			TilePairs;
+	local TilePosPair					TilePair;
+	local array<XComDestructibleActor>	Destructibles;
 
-	World = `XWORLD;
-	
 	AbilityContext = XComGameStateContext_Ability(Context);
+	if (AbilityContext == none)
+		return;
 
 	TargetLocation = AbilityContext.InputContext.TargetLocations[0];
 
+	World = `XWORLD;
 	World.GetFloorTileForPosition(TargetLocation, TileLocation);
 
 	TargetsOnTile = World.GetUnitsOnTile(TileLocation);
-
 	if (TargetsOnTile.Length > 0)
 	{
 		AbilityContext.InputContext.PrimaryTarget = TargetsOnTile[0];
+	}
+	else
+	{
+		TilePair.Tile = TileLocation;
+		TilePair.WorldPos = TargetLocation;
+		TilePairs.AddItem(TilePair);
+
+		World.CollectDestructiblesInTiles(TilePairs, Destructibles);
+		if (Destructibles.Length > 0)
+		{
+			AbilityContext.InputContext.PrimaryTarget.ObjectID = Destructibles[0].ObjectID;
+		}
 	}
 }
 static private function X2AbilityTemplate IRI_BH_RifleGrenade_Passive()
@@ -249,15 +292,15 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade_Passive()
 
 	// Icon Setup
 	Template.AbilitySourceName = 'eAbilitySource_Perk';
-	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_ThunderLance";
+	Template.IconImage = "img:///IRIPerkPackUI.UIPerk_RifleGrenade";
 
 	SetPassive(Template);
 	SetHidden(Template);
 	Template.bUniqueSource = true;
 
 	Effect = new class'X2Effect_RifleGrenade';
-	Effect.BuildPersistentEffect(1, true);
-	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, false,, Template.AbilitySourceName);
+	Effect.BuildPersistentEffect(1, true, false);
+	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
 	return Template;
