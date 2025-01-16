@@ -547,13 +547,13 @@ private function SkeletalMesh GetProjectileSkeletalMesh()
 private function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const StateObjectReference ShooterRef, const StateObjectReference TargetRef)
 {
 	local XComGameStateHistory			History;
-	local XGUnit						GameUnit;
+	local X2VisualizerInterface			TargetableObject;
 
 	History = `XCOMHISTORY;
-	GameUnit = XGUnit(History.GetVisualizer(TargetRef.ObjectID));
-	if (GameUnit != none)
+	TargetableObject = X2VisualizerInterface(History.GetVisualizer(TargetRef.ObjectID));
+	if (TargetableObject != none)
 	{
-		VectorLocation = GameUnit.GetShootAtLocation(eHit_Success, ShooterRef);
+		VectorLocation = TargetableObject.GetShootAtLocation(eHit_Success, ShooterRef);
 	}
 }
 

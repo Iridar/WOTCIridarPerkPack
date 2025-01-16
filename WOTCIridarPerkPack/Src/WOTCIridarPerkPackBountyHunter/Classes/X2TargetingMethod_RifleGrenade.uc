@@ -110,30 +110,15 @@ simulated protected function Vector GetSplashRadiusCenter( bool SkipTileSnap = f
 
 private function MarkDirectImpactTarget(const vector VectorLocation)
 {
-	local XComWorldData					World;
-	local TTile							TileLocation;
-	local array<StateObjectReference>	TargetsOnTile;
-	local XGUnit						GameUnitOnTile;
-	local XComGameState_Unit			UnitOnTile;
+	local X2VisualizerInterface TargetableObject;
 
-	World = `XWORLD;
+	TargetableObject = GetTargetableObjectOnTile(VectorLocation);
 
-	TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
-	TargetsOnTile = World.GetUnitsOnTile(TileLocation);
-
-	if (TargetsOnTile.Length > 0)
+	if (TargetableObject != none)
 	{
-		UnitOnTile = GetLivingUnitFromHistory(TargetsOnTile);
-		if (UnitOnTile != none)
-		{
-			GameUnitOnTile = XGUnit(UnitOnTile.GetVisualizer());
-			if (GameUnitOnTile != none)
-			{
-				TacticalHUD.m_kTargetReticle.SetTarget(GameUnitOnTile);
-				TacticalHUD.m_kTargetReticle.SetMode(eUIReticle_Sword);
-				TacticalHUD.m_kTargetReticle.SetVisible(true);
-			}
-		}
+		TacticalHUD.m_kTargetReticle.SetTarget(TargetableObject);
+		TacticalHUD.m_kTargetReticle.SetMode(eUIReticle_Sword);
+		TacticalHUD.m_kTargetReticle.SetVisible(true);
 	}
 	else
 	{
@@ -142,52 +127,66 @@ private function MarkDirectImpactTarget(const vector VectorLocation)
 	}
 }
 
-static private function XComGameState_Unit GetLivingUnitFromHistory(array<StateObjectReference>	TargetsOnTile)
-{
-	local XComGameStateHistory	History;
-	local StateObjectReference	UnitRef;
-	local XComGameState_Unit	TileUnitState;
-
-	History = `XCOMHISTORY;
-	foreach TargetsOnTile(UnitRef)
-	{
-		TileUnitState = XComGameState_Unit(History.GetGameStateForObjectID(UnitRef.ObjectID));
-		if (TileUnitState == none)
-			continue;
-
-		if (TileUnitState.IsDead())
-			continue;
-
-		if (TileUnitState.GetMyTemplate().bIsCosmetic)
-			continue;
-
-		return TileUnitState;
-	}
-	return none;
-}
-
-static final function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const StateObjectReference ShooterRef)
+static private function X2VisualizerInterface GetTargetableObjectOnTile(const vector LocTargetLocation)
 {
 	local XComWorldData					World;
 	local TTile							TileLocation;
 	local array<StateObjectReference>	TargetsOnTile;
-	local XComGameStateHistory			History;
+	local StateObjectReference			TargetOnTile;
+	local array<TilePosPair>			TilePairs;
+	local TilePosPair					TilePair;
+	local array<XComDestructibleActor>	Destructibles;
 	local XGUnit						GameUnit;
+	local XComGameState_Unit			UnitStateOnTile;
+	local XComGameStateHistory			History;
 
+	History = `XCOMHISTORY;
 	World = `XWORLD;
-
-	TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
+	World.GetFloorTileForPosition(LocTargetLocation, TileLocation);
+	
 	TargetsOnTile = World.GetUnitsOnTile(TileLocation);
-
-	//	If there's a unit on the tile, or the tile contains a high cover object
 	if (TargetsOnTile.Length > 0)
 	{
-		History = `XCOMHISTORY;
-		GameUnit = XGUnit(History.GetVisualizer(TargetsOnTile[0].ObjectID));
-		if (GameUnit != none)
+		foreach TargetsOnTile(TargetOnTile)
 		{
-			VectorLocation = GameUnit.GetShootAtLocation(eHit_Success, ShooterRef);
+			UnitStateOnTile = XComGameState_Unit(History.GetGameStateForObjectID(TargetOnTile.ObjectID));
+			if (UnitStateOnTile == none ||
+				UnitStateOnTile.IsDead() || 
+				UnitStateOnTile.GetMyTemplate().bIsCosmetic)
+			{
+				continue;
+			}
+
+			GameUnit = XGUnit(UnitStateOnTile.GetVisualizer());
+			if (GameUnit != none)
+			{
+				return GameUnit;
+			}
 		}
+	}
+	else
+	{
+		TilePair.Tile = TileLocation;
+		TilePair.WorldPos = World.GetPositionFromTileCoordinates(TileLocation);
+		TilePairs.AddItem(TilePair);
+
+		World.CollectDestructiblesInTiles(TilePairs, Destructibles);
+		if (Destructibles.Length > 0)
+		{
+			return Destructibles[0];
+		}
+	}
+}
+
+
+static final function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const StateObjectReference ShooterRef)
+{
+	local X2VisualizerInterface TargetableObject;
+
+	TargetableObject = GetTargetableObjectOnTile(VectorLocation);
+	if (TargetableObject != none)
+	{
+		VectorLocation = TargetableObject.GetShootAtLocation(eHit_Success, ShooterRef);
 	}
 }
 

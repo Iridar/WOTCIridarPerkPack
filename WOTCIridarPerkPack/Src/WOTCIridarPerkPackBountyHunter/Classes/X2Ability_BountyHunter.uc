@@ -147,7 +147,6 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 	Template.bDisplayInUITacticalText = false;
 
 	// TODO: Fix left hand in the animation.
-	// TODO: Targeting method highlight destructibles and projectile hit them
 
 	// Targeting and Triggering
 	Template.TargetingMethod = class'X2TargetingMethod_RifleGrenade';
@@ -271,7 +270,7 @@ static private function RifleGrenade_ModifyActivatedAbilityContext(XComGameState
 	else
 	{
 		TilePair.Tile = TileLocation;
-		TilePair.WorldPos = TargetLocation;
+		TilePair.WorldPos = World.GetPositionFromTileCoordinates(TileLocation);
 		TilePairs.AddItem(TilePair);
 
 		World.CollectDestructiblesInTiles(TilePairs, Destructibles);
@@ -281,6 +280,7 @@ static private function RifleGrenade_ModifyActivatedAbilityContext(XComGameState
 		}
 	}
 }
+
 static private function X2AbilityTemplate IRI_BH_RifleGrenade_Passive()
 {
 	local X2AbilityTemplate Template;
