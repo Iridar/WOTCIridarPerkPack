@@ -199,7 +199,7 @@ function GetTargetLocations(out array<Vector> TargetLocations)
 
 	super.GetTargetLocations(TargetLocations);
 
-	`LOG("Target Location from Targeting Method:" @ TargetLocations[0],, 'IRITEST');
+	`AMLOG("Target Location from Targeting Method:" @ TargetLocations[0]);
 }
 
 

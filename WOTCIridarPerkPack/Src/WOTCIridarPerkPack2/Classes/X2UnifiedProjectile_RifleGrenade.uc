@@ -57,11 +57,11 @@ function FireProjectileInstance(int Index)
 	SetupAim( Index, AbilityState, AbilityTemplate, SourceLocation, AimLocation);
 
 
-	if (SourceAbility.IsResultContextMiss()) 
-	{
-		`LOG("Firing missed projectile at:" @ StoredInputContext.TargetLocations[0],, 'WOTCMoreSparkWeapons');
-		AimLocation = StoredInputContext.TargetLocations[0];
-	}
+	// if (SourceAbility.IsResultContextMiss()) 
+	// {
+	// 	`AMLOG("Firing missed projectile at:" @ StoredInputContext.TargetLocations[0]);
+	// 	AimLocation = StoredInputContext.TargetLocations[0];
+	// }
 
 	bProjectileFired = true;
 
@@ -546,31 +546,15 @@ private function SkeletalMesh GetProjectileSkeletalMesh()
 
 private function MaybeUpdateTargetForUnitOnTile(out vector VectorLocation, const StateObjectReference ShooterRef, const StateObjectReference TargetRef)
 {
-	//local XComWorldData					World;
-	//local TTile							TileLocation;
 	local XComGameStateHistory			History;
 	local XGUnit						GameUnit;
 
-	//World = `XWORLD;
-
-	//TileLocation = World.GetTileCoordinatesFromPosition(VectorLocation);
-
-	//`LOG("Original vector:" @ VectorLocation,, 'IRITEST');
-
-	//	If there's a unit on the tile, or the tile contains a high cover object
-
 	History = `XCOMHISTORY;
 	GameUnit = XGUnit(History.GetVisualizer(TargetRef.ObjectID));
-
-	//`LOG("Target unit:" @ XComGameState_Unit(History.GetGameStateForObjectID(TargetRef.ObjectID)).GetFullName(),, 'IRITEST');
-
 	if (GameUnit != none)
 	{
 		VectorLocation = GameUnit.GetShootAtLocation(eHit_Success, ShooterRef);
-
-		//`LOG("Adjusted vector:" @ VectorLocation,, 'IRITEST');
 	}
-	
 }
 
 // Was looking to remove the delay between projectile finishing the flight and exploding, but looks like the delay happens after the projectile hits according to this function.

@@ -2443,7 +2443,7 @@ static private function Intercept_MoveReturn_MergeVisualization(X2Action BuildTr
 
 	VisMgr.GetNodesOfType(VisualizationTree, class'X2Action_MarkerInterruptEnd', FindActions,, InterceptContext.InputContext.PrimaryTarget.ObjectID);
 
-	`LOG("Looking for Interrupt End Action with index closest to:" @ InterceptContext.DesiredVisualizationBlockIndex,, 'IRI_RIDER_VIZ');
+	`AMLOG("Looking for Interrupt End Action with index closest to:" @ InterceptContext.DesiredVisualizationBlockIndex);
 
 	InterruptEnd = FindActionWithClosestHistoryIndex(FindActions, InterceptContext.DesiredVisualizationBlockIndex);
 
@@ -2454,7 +2454,7 @@ static private function Intercept_MoveReturn_MergeVisualization(X2Action BuildTr
 	//	Fallback
 	if (InterruptEnd == none || EnterCover == none || MarkerStart == none || MarkerEnd == none)
 	{
-		`LOG("Intercept_MoveReturn_MergeVisualization: ERROR! Merge failed!" @ InterruptEnd == none @ EnterCover == none @ MarkerStart == none @ MarkerEnd == none,, 'IRI_RIDER_VIZ');
+		`AMLOG("Intercept_MoveReturn_MergeVisualization: ERROR! Merge failed!" @ InterruptEnd == none @ EnterCover == none @ MarkerStart == none @ MarkerEnd == none);
 		XComGameStateContext_Ability(BuildTree.StateChangeContext).SuperMergeIntoVisualizationTree(BuildTree, VisualizationTree);
 		return;
 	}
@@ -2463,7 +2463,7 @@ static private function Intercept_MoveReturn_MergeVisualization(X2Action BuildTr
 	VisMgr.ConnectAction(MarkerStart, VisualizationTree, false, EnterCover);
 	VisMgr.ConnectAction(InterruptEnd, VisualizationTree, false, MarkerEnd);
 
-	`LOG("Intercept_MoveReturn_MergeVisualization: Merge complete.", class'Help'.default.bLog, 'IRI_RIDER_VIZ');
+	`AMLOG("Intercept_MoveReturn_MergeVisualization: Merge complete.");
 }
 
 

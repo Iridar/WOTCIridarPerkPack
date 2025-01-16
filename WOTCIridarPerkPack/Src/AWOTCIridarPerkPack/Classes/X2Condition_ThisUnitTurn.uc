@@ -11,7 +11,7 @@ event name CallMeetsCondition(XComGameState_BaseObject kTarget)
 	if (UnitState == none)
 		return 'AA_NotAUnit';
 
-	`LOG("Current controlling player is:" @ `TACTICALRULES.GetCachedUnitActionPlayerRef().ObjectID,, 'IRITEST');
+	//`AMLOG("Current controlling player is:" @ `TACTICALRULES.GetCachedUnitActionPlayerRef().ObjectID);
 
 	if (bReverseCondition)
 	{

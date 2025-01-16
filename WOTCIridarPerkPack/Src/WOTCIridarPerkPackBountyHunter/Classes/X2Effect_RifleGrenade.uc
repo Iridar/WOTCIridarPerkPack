@@ -145,7 +145,6 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 	// 		
 	// 			NewSockets.AddItem(NewSocket);
 	// 
-	// 			`LOG("Adding left hand socket to bone:" @ BoneName,, 'IRITEST');
 	// 			break;
 	// 		}
 	// 	}
@@ -155,8 +154,6 @@ static function EventListenerReturn OnOverrideWeaponScale(Object EventData, Obje
 	{
 		if (Socket.SocketName == 'gun_fire')
 		{
-			//`LOG("Weapon" @ ItemState.GetMyTemplateName() @ "has socket:" @ Socket.SocketName @ Socket.BoneName @ Socket.RelativeLocation @ "Weapon Scale:" @ fWeaponScale,, 'IRITEST');
-
 			// Socket Left
 			NewSocket = new class'SkeletalMeshSocket';
 			NewSocket.SocketName = 'IRI_RifleGrenade_Left';
@@ -234,16 +231,12 @@ static private function EventListenerReturn OnOverrideProjectileInstance(Object 
 
 	foreach FireAction.ProjectileVolleys(UnifiedProjectile)
 	{
-		//`LOG("Projectile on the fire action:" @ PathName(UnifiedProjectile.ObjectArchetype) @ PathName(UnifiedProjectile.Outer),, 'IRITEST');
 		if (PathName(UnifiedProjectile.ObjectArchetype) == strPathName)
 		{
-			//`LOG("Match, not spawning this projectile",, 'IRITEST');
 			Tuple.Data[0].b = true;
 			return ELR_NoInterrupt;
 		}
 	}
-
-	//`LOG("Spawn projectile:" @ strPathName,, 'IRITEST');
 
 	return ELR_NoInterrupt;
 }

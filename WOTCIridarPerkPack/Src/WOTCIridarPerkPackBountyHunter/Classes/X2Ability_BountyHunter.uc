@@ -147,8 +147,7 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 	Template.bDisplayInUITacticalText = false;
 
 	// TODO: Fix left hand in the animation.
-	// TODO: Check logs
-	// TODO: Check all persisten effects for (1, true)
+	// TODO: Targeting method highlight destructibles and projectile hit them
 
 	// Targeting and Triggering
 	Template.TargetingMethod = class'X2TargetingMethod_RifleGrenade';
@@ -251,7 +250,6 @@ static private function RifleGrenade_ModifyActivatedAbilityContext(XComGameState
 	local TTile							TileLocation;
 	local vector						TargetLocation;
 	local array<StateObjectReference>	TargetsOnTile;
-	local array<Actor>					ActorsOnTile;
 	local array<TilePosPair>			TilePairs;
 	local TilePosPair					TilePair;
 	local array<XComDestructibleActor>	Destructibles;
@@ -470,7 +468,7 @@ static private function X2AbilityTemplate IRI_BH_NightWatch()
 
 	NightWatch = new class'X2Effect_ModifySquadsightPenalty';
 	NightWatch.iCritFlatModifier = -class'X2AbilityToHitCalc_StandardAim'.default.SQUADSIGHT_CRIT_MOD;
-	NightWatch.BuildPersistentEffect(1, true);
+	NightWatch.BuildPersistentEffect(1, true, false);
 	NightWatch.EffectName = 'IRI_BH_NightWatch_Effect';
 	NightWatch.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, false,,Template.AbilitySourceName);
 	Template.AddTargetEffect(NightWatch);
@@ -526,7 +524,7 @@ static private function X2AbilityTemplate IRI_BH_UnrelentingPressure()
 	SetPassive(Template);
 
 	ReduceCooldown = new class'X2Effect_BountyHunter_UnrelentingPressure';
-	ReduceCooldown.BuildPersistentEffect(1, true, true, true);
+	ReduceCooldown.BuildPersistentEffect(1, true, false, true);
 	ReduceCooldown.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(ReduceCooldown);
 	
@@ -549,7 +547,7 @@ static private function X2AbilityTemplate IRI_BH_BombRaider()
 	SetPassive(Template);
 
 	BiggestBoomsEffect = new class'X2Effect_BountyHunter_BombRaider';
-	BiggestBoomsEffect.BuildPersistentEffect(1, true, true, true);
+	BiggestBoomsEffect.BuildPersistentEffect(1, true, false, true);
 	BiggestBoomsEffect.BonusCritChanceWhenUnseen = `GetConfigInt('IRI_BH_Nightfall_CritChanceBonusWhenUnseen');
 	BiggestBoomsEffect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(BiggestBoomsEffect);
@@ -623,7 +621,7 @@ static private function X2AbilityTemplate IRI_BH_BurstFire_Passive()
 	BurstFireAimPenalty = new class'X2Effect_ModifySquadsightPenalty';
 	BurstFireAimPenalty.AbilityNames.AddItem('IRI_BH_BurstFire');
 	BurstFireAimPenalty.fAimModifier = `GetConfigFloat('IRI_BH_BurstFire_SquadSightPenaltyModifier');
-	BurstFireAimPenalty.BuildPersistentEffect(1, true);
+	BurstFireAimPenalty.BuildPersistentEffect(1, true, false);
 	BurstFireAimPenalty.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, false,,Template.AbilitySourceName);
 	BurstFireAimPenalty.EffectName = 'IRI_BH_BurstFire_SquadsightPenalty_Effect';
 	Template.AddTargetEffect(BurstFireAimPenalty);
@@ -706,7 +704,7 @@ static private function X2AbilityTemplate IRI_BH_DoublePayload()
 	BaseDamageBonus.AbilityName = 'IRI_BH_HomingMineDetonation';
 	BaseDamageBonus.DamageMod = `GetConfigFloat('IRI_BH_DoublePayload_BonusDamage');
 	BaseDamageBonus.bOnlyPrimaryTarget = true;
-	BaseDamageBonus.BuildPersistentEffect(1, true);
+	BaseDamageBonus.BuildPersistentEffect(1, true, false);
 	BaseDamageBonus.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, true,,Template.AbilitySourceName);
 	BaseDamageBonus.EffectName = 'IRI_BH_DoublePayload_BonusDamageEffect';
 	Template.AddTargetEffect(BaseDamageBonus);
@@ -733,11 +731,11 @@ static private function X2AbilityTemplate IRI_BH_ExplosiveAction()
 	SetPassive(Template);
 
 	ExplosiveAction = new class'X2Effect_BountyHunter_DramaticEntrance';
-	ExplosiveAction.BuildPersistentEffect(1, true);
+	ExplosiveAction.BuildPersistentEffect(1, true, false);
 	ExplosiveAction.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(ExplosiveAction);
 
-	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DarkNight_Passive');
+	//Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_DarkNight_Passive');
 	
 	return Template;
 }
@@ -748,7 +746,7 @@ static private function X2AbilityTemplate IRI_BH_DarkNight_Passive()
 
 	Template = PurePassive('IRI_BH_DarkNight_Passive', "img:///IRIPerkPackUI.UIPerk_DarkNight", false /*cross class*/, 'eAbilitySource_Perk', true /*display in UI*/);
 
-	Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_ExplosiveAction');
+	//Template.PrerequisiteAbilities.AddItem('NOT_IRI_BH_ExplosiveAction');
 	
 	return Template;
 }
@@ -1495,7 +1493,7 @@ static private function X2AbilityTemplate IRI_BH_Headhunter()
 
 	Headhunter = new class'X2Effect_BountyHunter_Headhunter';
 	Headhunter.iCritBonus = `GetConfigInt('IRI_BH_Headhunter_CritBonus');
-	Headhunter.BuildPersistentEffect(1, true);
+	Headhunter.BuildPersistentEffect(1, true, false);
 	Headhunter.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, true,,Template.AbilitySourceName);
 	Template.AddTargetEffect(Headhunter);
 
@@ -1588,7 +1586,7 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 		if (DetectionMod != 0)
 		{
 			StatChange = new class'X2Effect_PersistentStatChange';
-			StatChange.BuildPersistentEffect(1, true, true, false);
+			StatChange.BuildPersistentEffect(1, true, false, false);
 			StatChange.bRemoveWhenTargetConcealmentBroken = true;
 			StatChange.AddPersistentStatChange(eStat_DetectionModifier, DetectionMod);
 			Template.AddShooterEffect(StatChange);
@@ -1604,14 +1602,14 @@ static private function AddNightfallShooterEffects(out X2AbilityTemplate Templat
 
 	AnimEffect = new class'X2Effect_AdditionalAnimSets';
 	AnimEffect.DuplicateResponse = eDupe_Ignore;
-	AnimEffect.BuildPersistentEffect(1, true, true, false, eGameRule_PlayerTurnBegin);
+	AnimEffect.BuildPersistentEffect(1, true, false, false, eGameRule_PlayerTurnBegin);
 	//AnimEffect.bRemoveWhenTargetConcealmentBroken = true; // Removed by Nightfall effect.
 	AnimEffect.AddAnimSetWithPath("IRIBountyHunter.Anims.AS_ReaperShadow");
 	AnimEffect.EffectName = 'IRI_BH_Nightfall_Anim_Effect';
 	Template.AddShooterEffect(AnimEffect);
 	
 	GrantAmmo = new class'X2Effect_BountyHunter_GrantAmmo';
-	GrantAmmo.BuildPersistentEffect(1, true);
+	GrantAmmo.BuildPersistentEffect(1, true, false);
 	GrantAmmo.bRemoveWhenTargetConcealmentBroken = true;
 	GrantAmmo.SetDisplayInfo(ePerkBuff_Bonus, `GetLocalizedString("IRI_BH_Nightfall_EffectName"), `GetLocalizedString("IRI_BH_Nightfall_EffectDesc"), "img:///IRIPerkPackUI.UIPerk_FeelingLucky", true,,Template.AbilitySourceName);
 
@@ -1636,7 +1634,7 @@ static private function X2AbilityTemplate IRI_BH_Nightfall_Passive()
 	SetPassive(Template);
 
 	CritMagic = new class'X2Effect_BountyHunter_CritMagic';
-	CritMagic.BuildPersistentEffect(1, true);
+	CritMagic.BuildPersistentEffect(1, true, false);
 	CritMagic.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocHelpText, Template.IconImage, true,,Template.AbilitySourceName);
 	CritMagic.BonusCritChance = `GetConfigInt('IRI_BH_Nightfall_CritChanceBonusWhenUnseen');
 	CritMagic.GrantCritDamageForCritChanceOverflow = `GetConfigInt('IRI_BH_Nightfall_CritDamageBonusPerCritChanceOverflow');

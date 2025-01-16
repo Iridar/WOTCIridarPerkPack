@@ -8,21 +8,21 @@ simulated function float GetCursorRangeMeters(XComGameState_Ability AbilityState
 	local int RangeInTiles;
 	local float RangeInMeters;
 
-	`LOG("Running" @ AbilityState.GetMyTemplateName(),, 'IRITEST');
+	`AMLOG("Running" @ AbilityState.GetMyTemplateName());
 
 	if (bRestrictToWeaponRange)
 	{
 		SourceWeapon = AbilityState.GetSourceAmmo(); //AbilityState.GetSourceWeapon(); - use grenade range instead of weapon
 
-		`LOG("SourceWeapon" @ SourceWeapon.GetMyTemplateName(),, 'IRITEST');
+		`AMLOG("SourceWeapon" @ SourceWeapon.GetMyTemplateName());
 
 		if (SourceWeapon != none)
 		{
-			`LOG("Range" @ SourceWeapon.GetItemRange(AbilityState),, 'IRITEST');
+			`AMLOG("Range" @ SourceWeapon.GetItemRange(AbilityState));
 
 			RangeInTiles = SourceWeapon.GetItemRange(AbilityState) + IncreasedRangeTiles;
 
-			`LOG("Total range" @ RangeInTiles,, 'IRITEST');
+			`AMLOG("Total range" @ RangeInTiles);
 
 			if( RangeInTiles == 0 )
 			{
@@ -34,7 +34,7 @@ simulated function float GetCursorRangeMeters(XComGameState_Ability AbilityState
 				RangeInMeters = `UNITSTOMETERS(`TILESTOUNITS(RangeInTiles));
 			}
 
-			`LOG("Returning range in meters" @ RangeInMeters,, 'IRITEST');
+			`AMLOG("Returning range in meters" @ RangeInMeters);
 
 			return RangeInMeters;
 		}

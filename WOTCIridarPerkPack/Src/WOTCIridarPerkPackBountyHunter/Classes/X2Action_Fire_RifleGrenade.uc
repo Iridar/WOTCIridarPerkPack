@@ -29,13 +29,10 @@ function AddProjectileVolley(X2UnifiedProjectile NewProjectile)
 		return;
 
 	strPathName = PathName(NewProjectile.ObjectArchetype);
-	//`LOG("Fire Action adding projectile volley:" @ strPathName,, 'IRITEST');
 	if (strPathName == "" || strPathName ==  "IRIBountyHunter.Archetypes.PJ_RifleGrenade")
 		return;
 
 	PatchProjectileVolleys.AddItem(NewProjectile);
-
-	//`LOG("It's added, current length:" @ PatchProjectileVolleys.Length,, 'IRITEST');
 
 	if (!bHasSetTimer)
 	{
@@ -52,8 +49,6 @@ private function HideAttachedGrenadeMesh()
 	local X2UnifiedProjectile PatchProjectileVolley;
 	local bool bPatchedSomething;
 
-	//`LOG("Iterating over:" @ PatchProjectileVolleys.Length @ "projectile volleys",, 'IRITEST');
-
 	foreach PatchProjectileVolleys(PatchProjectileVolley)
 	{
 		if (HideAttachedMesh_AndKillPFX_ForProjectile(PatchProjectileVolley))
@@ -64,8 +59,6 @@ private function HideAttachedGrenadeMesh()
 
 	if (!bPatchedSomething)
 	{
-		//`LOG("Projectile patching done, clearing timer",, 'IRITEST');
-
 		self.ClearTimer(nameof(HideAttachedGrenadeMesh));
 	}
 }
@@ -82,9 +75,6 @@ private function bool HideAttachedMesh_AndKillPFX_ForProjectile(X2UnifiedProject
 	local bool bPatchedProjectile;
 	local int i;
 
-	//`LOG("Projectile element comment:" @ NewProjectile.Projectiles[i].ProjectileElement.Comment,, 'IRITEST');
-	//`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ PathName(NewProjectile.ObjectArchetype) @ "Context target location:" @ NewProjectile.AbilityContextTargetLocation @ "Num projectiles:" @ NewProjectile.Projectiles.Length @ "Has Projectile Element:" @ NewProjectile.Projectiles[0].ProjectileElement != none @ "Setup Volley:" @ NewProjectile.bSetupVolley,, 'IRITEST');
-	
 	for (i = NewProjectile.Projectiles.Length - 1; i >= 0; i--)
 	{	
 		NewProjectile.Projectiles[i].InitialTargetLocation = self.TargetLocation;
@@ -123,8 +113,6 @@ private function bool HideAttachedMesh_AndKillPFX_ForProjectile(X2UnifiedProject
 		bPatchedProjectile = true;
 	}
 
-	//`LOG("HideAttachedGrenadeMeshForProjectile running for projectile:" @ `ShowVar(bWaitingForProjectilesToFire) @ `ShowVar(bPatchedProjectile),, 'IRITEST');
-
 	return bWaitingForProjectilesToFire || !bPatchedProjectile;
 }
 
@@ -133,12 +121,8 @@ function CompleteAction()
 {
 	super.CompleteAction();
 
-	//`LOG("Action over",, 'IRITEST');
-
 	if (self.IsTimerActive(nameof(HideAttachedGrenadeMesh)))
 	{
-		//`LOG("Action over, clearing timer",, 'IRITEST');
-
 		// Clear time once the action completes just in case.
 		self.ClearTimer(nameof(HideAttachedGrenadeMesh));
 	}

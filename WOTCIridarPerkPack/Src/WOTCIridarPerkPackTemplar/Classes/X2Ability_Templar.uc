@@ -518,14 +518,14 @@ static function X2AbilityTemplate IRI_TM_GhostInit()
 	Template.AddTargetEffect(SetTemplarFocus);
 
 	SpectralStride = new class'X2Effect_SpectralStride';
-	SpectralStride.BuildPersistentEffect(1, true);
+	SpectralStride.BuildPersistentEffect(1, true, false);
 	SpectralStride.AddTraversalChange( eTraversal_Phasing, true );
 	SpectralStride.AddTraversalChange( eTraversal_JumpUp, true );
 	SpectralStride.bRemoveWhenTargetDies = true;
 	Template.AddTargetEffect(SpectralStride);
 
 	AnimEffect = new class'X2Effect_AdditionalAnimSets';
-	AnimEffect.BuildPersistentEffect(1, true);
+	AnimEffect.BuildPersistentEffect(1, true, false);
 	AnimEffect.AddAnimSetWithPath("IRISpectralStride.AS_SpectralStride_Target");
 	AnimEffect.bRemoveWhenTargetDies = true;
 	Template.AddTargetEffect(AnimEffect);
@@ -857,7 +857,7 @@ static function X2AbilityTemplate IRI_TM_ArcWave_Trigger()
 	Template.AbilityShooterConditions.AddItem(UnitEffects);
 
 	SurgeEffect = new class'X2Effect_Persistent';
-	SurgeEffect.BuildPersistentEffect(1, true);
+	SurgeEffect.BuildPersistentEffect(1, true, false);
 	SurgeEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, Template.GetMyHelpText(), Template.IconImage, true,, Template.AbilitySourceName);
 	SurgeEffect.EffectName = 'IRI_TM_Surge_Effect';
 	SurgeEffect.VisualizationFn = Surge_EffectVisualization;
@@ -1602,7 +1602,7 @@ static private function X2AbilityTemplate IRI_TM_Overdraw()
 	Template.bUniqueSource = true;
 
 	Effect = new class'X2Effect_Overcharge';
-	Effect.BuildPersistentEffect(1, true);
+	Effect.BuildPersistentEffect(1, true, false);
 	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 
@@ -2100,7 +2100,7 @@ static private function X2AbilityTemplate IRI_TM_Siphon()
 	// Effects
 	PersistentEffect = new class'X2Effect_Persistent';
 	PersistentEffect.EffectName = 'IRI_TM_Siphon_Buff_Effect';
-	PersistentEffect.BuildPersistentEffect(1, true);
+	PersistentEffect.BuildPersistentEffect(1, true, false);
 	PersistentEffect.bRemoveWhenSourceDies = true;
 	PersistentEffect.bRemoveWhenTargetDies = true;
 	PersistentEffect.SetDisplayInfo(ePerkBuff_Bonus, Template.LocFriendlyName, default.strSiphonEffectDesc, Template.IconImage, true,, Template.AbilitySourceName);
@@ -2362,7 +2362,7 @@ static private function X2AbilityTemplate IRI_TM_AstralGrasp_Spirit()
 	// AnimSet with the death animation
 	AnimSetEffect = new class'X2Effect_AdditionalAnimSets';
 	AnimSetEffect.AddAnimSetWithPath("IRIAstralGrasp.AS_PsiDeath");
-	AnimSetEffect.BuildPersistentEffect(1, true);
+	AnimSetEffect.BuildPersistentEffect(1, true, false);
 	AnimSetEffect.bRemoveWhenTargetDies = false;
 	AnimSetEffect.bRemoveWhenSourceDies = false;
 	Template.AddShooterEffect(AnimSetEffect);

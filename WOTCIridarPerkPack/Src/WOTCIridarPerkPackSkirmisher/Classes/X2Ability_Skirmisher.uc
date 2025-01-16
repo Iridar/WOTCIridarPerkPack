@@ -485,7 +485,7 @@ static private function X2AbilityTemplate IRI_SK_ThunderLance_Passive()
 	Template.bUniqueSource = true;
 
 	Effect = new class'X2Effect_ThunderLance';
-	Effect.BuildPersistentEffect(1, true);
+	Effect.BuildPersistentEffect(1, true, false);
 	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.LocLongDescription, Template.IconImage, true,, Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 

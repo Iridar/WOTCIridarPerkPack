@@ -129,7 +129,7 @@ static private function X2AbilityTemplate IRI_FM_IgnoreCoverDefense()
 
 	// Effects
 	Effect = new class'X2Effect_IgnoreCoverDefense';
-	Effect.BuildPersistentEffect(1, true);
+	Effect.BuildPersistentEffect(1, true, false);
 	Effect.SetDisplayInfo(ePerkBuff_Passive, Template.LocFriendlyName, Template.GetMyLongDescription(), Template.IconImage, false,,Template.AbilitySourceName);
 	Template.AddTargetEffect(Effect);
 	
