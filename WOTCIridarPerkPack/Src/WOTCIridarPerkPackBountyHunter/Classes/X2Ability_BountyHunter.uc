@@ -146,8 +146,6 @@ static private function X2AbilityTemplate IRI_BH_RifleGrenade()
 	Template.bDisplayInUITooltip = false;
 	Template.bDisplayInUITacticalText = false;
 
-	// TODO: Fix left hand in the animation.
-
 	// Targeting and Triggering
 	Template.TargetingMethod = class'X2TargetingMethod_RifleGrenade';
 
